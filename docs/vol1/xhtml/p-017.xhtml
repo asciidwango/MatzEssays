@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第9章 配列</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-016.xhtml">第9章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<section id="chap0911" class="level2">
+<a id="page_119"/>
+<h3>◆ 知られざるRuby ◆ ソート</h3>
+<hr class="hr-blue" />
+<p class="in">入門編で説明したように、ソートは配列の要素を順番に並べ替えることなのですが、これをどのような手順（アルゴリズム）で行うかというのはソフトウェアの世界では重要なテーマでもあります。今回はソートについて少々深く見てみることにしましょう。</p>
+<section id="chap091101" class="level3">
+<h4>アルゴリズムのいろいろ</h4>
+<p class="in">ソートのアルゴリズムは数々ありますが、ここでは代表的なものだけを紹介しておきます。</p>
+<section id="chap09110101" class="level4">
+<h5>バブルソート</h5>
+<p class="in">最も単純なソートアルゴリズムです（<a href="#list0901">リスト9.1</a>）。端から隣り合う要素を比較して左のほうが大きければ交換するという処理を繰り返します。1回配列の全要素に対して繰り返すたびに最も大きな要素が確定します。バブルソートは単純なのですが、比較回数が要素数の2乗に比例するので配列が大きくなると極端に遅くなります。</p>
+<div class="plistc" id="list0901">
+<p class="lst-caption">リスト9.1●バブルソート</p>
+<pre><span class="kwd">def</span> bsort(a)
+  len = a.size - 1
+  while len &gt; 0
+    i=0
+    <span class="kwd">while</span> i &lt; len
+      <span class="kwd">if</span> (a[i] &lt;=&gt; a[i+1]) &gt; 0       <span class="cmt"># 左が大きい</span>
+        a[i], a[i+1] = a[i+1], a[i]  <span class="cmt"># 要素交換</span>
+      <span class="kwd">end</span>
+      i += 1
+    <span class="kwd">end</span>
+    len -= 1
+  <span class="kwd">end</span>
+  a
+<span class="kwd">end</span>
+
+a = [5,2,3,1,4]
+p bsort(a)</pre>
+</div>
+<hr class="hr-gray" />
+</section>
+<section id="chap09110102" class="level4">
+<a id="page_120"/>
+<h5>クイックソート</h5>
+<p class="in">バブルソートは要素数が増えるとあまりにも性能が悪くなるので、よりマシなソートアルゴリズムが探し求められました。その代表的なものがクイックソートです。クイックソートはその名のとおりほぼ最速のアルゴリズムです。</p>
+<p class="in">クイックソートは要素の中から1つを選び、要素をその要素より大きいグループとそうでないグループに分割し、それぞれのグループに対して再帰的に分割を繰り返すことによってソートを行うアルゴリズムです。</p>
+<p class="in">ただ、クイックソートには弱点もあります。</p>
+<ul>
+<li><p><span class="k">要素が少ないときは逆に遅い</span><br />
+クイックソートはグループの分割や再帰などを含むため、要素が少ないときには優位性が出ない場合があります。</p></li>
+<li><p><span class="k">基準値の選び方で性能が変化する</span><br />
+クイックソートアルゴリズムではある要素を基準に配列をグループに分割するのですが、基準になる要素がちょうど平均的な値でグループが均等に分割されることが望ましいです。逆の場合には効率が下がってしまうことになります。</p></li>
+</ul>
+<p class="in">実際のソートルーチンでは、クイックソートを基本に他の手法を組み合わせてこの弱点を克服しようとしています。</p>
+<p class="in">Rubyの<code>sort</code>メソッドもこのクイックソートアルゴリズムを採用しています。</p>
+</section>
+</section>
+<section id="chap091102" class="level3">
+<h4>sortメソッド</h4>
+<p class="in">すでに説明したようにソートは<code>sort</code>メソッドを用いて行います。ここまでに紹介したアルゴリズムのことなど何も考えないでも、Rubyが適切にソートしてくれます。この辺がRubyらしい便利さです。</p>
+<p class="in">ただ、これだけでは思うようにいかない場合があります。たとえば以下のような点を考慮に入れる必要があります。</p>
+<div class="description">
+<p class="ditem">降順</p>
+<p class="dni"><code>sort</code>は配列要素を小さいものから大きいものへ並べますが（昇順と呼びます）、逆に大きいものから小さいものへ並べたい場合もあります。もちろん、ソート後逆順にするとか、配列の末尾からアクセスという手もありますが、直接降順にできればそれに越したことはありません。</p>
+<p class="ditem">比較条件</p>
+<p class="dni"><code>sort</code>は要素同士を <code>&lt;=&gt;</code> 演算子を使って比較しますが、<code>&lt;=&gt;</code> 演算子の提供する標準の比較方法とは違う方法で並べたい場合もあります。たとえば、大文字小文字を無視して文字列を比較したいとか、一部の属性だけで比較したいとかです。</p>
+</div>
+<p class="in">このような場合のために<code>sort</code>メソッドは比較する方法を指定することができます。<code>sort</code>メソッドにはブロックとして比較条件式を指定できます。こんな感じです。</p>
+<div class="plist">
+<pre>ary = [5,2,3,1,4]
+ary.sort{|a,b|b&lt;=&gt;a}  <span class="cmt"># [5,4,3,2,1]を返す</span></pre>
+</div>
+<a id="page_121"/>
+<p class="ni">これは<code>a</code>と<code>b</code>の2要素を <code>&lt;=&gt;</code> 演算子で比較していますが、<code>a</code>と<code>b</code>の順序を置き換えているため、結果は降順にソートされます。降順にソートするためには、この他にも、</p>
+<div class="plist">
+<pre>ary.sort.reverse      <span class="cmt"># [5,4,3,2,1]を返す</span></pre>
+</div>
+<p class="ni">という手もあります。実際にはほとんどのケースでこちらのほうが速いかもしれません。</p>
+<p class="in">ただ単に降順にするという単純なケースはともか、比較条件を自由に指定できるということはソートの自由度を高めます。たとえば、文字列を大文字小文字を無視して比較する場合には以下のようにできます。</p>
+<div class="plist">
+<pre>ary.sort{|a,b|a.upcase &lt;=&gt; b.upcase}</pre>
+</div>
+<p class="in">では、仮に以下のデータが1行ずつ配列に入っているとして、それを末尾の数字を基準にしてソートしたければどのようにするのがよいでしょうか。</p>
+<div class="borderconsole">
+<pre>eir      11   9   2    6    3    1     1  81%  63%    13
+oos      10   6   4    3    3    0     4  60%  70%    25
+hrh      10   6   4    5    1    2     2  60%  70%    15
+spp      10   6   4    3    3    1     3  60%  60%    14</pre>
+</div>
+<p class="in">ブロックを使って一番簡単に実現するには以下のようになります。</p>
+<div class="plist">
+<pre>ary.sort{|a,b|a.split[-1].to_i &lt;=&gt; b.split[-1].to_i}</pre>
+</div>
+<p class="in"><code>split</code>で分割し、末尾の数字を取り出し、整数化して比較しているわけです。結果はこんな感じです。</p>
+<div class="borderconsole">
+<pre>eir      11   9   2    6    3    1     1  81%  63%    13
+spp      10   6   4    3    3    1     3  60%  60%    14
+hrh      10   6   4    5    1    2     2  60%  70%    15
+oos      10   6   4    3    3    0     4  60%  70%    25</pre>
+</div>
+<p class="in">ただ、問題があります。<code>sort</code>のために比較が行われる回数はソートする要素数よりもずっと多くなるのです。<a href="#table0902">表9.2</a>はランダムな整数を含む配列のソートに必要な比較回数の測定結果を示しています。</p>
+<div class="table" id="table0902">
+<p class="tbl-caption">表9.2●配列のソートに必要な比較回数</p>
+<table class="tbl05">
+<tr>
+<th><span class="k">要素数</span></th>
+<th><span class="k">比較回数</span></th>
+</tr>
+<tr>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td>10</td>
+<td>22</td>
+</tr>
+<tr>
+<td>100</td>
+<td>531</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>9427</td>
+</tr>
+<tr>
+<td>10000</td>
+<td>129879</td>
+</tr>
+</table>
+</div>
+<a id="page_122"/>
+<p class="in">これだけの回数ブロックを評価することは性能上の問題になる可能性があります。たとえば、上で示した</p>
+<div class="plist">
+<pre>ary.sort{|a,b|a.split[-1].to_i &lt;=&gt; b.split[-1].to_i}</pre>
+</div>
+<p class="ni">の例では同じ文字列の分割や整数化を繰り返し繰り返し行うことになります。1万要素であれば分割と整数化がそれぞれ24万回以上も行われるわけです。これは無駄以外のなにものでもありません。このようなときに有効なテクニックがシュウォーツ変換（Schwarzian transform）です。シュウォーツ変換はこのテクニックを最初に考案した（のだと思う）Perl界の著名人Randal Schwarzにちなんで名付けられました。シュウォーツ変換は、ソートを行う前にまず比較するためのキーを計算しておきます。</p>
+<p class="in">具体的にはこのようになります。</p>
+<div class="plist">
+<pre>ary.map{|i|[i.split[-1].to_i,i]}.sort.map{|j|j[-1]}</pre>
+</div>
+<p class="in">順番に解説すると、</p>
+<div class="plist">
+<pre>ary.map{|i|[i.split[-1].to_i,i]}</pre>
+</div>
+<p class="ni">で要素を元に比較の対象となる値（<code>i.split[-1].to_i</code>）を計算し、要素そのものと一緒に配列に入れておきます。それを、</p>
+<div class="plist">
+<pre>.sort</pre>
+</div>
+<p class="ni">でソートし、</p>
+<div class="plist">
+<pre>.map{|j|j[-1]}</pre>
+</div>
+<p class="ni">で元の配列の要素だけ取り出し、ソート結果を得ます。比較値の計算は要素の回数分だけしか行われませんから、配列の要素数が大きいときには大きな差が出ます。</p>
+<p class="in">もっともシュウォーツ変換では余計な配列の生成を伴いますから、比較条件の計算が「軽い」処理であった場合にはかえって遅くなってしまう可能性もあります。</p>
+</section>
+<section id="chap091103" class="level3">
+<h4>sort<code>_</code>by</h4>
+<p class="in">上で説明したシュウォーツ変換はなかなか魅力的ですが、<code>map</code>を2度も呼ぶ必要があり、面倒でもあります。Ruby 1.7ではこれを簡単に行ってくれる<code>sort_by</code>メソッドが提供されています。</p>
+<div class="plist">
+<pre>ary.sort_by{|i|i.split[-1].to_i}</pre>
+</div>
+<p class="in">明示的にシュウォーツ変換を行った場合の</p>
+<div class="plist">
+<pre>ary.map{|i|[i.split[-1].to_i,i]}.sort.map{|j|j[-1]}</pre>
+</div>
+<p class="ni">に比べてずいぶん簡潔になっています。</p>
+</section>
+<section id="chap091104" class="level3">
+<h4>「安定」なソート</h4>
+<p class="in">ソートには安定（stable）なソートとそうでないソートがあります。ソートが安定であるとは、比較した結果同じであると判定された要素が複数あった場合、それらの要素が元に並んでいた順序が保存されることです。</p>
+<a id="page_123"/>
+<p class="in">Rubyのソートは安定ではありません。普通は同じ要素は区別がつかないはずなので、安定でないことが問題になることはあまりありませんが、たとえば大文字小文字を無視した比較を行った場合、</p>
+<div class="plist">
+<pre>ary.sort_by{|i|i.upcase}</pre>
+</div>
+<p class="ni">の結果の大文字小文字を区別した順序が予想できないというのはうれしくない場合もあります。</p>
+<div class="plist">
+<pre>ary = %w(foo Foo fOo FOo fOO FOO bar)
+ary.sort_by{|i|i.upcase}  <span class="cmt"># 結果のfooの並びは?</span>
+<span class="cmt"># =&gt; [&quot;bar&quot;, &quot;FOo&quot;, &quot;fOo&quot;, &quot;Foo&quot;, &quot;fOO&quot;, &quot;FOO&quot;, &quot;foo&quot;]</span></pre>
+</div>
+<p class="in">大文字小文字を無視して同じとみなされる文字列同士で元の順序が保存されるためには、比較するキーにインデックスを含めて比較する必要があります。</p>
+<div class="plist">
+<pre>n = 0
+ary.sort_by{|x|[x.upcase,n+=1]}</pre>
+</div>
+<p class="in">余談ですが、大文字小文字を無視して文字列が等しかった場合、そろえる前の文字列を第2キーとしてソートしたい場合には以下のように<code>sort_by</code>メソッドを使います。</p>
+<div class="plist">
+<pre>ary = %w(foo Foo fOo FOo fOO FOO bar)
+p ary.sort_by{|x|[x.upcase,x]}
+<span class="cmt"># =&gt; [&quot;bar&quot;, &quot;FOO&quot;, &quot;FOo&quot;, &quot;Foo&quot;, &quot;fOO&quot;, &quot;fOo&quot;, &quot;foo&quot;]</span></pre>
+</div>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-016.xhtml">&lt;&lt; 前ページ</a>　<a href="p-018.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

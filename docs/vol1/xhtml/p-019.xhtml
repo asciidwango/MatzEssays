@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第10章 ハッシュ（または連想配列）</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第10章</p>
+<!-- Body -->
+<section id="chap10" class="level1">
+<a id="page_127"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">10</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+ハッシュ（または連想配列）
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年3月号]</p>
+<div class="newlead">
+<p class="in">前半は<code>Hash</code>クラスについてです。Rubyでは、Perlでそう読んでいるのを継承してハッシュテーブルのクラスを<code>Hash</code>と名付けていますが、考えてみれば「ハッシュ関数を用いて高速アクセスを可能にしたテーブル」のことを「ハッシュ」と呼ぶのは本質的な部分が脱落しているという批判があります。Lua言語のようにテーブルと呼ぶべきだったかもしれません。しかし、自然言語の名付けでは「ケータイ」「スーパー」「コンビニ」のように本質的な部分が省略されるケースも多く、そんなに悪くないのではないかとも思っています。余談ですが、私の住む地方では「スーパーマーケット」のことを「マーケット」と呼ぶ年配の方々がいらっしゃいます。一種の方言かもしれません。</p>
+<p class="in"><code>Hash</code>クラスの本質的な部分はこの頃から変化していませんので、記事の内容は今でも有効です。ただ、要素の順序は不定となっていた部分は、このあと1.9から挿入順とする仕様になりました。この仕様はこのあとPythonなど他の言語にも受け継がれています。</p>
+<p class="in">後半はオープンソースな生活についてです。自分の書いた記事ではありますが、どうやって生活を維持していたのか書いていない点は不満ではありますね。</p>
+</div>
+<div class="lead">
+<p class="ni">子供の頃、四角は豆腐、豆腐は白い、などと言葉をつなげて遊びませんでしたか?　これは連想遊びですが、今月はその連想とも関係があるハッシュについて学びます。</p>
+</div>
+<section id="chap1001" class="level2">
+<h3>はじめに</h3>
+<hr class="hr-gray" />
+<p class="in">作者自らがRubyを解説するというこの連載も早くも5回目になります。「Ruby入門の連載を」と依頼されたときにはいったいどうなることかと思いましたが、とりあえずここまではなんとかなっているようです（自画自賛）。しかし、正直なところ進み方が遅いなという気もします。5回かけても、Rubyの全体像から考えるとほんのさわりの部分しか解説できていません。「知られざるRuby」とか「Ruby開発日記」などにページを割いてるからなんですが、それがないと面白くないし、考えようによってはゆっくりていねいに解説する連載にも価値があるのではないでしょうか（またしても自画自賛）。</p>
+</section>
+<section id="chap1002" class="level2">
+<a id="page_128"/>
+<h3>ハッシュとは</h3>
+<hr class="hr-gray" />
+<p class="in">で、今日の本題のハッシュです。ハッシュは連想配列（associative array）とか辞書（dictionary）とも呼ばれ、オブジェクトとオブジェクトの関係を表現します。たとえば、日本語と英語の曜日の名前の対応は、</p>
+<div class="plist">
+<pre>日曜 =&gt; Sunday
+月曜 =&gt; Monday
+火曜 =&gt; Tuesday
+水曜 =&gt; Wednesday
+木曜 =&gt; Thursday
+金曜 =&gt; Friday
+土曜 =&gt; Saturday</pre>
+</div>
+<p class="ni">になります。この関係を表現するのがハッシュです。</p>
+<p class="in">上記の関係はあえていえば和英辞書のようなものです。ハッシュが「辞書」と呼ばれるのはそういう理由です。また、「日曜」から連想されるのが「Sunday」であり、そういう連想関係を並べたものであるので「連想配列」と呼ばれます。その他にもこのようなデータ構造に対しては「ハッシュテーブル」「テーブル」「マッピング」などの呼び名があります。</p>
+<p class="in">ハッシュは単方向の関連を表現します。つまり上の関係は和英ではあり、英和ではないということです。日本語から英語を引くことはできますが、逆は基本的にできません。訳語の部分を1つ1つ調べていけば別ですが、紙の辞書ではそんなことやりたくはないですよね。辞書における見出し語に当たるものを「キー」、訳語に当たる部分を「値」と呼びます。</p>
+<p class="in">ハッシュが連想配列と呼ばれるのには、わけがあります。「連想関係を並べたもの」だということはすでに述べましたが、それ以外にも、配列を整数（オフセット）から値への対応であると考えると、配列は連想配列のキーを整数に制限したものであると解釈できます。事実、AWKという言語では配列と連想配列は同じもので、たまたま整数以外をインデックスにした場合のことを連想配列と呼んでいるだけです。ですから、Rubyでもハッシュはインデックスが整数でない配列だと考えることができます。</p>
+<p class="in">Rubyでも整数をキーに取るハッシュは配列によく似た振る舞いをしますし、要素を飛び飛びにしか使わない配列であれば、かえってハッシュのほうが効率がよい場合もあります。</p>
+<p class="in">RubyのハッシュとAWKの配列の大きな違いは、AWKの配列は数値以外には文字列しか取らないのに対して（AWKには数値以外のデータ型は文字列しかありません）、Rubyでは任意のオブジェクトをキーにすることができることです。ただし、中にはキーにするのには向かないタイプのオブジェクトもあります。どのようなオブジェクトがキーに向かないかについてはあとで説明しましょう。文字列に限定されないとはいえ、文字列はやはり最もキーに向いたオブジェクトです。Rubyではキーばかりでなく値にも任意のオブジェクトが使えます。</p>
+<p class="in">あ、そうそう。もう1つ重要なことがありました。インデックスの整数の順番に要素が並ぶと決まっている配列に対して、ハッシュは順序が決まっていません。ハッシュから要素を取り出す場合には、内部実装の都合で決まる予測が難しい順序で取り出されます。</p>
+<a id="page_129"/>
+<p class="in">では、なぜハッシュは「ハッシュ」と呼ばれるのでしょう。それはこの対応関係を表現するデータ構造がハッシュ法というアルゴリズムを用いて実装されているからです。ハッシュ法は巧妙なアルゴリズムで、キーから値を高速に検索します。ハッシュアルゴリズムについてはあとでもう少し詳しく解説します。</p>
+<p class="in">ハッシュは配列、文字列と並んでRubyの基本的なデータ構造の1つです。もっとも、自分で自由にデータ構造を定義できるRubyにとっては、あくまでも「標準で提供される使い勝手のよいクラス」の1つにすぎないわけですが。</p>
+</section>
+<section id="chap1003" class="level2">
+<h3>ハッシュの生成</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュを生成するにはハッシュ式を用います。ハッシュ式は、「<code>{</code>」と「<code>}</code>」の間に、キーと値を「<code>=&gt;</code>」でつなげたものをコンマで区切って並べます。</p>
+<div class="plist">
+<pre>{<span class="str">&quot;apple&quot;</span> =&gt; <span class="str">&quot;red&quot;</span>, <span class="str">&quot;banana&quot;</span> =&gt; <span class="str">&quot;yellow&quot;</span>}</pre>
+</div>
+<p class="in">また、<code>Hash[]</code>という形式でも生成できます。</p>
+<div class="plist">
+<pre>Hash[<span class="str">&quot;apple&quot;</span>, <span class="str">&quot;red&quot;</span>, <span class="str">&quot;banana&quot;</span>, <span class="str">&quot;yellow&quot;</span>]</pre>
+</div>
+<p class="in"><code>Hash[]</code>の場合には <code>=&gt;</code> を使わず、奇数番目の要素がキーになり、偶数番目の要素が値になります。</p>
+<p class="in">要素が1つも入っていないハッシュは中身のない <code>{}</code> または<code>Hash.new</code>によって生成できます。中身のないハッシュを何に使うかというと、もちろん将来キーと値の組み合わせを登録するためにあらかじめ用意しておくのです。</p>
+</section>
+<section id="chap1004" class="level2">
+<h3>メソッド一覧</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュがどのようなことができるかを示すためにハッシュオブジェクトの持つメソッド<a href="#table1001">表10.1</a>に示します。それぞれのメソッドの具体的な機能や使い方についてはマニュアルを参照してください。</p>
+<a id="page_130"/>
+<div class="table" id="table1001">
+<p class="tbl-caption">表10.1●ハッシュオブジェクトのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td>値の取得</td>
+<td><code>invert</code></td>
+<td>逆ハッシュ（値<code>=&gt;</code>キー）</td>
+</tr>
+<tr>
+<td><code>[]=</code></td>
+<td>値の設定</td>
+<td><code>key?</code></td>
+<td>キー存在チェック</td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td>ハッシュを空に</td>
+<td><code>keys</code></td>
+<td>キーの配列</td>
+</tr>
+<tr>
+<td><code>collect</code></td>
+<td>処理結果の収集</td>
+<td><code>length</code></td>
+<td>エントリ数</td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td>デフォルト値</td>
+<td><code>map</code></td>
+<td><code>collect</code>と同じ</td>
+</tr>
+<tr>
+<td><code>default=</code></td>
+<td>デフォルト値設定</td>
+<td><code>map!</code></td>
+<td><code>collect!</code>と同じ</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>エントリの削除</td>
+<td><code>member?</code></td>
+<td><code>include?</code>と同じ</td>
+</tr>
+<tr>
+<td><code>delete_if</code></td>
+<td>条件による削除</td>
+<td><code>rehash</code></td>
+<td>ハッシュ再計算</td>
+</tr>
+<tr>
+<td><code>detect</code></td>
+<td>エントリの検出</td>
+<td><code>reject</code></td>
+<td>条件による削除</td>
+</tr>
+<tr>
+<td><code>each</code></td>
+<td>繰り返し</td>
+<td><code>reject!</code></td>
+<td>条件による削除</td>
+</tr>
+<tr>
+<td><code>each_key</code></td>
+<td>キーについて繰り返し</td>
+<td><code>replace</code></td>
+<td>ハッシュ内容の置換</td>
+</tr>
+<tr>
+<td><code>each_pair</code></td>
+<td><code>each</code>の別名</td>
+<td><code>select</code></td>
+<td>条件に合う全エントリ検出</td>
+</tr>
+<tr>
+<td><code>each_value</code></td>
+<td>値について繰り返し</td>
+<td><code>shift</code></td>
+<td>1エントリを取り出す</td>
+</tr>
+<tr>
+<td><code>empty?</code></td>
+<td>空であるか</td>
+<td><code>size</code></td>
+<td>エントリ数</td>
+</tr>
+<tr>
+<td><code>fetch</code></td>
+<td>値の取得</td>
+<td><code>sort</code></td>
+<td>ソート</td>
+</tr>
+<tr>
+<td><code>find</code></td>
+<td><code>detect</code>と同じ</td>
+<td><code>store</code></td>
+<td>値の設定</td>
+</tr>
+<tr>
+<td><code>find_all</code></td>
+<td><code>select</code>と同じ</td>
+<td><code>update</code></td>
+<td>ハッシュの更新</td>
+</tr>
+<tr>
+<td><code>include?</code></td>
+<td><code>key?</code>と同じ</td>
+<td><code>value?</code></td>
+<td>値存在チェック</td>
+</tr>
+<tr>
+<td><code>indexes</code></td>
+<td>値（複数）の取得</td>
+<td><code>values</code></td>
+<td>値の配列</td>
+</tr>
+<tr>
+<td><code>indices</code></td>
+<td><code>indexes</code>と同じ</td>
+<td></td>
+<td></td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap1005" class="level2">
+<h3>アクセス</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュは本来キーから値への対応を表現するものですから、最も基本的な操作はキーを与えて値を得ることです。</p>
+<p class="in"><code>h</code>をハッシュオブジェクトが格納されている変数、<code>key</code>がキーであるとすると、</p>
+<div class="plist">
+<pre>h[key]</pre>
+</div>
+<p class="ni">とすることで、キーに対応する値を取り出すことができます。もし仮にキーに対応する値がなかった場合、普通は<code>nil</code>が返ります。この「存在しなかったときの値」のことをハッシュのデフォルト値と呼びます。このハッシュのデフォルト値は変更することができます。</p>
+<p class="in">キーが存在しなかったときの制御をもっと細かく行いたい人向けには、値取得用の<code>fetch</code>という別のメソッドがあります。<code>fetch</code>メソッドの一番基本的な呼び出し方は以下のようになります。</p>
+<div class="plist">
+<pre>h.fetch(key)</pre>
+</div>
+<p class="ni">この呼び出し方では<code>fetch</code>メソッドではキーに対応する値が存在しなかった場合にはエラーになります。とはいえ、いつもエラーでは面倒なので、<code>fetch</code>はそういう場合の値の計算方法を指定できます。</p>
+<div class="plist">
+<pre>h.fetch(key, default)</pre>
+</div>
+<p class="ni">この呼び出し方をすると、キーに対応する値がなかった場合には<code>default</code>の値を返します。もう1つの呼び出し方は、</p>
+<div class="plist">
+<pre>h.fetch(key) { expr }</pre>
+</div>
+<p class="ni">です。こちらはキーに対応する値がなかった場合に <code>{}</code> の中の式を計算します。引数に指定すると値があってもなくてもデフォルト値を計算する必要がありますが、ブロックを指定するこちらの呼び出し方では、キーが存在しないときに初めて計算されますから、コストのかかる計算や無駄なオブジェクトの割り当てを避けることができます。</p>
+</section>
+<section id="chap1006" class="level2">
+<a id="page_131"/>
+<h3>更新</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュは本物の辞書と違ってもっと柔軟です。ハッシュにはいつでも自由にキーと値を登録することができます。</p>
+<p class="in"><code>h</code>をハッシュオブジェクトが格納されている変数、<code>key</code>がキー、<code>val</code>が値であるとすると、</p>
+<div class="plist">
+<pre>h[key] = val</pre>
+</div>
+<p class="ni">とすることで、キーに対応する値を設定することができます。ですからこれ以降、</p>
+<div class="plist">
+<pre>h[key]</pre>
+</div>
+<p class="ni">とすれば<code>val</code>が得られるというわけです。<code>h[key]</code>に<code>fetch</code>があったように、<code>h[key]=val</code>にも対応するメソッドがあります。それは<code>store</code>です。</p>
+<div class="plist">
+<pre>h.store(key, val)</pre>
+</div>
+<p class="ni"><code>fetch</code>にはデフォルト値に関するいろいろなバリエーションがありましたが、<code>store</code>にはそんなものはありません。シンプルなものです。</p>
+<p class="in">追加ができるのですから、削除もできます。</p>
+<div class="plist">
+<pre>h.delete(key)</pre>
+</div>
+<p class="ni">で、キーと対応する値がハッシュから取り除かれます。</p>
+<p class="in">それから、ハッシュを丸ごと更新することができます。</p>
+<div class="plist">
+<pre>h.update(h2)</pre>
+</div>
+<p class="ni">とすると、別のハッシュ<code>h2</code>に含まれるキーと値の対応をハッシュに追加できます。もし、<code>h</code>と<code>h2</code>に同じキーが含まれていた場合には、<code>h2</code>の値のほうが優先になります。一方、</p>
+<div class="plist">
+<pre>h.replace(h2)</pre>
+</div>
+<p class="ni">では、ハッシュの現在のデータはすべて捨ててしまって、<code>h2</code>に含まれるキーと値の対応でハッシュの内容が置き換えられます。</p>
+</section>
+<section id="chap1007" class="level2">
+<h3>検査</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュそのものに関する情報を得る手段も用意されています。</p>
+<div class="plist">
+<pre>h.key?(key)</pre>
+</div>
+<p class="ni">ではハッシュがそのキーを含むときに真を返します（Rubyでは真か偽を判定するメソッドには <code>?</code> が付きます）。</p>
+<div class="plist">
+<pre>h.value?(value)</pre>
+</div>
+<a id="page_132"/>
+<p class="ni">はハッシュがその値を（1つでも）含むときに真を返します。</p>
+<div class="plist">
+<pre>h.empty?</pre>
+</div>
+<p class="ni">はハッシュが空っぽであるときに真を返します。それから、</p>
+<div class="plist">
+<pre>h.size</pre>
+</div>
+<p class="ni">はハッシュがいくつ連想対応を持っているかを返します。<code>size</code>には別名として<code>length</code>があります。</p>
+</section>
+<section id="chap1008" class="level2">
+<h3>エントリの処理</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュの各エントリに対して繰り返し処理を行う方法はいくつかあります。一番最初に思い付くのは全部のキーを含む配列を取り出して、それに対して繰り返すことでしょう。全部のキーを配列として取り出すメソッドは<code>keys</code>です。</p>
+<p class="in"><code>h</code>をハッシュオブジェクトが格納されている変数だとすると、</p>
+<div class="plist">
+<pre><span class="kwd">for</span> k <span class="kwd">in</span> h.keys
+  ....
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">で各キーごとに処理を行うことができます。すでに述べたようにハッシュは順序が予測できませんから、<code>keys</code>が返す配列の要素の順序もバラバラです。ちなみに全部の値を配列として取り出すのは<code>values</code>メソッドです。</p>
+<p class="in">しかし、この方法には少々問題があります。というのも、<code>keys</code>メソッドは内部でまず配列を作り、それにハッシュのキーを1つずつ追加していく処理を行うので、ハッシュのサイズが大きくなると、キーを含む配列も大きくなり無駄なコピーが生じるので、記憶容量の点からも実行速度の点からも不利になるのです</p>
+<p class="in">Rubyには無駄な配列を作らずにハッシュの各エントリに対して繰り返すことができます。それには以下のようにします。</p>
+<div class="plist">
+<pre>h.each {|k, v|
+  ...
+}</pre>
+</div>
+<p class="in">こうすると各エントリのキーと値がそれぞれ<code>k</code>と<code>v</code>という変数に代入されて、残りのブロックが実行されます。要素の取り出しなどの詳細は<code>each</code>メソッドの中で行われますので、使う側は何も気にする必要がありません。<code>each</code>メソッドでは内部的に配列を割り当てたりせず、ハッシュの内部構造から直接キーと値を取り出します。このような繰り返しを制御するメソッドをRubyでは「イテレータ」と呼びます。</p>
+<p class="in">ハッシュに対するイテレータは、<code>each</code>の他にも<code>each_pair</code>（単なる<code>each</code>の別名。<code>key</code>と<code>value</code>のペアを与えるから）、<code>each_key</code>（キーについて繰り返す）、<code>each_value</code>（値について繰り返す）があります。</p>
+<p class="in">たとえば、ハッシュの各エントリを出力するには、</p>
+<a id="page_133"/>
+<div class="plist">
+<pre>h.each {|k,v
+  printf <span class="str">&quot;%s =&gt; %s\n&quot;</span>, k, v
+}</pre>
+</div>
+<p class="ni">というふうに書けます。</p>
+</section>
+<section id="chap1009" class="level2">
+<h3>削除</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュからの削除には<code>delete</code>メソッドを使うと先ほど説明しました。これはくどくどと言い換えると「ハッシュの連想対応のうち、指定したキーと等しい」という条件に合致するものを削除することです。</p>
+<p class="in">しかし、削除したい条件がいつもこんなに簡単とは限りません。たとえば、「キーに対応する値の数値がある一定以下」という条件で削除するということだってありえます。つまり、一定の成績に満たない人を不合格とする入試の合格判定のような場合ですね</p>
+<p class="in">Rubyではこのような場合にも合致するようなメソッドが提供されています。</p>
+<div class="plist">
+<pre>h.delete_if{|k,v| ...}</pre>
+</div>
+<p class="ni">では各エントリに対して、<code>k</code>にキー、<code>v</code>に値が代入されてブロックが実行されて、その結果が真であれば、そのエントリが削除されます。<code>delete_if</code>には<code>reject!</code>という別名があります。元のハッシュをとっておきたい場合には、<code>reject</code>メソッドを使います。</p>
+<div class="plist">
+<pre>h.reject{|k,v| ...}</pre>
+</div>
+<p class="ni">は条件に合うエントリを取り除いた新しいハッシュを返しますが、元のハッシュは変更しません。</p>
+<p class="in">先ほどの入試判定の例を実際にプログラムにすると、ハッシュ<code>math</code>に数学のテストの成績が入っていて、合格ラインが仮に60点だとすると、</p>
+<div class="plist">
+<pre>math = {<span class="str">&quot;matz&quot;</span> =&gt; 50, <span class="str">&quot;shugo&quot;</span> =&gt; 80, <span class="str">&quot;gotoken&quot;</span> =&gt; 100}
+math.delete_if{|k,v| v &lt; 60}</pre>
+</div>
+<p class="ni">というプログラムの実行すれば、ハッシュ<code>math</code>は、</p>
+<div class="plist">
+<pre>{<span class="str">&quot;gotoken&quot;</span> =&gt; 100, <span class="str">&quot;shugo&quot;</span> =&gt; 80}</pre>
+</div>
+<p class="ni">になり、めでたく不合格者は取り除かれることになります……って、私が不合格になってますね（泣）。</p>
+<p class="in">Ruby以外の多くのプログラミング言語では、このような処理はここまで直感的ではありません。おそらくハッシュの各エントリに対してループを回して条件に合うものを削除する以下のような処理を行うことでしょう。</p>
+<div class="plist">
+<pre><span class="kwd">for</span> k <span class="kwd">in</span> math.keys
+  <span class="kwd">if</span> math[k] &lt; 60
+    math.delete(k)
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">もちろん、プログラムを読めばやってることは明らかなんですが、上記の<code>delete_if</code>を使ったものに比べると「やりたいこと」がイマイチ直接的に表現されていない気がしませんか?</p>
+<a id="page_134"/>
+<p class="in">この「やりたいことを明確に簡潔に表現できるメソッドがそろっている」という事実が、Rubyを使いやすい、あるいは気持ちがよい言語だと感じさせてくれる原因ではないかと思っています。このことは、また同時にこの連載がなかなか進まなかったり、本来は薄いはずの「デスクトップリファレンス」がこれ以上ないってくらい分厚くなってしまったりする原因でもあるのですが。</p>
+<p class="in">他にもエントリの削除に関係するメソッドがいくつかあります。</p>
+<p class="in"><code>clear</code>メソッドはハッシュのデータを全部捨てて空にします。<code>shift</code>メソッドはハッシュからエントリを1つだけ削除し、そのキーと値を2要素の配列として返します。どのエントリが取り出されるのか予測するのは困難ですから、あまり使う局面の思い付かないメソッドなんですが、1つずつ空になるまで取り出して繰り返すというようなときにでも使うのでしょうか。</p>
+</section>
+<section id="chap1010" class="level2">
+<h3>ハッシュの出力</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyはオブジェクトを適当に文字列化してから出力してくれます。これはハッシュに限らずすべてのオブジェクトが持つ<code>to_s</code>メソッドが担当しているのですが、ハッシュの<code>to_s</code>メソッドはあまり人間にとってうれしい形式とはいえません。</p>
+<div class="plist">
+<pre>h = {<span class="str">&quot;ayaka&quot;</span> =&gt; 9, <span class="str">&quot;ruka&quot;</span> =&gt; 7, <span class="str">&quot;takuto&quot;</span> =&gt; 4}
+puts h</pre>
+</div>
+<p class="ni">とした場合の出力は、</p>
+<div class="plist">
+<pre>ayaka9ruka7takuto4</pre>
+</div>
+<p class="ni">です。とても読みやすいとはいえません。人間向けの文字列化を行ってくれるのは<code>inspect</code>メソッドです。<code>inspect</code>メソッドは、人間が読んでそのデータの意味がわかりやすいような表現の文字列を返します。</p>
+<p class="in"><code>inspect</code>メソッドを使って出力してくれるのが<code>p</code>メソッドです。これは<code>inspect</code>の出力をそのまま<code>puts</code>と同様に出力するので、デバッグ時などに値を確認するのに役立ちます。</p>
+<div class="plist">
+<pre>h = {<span class="str">&quot;ayaka&quot;</span> =&gt; 9, <span class="str">&quot;ruka&quot;</span> =&gt; 7, <span class="str">&quot;takuto&quot;</span> =&gt; 4}
+p h</pre>
+</div>
+<p class="ni">の出力は、</p>
+<div class="plist">
+<pre>{<span class="str">&quot;ayaka&quot;</span>=&gt;9, <span class="str">&quot;ruka&quot;</span>=&gt;7, <span class="str">&quot;takuto&quot;</span>=&gt;4}</pre>
+</div>
+<p class="ni">です。ほら、こっちのほうがずっと人間向きでしょう?　<code>p</code>メソッドは今までこの連載で使ってきた<code>puts</code>とほぼ同じように、あらゆるオブジェクトに対して使えます。便利なので覚えておくとよいでしょう。</p>
+</section>
+<section id="chap1011" class="level2">
+<h3>ハッシュの反転</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュはキーから値への対応を表現するものです。では、値からキーを見つけるのはどうしたらよいでしょう。これにはいくつかの方法があります。</p>
+<a id="page_135"/>
+<p class="in">まず最初に考えられるのはループを使う方法です。ハッシュを<code>h</code>、対応するキーを探す値を<code>value</code>とすると、</p>
+<div class="plist">
+<pre>key = <span class="kwd">nil</span>  <span class="cmt"># あらかじめローカル変数を用意</span>
+h.each {|k,v|
+  <span class="kwd">if</span> v == value
+    key = k
+  <span class="kwd">end</span>
+}</pre>
+</div>
+<p class="ni">とすると、変数<code>key</code>に対応するキーが代入されます。</p>
+<p class="in">しかし、直接ループを使うのはちょっと格好悪い気がします。Rubyではこういう単純なループを必要とする場合には、たいてい何か別の方法があるものです。この場合にも確かにあります。それは<code>detect</code>を使う方法です。</p>
+<div class="plist">
+<pre>key, = h.detect{|k,v| v == value}</pre>
+</div>
+<p class="in"><code>detect</code>はキーと値のペアを返すので、多重代入でキーだけを変数<code>key</code>に取り出しています。多重代入の部分が多少トリッキーですが、ループを使うよりも簡潔ではないでしょうか。</p>
+<p class="in">これらは1回だけ値からキーを取り出すことを考えた方法ですが、逆の検索がたびたび発生するようならば、値からキーを得る逆方向のハッシュ、いわば逆ハッシュを作ったほうが効率がよい場合もありえます。そういう場合に逆ハッシュを求める<code>invert</code>メソッドがあります。</p>
+<div class="plist">
+<pre>h2 = h.invert
+h2[value]  <span class="cmt"># valueに対応するキーが得られる</span></pre>
+</div>
+<p class="ni">これが一番簡潔な気がします。</p>
+<p class="in">さて、値からキーを求める場合には、上記のいずれの方法を用いる場合にも、気を付けなければならないことがあります。それは「値に対応するキーは1つとは限らない」という点です。たとえば、名前からテストの点への対応を表現するハッシュでは、値（たとえば「100点」）から、名前を得ようとしても、100点を取った人が一人ではないために、対応する名前は1つではないかもしれません。</p>
+<p class="in">上記の方法ではいずれも一番最初に見つかったキーを返します。そしてハッシュでのエントリの登場順は予想困難ですから、1つの値が複数のキーに対応するケースでは、あまり使いものにならないでしょう。</p>
+<p class="in">そういう場合の対応方法もまたいくつもあるのですが、ここでは1つだけ紹介しておきましょう。上記の<code>detect</code>メソッドの仲間（先月紹介した「<code>-ect</code>兄弟の1つ」）である<code>select</code>を使う方法です。</p>
+<div class="plist">
+<pre>values = h.select{|k,v| v == value}</pre>
+</div>
+<p class="ni">これで、変数<code>values</code>には条件を満たすペアの配列が代入されます。つまり、</p>
+<div class="plist">
+<pre>math = {<span class="str">&quot;matz&quot;</span> =&gt; 0, <span class="str">&quot;shugo&quot;</span> =&gt; 100, <span class="str">&quot;gotoken&quot;</span> =&gt; 100}
+values = math.select{|k,v| v == 100}</pre>
+</div>
+<p class="ni">とすれば<code>values</code>には、</p>
+<div class="plist">
+<pre>[[<span class="str">&quot;gotoken&quot;</span>, 100], [<span class="str">&quot;shugo&quot;</span>, 100]]</pre>
+</div>
+<p class="ni">が代入されるというわけです。あとは必要な部分を切り出すだけですね。</p>
+<a id="page_136"/>
+<p class="in">たとえば名前だけを取り出すには以下のようにします。</p>
+<div class="plist">
+<pre>values.collect{|v| v[0]}</pre>
+</div>
+</section>
+<section id="chap1012" class="level2">
+<h3>ハッシュのソート</h3>
+<hr class="hr-gray" />
+<p class="in">さっきからしつこいくらい繰り返していますが、ハッシュのエントリが登場する順序は不定（というか、予想困難）です。しかし、現実にはある特定の順序で処理したい場合はたびたびあるわけです。そういう場合に用いられるテクニックは、キーの配列を取り出してソートしてから処理することです。</p>
+<div class="plist">
+<pre><span class="kwd">for</span> i <span class="kwd">in</span> h.keys.sort
+  <span class="cmt"># ソートされた順序でキーの処理</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">もちろん、このテクニックにはハッシュが巨大になったときに非効率であるという欠点があるのですが、順に処理することが必須である場合には避けられません（前号で説明した<code>sort!</code>を使うことでちょっとだけ効率が上げられます）。</p>
+<p class="in">ハッシュオブジェクトには<code>sort</code>メソッドがありますが、これは、</p>
+<ul>
+<li><p>まずハッシュを<code>[[key, value],[key,value]..]</code>という配列に変換し</p></li>
+<li><p>それからその配列をソートしてその結果を返す</p></li>
+</ul>
+<p class="ni">というものですから、実用性は低いかもしれません。</p>
+</section>
+<section id="chap1013" class="level2">
+<h3>ハッシュのデフォルト値</h3>
+<hr class="hr-gray" />
+<p class="in">ハッシュにはデフォルト値があると説明しました。このデフォルト値の使い方を説明しておきましょう。</p>
+<p class="in">デフォルト値の設定されたハッシュを作るためには<code>Hash.new</code>を使います。<code>Hash.new</code>に引数を指定するとその値がデフォルト値になるのです。</p>
+<div class="plist">
+<pre>h = Hash.new(0)
+h[<span class="str">&quot;foo&quot;</span>]        <span class="cmt"># 0が返る</span></pre>
+</div>
+<p class="ni">または、<code>default</code>属性でもデフォルト値を設定できます。</p>
+<div class="plist">
+<pre>h = {<span class="str">&quot;matz&quot;</span> =&gt; 50, <span class="str">&quot;shugo&quot;</span> =&gt; 80, <span class="str">&quot;gotoken&quot;</span> =&gt; 100}
+h.default = 0   <span class="cmt"># 存在しない場合は0</span>
+h[<span class="str">&quot;yukihiro&quot;</span>]   <span class="cmt"># =&gt; 0</span></pre>
+</div>
+<p class="in">ただ、ハッシュのデフォルト値には落とし穴があります。それはデフォルト値のオブジェクトはコピーされないというものです。たとえば以下のプログラムを見てみましょう。</p>
+<div class="plist">
+<pre>h = Hash.new([])
+h[<span class="str">&quot;foo&quot;</span>] = [<span class="str">&quot;foo&quot;</span>]
+names = [<span class="str">&quot;foo&quot;</span>, <span class="str">&quot;bar&quot;</span>, <span class="str">&quot;baz&quot;</span>]
+<span class="kwd">for</span> name <span class="kwd">in</span> names
+  ary = h[name]  <span class="cmt"># 配列を得る</span>
+  ary.push name  <span class="cmt"># 名前を追加</span>
+<span class="kwd">end</span>
+
+<span class="kwd">for</span> name <span class="kwd">in</span> names
+  p h[name]      <span class="cmt"># 配列を出力</span>
+<span class="kwd">end</span></pre>
+</div>
+<a id="page_137"/>
+<p class="ni">この結果は</p>
+<div class="plist">
+<pre>[<span class="str">&quot;foo&quot;</span>, <span class="str">&quot;foo&quot;</span>]
+[<span class="str">&quot;bar&quot;</span>, <span class="str">&quot;baz&quot;</span>]
+[<span class="str">&quot;bar&quot;</span>, <span class="str">&quot;baz&quot;</span>]</pre>
+</div>
+<p class="ni">になります。<code>"bar"</code>と<code>"baz"</code>が混ざってしまっています。つまり、<code>push</code>でデフォルト配列そのものを変更してしまったため、予想外の結果になったというわけです。</p>
+<p class="in">これを避けるためには<code>fetch</code>を使うのがよいでしょう。</p>
+<div class="plist">
+<pre>h = Hash.new            <span class="cmt"># デフォルト値なし</span>
+h[<span class="str">&quot;foo&quot;</span>] = [<span class="str">&quot;foo&quot;</span>]
+names = [<span class="str">&quot;foo&quot;</span>, <span class="str">&quot;bar&quot;</span>, <span class="str">&quot;baz&quot;</span>]
+<span class="kwd">for</span> name <span class="kwd">in</span> names
+  ary = h.fetch(name){  <span class="cmt"># 配列を得る</span>
+    h[name] = []        <span class="cmt"># 配列を設定しておく</span>
+  }
+  ary.push name         <span class="cmt"># 名前を追加</span>
+<span class="kwd">end</span>
+
+<span class="kwd">for</span> name <span class="kwd">in</span> names
+  p h[name]             <span class="cmt"># 配列を出力</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">こちらの結果は期待どおり、</p>
+<div class="plist">
+<pre>[<span class="str">&quot;foo&quot;</span>, <span class="str">&quot;foo&quot;</span>]
+[<span class="str">&quot;bar&quot;</span>]
+[<span class="str">&quot;baz&quot;</span>]</pre>
+</div>
+<p class="ni">になります。</p>
+</section>
+<section id="chap1014" class="level2">
+<a id="page_138"/>
+<h3>データ出現回数の計算</h3>
+<hr class="hr-gray" />
+<p class="in">たとえば配列があって、その要素それぞれの出現回数が知りたいとすると、以下のような方法が使えます。要素の出現回数を数える配列を<code>ary</code>だとすると、</p>
+<div class="plist">
+<pre>h = Hash.new(0)
+<span class="kwd">for</span> item <span class="kwd">in</span> ary
+  h[item] += 1
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">これでハッシュ<code>h</code>には要素からその登場回数への対応が設定されます。</p>
+<p class="in">Rubyの配布パッケージに含まれるサンプルプログラムのうち<code>occur.rb</code>は、ほぼ同じ処理を行っています。</p>
+</section>
+<section id="chap1015" class="level2">
+<h3>環境変数</h3>
+<hr class="hr-gray" />
+<p class="in">Linuxを含むUNIXには環境変数というものがあって（いや、Windowsにもあるんですけど）、Rubyからは<code>ENV</code>という定数に格納されたハッシュとしてアクセスできます。</p>
+<div class="plist">
+<pre>ENV[<span class="str">&quot;USER&quot;</span>]   <span class="cmt"># ユーザー名(たとえば&quot;matz&quot;)</span>
+ENV[<span class="str">&quot;PATH&quot;</span>]   <span class="cmt"># コマンドパス</span>
+
+ENV.each{|k,v|
+  print k, <span class="str">&quot;=&quot;</span>, v, <span class="str">&quot;\n&quot;</span>
+}</pre>
+</div>
+<p class="in">厳密には<code>ENV</code>はハッシュオブジェクトではなくて、ハッシュそっくりに振る舞うように用意されたオブジェクトなのですが（なんと<code>ENV</code>のクラスは<code>Object</code>です）、ほんのわずか違いがあって、<code>ENV</code>ではキーも値も文字列のみという制限があります。</p>
+</section>
+<section id="chap1016" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">実は、今月の記事を書くためにちょっと調べてみたのですが、ハッシュについての解説は意外と少ないようです。どの本もせいぜい2, 3ページくらいしか割いていません。もしかすると、今回の解説は貴重かもしれません。この解説が皆さんがよりハッシュを理解する一助になれば幸いです。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-018.xhtml">&lt;&lt; 前ページ</a>　<a href="p-020.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第17章 CGIの道具箱</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第17章</p>
+<!-- Body -->
+<section id="chap17" class="level1">
+<a id="page_247"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">17</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+CGIの道具箱
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年10月号]</p>
+<div class="newlead">
+<p class="in">CGIアプリケーションを作るときに便利なツールを紹介しています。もっとも、これらのうち、現在でも活用されているのは<code>eruby</code>だけですね。<code>eruby</code>はRailsなどでもViewの実装に使われています。時代を超えたツールですね。</p>
+<p class="ih">「Ruby開発日記」は、「時代はLispに追いついたか」というテーマで話しています。Lispというのはすばらしい特質を多く持った言語ですし、私も大変大きく影響を受けました。が、どうにも人気がありません。本文中では「10年経ったら、世の中がLispを受け入れるかどうかわかる」というようなことを書いていますが、実際20年経ってもLispが当たり前の世界は来ていません。ただ、JavaScriptやRuby, PythonなどLispの特徴を一部受け継いだ言語はだいぶ一般的になりました。また、ClojureというLispベースの言語が登場したのは、以前よりもずっとLisp的な世の中が来ている証拠と言えるかもしれません。いや、やっぱり、そこまでは言えないかな。</p>
+</div>
+<div class="lead">
+<p class="ni">今月はCGI開発の不満を解消する便利なツールをいくつか紹介しようと思います。</p>
+</div>
+<section id="chap1701" class="level2">
+<h3>告白</h3>
+<hr class="hr-gray" />
+<p class="in">白状しますが、私は普段ほとんどCGIプログラミングをしません。ですから、CGIについてはエキスパートどころかほとんど素人の隣といったレベルです。そういう人がCGIの解説記事を書いている時点ですでに問題ありのような気がしないでもないのですが、CGIはRubyを活用したい最も「ホット」な分野でしょうから解説しないわけにもいきません。もし間違いを見つけたらこっそり教えてくださいね。</p>
+<p class="in">今月はCGIプログラミングに便利な以下のツールを紹介します。</p>
+<ul>
+<li><p><code>cgi/session.rb</code></p></li>
+<li><a id="page_248"/><p><code>mod_ruby</code></p></li>
+<li><p><code>eRuby</code></p></li>
+</ul>
+</section>
+<section id="chap1703" class="level2">
+<h3>cgi/session.rb</h3>
+<hr class="hr-gray" />
+<p class="in">HTTPプロトコルをベースにしたWebアプリケーションを開発するときに問題となる点は大きく分けると2つあります。それは、</p>
+<ul>
+<li><p>HTMLの表現力の限界</p></li>
+<li><p>HTTPのステートレス性</p></li>
+</ul>
+<p class="ni">です。前者はHTMLではインターフェイス部品が<code>form</code>タグのバリエーションしかないため、ちょっと気の利いたGUI的部品を使うことができないという問題です。これを解決するために古くはJava Applet, 最近はMacromedia Flashなどが活用されています。これらも面白い話題ではあるのですが、本連載の範囲を超えますので扱わないことにします。</p>
+<p class="in">で、後者の問題ですが、「ステートレス性」とはつまり「HTTPのやりとりには状態がない」という意味です。HTTPのやりとりの基本は、リクエストとそれに対するレスポンスという形になるのですが、HTTPにはこのリクエストはこのレスポンスの続きといった情報がありません。つまり、一連のやりとり（セッションといいます）に固有の状態を持たないわけです。</p>
+<p class="in">状態がないと何がまずいかというと、Webアプリケーションを構成する各ページ間での情報の共有が困難ということです。たとえば、オンラインショッピングのアプリケーションを作ったときに、ユーザーがどんな商品をいくつ注文したかという「状態」を覚えておかなければ、最後に注文を確認して精算することはできません。</p>
+<p class="in">そこでなんとかして状態を維持してセッションを実現する必要があります。HTTPを使ったやりとりでセッションを実現する方法は大きく分けると、<code>hidden</code>フィールドを使ったものとクッキーを使ったものがあります。</p>
+<p class="in"><code>hidden</code>フィールドとは<code>form</code>タグの一種で画面には表示されず、よってユーザーが入力したり修正したりすることもない<code>form</code>タグのことです。<code>hidden</code>フィールドは<code>submit</code>ボタンが押されると他のフィールドと同様にリクエストの一部としてサーバーに送られます。この<code>hidden</code>フィールドにあらかじめ状態を格納することで、セッションを実現することができます。</p>
+<p class="in">一方、クッキーとはレスポンスに付加してブラウザに覚えさせておくことのできる情報です。クッキーに含まれる情報は、</p>
+<ul>
+<li><p>有効期限（日付と時刻）</p></li>
+<li><p>有効範囲（ドメイン）</p></li>
+<li><p>名前（文字列）</p></li>
+<li><p>値（文字列）</p></li>
+</ul>
+<p class="ni">です。</p>
+<p class="in">クッキー付きレスポンスを受けたブラウザはクッキーによって指定された範囲のURLに対してリクエストを送るとき、自動的にクッキーを付けて送ります。それによってサーバーは「ああ、このリクエストは以前のレスポンスに対する返答なんだな」ということを認識し、セッションを実現することができます。なお、クッキーに対応していないブラウザがあることには注意する必要があります。</p>
+<p class="in">しかし、セッションの維持のようなWebアプリケーションにほとんど必須の機能を実現するためにクッキーやら<code>hidden</code>フィールドのような詳細まで立ち入りたくありません。このようなセッション処理は自動化できないものでしょうか。答えはもちろん「できます」です。そのためのライブラリがRubyに標準添付されているライブラリ<code>cgi/session.rb</code>です。<code>cgi/session.rb</code>は上記の<code>hidden</code>フィールドとクッキーの両方を試して、いずれかの方法でセッションを実現してくれます。</p>
+<p class="in">セッションを開始するためにはCGIオブジェクトを引数にして、<code>CGI::Session.new</code>を呼び出します。そのリクエストが以前開始されたセッションに所属している場合には、そのセッションに対応したセッションオブジェクトを返します。またリクエストがいずれにセッションにも所属していな場合には、新たにセッションを開始し、そのセッションに対応するセッションオブジェクトを返します。</p>
+<p class="in"><code>CGI::Session.new</code>にはCGIオブジェクトの他に<code>Session</code>の設定を行うオプションがハッシュの形で設定できます（<a href="#table1701">表17.1</a>）。こんな感じですね。</p>
+<a id="page_249"/>
+<div class="plist">
+<pre>session = CGI::Session.new(cgi, <span class="str">&quot;tmpdir&quot;</span>=<span class="str">&gt;&quot;/var/tmp&quot;</span>)</pre>
+</div>
+<p class="in">これによって、セッションのキーとして使う名前を指定したり、実際にデータを読み書きするバックエンドのクラスを指定したりできます。バックエンドにはデフォルトではファイルに対して読み書きを行う<code>CGI::Session::FileStore</code>クラスが用いられます。</p>
+<div class="table" id="table1701">
+<p class="tbl-caption">表17.1●CGI::Session.new のオプション</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">オプション</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>session_key</code></td>
+<td>セッション（<code>_session_key</code>）</td>
+</tr>
+<tr>
+<td><code>session_id</code></td>
+<td>セッションID（自動生成）</td>
+</tr>
+<tr>
+<td><code>new_session</code></td>
+<td>新規セッション（<code>false</code>）</td>
+</tr>
+<tr>
+<td><code>database_manager</code></td>
+<td>バックエンドクラス（<code>CGI::Session::FileStore</code>）</td>
+</tr>
+<tr>
+<td><code>session_path</code></td>
+<td>クッキーのpath（無指定）</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>CGI::Session</code>自身が解釈しなかったオプションは、そのままバックエンドに渡されます。デフォルトである<code>CGI::Session::FileStore</code>クラスは<a href="#table1702">表17.2</a>に示すオプションを受け付けます。</p>
+<div class="table" id="table1702">
+<p class="tbl-caption">表17.2●CGI::Session.FileStoreのオプション</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">オプション</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>tmpdir</code></td>
+<td>ファイルを置くディレクトリ（<code>/tmp</code>）</td>
+</tr>
+<tr>
+<td><code>prefix</code></td>
+<td>ファイルのプレフィックス（なし）</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>session</code>というセッションオブジェクトが存在するとき、</p>
+<div class="plist">
+<pre>session[名前]</pre>
+</div>
+<p class="ni">という形式で情報を取り出すことができます。事前にその名前で情報が保存されていない場合には<code>nil</code>が返ります。情報の設定は、</p>
+<a id="page_250"/>
+<div class="plist">
+<pre>session[名前] = 値</pre>
+</div>
+<p class="ni">になります。「名前」も「値」も文字列を指定する必要があります。</p>
+<p class="in">セッションに関するアクセスを完了した場合には、</p>
+<div class="plist">
+<pre>session.close</pre>
+</div>
+<p class="ni">を実行します。<code>session.close</code>は（実際にデータを処理するバックエンドによって異なりますが）、データの書き込みなどを行います。ほとんどの場合には<code>session.close</code>を行わなくても、ガベージコレクタが後片付けをしてくれます。</p>
+<p class="in">もうセッションは完了した、このセッションに属する情報は使わないというときには、</p>
+<div class="plist">
+<pre>session.delete</pre>
+</div>
+<p class="ni">を実行します。<code>session.delete</code>はこのセッションに属する情報を完全に消去してしまいますので、その情報を取り戻すことはできません。</p>
+<p class="in"><code>cgi/session.rb</code>の使い方の例を<a href="#list1701">リスト7.1</a>に示します。</p>
+<div class="plistc" id="list1701">
+<p class="lst-caption">リスト17.1●cgi/session.rbの使用例</p>
+<pre><span class="cmt">#! /usr/bin/ruby</span>
+
+require <span class="str">&#39;cgi/session&#39;</span>
+
+cgi = CGI.new(<span class="str">&quot;html4Tr&quot;</span>)         <span class="cmt"># CGIオブジェクトを生成</span>
+session = CGI::Session.new(cgi)  <span class="cmt"># セッションオブジェクトを生成</span>
+<span class="kwd">if</span> session[<span class="str">&#39;counter&#39;</span>]            <span class="cmt"># counterという情報を取得</span>
+  counter = Integer(session[<span class="str">&#39;counter&#39;</span>])
+<span class="kwd">else</span>
+  counter = 1
+<span class="kwd">end</span>
+
+<span class="cmt"># HTMLを出力</span>
+cgi.out(<span class="str">&quot;charset&quot;</span>=&gt;<span class="str">&quot;euc-jp&quot;</span>) {
+  cgi.html {cgi.head{cgi.title{<span class="str">&quot;cgi/session example&quot;</span>}} +
+      cgi.body{cgi.h1{<span class="str">&quot;cgi/session example&quot;</span>}+
+        cgi.p{<span class="kwd">if</span> counter == 1 <span class="kwd">then</span>
+          <span class="str">&quot;最初のアクセスです&quot;</span>
+        <span class="kwd">else</span>
+          sprintf <span class="str">&quot;%d回目のアクセスです&quot;</span>, counter
+        <span class="kwd">end</span>
+      } + cgi.form(<span class="str">&#39;action&#39;</span>=&gt;File::basename(cgi.script_name)) {
+        cgi.submit
+      }
+    }
+  }
+}
+session[<span class="str">&#39;counter&#39;</span>] = counter + 1 <span class="cmt"># 情報をセッションに保存</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_251"/>
+<p class="in"><a href="#list1701">リスト17.1</a>のプログラムはセッションに<code>counter</code>という名前の情報を保存します。このCGIを以前に起動したことのないブラウザからこのCGIを起動すると「最初のアクセスです」と表示します。以後、<code>submit</code>ボタンを押すか、URLを指定して直接アクセスすると、アクセスした回数を「◯回目のアクセス」というように表示します。</p>
+<p class="in"><code>cgi/session.rb</code>はデフォルトではセッションの情報を<code>/tmp</code>のファイルに保存します。明示的にセッションを<code>delete</code>メソッドで削除しない限りこのファイルは残ってしまいます。実運用時にはセッション情報ファイルの定期的な掃除が必要になるでしょう。あるいはファイルではなく、データベースなどに情報を格納するバックエンドを利用する方法もあります。具体的には『Rubyアプリケーションプログラム』（オーム社、ISBN4–274–06461–1）などに詳しい使い方が解説されています。この本ではPostgreSQLを使ったバックエンドの作り方も解説されています。</p>
+<p class="in"><code>cgi/session.rb</code>は（CGI関連のプログラムにしては珍しく）私が作ったものです。</p>
+</section>
+<section id="chap1704" class="level2">
+<h3>mod<code>_</code>ruby</h3>
+<hr class="hr-gray" />
+<p class="in">前々回にも説明しましたが、HTTPサーバーから見てCGIの実行は以下の手順で行われます。</p>
+<ol class="list_parentheses">
+<li>HTTPリクエストを受け付ける</li>
+<li>リクエストのURLを解析、CGIであるとわかる</li>
+<li>CGIプログラムの起動（環境変数などを設定する）</li>
+<li>CGIプログラムの出力の受け付け</li>
+<li>ヘッダーの追加、調整などを行う</li>
+<li>クライアントにレスポンスを送る</li>
+</ol>
+<p class="in">この中で一番コストが高いのが実は(3)の「CGIプログラムの起動」です。新しいプロセスを起動することはOSにとって大仕事です。プログラムファイルを読み込み、新しいコンテキストを作り、プロセステーブルに登録し、スケジューリングを開始するなどやることはたくさんあります。とはいえ、普段の状態ではプロセス起動にかかる時間はコストが高いといってもコンマ1秒以下で、気になることはほとんどありません。しかし、負荷の高いサーバーでは毎秒数十から数百のCGIリクエストが発生する場合があります。このような場合にはOSにかかる負荷は相当のものがあります。</p>
+<p class="in">それを避ける方法はいくつかありますが、そのうちの1つが<code>mod_ruby</code>と呼ばれるものです。<code>mod_ruby</code>は、ApacheにRubyインタプリタを組み込んで、Rubyプログラムの実行をApacheの内部で実行するものです。これで毎回プロセスを起動する必要がなくなり、かなり負荷を軽減できます。</p>
+<a id="page_252"/>
+<p class="in">実際に簡単なCGIプログラムを対象にベンチマークを取ってみた結果を<a href="#table1703">表17.3</a>に示します。明らかに性能の違いがあることがわかります。ベンチマークに使ったCGIはHTML文字列を出力するだけのもので、処理そのものの負荷は非常に低いので、この数値はあくまでも一例にすぎません。</p>
+<div class="table" id="table1703">
+<p class="tbl-caption">表17.3●mod_rubyの効果</p>
+<table class="tbl09">
+<tr>
+<th></th>
+<th colspan="3"><span class="k">CGI</span></th>
+<th colspan="3"><span class="k">mod_ruby</span></th>
+</tr>
+<tr>
+<th><span class="k">並列度</span></th>
+<th><span class="k">処理時間<br />（秒）</span></th>
+<th><span class="k">リクエスト/<br />秒</span></th>
+<th><span class="k">転送レート<br />（バイト/秒）</span></th>
+<th><span class="k">処理時間<br />（秒）</span></th>
+<th><span class="k">リクエスト/<br />秒</span></th>
+<th><span class="k">転送レート<br />（バイト/秒）</span></th>
+</tr>
+<tr>
+<td>1</td>
+<td>19.339</td>
+<td>5.17</td>
+<td>16.68</td>
+<td>6.814</td>
+<td>14.68</td>
+<td>47.34</td>
+</tr>
+<tr>
+<td>2</td>
+<td>17.411</td>
+<td>5.74</td>
+<td>18.53</td>
+<td>6.549</td>
+<td>15.27</td>
+<td>49.26</td>
+</tr>
+<tr>
+<td>5</td>
+<td>18.576</td>
+<td>5.38</td>
+<td>17.37</td>
+<td>6.075</td>
+<td>16.46</td>
+<td>54.16</td>
+</tr>
+<tr>
+<td>10</td>
+<td>18.069</td>
+<td>5.53</td>
+<td>17.85</td>
+<td>7.221</td>
+<td>13.85</td>
+<td>45.57</td>
+</tr>
+</table>
+</div>
+<p class="in">いずれにせよ、アクセス数の大きなWebサーバーでは<code>mod_ruby</code>は大きな効果がありそうだということがわかると思います。</p>
+<p class="in"><code>mod_ruby</code>は前田修吾さんが開発されました。</p>
+</section>
+<section id="chap1705" class="level2">
+<h3>mod<code>_</code>rubyのインストール</h3>
+<hr class="hr-gray" />
+<p class="in">もしあなたがDebianをお使いでしたら、それはラッキーです。Debianには<code>mod_ruby</code>が標準でパッケージ化されていますので、パッケージシステムが適切にセットアップされていれば、必要なのは、</p>
+<div class="plist">
+<pre>apt-get install libapache-mod-ruby</pre>
+</div>
+<p class="ni">だけです。<code>mod_ruby</code>に限らずDebianではRuby関連のパッケージが充実しているので、たいていのものが<code>apt-get</code>だけでインストールできます。また、Vine Linuxでは、Vine Plusに<code>mod_ruby</code>のパッケージがあります。</p>
+<p class="in">もし、それ以外のシステムをお使いでしたら、自前でインストールする必要があります。自前でインストールといっても決して難しくありません。簡単な手順に従うだけです。</p>
+<ol class="list_parentheses">
+<li><span class="k">ダウンロード</span><br />
+現在の最新版はmod_ruby 1.0.0 です。<br />
+　　<span class="link">http://www.modruby.org/archive/mod_ruby-1.0.0.tar.gz</span><br />
+を入手してください。</li>
+<li><span class="k">展開</span><br />
+<code>tar.gz</code>ファイルですから、<code>tar</code>を使って展開します。
+<div class="borderterminal">
+<pre>% tar zxf mod_ruby-1.0.0.tar.gz</pre>
+</div>
+</li>
+<li><a id="page_253"/><span class="k">configureとmake</span><br />
+<code>configure.rb</code>がお手元のシステムの状態に合わせてコンパイル条件を決定してくれます。そのためには<code>apxs</code>の位置を教えてやる必要があります。<code>apxs</code>はApache Extension Toolでモジュールがコンパイルできる条件を教えてくれるコマンドです。
+<div class="borderterminal">
+<pre>% ./configure.rb --with-apxs=/usr/bin/apxs
+% make</pre>
+</div>
+</li>
+<li><span class="k">インストール</span><br />
+<code>make install</code>で終わりです。ただし、rootになっておく必要があります。
+<div class="borderterminal">
+<pre>% su
+# make install</pre>
+</div>
+</li>
+<li><span class="k">mod_rubyの設定</span><br />
+インストールしただけでは<code>mod_ruby</code>は使えません。Apacheの設定ファイルで<code>mod_ruby</code>を有効にする必要があります。具体的には<code>httpd.conf</code>に<a href="#list1702">リスト17.2</a>の記述を追加する必要があります。<br />
+　<code>httpd.conf</code>を書き換えただけではApacheの設定は有効になりませんから、Apacheを再起動させてください。</li>
+</ol>
+<div class="plistc" id="list1702">
+<p class="lst-caption">リスト17.2●mod_ruby用Apacheの設定</p>
+<pre><span class="cmt"># モジュールのパスは環境に合わせて調整する</span>
+LoadModule ruby_module /usr/lib/apache/1.3/mod_ruby.so
+
+&lt;IfModule mod_ruby.c&gt;
+  RubyRequire apache/ruby-run
+
+  <span class="cmt"># *.mrbをRubyスクリプトとして実行する</span>
+  &lt;Files *.mrb&gt;
+  SetHandler ruby-object
+  RubyHandler Apache::RubyRun.instance
+  &lt;/Files&gt;
+&lt;/IfModule&gt;</pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap1706" class="level2">
+<h3>mod<code>_</code>rubyを利用する</h3>
+<hr class="hr-gray" />
+<p class="in">さて、上の設定が終われば<code>mod_ruby</code>を使うことができます。<code>mod_ruby</code>を使うに当たって注意すべき点をあげておきます。</p>
+<section id="chap170601" class="level3">
+<a id="page_254"/>
+<h4>NPHモード</h4>
+<p class="in"><code>mod_ruby</code>で実行されるプログラムはNPHモードで実行されます。NPHとは（たぶん）non-parse-headerの略で、サーバー側でヘッダーの処理を行わないという意味です。NPHモードではプログラム側でクライアントに送るすべてのヘッダーを用意してやる必要があります。特にレスポンスの先頭にあるHTTPステータスラインは必須です。HTTPステータスラインは以下のような行です（取得に成功した場合）。</p>
+<div class="plist">
+<pre>HTTP/1.1 200 OK</pre>
+</div>
+<p class="in">ただし、<code>cgi.rb</code>はプログラムが<code>mod_ruby</code>によって実行されていることを自動判別して、対応してくれますので、ヘッダーの出力を<code>cgi.rb</code>に任せていればこのことについて気にする必要はありません。</p>
+</section>
+<section id="chap170602" class="level3">
+<h4>同一プロセス</h4>
+<p class="in"><code>mod_ruby</code>はその動作原理上、RubyプログラムはWebサーバープロセス内で実行されます。ということは、<code>$$</code> などで得られるプロセスidも同一になります。プロセスidが毎回異なることを仮定しているプログラムは動作が変わる可能性があります。</p>
+</section>
+<section id="chap170603" class="level3">
+<h4>同一インタプリタ</h4>
+<p class="in"><code>mod_ruby</code>は複数のRubyプログラムを同一のインタプリタで実行します。その結果、</p>
+<ul>
+<li><p>すでに<code>require</code>されたプログラムは再び<code>require</code>しない</p></li>
+<li><p>グローバル変数の値が残ってしまう</p></li>
+<li><p>プログラムが終了しても生き残る（GCで回収されない）オブジェクトがある</p></li>
+</ul>
+<p class="ni">などの現象が起きます。</p>
+<p class="in"><code>require</code>の問題などで<code>mod_ruby</code>を利用するとデバッグが難しくなるので、デバッグ中はCGIでテストして、ある程度安定してから<code>mod_ruby</code>での実行に切り替えるというやり方が賢そうです。</p>
+</section>
+</section>
+<section id="chap1707" class="level2">
+<h3>CGIプログラミングの不満</h3>
+<hr class="hr-gray" />
+<p class="in">先にも述べましたとおり、私はめったにCGIプログラムを作らないのですが、たまに作ると嫌になることが1つあります。それはCGIというものは基本的にHTMLを出力するものなので、プログラム中に<code>print</code>文が多用されて、ロジックと混じり合ってしまうことです。特にテンプレート的なHTMLがあって、その一部だけを差し替えるようなプログラムではその傾向が顕著です。</p>
+<p class="in">プログラミングにおける不満は重要なものです。不満があれば、それを解決してよりプログラミングを快適にするツールが必要とされているという意味です。もし仮にそのようなツールがすでに存在していなければ、新しいツール開発の動機となります。不満こそはソフトウェア進化の原動力なのです。</p>
+<p class="in">この問題に対しても対応するツールがいくつかあります。</p>
+<a id="page_255"/>
+<ul>
+<li><p><code>cgi.rb</code>によるHTML生成</p></li>
+<li><p>ヒアドキュメントの利用</p></li>
+<li><p>eRuby</p></li>
+<li><p>IOWAやWarlusのようなフレームワーク</p></li>
+</ul>
+<p class="in">それぞれについて簡単に説明しておきます。<code>cgi.rb</code>によるHTML生成機能はRubyのプログラムの見かけでHTMLを作るというものです。HTML生成機能は<a href="#list1701">リスト17.1</a>でも多用されています。</p>
+<div class="plist">
+<pre>cgi.html {cgi.head{cgi.title{<span class="str">&quot;cgi/session example&quot;</span>}} +
+  cgi.body{cgi.h1{<span class="str">&quot;cgi/session example&quot;</span>}+
+    cgi.p{sprintf <span class="str">&quot;%d回目のアクセスです&quot;</span>, counter} + 
+    cgi.form(<span class="str">&#39;action&#39;</span>=&gt;File::basename(cgi.script_name)) {
+      cgi.submit
+    }
+  }
+}</pre>
+</div>
+<p class="in">HTML生成機能は内部で大量の文字列の生成と結合を行いますので、少々効率が悪いのが欠点です。また、記述量が増えてしまうこともあるのも欠点といえば欠点でしょう。</p>
+<p class="in">ヒアドキュメントはRubyの文字列表現の1つです。これは「<code>&lt;&lt;EOF</code>」のようなマーカーの部分が、その次の行からマーカーが示す終端行までの複数行に置き換えられるというものです。</p>
+<div class="plist">
+<pre>print &lt;&lt;EOF
+&lt;p&gt;これはヒアドキュメントの例です&lt;br&gt;
+「&lt;&lt;」に続くマーカーと同じ文字列の行までが文字列にな
+ります。この中では式展開も有効です
+EOF</pre>
+</div>
+<p class="in">ヒアドキュメントによって、複数行にわたる文字列をすっきりと表現できます。大量のHTMLの出力には向いているでしょう。式展開を使って値の埋め込みが行えるのも気が利いています。</p>
+<p class="in">eRubyはembedded Ruby（埋め込みRuby）の略です。埋め込みと言っても他のプログラムにRubyを組み込むことではなくて、HTMLのようなテキストの一部にRubyコード（の断片）を埋め込むことです。ちょうど文字列の中の式展開と同じようなことができるというわけです。</p>
+<p class="in">最後のIOWAやWarlusはHTMLテンプレートとRubyコードを完全に分離してしまうWebアプリケーションフレームワークです。これらは少々規模が大きくなってしまうので、今月は解説しません。以下のURLを参照してください。</p>
+<ul class="none">
+<li><p>IOWA: 　<span class="link">http://beta4.com/iowa/</span></p></li>
+<li><p>Warlus:　<span class="link">http://www.brain-tokyo.jp/research/koutetu/walrus/</span></p></li>
+</ul>
+</section>
+<section id="chap1708" class="level2">
+<a id="page_256"/>
+<h3>eRuby</h3>
+<hr class="hr-gray" />
+<p class="in">今月解説するのはこのうちeRubyです。</p>
+<p class="in">eRubyは文書に、</p>
+<div class="plist">
+<pre>&lt;% rubyコード %&gt;</pre>
+</div>
+<p class="ni">といったタグを埋め込んで、内容がダイナミックに変化するテキストを作るためのものです。また結果の出力には、</p>
+<div class="plist">
+<pre>&lt;%= 式 %&gt;</pre>
+</div>
+<p class="ni">というタグを使います。式の結果が文字列としてテキストに埋め込まれます。タグ以外の部分はそのまま印字されます。eRubyのスクリプトは<a href="#list1703">リスト17.3</a>のようになります。</p>
+<div class="plistc" id="list1703">
+<p class="lst-caption">リスト17.3●eRubyサンプル</p>
+<pre>&lt;%
+  # erubyではcharsetの設定が必要
+  ERuby.<span class="kwd">charset</span> = <span class="str">&quot;euc-jp&quot;</span>
+%&gt;
+&lt;<span class="kwd">HTML</span>&gt;
+&lt;<span class="kwd">HEAD</span>&gt;
+&lt;<span class="kwd">META</span> HTTP-EQUIV=<span class="str">&quot;Content-Type&quot;</span> CONTENT=<span class="str">&quot;text/html;charset=EUC-JP&quot;</span>&gt;
+&lt;<span class="kwd">TITLE</span>&gt;eRuby sample&lt;/<span class="kwd">TITLE</span>&gt;
+&lt;/<span class="kwd">HEAD</span>&gt;
+&lt;<span class="kwd">BODY</span>&gt;
+&lt;<span class="kwd">H1</span>&gt;eRubyサンプル&lt;/<span class="kwd">H1</span>&gt;
+&lt;<span class="kwd">P</span>&gt;
+こんにちわ&lt;<span class="kwd">BR</span>&gt;
+現在の時刻は&lt;%= Time.now %&gt;です&lt;<span class="kwd">BR</span>&gt;
+&lt;/<span class="kwd">BODY</span>&gt;
+&lt;/<span class="kwd">HTML</span>&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">ですから、eRubyは「<code>&lt;%</code>」と「<code>%&gt;</code>」という文法を持つ一種の言語ということができます。このeRuby言語を解釈する処理系は複数ありますが、<code>mod_ruby</code>と同じく前田修吾さんによって実装された<code>eruby</code>について紹介しましょう。少々ややこしいですが、ここからは「eRuby」が言語名、「<code>eruby</code>」がプログラム名です。</p>
+</section>
+<section id="chap1709" class="level2">
+<a id="page_257"/>
+<h3>erubyのインストール</h3>
+<hr class="hr-gray" />
+<p class="in"><code>eruby</code>のインストールもDebianなら、</p>
+<div class="borderterminal">
+<pre>apt-get install eruby</pre>
+</div>
+<p class="ni">だけです。Red Hat Linux 7.3やVine Linux 2.5には、<code>eruby</code>のRPMパッケージが含まれています。</p>
+<p class="in">ソースからインストールする場合には</p>
+<ul class="none">
+<li><p><span class="link">http://www.modruby.net/archive/eruby-0.9.8.tar.gz</span></p></li>
+</ul>
+<p class="ni">からダウンロードしてから展開し、<code>configure.rb</code>を実行してから<code>make</code>、そして<code>make install</code>します。</p>
+<p class="in">インストールできたら、試しにリスト<a href="#list1703">リスト17.3</a>を<code>eruby</code>にかけてみましょう。ここではリスト<a href="#list1703">リスト17.3</a>の内容が<code>sample.rhtml</code>に格納されていることとします。eRubyのファイルの拡張子は<code>rhtml</code>にするのが慣習のようです。</p>
+<div class="borderterminal">
+<pre>eruby sample.rhtml</pre>
+</div>
+<p class="in">実行結果は<a href="#list1704">リスト17.4</a>のようになります。</p>
+<div class="plistc" id="list1704">
+<p class="lst-caption">リスト17.4●eruby実行結果</p>
+<pre>&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;META HTTP-EQUIV=&quot;Content-Type&quot; CONTENT=&quot;text/html;charset=EUC-JP&quot;&gt;
+&lt;TITLE&gt;eRuby sample&lt;/TITLE&gt;
+&lt;/HEAD&gt;
+&lt;BODY&gt;
+&lt;H1&gt;eRubyサンプル&lt;/H1&gt;
+&lt;P&gt;
+こんにちわ&lt;BR&gt;
+現在の時刻はSat Aug 10 15:49:07 JST 2002です&lt;BR&gt;
+&lt;/BODY&gt;
+&lt;/HTML&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<p class="ih">「<code>&lt;%=</code>」と「<code>%&gt;</code>」で囲まれた部分がコードを評価した文字列と置き換えられていて、「<code>&lt;%</code>」から「<code>%&gt;</code>」の部分は削られていることがわかると思います。</p>
+</section>
+<section id="chap1710" class="level2">
+<a id="page_258"/>
+<h3>Apacheからerubyを使う</h3>
+<hr class="hr-gray" />
+<p class="in">さて、<code>eruby</code>のインストールができたら、今度はWebページにeRubyを使うためのApacheの設定が必要です。</p>
+<p class="in">まず <code>.rhtml</code>という拡張子のファイルをeRubyで記述されたCGIとして使うための設定は、以下のとおりです。まず<code>httpd.conf</code>に以下の行を追加します。</p>
+<div class="plist">
+<pre>AddType application/x-httpd-eruby .rhtml
+Action application/x-httpd-eruby /cgi-bin/eruby</pre>
+</div>
+<p class="in">それから<code>eruby</code>（<code>/usr/local/bin/eruby</code>とか）から<code>/cgi-bin/eruby</code>へのシンボリックリンクを用意します。これでApacheをリスタートさせれば <code>.rhtml</code>ファイルは<code>eruby</code>で処理されるはずです。</p>
+<p class="in">実は<code>mod_ruby</code>には<code>eruby</code>の機能が最初から組み込まれています。さすが同じ作者の作品だけのことはあります。ですから、<code>mod_ruby</code>をインストールすればそのままeRubyを使うこともできるわけです。<code>mod_ruby</code>を利用してeRubyを処理するためには<code>httpd.conf</code>に以下の設定を追加します。</p>
+<div class="plist">
+<pre>&lt;IfModule mod_ruby.c&gt;
+  RubyRequire apache/eruby-run
+
+  <span class="cmt"># *.rhtmlをeRubyファイルとして扱う。</span>
+  &lt;Files *.rhtml&gt;
+  SetHandler ruby-object
+  RubyHandler Apache::ERubyRun.instance
+  &lt;/Files&gt;
+&lt;/IfModule&gt;</pre>
+</div>
+<p class="in">この設定を有効にしてから拡張子 <code>.rhtml</code>を持つファイルにアクセスすると<code>mod_ruby</code>を使ってeRubyの解釈が行われます。</p>
+</section>
+<section id="chap1711" class="level2">
+<h3>ERb</h3>
+<hr class="hr-gray" />
+<p class="in">一方、咳さんのeRuby実装、ERbのほうは、</p>
+<ul class="none">
+<li><p><span class="link">http://www2a.biglobe.ne.jp/~seki/ruby/erb-1.4.3.tar.gz</span></p></li>
+</ul>
+<p class="ni">からダウンロードして、<code>install.rb</code>を実行するだけです。ただ、ERbにはそのままコマンドとして実行できるファイルがないみたいなので、<a href="#list1705">リスト17.5</a>のような内容のファイルを <code>/usr/bin/erb</code>などいう名前で用意するといいでしょう。</p>
+<a id="page_259"/>
+<div class="plistc" id="list1705">
+<p class="lst-caption">リスト17.5●erub</p>
+<pre><span class="cmt">#! /usr/bin/ruby</span>
+
+require <span class="str">&#39;erb/erb&#39;</span>
+require <span class="str">&#39;erb/main&#39;</span>
+
+ERbModule.run(ERb)</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">もちろん、<code>chmod</code>を使って実行権限を与えるのをお忘れなく。これで、</p>
+<div class="plist">
+<pre>erb sample.rhtml</pre>
+</div>
+<p class="ni">でeRubyファイルの展開ができるようになります。でも、先ほどのサンプルを実行する場合には<code>eruby</code>にしかないERubyモジュールへのアクセスをコメントアウトしておきましょう。</p>
+</section>
+<section id="chap1712" class="level2">
+<h3>eruby + mod<code>_</code>ruby ≧ PHP</h3>
+<hr class="hr-gray" />
+<p class="in">PHPという言語があります。PHPという名前はPHP: Hypertext Preprocessorの略だそうです。再帰してますね。PHPの特徴は「HTMLに埋め込める」ことと「<code>mod_php</code>によりApacheに組み込んで性能を稼げる」ことだそうです。このコンセプトは「<code>eruby</code> + <code>mod_ruby</code>」にそっくりではありませんか?</p>
+<p class="in">しかも、Rubyの強力なクラスライブラリやRAAに増え続ける周辺ライブラリの充実を見れば、Rubyを知っている人がPHPを覚える必要はそれほどなくなったのではないかと思います。</p>
+</section>
+<section id="chap1713" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はWebプログラミングを便利にするツールについていくつか紹介しました。これらのツールは個別のページの作成の支援を行いますが、これをもうちょっと推し進めて「Webサイト作成支援」とでも呼ぶべきツール、あるいはフレームワークと呼ぶようなものも存在します。今後はそのようなフレームワークについても紹介したいと思っています。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-038.xhtml">&lt;&lt; 前ページ</a>　<a href="p-040.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第36章 RubyとEmacs</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　<a href="p-012.xhtml">第36章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap3610" class="level2">
+<a id="page_070"/>
+<h3>◆ Ruby開発日記 ◆Emacsによる開発</h3>
+<hr class="hr-green" />
+<p class="in">本文でも書いたように私はEmacsの中で「生活」しているわけですが、実際どのような生活をしているか、を紹介しましょう。</p>
+<p class="in">Emacsはエディタですからやはり編集が基本です。Emacsはカーソル移動に<span class="r">Ctrl</span>キーを使った組み合わせを用います。たとえば1文字進めるためには<span class="r">C-f</span>、1文字戻るためには<span class="r">C-b</span>、1行進むためには<span class="r">C-n</span>、1行戻るためには<span class="r">C-p</span>を用います。これらのキーバインドはすでに私の体の一部になっています。ずいぶん以前になりますが、Mozilla上でテキスト入力中に無意識にEmacsキーバインドを用いていて、しばらくたってからMozilla上でも有効であることに改めて気が付いてびっくりしたことがあります。</p>
+<p class="in">次は、日本語入力です。私は自分自身をプログラマーだと自認していますが、この原稿を始めとして文章を入力する機会も少なくありません。日本語入力には「かんな」を使っています。「かんな」には日本語入力の配列を再定義する機能があるのですが、それを用いて独自の日本語配列を定義しています。「きゅうり改」と名付けられたこの配列（<a href="#fig3601">図36.1</a>）は、左手で子音、右手で母音を入力するようになっており、効率的に日本語を入力できるようになっています。</p>
+<div class="fig" id="fig3601">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch36/36-1.jpg" alt="fig3601" />
+  </div>
+  <p class="fig-caption">図36.1●きゅうり改</p>
+</div>
+<p class="ih">「小」続く文字が小さい文字（ゎとか）であることを示します。また、「ょ」などのキーを2度打ちすると「ょう」のような連母音になります。</p>
+<p class="in">以下が「きゅうり改」による入力例です。</p>
+<div class="plist">
+<pre>エディタ入力について紹介する
+;vbkgheiirodjekgjkg;foodhkfjrj
+edhitanyuuryokunituiteshoukaisuru</pre>
+</div>
+<p class="in">アルファベットで見ると何を入力しているのかひと目ではわかりませんね。正直、私にもわかりません。配列は手が覚えているので、目で見てもよくわからないのです。しかし、よく見ると、入力に使うキーのうちほとんどが打ちやすいホームポジションと上段のキーで占められていて、指の移動が少なく効率がよいことがわかるかもしれません。</p>
+<p class="in">私はもう10数年この配列を愛用しています。配列を決めてから使いこなせるようになるまでに3日くらいかかりましたが、それ以降は快適です。</p>
+<p class="in">英文の入力には<code>flyspell-mode</code>が便利です。<code>flyspell-mode</code>は実行時にスペルチェックを行ってくれるマイナーモードです。スペルが単語に色を付けてくれます。マイナーモードですから、英文を入力するときにはいつも設定しておくとよいでしょう。</p>
+<p class="in">私の生活の多くは電子メールの読み書きに費やされています。電子メールを読むためにはcmailを使います。cmailは私がもう10年以上使っているメールリーダーです。1998年頃までは私が自分でメンテナンスしていました。それ以降はRubyのほうが忙しくて面倒が見れなくなったので、メーリングリストによる集団管理体制に移行しています。cmailは設計は古いのですが、MIME対応やIMAP対応など現在でも十分な機能を備えています。もう手になじんでしまっているので、なかなか他のメールリーダーに移行できません。</p>
+<a id="page_071"/>
+<p class="in">私がプログラムを開発するときに、よく使う言語はC, Ruby, shの順です。RubyよりもCを使う時間のほうが長いというのがなんだか皮肉な気もしますが、実際私はRubyを使っている時間よりもRubyを作っている時間のほうが長いということでしょう。</p>
+<p class="in">これらの言語にはそれぞれのための編集モードが用意されており、予約語の色付けを行ったりオートインデントを行ったりできます。ただし、shモードにはオートインデント機能はありません。</p>
+<p class="in">Rubyでのプログラミングを支援してくれる<code>ruby-mode</code>とRRBについては本文で紹介しました。その他にも<code>rubydb.el</code>というものがあってEmacsを使ってRubyデバッガを実行できるのですが、私自身はRubyでデバッガを使わないのでほとんど使ったことがありません。</p>
+<p class="in">Cの編集モードは<code>cc-mode</code>といいます。単なる<code>c-mode</code>でなく<code>cc-mode</code>である理由はどうやらC++などC類似の言語にも対応しているからのようです。実際、私がEmacsを使い始めた頃にはCの編集モードは<code>c-mode</code>でしたし。</p>
+<p class="in">Cでプログラムしているときには実行する前にコンパイルしなければなりません。プログラムを書いたらいきなり実行できるRubyよりも不自由なものですが、それがCですからしかたがありません。コンパイルには<span class="r">M-x</span> <code>compile</code>を使います。これを実行するとEmacsに新しいウィンドウを開いてコンパイルを実行してくれます。また、コンパイル中にエラーが発生すると、キー操作1つでエラー発生箇所にジャンプできます。</p>
+<p class="in">プログラミング中に関数の定義場所や使われている場所を探したい場合もあります。このときには<span class="r">M-x</span> <code>grep</code>を使います。これは<span class="r">M-x</span> <code>compile</code>と同様の機能で、コンパイル結果の代わりにgrepの検索結果を表示して、やはりキー操作でジャンプできます。</p>
+<p class="in">デバッグには<span class="r">M-x</span> <code>gdb</code>が便利です。現在実行中のソースコードを見ながらデバッグできます。</p>
+<p class="in">Rubyのソースコードには1つだけCではなく、yaccで記述されたものが含まれています。Rubyの構文解析を担当している<code>parse.y</code>がそのファイルです。yaccは文法ルールの中にCのコードが埋め込まれた記述です。yacc自身が一種の言語であると考えてもよいでしょう。</p>
+<p class="in">大概の言語にはその言語用の編集モードがあるのですが、なぜかyaccモードはEmacsに標準添付されていません。いくら多くの言語処理系がyaccを使っているとはいえ、yaccはあまりにもマイナーなのでしょうか。</p>
+<p class="in">私はずっと以前ネットで入手した<code>yacc.el</code>というファイルを使っています。このファイルには作者の名前も何も書いてないのですが、なかなか便利です。このyaccモードはCコードを編集するときにはCモードに、外側のyaccルールを編集するときにはyaccモードに切り替わります。</p>
+<p class="in">唯一の欠点はCコードの編集中に外側のyacc記述が見えないことです。どこかにもっとよいyaccモードはないものでしょうか。</p>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-012.xhtml">&lt;&lt; 前ページ</a>　<a href="p-014.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

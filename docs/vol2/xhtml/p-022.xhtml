@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第41章 Webアプリケーションの基礎</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第41章</p>
+<!-- Body -->
+<section id="chap41" class="level1">
+<a id="page_119"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">41</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+Webアプリケーションの基礎
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年10月号]</p>
+<div class="newlead">
+<p class="in">Webアプリケーションの基礎、特にHTTP, CGI, FastCGI, mod_rubyについて紹介しています。FastCGIやmod_rubyは現代では使われていませんが、CGIの仕組み（渡される情報）は現代のWebアプリケーションにもほとんどそのまま引き継がれています。</p>
+<p class="ih">「Ruby開発日記」は2004年に開催された「Lightweight Language Weekend」についてですね。このイベントは2003に第1回（Lightweight Language Saturday）に始まり（第1回のレポートは本書第29章にちょっとだけあります）、この「Weekend」は2回目になります。LLイベントは途中で「Learn Language」と名前を変えて（途中中断をはさみつつ）継続し、2023年には20周年を記念するイベントも開催されました。20周年イベントでは私も含めた第1回のスピーカーが登壇し、懐かしい思いをしました。</p>
+</div>
+<div class="lead">
+<p class="ni">今月から数回Webアプリケーションプログラミングについて学ぼうと思います。今月はその基礎編です。</p>
+</div>
+<section id="chap4101" class="level2">
+<h3>Webアプリケーションプログラミング</h3>
+<hr class="hr-gray" />
+<p class="in">正直、私自身がWebプログラミングについての経験が足りないので、本連載で解説するのを避けてきたのですが、現実問題、WebプログラミングはRubyの重要な適用分野です。いつまでも避けているわけにもいきません。</p>
+<p class="in">そこで今月から数回は自分でも学びつつ、Rubyで楽しいWebプログラミングを目指すことにします。</p>
+<p class="in">ところで、同様の理由で避けてきた分野として、GUIプログラミングとデータベースプログラミングがあります。これらも大変重要なテーマですから、Webプログラミングについての解説が片付いたら、これらも皆さんと一緒に学んでいこうと思います。</p>
+</section>
+<section id="chap4102" class="level2">
+<a id="page_120"/>
+<h3>WWW</h3>
+<hr class="hr-gray" />
+<p class="in">WWW（World Wide Web）はもともとCERNで開発された相互リンクした技術文書を参照する手段でした。文書間のリンクが世界中をクモの巣（Web）のようにつなぐありさまをもってWWWと名付けられました。</p>
+<p class="in">WWWが最初に登場した時点では、その基本となる技術は、</p>
+<ul>
+<li><p>相互にリンクした構造を持つ文章を記述する手段としてのHTML（Hyper Text Markup Language）</p></li>
+<li><p>各所のサーバーに分散した、HTMLで記述された（ものばかりとは限らないけど）文書を指定する手段であるURL（Unified Resource Locator）</p></li>
+<li><p>URLで指定した文書をネットワーク経由でサーバーから取り出すためのプロトコルであるHTTP（Hyper Text Transport Protocol）</p></li>
+</ul>
+<p class="ni">でした。ですから、基本的には静的な文章を表現する手段だったわけです。しかし、ページの内容を動的に生成する技術が登場したときに、WWWは新しい局面を迎えることになります。</p>
+</section>
+<section id="chap4103" class="level2">
+<h3>HTML</h3>
+<hr class="hr-gray" />
+<p class="in">HTMLについては今さら説明する必要はそれほどないかもしれません。HTMLはSGMLと同じ構造を持つ文書フォーマットです。特徴は誰でも知っている <code>&lt;HTML&gt; ... &lt;/HTML&gt;</code> という対になったタグです。SGMLから受け継いだこのタグフォーマットは、さらにXMLに受け継がれて増殖中です。</p>
+<p class="in">HTMLは基本的に文書の構造（「見出し」とか「箇条書き」とか）を表現します。しかし、構造だけでなく、フォントの大きさや色などに代表される「見栄え」も指定できてしまう柔軟性（悪くいえばいいかげんさ）を備えています。</p>
+</section>
+<section id="chap4104" class="level2">
+<h3>URL</h3>
+<hr class="hr-gray" />
+<p class="in">WWWの基礎技術のうち、URLほど広く目にするものはないかもしれません。今や、テレビのCMや広告のポスターにURLが含まれることは珍しくありませんし、お店で買ってきた商品のラベルにもURLが印刷されています。ラジオをつければ頻繁に「エイチティーティーピーコロン……」というくだりを耳にします。URLはときどき「インターネットアドレス」と呼ばれるようです。文書やサイトを示すアドレスであるという意味からは間違っているわけではありませんが、なんか違和感があります。</p>
+</section>
+<section id="chap4105" class="level2">
+<h3>HTTP</h3>
+<hr class="hr-gray" />
+<p class="in">URLやHTMLほど人目に触れないのがHTTPです。HTTPはWWWクライアント（WWWブラウザ、Internet ExplorerやMozillaなど）とWebサーバーの間の通信のフォーマットです。</p>
+<p class="in">HTTPはインターネットの他のプロトコルと同様にテキストベースのプロトコルです。また、その通信内容の構造は電子メールとほぼ同じになっています。HTTPの通信内容はステータス行、ヘッダーとボディからなります。ステータス行は通信の先頭行であり、通信種別を示す情報を含んでいます。ヘッダーは、</p>
+<a id="page_121"/>
+<div class="plist">
+<pre>フィールド名: 内容</pre>
+</div>
+<p class="ni">という行が並んだものです。たとえば、ボディの内容を表す部分は、</p>
+<div class="plist">
+<pre>Content-Type: text/html</pre>
+</div>
+<p class="ni">のようになります。ヘッダーとボディとの間は空行で区切られています。ボディ部は任意のデータで、そのデータのフォーマットなどの情報はヘッダーに含まれています。サーバーからクライアントへのHTTP通信内容の例を<a href="#list4101">リスト41.1</a>に示します。</p>
+<div class="plistc" id="list4101">
+<p class="lst-caption">リスト41.1●HTTP通信</p>
+<pre>HTTP/1.1 200 OK
+Date: Fri, 13 Aug 2004 06:50:56 GMT
+Server: Apache/1.3.31 (Debian GNU/Linux)
+Last-Modified: Fri, 13 Aug 2004 06:50:40 GMT
+Content-Length: 76
+Content-Type: text/html; charset=iso-8859-1
+
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;hello world&lt;/title&gt;
+&lt;body&gt;
+Hello World!
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap4106" class="level2">
+<h3>CGI</h3>
+<hr class="hr-gray" />
+<p class="in">さて、リクエストに応じて動的に情報を提供するための技術がCGI（Common Gateway Interface）です。CGIはHTTPによってリクエストを受けたサーバーが、サブプロセスとしてプログラムを起動し、そのプログラムの出力をそのままクライアントに返す仕組みです。この仕組みによって、クライアントからのリクエストに応じた動的な対応が可能になりました。</p>
+<p class="in">CGIではクライアントからの情報は、環境変数と標準入力を通じてサーバーからCGIプログラムに渡されます。プログラムの実行結果は標準出力を通じてサーバーに渡され、最終的にはその内容がクライアントに転送されます。環境変数も標準入出力も、UNIXでは一般的な情報の受け渡し方法ですから、これらを扱うことができればどんなプログラミング言語でもCGIプログラムを書くことができます。</p>
+<p class="in">CGIプログラムの実行は具体的には以下の手順で行われます。</p>
+<ol>
+<li><p>まず、HTTPクライアント（WWWブラウザ）がHTTPサーバー（Apacheなど）にネットワーク経由でHTTPリクエストを送ります。クライアントはリクエストとして、要求するURLなどの情報を送ります。</p></li>
+<li><p>クライアントから指定されたURLがCGIに対応するものであった場合、サーバーはいくつかの環境変数を用意し、CGIプログラムをサブプロセスとして起動します。HTTPリクエストがPOSTであった場合、リクエストに含まれる情報は標準出力を通じてCGIプログラムに渡されます。CGIプログラムに渡される環境変数のうち代表的なものを<a href="#table4101">表41.1</a>に示します。</p></li>
+<li><p>CGIプログラムは、与えられた情報を元に実行を行い、標準出力にHTMLを出力します。何らかの理由で実行がうまくいかなかったときには終了ステータスとしてゼロ以外の数値を返します。</p></li>
+<li><p>サーバーはCGIプログラムの出力を受け取り、必要に応じてHTTPプロトコルのヘッダーを追加して、その内容をクライアントに転送します。クライアントに渡される情報はURLで指定されるものが静的なファイルであっても、CGIの実行結果であっても違いはありません。</p></li>
+</ol>
+<p class="in">CGIプログラムの実行の仕組みを<a href="#fig4101">図41.1</a>に示します。</p>
+<a id="page_122"/>
+<div class="table" id="table4101">
+<p class="tbl-caption">表41.1●CGIで渡される環境変数（代表的なもの）</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">環境変数</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>AUTH_TYPE</code></td>
+<td>認証方式</td>
+</tr>
+<tr>
+<td><code>CONTENT_LENGTH</code></td>
+<td>ボディの長さ</td>
+</tr>
+<tr>
+<td><code>CONTENT_TYPE</code></td>
+<td>ボディのMIMEタイプ</td>
+</tr>
+<tr>
+<td><code>GATEWAY_INTERFACE</code></td>
+<td>CGIのバージョン</td>
+</tr>
+<tr>
+<td><code>HTTP_ACCEPT</code></td>
+<td>ブラウザが受信可能なMIMEタイプ</td>
+</tr>
+<tr>
+<td><code>HTTP_ACCEPT_ENCODING</code></td>
+<td>ブラウザが受信可能な文字コード</td>
+</tr>
+<tr>
+<td><code>HTTP_ACCEPT_LANGUAGE</code></td>
+<td>ブラウザが受信可能な言語</td>
+</tr>
+<tr>
+<td><code>HTTP_REFERER</code></td>
+<td>参照元ページのURL</td>
+</tr>
+<tr>
+<td><code>HTTP_USER_AGENT</code></td>
+<td>クライアント種別</td>
+</tr>
+<tr>
+<td><code>PATH_INFO</code></td>
+<td>URLの末尾のパス情報</td>
+</tr>
+<tr>
+<td><code>PATH_TRANSLATED</code></td>
+<td><code>PATH_INFO</code>の実パス</td>
+</tr>
+<tr>
+<td><code>QUERY_STRING</code></td>
+<td><code>GET</code>メソッドのデータ</td>
+</tr>
+<tr>
+<td><code>REMOTE_ADDR</code></td>
+<td>クライアントのIPアドレス</td>
+</tr>
+<tr>
+<td><code>REMOTE_HOST</code></td>
+<td>クライアントのホスト名</td>
+</tr>
+<tr>
+<td><code>REQUEST_METHOD</code></td>
+<td>リクエストの種別（<code>GET</code>, <code>POST</code>, <code>HEAD</code>）</td>
+</tr>
+<tr>
+<td><code>SCRIPT_NAME</code></td>
+<td>CGIプログラム名</td>
+</tr>
+<tr>
+<td><code>SERVER_NAME</code></td>
+<td>サーバーのホスト名</td>
+</tr>
+<tr>
+<td><code>SERVER_PORT</code></td>
+<td>サーバーのポート番号</td>
+</tr>
+<tr>
+<td><code>SERVER_PROTOCOL</code></td>
+<td>HTTPのバージョン</td>
+</tr>
+<tr>
+<td><code>SERVER_SOFTWARE</code></td>
+<td>サーバー種別</td>
+</tr>
+</table>
+</div>
+<div class="fig" id="fig4101">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch41/41-1.jpg" alt="fig4101" />
+  </div>
+  <p class="fig-caption">図41.1●CGIプログラムの実行</p>
+</div>
+</section>
+<section id="chap4107" class="level2">
+<a id="page_123"/>
+<h3>CGIプログラム</h3>
+<hr class="hr-gray" />
+<p class="in">では、簡単なCGIプログラムをRubyで書いてみましょう。CGIプログラムと言っても何も複雑なことはありません。ただ、環境変数などから情報を得て、標準出力に向けて出力する、それだけです。他のプログラムと何の違いはありません。環境変数や標準入出力の扱い、HTMLを始めとするテキスト操作などはRubyの得意分野です。</p>
+<p class="in">例題プログラムを<a href="#list4102">リスト41.2</a>に示します</p>
+<div class="plistc" id="list4102">
+<p class="lst-caption">リスト41.2●CGIサンプルプログラム</p>
+<pre><span class="cmt">#! /usr/bin/ruby</span>
+addr = ENV[<span class="str">&quot;REMOTE_ADDR&quot;</span>]
+client = ENV[<span class="str">&quot;HTTP_USER_AGENT&quot;</span>]
+
+print <span class="str">&quot;content-type: text/html\n\n&quot;</span>
+print &lt;&lt;<span class="kwd">END</span>
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;hello world&lt;/title&gt;
+&lt;body&gt;
+hello, it&#39;s #{Time.now.to_s}.&lt;br&gt;
+you are using #{client} from #{addr}.
+&lt;/body&gt;
+&lt;/html&gt;
+<span class="kwd">END</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">このプログラムの実行結果は<a href="#fig4102">図41.2</a>のようになります。</p>
+<div class="figconsole" id="fig4102">
+<div class="borderconsole">
+<pre>hello, it&#39;s Fri Aug 13 23:40:25 JST 2004.
+you are using w3m/0.3.2+mee-p24-19+moe-1.5.0 from 127.0.0.1.</pre>
+</div>
+<p class="fig-caption">図41.2●CGIサンプル実行結果</p>
+</div>
+<a id="page_124"/>
+<p class="in">これは単純なCGIプログラムをテキストブラウザで表示させた例なので貧弱な外見ですが、多くのWebアプリケーションの実装は、複雑に見えても同じ原理の延長です。</p>
+</section>
+<section id="chap4108" class="level2">
+<h3>CGIの欠点</h3>
+<hr class="hr-gray" />
+<p class="in">このようにCGIという仕組みを導入することで、WWWは単なる相互リンクされたファイルを参照する仕組みから、ネットワーク経由のアプリケーションを実現する仕組みへと進歩しました。これはすばらしい進歩だったと思います。</p>
+<p class="in">しかし、そんなCGIにも欠点があります。最大の欠点は性能です。CGIはクライアントからのリクエストを受け取るたびにCGIプログラムをサブプロセスとして起動します。サブプロセスの起動はOSにとってあまり軽いタスクではありません。アクセス頻度が数秒に一度程度なら何の問題もないのですが、アクセス頻度の高いサイトではCGIによるプロセス生成の負荷は馬鹿になりません。</p>
+<p class="in">もう1つの欠点は、レベルの低さです。CGIというのは動的なページを実現するための最低限の仕組みです。現代的なWebアプリケーションが備える機能（たとえば、セッション管理やユーザー管理、コンテンツ管理などなど）は提供されていませんから、各自が自分で実装するしかありません。</p>
+<p class="in">これらの欠点は解決不能ではありません。性能の問題は<code>mod_ruby</code>を始めとする「Apacheモジュール」や、FastCGIによって解決できます。また、レベルの低さはそれを補うライブラリやフレームワークを用意することで対応できます。</p>
+<p class="in">高レベルのWebアプリケーション用ライブラリやフレームワークについては来月以降紹介するとして、今月はCGIの性能問題を<code>mod_ruby</code>やFastCGIがどう解決するかを見てみましょう。</p>
+</section>
+<section id="chap4109" class="level2">
+<h3>mod<code>_</code>ruby</h3>
+<hr class="hr-gray" />
+<p class="in">HTTPサーバーの代表格であるApacheには、動的にリンクされるモジュールを使って機能を拡張することができます。実はApacheではCGIの呼び出しもモジュールによって実現されています。HTTPサーバーに機能が追加できるなら、インタプリタそのものをモジュールとしてApacheに取り込めばCGIプログラムをサブプロセスとして実行する必要はなくなるわけです。これでプロセス起動のコストを削減できます（<a href="#fig4103">図41.3</a>）。</p>
+<div class="fig" id="fig4103">
+  <!-- <div class="image50"> -->
+  <div class="image450">
+      <img src="../image/ch41/41-3.jpg" alt="fig4103" />
+  </div>
+  <p class="fig-caption">図41.3●Apacheモジュールの実行</p>
+</div>
+<a id="page_125"/>
+<p class="in">Rubyに対するApacheモジュールも提供されていて、<code>mod_ruby</code>と呼ばれています。<code>mod_ruby</code>に関する情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://modruby.net/</span></p></li>
+</ul>
+<p class="ni">から入手できます。入手方法やインストール方法については上記のサイトを参考にしてください。</p>
+<p class="in"><code>mod_ruby</code>を使った場合、CGIプログラムはApacheプロセス内部で直接実行されます。その結果として以下の点に注意する必要があります。</p>
+<ul>
+<li><p>グローバル変数が初期化されない。よって、前回のグローバル変数の値がそのまま残っている。ただし、前回実行されたスクリプトを特定することは困難なので残っている値を利用することは現実的でない。</p></li>
+<li><p>また、通常、Apacheは同時に複数プロセスが動作してリクエストを待つので、情報共有のためにもグローバル変数は役に立たない。</p></li>
+<li><p><code>require</code>でライブラリをロードするのは一度だけ。なので以前の実行でライブラリがすでに読み込まれていれば、ロードされないかもしれない。特にデバッグ時にライブラリを変更してもロードされない点に注意。</p></li>
+<li><p><code>mod_ruby</code>がCGIプログラムに提供するAPIは通常のCGI実行とはいくつか差がある。ただし、Rubyが標準で提供している<code>cgi</code>ライブラリはその差を<ruby>隠蔽<rt>いんぺい</rt></ruby>してくれる。</p></li>
+<li><p><code>mod_ruby</code>を利用中に妙なライブラリを利用するなどして、インタプリタそのものが誤動作するなどの問題が発生すると、Apacheを道連れに落ちることがある。<code>mod_ruby</code>へ移行はプログラムそのものが安定して動作するようになってからをお勧めする。</p></li>
+</ul>
+</section>
+<section id="chap4110" class="level2">
+<h3>FastCGI</h3>
+<hr class="hr-gray" />
+<p class="in">FastCGIはApacheモジュールとしてインタプリタを組み込んでしまうのとは別のやり方でプロセス起動を削減し、性能を向上させる仕組みです。</p>
+<p class="in">FastCGIの基本的な発想は、CGIプログラム1つ1つを小さなデーモン（あるいは常駐プロセス）にしたてることです。Apacheでは、この機能はやはりモジュール（<code>mod_fastcgi</code>）で実現されています。</p>
+<p class="in"><code>mod_fastcgi</code>はリクエストを受け付けると、</p>
+<ol>
+<li><p>リクエストに対応する子プロセスがすでに起動しているかどうかを調べます</p></li>
+<li><p>起動していなければ、起動します</p></li>
+<li><p>子プロセスにリクエストを転送します。子プロセスは、(1) リクエストを受け付け、(2) 実際の処理を行う、というループになっている必要があります</p></li>
+</ol>
+<p class="ni">という手順で実行を行います。FastCGIの実行を<a href="#fig4104">図41.4</a>に示します。</p>
+<div class="fig" id="fig4104">
+  <!-- <div class="image50"> -->
+  <div class="image450">
+      <img src="../image/ch41/41-4.jpg" alt="fig4104" />
+  </div>
+  <p class="fig-caption">図41.4●FastCGIの実行</p>
+</div>
+<a id="page_126"/>
+<p class="in">FastCGIには、直接Apacheにインタプリタがリンクされるわけではないので異常事態に強い、というメリットがあります。また、<code>mod_fastcgi</code>とFastCGIプログラムの通信に用いられるFastCGIプロトコルを解釈できれば、任意のプログラミング言語でCGIプログラムを書くことができるということも重要なメリットです。</p>
+<p class="in">一方、実装されるプログラムごとにプロセスが常駐するので、プログラム数が多い場合には、モジュールを使ってインタプリタをリンクする場合と比較してプロセス数が増加するというデメリットがあり、またリクエストを受け付けては処理を行うループ構成となるようにCGIプログラムの書き換えが必要となることもデメリットです。</p>
+<p class="in">FastCGIについての詳細情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.fastcgi.com/</span></p></li>
+</ul>
+<p class="ni">から入手できます。Apacheモジュール<code>mod_fastcgi</code>については、以下のページを参照してください。</p>
+<ul class="none">
+<li><p><span class="link">http://www.fastcgi.com/mod_fastcgi/docs/mod_fastcgi.html</span></p></li>
+</ul>
+<p class="in">RubyからFastCGIを利用する場合には、MoonWolfさんがメンテナンスしている<code>fastcgi</code>ライブラリを入手する必要があります。<code>fastcgi</code>ライブラリはpure Ruby版とfastcgi.comから入手できるCライブラリをリンクしたC版が同梱されており、pure Ruby版の原作者はEli Greenで、C版の原作者は私（まつもと）です。</p>
+<ul class="none">
+<li><p><span class="link">http://www.moonwolf.com/ruby/archive/ruby-fcgi-0.8.4.tar.gz</span></p></li>
+</ul>
+<p class="in">コンパイルとインストールには添付の<code>install.rb</code>を使います。</p>
+<a id="page_127"/>
+<div class="borderterminal">
+<pre>% ruby install.rb config
+% ruby install.rb setup
+% sudo ruby install.rb install</pre>
+</div>
+<p class="in"><code>fastcgi</code>ライブラリを使ったRubyプログラムは<a href="#list4103">リスト41.3</a>のような感じになります（<code>fastcgi</code>ライブラリの<code>README</code>から引用）。</p>
+<div class="plistc" id="list4103">
+<p class="lst-caption">リスト41.3●FastCGIサンプル</p>
+<pre><span class="cmt">#!/usr/bin/ruby</span>
+require <span class="str">&quot;fcgi&quot;</span>
+
+FCGI.each_cgi {|cgi|
+  name = cgi[<span class="str">&#39;name&#39;</span>][0]
+  puts cgi.header
+  puts <span class="str">&quot;You are #{name} &quot;</span> <span class="kwd">if</span> name
+  puts <span class="str">&quot;Connecting from #{cgi.remote_addr}&quot;</span>
+}</pre>
+<hr class="hr-gray" />
+</div>
+<p class="ih">“<code>each_cgi</code>”でFastCGIのループを構成しています。実際のプログラムでは、処理がすべて<code>each_cgi</code>のループの中に入るようにします。</p>
+<p class="in">実は<code>fastcgi</code>ライブラリはCGI実行にも対応していますので、<a href="#list4103">リスト41.3</a>のサンプルプログラムはCGIプログラムとしても動作します。将来、FastCGIに移行することが明らかな場合には最初からそのような書き方をするのも1つの方法です。</p>
+<p class="in">プログラムをFastCGIに対応させる場合にもう1つ注意すべき点は、FastCGI実行中のプログラムからは<code>ENV</code>による環境変数の参照が行えないことです。<code>each_cgi</code>から渡されるCGIオブジェクトにはCGIが環境変数として渡す情報がメソッドを経由して取得できますから、最初からそれらのメソッドを使って情報を得るようにしてください。</p>
+</section>
+<section id="chap4111" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はWebプログラミングの基礎と、CGIの性能上の欠点を解消する手段として<code>mod_ruby</code>と<code>fastcgi</code>を紹介しました。来月はもう少し「レベルの高い」Webプログラミングについて皆さんと一緒に学ぼうと思っています。</p>
+</section>
+<section id="chap4112" class="level2">
+<a id="page_128"/>
+<h3>おまけ — RubyConf 2004</h3>
+<hr class="hr-gray" />
+<p class="in">ところで、今年のRubyは10月1日からバージニア州のワシントンDCエリアで開催されます。残念ながら今年は私は参加できません。さすがに臨月の妻を置いて海外旅行はできませんでした。</p>
+<p class="in">私の代わりにはキーノートを発表してくれるのは、なんとObjective-CのデザイナーであるBrad Coxだそうです。私は彼の著書『オブジェクト指向のプログラミング』に大きな影響を受けた過去があるので、ぜひお会いしたかったので、ますます残念です。</p>
+<p class="in">皆さんの中で時間的・経済的に余裕のある方がもしいらっしゃれば、ぜひ参加されてはいかがでしょう。「達人プログラマー」たちを始めとする世界のRuby界を代表するような人物と直接コンタクトできるチャンスです。また、参加者には先着50名様まで、この秋出版されるPickaxe本こと<em>Programming Ruby</em> 第二版を世界で最初にプレゼントされることが決まっています。例年、出席者は50名前後ですから、今からでも間に合うのではないでしょうか。参加を検討してみてはいかがでしょう。Ruby Conferenceについての情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.rubyconf.org/</span></p></li>
+</ul>
+<p class="ni">からどうぞ。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-021.xhtml">&lt;&lt; 前ページ</a>　<a href="p-023.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

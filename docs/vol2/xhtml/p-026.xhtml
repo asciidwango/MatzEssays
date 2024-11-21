@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第43章 Webアプリケーションフレームワーク</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第43章</p>
+<!-- Body -->
+<section id="chap43" class="level1">
+<a id="page_143"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">43</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+Webアプリケーション<br />フレームワーク
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年12月号]</p>
+<div class="newlead">
+<p class="in">先月までのWebアプリケーションの基礎に引き続き、Webアプリケーションフレームワークについて解説しています。ちょうどこの原稿が書かれた2004年後半はRubyに限らず、各種言語でWebアプリケーションフレームワークが数多く登場した時期です。そのせいもあって、リストには17個ものフレームワークが紹介されています。今回の原稿で題材として取り上げたのは、CGIKitというフレームワークで、当時の評価は大変高かったのですが、いつの間にか消えてしまいましたね。ちなみに原稿で取り上げたCGIKit 1.2.1は現在でもダウンロードは可能でした。2024年現在ではRails一強で、たまにSinatraやHanamiも話題に登るといった状況でしょうか。</p>
+<p class="ih">「Ruby開発日記」は「Ruby Conference 2004レポート」です。ちょうどこのとき、末娘が誕生するタイミングで、コロナ禍になるまでRubyConfを欠席したのはこの年だけでした。ちょうどDHHのRuby on Railsの紹介をしていますね。笹田くんがYARVの発表したのもこの年でした。</p>
+</div>
+<div class="lead">
+<p class="ni">先月はWebアプリケーションの基礎になる「セッション」について学び、Webアプリケーションフレームワークを簡単に紹介しました。今月は、フレームワークの実際を見てみようと思います。</p>
+</div>
+<section id="chap4301" class="level2">
+<h3>Webアプリケーションフレームワーク</h3>
+<hr class="hr-gray" />
+<p class="in">先月も紹介したRubyによるWebアプリケーションフレームワークのリストを<a href="#table4301">表43.1</a>に示します。先月のリストから厳密には「フレームワーク」とは呼べないものを取り除き、新しくRosieを追加しました。</p>
+<a id="page_144"/>
+<div class="table" id="table4301">
+<p class="tbl-caption">表43.1●RubyのWebアプリケーションフレームワーク</p>
+<table class="tbl06">
+<tr>
+<th><span class="k">プロジェクト</span></th>
+<th><span class="k">作者</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td>Arrow</td>
+<td>Michael Granger</td>
+<td>Apacheを対象にしたフレームワーク</td>
+</tr>
+<tr>
+<td>Borges</td>
+<td>Eric Hodel</td>
+<td>継続でセッションを実現する</td>
+</tr>
+<tr>
+<td>CGIKit</td>
+<td>鈴木鉄也</td>
+<td>WebObjects類似のフレームワーク</td>
+</tr>
+<tr>
+<td>Cerise</td>
+<td>wglozer</td>
+<td>J2EE類似のフレームワーク（amritaを利用）</td>
+</tr>
+<tr>
+<td>Iowa</td>
+<td>Kirk Haines</td>
+<td>コンポーネントベースフレームワーク</td>
+</tr>
+<tr>
+<td>Mortar</td>
+<td>evan</td>
+<td>Mason類似のフレームワーク</td>
+</tr>
+<tr>
+<td>Radical</td>
+<td>Idan Sofer</td>
+<td>HTTPサーバーを含むpure Rubyフレームワーク</td>
+</tr>
+<tr>
+<td>Rails</td>
+<td>David H. Hansson</td>
+<td>MVC（ActionPack）とDB（ActiveRecord）で実現</td>
+</tr>
+<tr>
+<td>Roach</td>
+<td>Aaron Barnett</td>
+<td>jspならぬrspを利用するAPサーバー</td>
+</tr>
+<tr>
+<td>Rosie</td>
+<td>twelvesoft.com</td>
+<td>独自テンプレートのシンプルフレームワーク</td>
+</tr>
+<tr>
+<td>Ruby.APP</td>
+<td>Stephan Schmidt</td>
+<td>J2EEやZopeを意識したフレームワーク</td>
+</tr>
+<tr>
+<td>SWS</td>
+<td>Marek Janukowicz</td>
+<td>WebObjects類似のフレームワーク</td>
+</tr>
+<tr>
+<td>WAF</td>
+<td>Bryan Zarnett</td>
+<td>Jakarta Struts類似のフレームワーク</td>
+</tr>
+<tr>
+<td>Wakaba</td>
+<td>UENO Katsuhiro</td>
+<td>HTTPリクエストをメソッド呼び出しとみなす</td>
+</tr>
+<tr>
+<td>cgi-application</td>
+<td>Moonwolf</td>
+<td>cgiとcgi/sessionを使ったフレームワーク</td>
+</tr>
+<tr>
+<td>div</td>
+<td>関将俊</td>
+<td>dRubyを使ったフレームワーク</td>
+</tr>
+<tr>
+<td>webapp</td>
+<td>田中哲</td>
+<td>CGI/FastCGI/mod_ruby/WEBrickを利用可能</td>
+</tr>
+</table>
+</div>
+<p class="in">WebアプリケーションフレームワークはWebアプリケーションの「枠組み」を提供し、最小限の記述でWebアプリケーションを記述できます。</p>
+</section>
+<section id="chap4302" class="level2">
+<h3>フレームワークの機能</h3>
+<hr class="hr-gray" />
+<p class="in">Webを使ったアプリケーションを実現するための基本的な技術は本連載の<a href="p-022.xhtml#chap41">10月号</a>で解説したCGIです。しかし、CGIだけを使ってある程度以上のWebアプリケーションを作るのは大変です。そこでCGIのような低レベルなインターフェイスの上にもっと使いやすいライブラリを用意し、さらにWebアプリケーションの枠組みまで提供するのがWebアプリケーションフレームワークになります。</p>
+<p class="in">Webアプリケーションフレームワークでは以下のような機能が提供されます（すべてのフレームワークが以下のすべてを提供しているとは限りません）。</p>
+<div class="description">
+<p class="ditem">セッション管理機能</p>
+<p class="dni">1つのページでおしまいというようなCGIプログラムならともかく、Webアプリケーションは複数のページが連携され、一連の流れとして取り扱われる必要があります。Web上でそのような「セッション」を実現する方法については前回で紹介しましたが、はっきりいって面倒です。</p>
+<p class="ditem">ユーザー管理機能</p>
+<p class="dni">たとえば会員制のサイトの場合、ログインした場合には会員個人のページを表示するなど、ユーザーごとに個別化した対応を求められることがあります。いくつかのWebアプリケーションフレームワークでは、このユーザーごとの処理も支援しています。</p>
+<a id="page_145"/>
+<p class="ditem">ビューとロジックの分離</p>
+<p class="dni">Webアプリケーションのビュー（外見）とロジック（処理）を分離することにはメリットがあります。プログラムの中にHTMLの断片がちりばめられていると、デザインを変更したいときにはプログラムのあちこちを修正する必要があります。</p>
+<p class="din">それでなくても、HTMLエディタのようなツールを使ってきれいにデザインしたい、あるいはHTMLは専門のデザイナーに任せたい、というニーズがあるので、HTMLは1ファイルにまとまっていたほうがうれしいものです。ですから、ほとんどのWebアプリケーションフレームワークは、何らかの手段でビューとロジックの分離を支援しています。</p>
+<p class="ditem">コンポーネント</p>
+<p class="dni">Webアプリケーションの複数のページで「部品」を共有したいというニーズがあります。たとえば、画面の片隅にカレンダーを出したいとか、ヘッダーには共通メニューを置きたいとか。そのようなニーズに応えるための仕掛けがコンポーネントです。コンポーネントはページ全体ではなく、その一部となるような「部品」です。</p>
+<p class="ditem">ページ遷移</p>
+<p class="dni">Webアプリケーションはその実行に伴って、ページからページに移動します。その基本的な処理は、</p>
+<ul class="dul">
+<li><p>ページを表示する</p></li>
+<li><p>ユーザーからの入力を受け取る</p></li>
+<li><p>入力に応じて処理を行う</p></li>
+<li><p>新しいページを表示する</p></li>
+</ul>
+<p class="dni">という流れです。CGIでプログラムを書く場合には、各ページごとにこれら1つ1つを別々のCGIプログラムで実現する必要があります。Webアプリケーションフレームワークは、これを各ページを定義することで行います。多くのフレームワークはページはオブジェクトに対応し、処理はメソッドに対応します。</p>
+</div>
+<p class="in">今月は数あるWebアプリケーションフレームワークの中からCGIKitを紹介します。</p>
+</section>
+<section id="chap4303" class="level2">
+<h3>CGIKit</h3>
+<hr class="hr-gray" />
+<p class="in">CGIKitは鈴木鉄也さん（スパイスオブライフ）によって開発されているWebアプリケーションフレームワークです。</p>
+<ul>
+<li><p><span class="k">CGIKitホームページ</span><br />
+<span class="link">http://www.spice-of-life.net/cgikit/index.html</span></p></li>
+</ul>
+<p class="ni">最近、私の会社では社内で開発するWebアプリケーションのためのRubyによる各種フレームワークの評価を行ったのですが、その中で最も評価が高かったのが、このCGIKitでした。</p>
+<p class="in">CGIKitの特徴には以下のようなものがあります（ホームページから引用）。</p>
+<div class="description">
+<p class="ditem">コンポーネントベース</p>
+<p class="dni">HTMLファイルとRubyコードで構成されるコンポーネントを組み合わせてアプリケーションを作成します。開発効率が高く、コンポーネントは再利用が可能です。また、テンプレートとなるHTMLファイルの修正が簡単です。</p>
+<a id="page_146"/>
+<p class="ditem">ダイナミックエレメント</p>
+<p class="dni">独自のタグによりRubyクラスのメソッドをHTMLファイルに埋め込むことができ、コード量が大幅に減ります。</p>
+<p class="ditem">入出力の自動化</p>
+<p class="dni">ヘッダーやフォームなど、CGI特有の入出力を考慮する必要はありません。ヘッダーやフォームの<code>name</code>属性は自動的に生成され、フォームデータはRubyクラスのインスタンス変数に代入されます。</p>
+<p class="ditem">ステート管理</p>
+<p class="dni">クッキーとセッション管理の機能を提供します。標準CGIライブラリを併用する必要はありません。</p>
+<p class="ditem">国際化</p>
+<p class="dni">1つのコンポーネントで複数のロケール（言語）に対応することができます。</p>
+<p class="ditem">100% Pure Ruby</p>
+<p class="dni">Rubyさえインストールされていれば、コンパイルすることなくどこでも動きます。</p>
+<p class="ditem">拡張ライブラリが不要</p>
+<p class="dni">標準ライブラリのみを使用し、拡張ライブラリなしに動作します。</p>
+<p class="ditem">WebObjectsを参考にしたアーキテクチャ</p>
+<p class="dni">アーキテクチャはWebObjectsを参考にしており、コンポーネントの構造やエレメントはほぼ同じです。</p>
+</div>
+</section>
+<section id="chap4304" class="level2">
+<h3>CGIKitのインストール</h3>
+<hr class="hr-gray" />
+<p class="in">CGIKitはWebページからダウンロードできます。ライセンスはRubyのものと同じです。原稿執筆時点での最新版は1.2.1でした</p>
+<ul class="none">
+<li><p><span class="link">http://www.spice-of-life.net/archive/cgikit-1.2.1.tar.gz</span></p></li>
+</ul>
+<p class="in">ダウンロードした<code>tar.gz</code>ファイルを展開します。展開したディレクトリ（例: <code>cgikit-1.2.1</code>）に移動し、下記の手順でインストールスクリプトを実行します。</p>
+<div class="borderterminal">
+<pre>% ruby install.rb config
+% su
+# ruby install.rb install</pre>
+</div>
+<p class="ni">これでインストールは完了です。</p>
+</section>
+<section id="chap4305" class="level2">
+<a id="page_147"/>
+<h3>CGIKitによるWebアプリケーション</h3>
+<hr class="hr-gray" />
+<p class="in">CGIKitを使ったWebアプリケーションを実現するCGIプログラムは簡単です（<a href="#list4301">リスト43.1</a>）。なんと5行しかありません。CGIKitによるWebアプリケーションの本質はコンポーネントにあるので、起動する部分はこれだけで済むのです。どんなに複雑なWebアプリケーションでもおおむね同じCGIプログラムで対応できます。</p>
+<div class="plistc" id="list4301">
+<p class="lst-caption">リスト43.1●CGIKitを使ったCGIプログラム</p>
+<pre><span class="cmt">#!/usr/bin/ruby</span>
+require <span class="str">&#39;cgikit&#39;</span>
+
+app = CKApplication.new
+app.run</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">このCGIプログラムをWebサーバーから見える位置に置きます。CGIプログラムとして起動できるように、パーミッションの設定や、Webサーバーの設定を行うのを忘れてはいけません。</p>
+</section>
+<section id="chap4306" class="level2">
+<h3>CGIKitのコンポーネント</h3>
+<hr class="hr-gray" />
+<p class="in">Webアプリケーションの本質、コンポーネントはこのCGIプログラムが置かれているディレクトリに、コンポーネントごとに別々のディレクトリに置きます。</p>
+<p class="in">CGIKitではWebアプリケーションの各ページもコンポーネントです。CGIKitは起動されるとデフォルトでは<code>MainPage</code>コンポーネントを表示します。コンポーネントを構成するディレクトリには3つのファイルが必要です。<code>MainPage</code>コンポーネントの場合、</p>
+<ul class="none">
+<li><pre class="tabbing"><code>MainPage/       </code>　ディレクトリ</pre></li>
+<li><pre class="tabbing"><code>   MainPage.html</code>　ビュー（HTMLファイル）</pre></li>
+<li><pre class="tabbing"><code>   MainPage.ckd </code>　バインディングファイル</pre></li>
+<li><pre class="tabbing"><code>   MainPage.rb  </code>　ロジック（Rubyプログラム）</pre></li>
+</ul>
+<p class="ni">という構成になります。ディレクトリ名と同じ名前で拡張子が異なるファイルが3つ、これが基本です。</p>
+<p class="in">ビューは通常のHTMLファイルです。ただし、ロジックの内容が反映される箇所が <code>&lt;cgikit&gt;</code> タグで示されます。<code>MainPage.html</code>の例を<a href="#list4302">リスト43.2</a>に示します。</p>
+<div class="plistc" id="list4302">
+<p class="lst-caption">リスト43.2●MainPage.html</p>
+<pre>&lt;<span class="kwd">html</span>&gt;
+  &lt;<span class="kwd">head</span>&gt;
+    &lt;<span class="kwd">title</span>&gt;CGIKit Sample - input&lt;/<span class="kwd">title</span>&gt;
+  &lt;/<span class="kwd">head</span>&gt;
+  &lt;<span class="kwd">body</span>&gt;
+    &lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;ErrorCondition&quot;</span>&gt;
+      &lt;p&gt;&lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;Error&quot;</span> /&gt;&lt;/p&gt;
+    &lt;/cgikit&gt;
+    &lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;Form&quot;</span>&gt;
+      &lt;<span class="kwd">p</span>&gt;名前: &lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;Name&quot;</span> /&gt;&lt;/<span class="kwd">p</span>&gt;
+      &lt;<span class="kwd">p</span>&gt;性別: &lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;Female&quot;</span> /&gt;女性 / &lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;Male&quot;</span> /&gt;男性&lt;/<span class="kwd">p</span>&gt;
+      &lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;Submit&quot;</span> /&gt;
+    &lt;/cgikit&gt;
+  &lt;/<span class="kwd">body</span>&gt;
+&lt;/<span class="kwd">html</span>&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_148"/>
+<p class="in">HTMLファイル中の <code>&lt;cgikit&gt;</code> タグは「エレメント」と呼ばれて置換の対象になります。エレメントの名前は<code>name</code>属性で決定されます。<a href="#list4302">リスト43.2</a>には<code>ErrorCondition</code>, <code>Error</code>, <code>Form</code>, <code>Name</code>, <code>Female</code>, <code>Male</code>, <code>Submit</code>の各エレメントが使われています。実際に出力されるときには各エレメントがHTMLに置換されるわけです。</p>
+<p class="in">各エレメントがどのようなものであるかは「バインディングファイル」で決定されます。バインディングファイルの例を<a href="#list4303">リスト43.3</a>に示します。</p>
+<div class="plistc" id="list4303">
+<p class="lst-caption">リスト43.3●MainPage.ckd</p>
+<pre>ErrorCondition : CKConditional {
+  condition = error;
+}
+
+Error : CKString {
+  value = error;
+}
+
+Form : CKForm {
+}
+
+Name : CKTextField {
+  value = name;
+}
+
+Female : CKRadioButton {
+  name = <span class="str">&quot;sex&quot;</span>;
+  value = <span class="str">&quot;女性&quot;</span>;
+  selection = sex;
+}
+
+Male : CKRadioButton {
+  name = <span class="str">&quot;sex&quot;</span>;
+  value = <span class="str">&quot;男性&quot;</span>;
+  selection = sex;
+}
+
+Submit : CKSubmitButton {
+  action = check;
+}</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_149"/>
+<p class="in">バインディングファイルでは各エレメントの種別と属性について記述します。バインディングファイルの記述は以下のようになっています。</p>
+<div class="plist">
+<pre>エレメント名 : エレメント種別 {
+  属性名 = 属性値;
+  ...
+}</pre>
+</div>
+<a id="page_150"/>
+<p class="in">エレメントの種別を<a href="#table4302">表43.2</a>に示します。表を見ればわかるように、コンポーネントはエレメントの一種なので、コンポーネントをコンポーネントに埋め込むことができます。</p>
+<div class="table" id="table4302">
+<p class="tbl-caption">表43.2●エレメント種別</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">エレメント</span></th>
+<th><span class="k">概要</span></th>
+</tr>
+<tr>
+<td><code>CKString</code></td>
+<td>バインディングしたアクションの結果を表示する</td>
+</tr>
+<tr>
+<td><code>CKHyperlink</code></td>
+<td>他コンポーネントやメソッドにリンクを張る</td>
+</tr>
+<tr>
+<td><code>CKImage</code></td>
+<td>リソースディレクトリ内の画像を表示する</td>
+</tr>
+<tr>
+<td><code>CKConditional</code></td>
+<td>設定した条件の結果によってHTMLを表示する</td>
+</tr>
+<tr>
+<td><code>CKRepetition</code></td>
+<td>指定した範囲の内容を繰り返す</td>
+</tr>
+<tr>
+<td><code>CKForm</code></td>
+<td>フォームを用意する。送信データはそれぞれエレメントにバインディングした変数に代入される</td>
+</tr>
+<tr>
+<td><code>CKTextField</code></td>
+<td>テキストフィールドを表示する</td>
+</tr>
+<tr>
+<td><code>CKRadioButton</code></td>
+<td>ラジオボタンを表示する</td>
+</tr>
+<tr>
+<td><code>CKCheckbox</code></td>
+<td>チェックボックスを表示する</td>
+</tr>
+<tr>
+<td><code>CKPopUpButton</code></td>
+<td>ポップアップボタンを表示する</td>
+</tr>
+<tr>
+<td><code>CKText</code></td>
+<td>テキストエリアを表示する</td>
+</tr>
+<tr>
+<td><code>CKBrowser</code></td>
+<td>複数選択可能なリストを表示する</td>
+</tr>
+<tr>
+<td><code>CKFileUpload</code></td>
+<td>ファイルアップロードフィールドを表示する</td>
+</tr>
+<tr>
+<td><code>CKSubmitButton</code></td>
+<td>送信ボタンを表示する</td>
+</tr>
+<tr>
+<td><code>CKResetButton</code></td>
+<td>リセットボタンを表示する</td>
+</tr>
+<tr>
+<td><code>CKFrame</code></td>
+<td>フレームにコンポーネントを設定する</td>
+</tr>
+<tr>
+<td><code>CKComponent</code></td>
+<td>コンポーネント内に別のコンポーネントを設定する</td>
+</tr>
+<tr>
+<td><code>CKContent</code></td>
+<td>ネスティングしたコンポーネントにて、親コンポーネントを表示する</td>
+</tr>
+<tr>
+<td><code>CKGenericElement</code></td>
+<td>一般的なHTMLタグを生成する</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>value</code>属性に指定するのはメソッドまたはインスタンス変数です。コンポーネントのオブジェクトに、指定した名前のメソッドが存在しなければ、名前の先頭に「<code>@</code>」を付けたインスタンス変数の値を<code>value</code>にします。</p>
+<p class="in"><code>action</code>属性に指定するのはメソッドです。そのメソッドを実行した結果として次のページが決定されます。</p>
+<p class="in">さて、ロジック部を記述する<code>MainPage.rb</code>（<a href="#list4304">リスト43.4</a>）は、ごく普通のRubyプログラムで、以下の点に注意します。</p>
+<ul>
+<li><p>コンポーネント名と同名のクラスを定義する</p></li>
+<li><p><code>CKComponent</code>を継承する</p></li>
+<li><p><code>value</code>や<code>action</code>に指定したメソッドを定義する</p></li>
+<li><p><code>action</code>に指定したメソッドは「次のページ」を返す</p></li>
+</ul>
+<div class="plistc" id="list4304">
+<p class="lst-caption">リスト43.4●MainPage.rb</p>
+<pre><span class="kwd">class</span> MainPage &lt; CKComponent
+  <span class="kwd">def</span> check
+    <span class="kwd">if</span> @name.empty?
+      @error = <span class="str">&#39;名前を入力してください&#39;</span>
+      <span class="kwd">return</span>
+    <span class="kwd">elsif</span> @sex.<span class="kwd">nil</span>?
+      @error = <span class="str">&#39;性別を選択してください&#39;</span>
+      <span class="kwd">return</span>
+    <span class="kwd">end</span>
+    nextpage = page(<span class="str">&#39;DisplayPage&#39;</span>)
+    nextpage.name = @name
+    nextpage.sex = @sex
+    <span class="kwd">return</span> nextpage
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="ih">「次のページ」を意味するオブジェクトは、</p>
+<div class="plist">
+<pre>page(コンポーネント名)</pre>
+</div>
+<p class="ni">で生成します。必要なら「次のページ」オブジェクトに対してメソッドを呼び出し、値の設定などを行います。単に「<code>return</code>」すると同じページをもう一度表示することになります。「処理を行って、次のページに遷移する」というWebアプリケーションで最も重要な点が非常に簡単に実現できていることに注目してください。</p>
+<a id="page_151"/>
+<p class="ih">「次のページ」に当たる「<code>DisplayPage</code>」コンポーネントを<a href="#list4305">リスト43.5</a>に示します。これは<code>MainPage</code>で入力された名前と性別を表示するだけのコンポーネントです。<code>MainPage</code>と同様に、<code>DisplayPage</code>ディレクトリを作成し、その中に<a href="#list4305">リスト43.5</a>の3つのファイルを格納します</p>
+<div class="plistc" id="list4305">
+<p class="lst-caption">リスト43.5●DisplayPageコンポーネント</p>
+<pre>ビュー DisplayPage.html
+&lt;<span class="kwd">html</span>&gt;
+  &lt;<span class="kwd">head</span>&gt;
+    &lt;<span class="kwd">title</span>&gt;CGIKit Sample - display&lt;/<span class="kwd">title</span>&gt;
+  &lt;/<span class="kwd">head</span>&gt;
+  &lt;<span class="kwd">body</span>&gt;
+    &lt;<span class="kwd">p</span>&gt;名前: &lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;Name&quot;</span> /&gt;&lt;/<span class="kwd">p</span>&gt;
+    &lt;<span class="kwd">p</span>&gt;性別: &lt;cgikit <span class="kwd">name</span>=<span class="str">&quot;Sex&quot;</span> /&gt;&lt;/<span class="kwd">p</span>&gt;
+  &lt;/<span class="kwd">body</span>&gt;
+&lt;/<span class="kwd">html</span>&gt;
+
+バインディング DisplayPage.ckd
+Name : CKString {
+  value = name;
+}
+
+Sex : CKString {
+  value = sex;
+}
+
+ロジック DisplayPage.rb
+<span class="kwd">class</span> DisplayPage &lt; CKComponent
+  attr_accessor :name, :sex
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">この例題は非常に簡単なWebアプリケーションで、最初のページで入力された名前と性別を次のページに表示します。これを実行した結果を<a href="#fig4301">図43.1</a>と<a href="#fig4302">図43.2</a>に示します。</p>
+<div class="fig" id="fig4301">
+  <!-- <div class="image40"> -->
+  <div class="image350">
+      <img src="../image/ch43/43-1.jpg" alt="fig4301" />
+  </div>
+  <p class="fig-caption">図43.1●MainPage</p>
+</div>
+<div class="fig" id="fig4302">
+  <!-- <div class="image40"> -->
+  <div class="image350">
+      <img src="../image/ch43/43-2.jpg" alt="fig4302" />
+  </div>
+  <p class="fig-caption">図43.2●DisplayPage</p>
+</div>
+<p class="in">入力にミスがあった場合には、最初のページに戻りますが、エラーメッセージを表示します。<a href="#fig4303">図43.3</a>が名前を入力しなかった場合、<a href="#fig4304">図43.4</a>が性別を入力しなかった場合のメッセージです。</p>
+<div class="fig" id="fig4303">
+  <!-- <div class="image40"> -->
+  <div class="image350">
+      <img src="../image/ch43/43-3.jpg" alt="fig4303" />
+  </div>
+  <p class="fig-caption">図43.3●エラーメッセージ1</p>
+</div>
+<div class="fig" id="fig4304">
+  <!-- <div class="image40"> -->
+  <div class="image350">
+      <img src="../image/ch43/43-4.jpg" alt="fig4304" />
+  </div>
+  <p class="fig-caption">図43.4●エラーメッセージ2</p>
+</div>
+<p class="in"><code>MainPage.rb</code>でインスタンス変数 <code>@error</code>に設定したメッセージが、ビューの<code>Error</code>エレメントによって表示されていいます。エラーメッセージを追加するだけなら、わざわざ別のページを用意する必要はありません。</p>
+</section>
+<section id="chap4307" class="level2">
+<a id="page_152"/>
+<h3>CGIKitの評価</h3>
+<hr class="hr-gray" />
+<p class="in">Webアプリケーションフレームワークの代表として紹介したCGIKitですが、実際に使ってみるとコンポーネントベースのアプリケーション設計は、思った以上に使いやすいし、再利用性も高そうです。</p>
+<p class="in">ただ、不満もないわけではありません。ビューとして用いるHTMLで用いられる <code>&lt;cgikit&gt;</code> タグはHTMLエディタとの相性があまりよくありません。amritaのようなHTMLとして正当なテンプレートか、あるいはいっそRosieで用いられている「<code>#[]#</code>」のようなHTMLのタグとは関係のない記号を用いたほうがデザイナーとプログラマーの分業には有効だったかもしれません。</p>
+<p class="in">あと、これは不満ということではありませんが、私にはバインディングファイルの有効性がよくわかりませんでした。エレメントの種別と属性くらいならテンプレートに直接書いてもよいような気がしましたし、<code>validate</code>（値の正当性チェック）のようなものはむしろロジックの一部として記述したほうがよいように思いました。</p>
+<p class="in">もっとも、私はまだほんの小さなサンプルプログラムしかいじっていませんから、もっと大きなWebアプリケーションでたくさんのコンポーネントを利用する場合にはバインディングファイルが有効になるのかもしれません。</p>
+</section>
+<section id="chap4308" class="level2">
+<a id="page_153"/>
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はWebアプリケーションフレームワークの代表としてCGIKitを紹介しました。フレームワークを使うとWebアプリケーションの開発が飛躍的に簡単になります。</p>
+<p class="in">今回紹介したCGIKitにはロジック部のデータベースマッピングを支援するTapKitと呼ばれる姉妹品があります。こちらはSQLを書くことなくRDBを操作できるライブラリで、WebObjectのEnterprise Objects Frameworkを参考に作られているそうです。こちらも近いうちに紹介できたらと考えています。</p>
+<p class="in">なお、CGIKitのサンプル作成など、今月も同僚であるかずひこさんのご協力をいただきました。どうもありがとうございます。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-025.xhtml">&lt;&lt; 前ページ</a>　<a href="p-027.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

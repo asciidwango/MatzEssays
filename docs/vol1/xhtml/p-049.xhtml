@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第22章 スレッド（その1）</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第22章</p>
+<!-- Body -->
+<section id="chap22" class="level1">
+<a id="page_311"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">22</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+スレッド（その1）
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年3月号]</p>
+<div class="newlead">
+<p class="in">コンカレントプログラミングのもう1つの手段、スレッドについて解説しています。コンカレント性についての要求は多種多様で、いろいろな状況に対応するために、この後、FiberやRactorも増えることになるのですが、ここではそれは置いておきましょう。</p>
+<p class="in">今回はスレッドにまつわるいろいろな問題（デッドロックやレースコンディションなど）についても解説しています。記事中、「スレッドとセキュリティ」についても解説していますが、この機能は最新のRubyでは（セキュリティ上の信頼性が期待したより低かったので）削除されています。</p>
+<p class="ih">「Ruby開発日記」は、パフォーマンス改善の原則についてです。正直、このような原則的なところは時代で変化することはなく、正直、今読んでも「いいこと言ってるな」と感じます。</p>
+</div>
+<div class="lead">
+<p class="ni">プロセスについて学んだ先月に引き続いて、今月はもう1つの並列処理手段であるスレッドについて解説します。</p>
+</div>
+<section id="chap2201" class="level2">
+<h3>スレッド</h3>
+<hr class="hr-gray" />
+<p class="in">複数の仕事を同時に実行したい場合、OSはプロセスという単位を使って並列実行する、と先月学びました。しかし、プロセスによる並列実行には面倒な点がいくつかありました。それは、</p>
+<ul>
+<li><p>プロセスの操作が直接的でない</p></li>
+<li><p>プロセス間通信が面倒</p></li>
+</ul>
+<p class="ni">の2点です。新しいプロセスを作るには<code>fork</code>というシステムコールを使いますが、作られたプロセスは実行中のプロセスの「子供」として登録されますが、子供とはいえ独立した存在なので、できるのは終了ステータスの取り出しなど限られた情報のやりとりだけです。</p>
+<a id="page_312"/>
+<p class="in">プロセス同士は独立した空間を持っていますから、子プロセスで変数の値を書き換えても親には影響を与えません。プロセス間で通信するには、パイプやソケットなどを使ってバイトストリームで行うしかありません。UNIXにはいちおう「共有メモリ」なんてものもあるんですが、そんなに使いやすくもありません。共有メモリについては今後機会があれば説明しようと思います。</p>
+<p class="in">独立した空間はお互いに邪魔をしないように保護するという目的があるので悪いことばかりではないのですが、緊密なやりとりを行いながら並列実行したいというニーズにはあまり向きません。そのような場合に使われるのが「スレッド」です。スレッドは1つのプロセスの中で複数の処理を並列に実行するものです。スレッド（thread）とは「縫い糸」のことです。実行の流れが縫い糸のようにちくちくと現れたり消えたり（実行されたり止まったり）することから連想されたのでしょう。</p>
+<p class="in">プロセスと違って、スレッドは空間を共有します。ですから、たとえば別々のスレッドから1つのオブジェクトを参照するなんてこともできます。バイトストリームに変換してから通信するなどの面倒なことを行わなくても情報のやりとりを行うことができます。</p>
+<p class="in">Rubyのスレッドは自前で用意している「ユーザーレベルスレッド」です。これはOSが提供する「カーネルレベルスレッド」と違ってマルチCPUを活用することもできませんし、スレッド切り替えのコストも高いので性能的には不利です。しかし、OSがスレッド機能を提供しているかどうかにかかわらず、どのOS（たとえMS-DOSでも!）でも同じように動くので、気軽にスレッドを体験することができます。</p>
+</section>
+<section id="chap2202" class="level2">
+<h3>スレッド生成</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyではスレッドは普通のオブジェクトですから、<code>new</code>を使って生成します。</p>
+<div class="plist">
+<pre>th = Thread.new{p 42}</pre>
+</div>
+<p class="in">これで新しいスレッドを生成し、そのうえでブロックを実行します。ですから、ブロックの中の「<code>p 42</code>」という処理の部分はスレッド生成に続く部分と並列に実行に実行されます。「並列に」と言っても本当に同時に動くわけではなくて、実際には短い時間で仕事を切り替えつつ交代に細切れに実行しています。厳密にはこのような「擬似並列」のことを「コンカレント」、複数のCPUを使って本当に同時に実行することを「パラレル」と呼びます。</p>
+<p class="in">スレッドはブロック内の処理が終わると終了します。<code>new</code>には他に<code>fork</code>とか<code>start</code>とかいう別名もあり、こちらのほうがよく使われるかもしれません。</p>
+</section>
+<section id="chap2203" class="level2">
+<h3>Threadのメソッド</h3>
+<hr class="hr-gray" />
+<p class="in"><code>Thread</code>クラスには<a href="#table2201">表22.1</a>に示すクラスメソッドと<a href="#table2202">表22.2</a>に示すインスタンスメソッドがあります。</p>
+<a id="page_313"/>
+<div class="table" id="table2201">
+<p class="tbl-caption">表22.1●Threadクラスメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>Thread.<br />abort_on_exception</code></td>
+<td>例外でプロセスを中断</td>
+<td><code>Thread.kill</code></td>
+<td>カレントスレッド終了</td>
+</tr>
+<tr>
+<td><code>Thread.<br />abort_on_exception<br />=val</code></td>
+<td>中断状態の設定</td>
+<td><code>Thread.list</code></td>
+<td>スレッド一覧</td>
+</tr>
+<tr>
+<td><code>Thread.critical</code></td>
+<td>割り込み禁止状態</td>
+<td><code>Thread.main</code></td>
+<td><code>main</code>スレッド</td>
+</tr>
+<tr>
+<td><code>Thread.critical<br />=val</code></td>
+<td>割り込み禁止の設定</td>
+<td><code>Thread.new</code></td>
+<td>スレッドの生成</td>
+</tr>
+<tr>
+<td><code>Thread.current</code></td>
+<td>カレントスレッド</td>
+<td><code>Thread.pass</code></td>
+<td>実行権の委譲</td>
+</tr>
+<tr>
+<td><code>Thread.exit</code></td>
+<td>カレントスレッド終了</td>
+<td><code>Thread.start</code></td>
+<td><code>new</code>の別名</td>
+</tr>
+<tr>
+<td><code>Thread.fork</code></td>
+<td><code>new</code>の別名</td>
+<td><code>Thread.stop</code></td>
+<td>一時停止</td>
+</tr>
+</table>
+</div>
+<div class="table" id="table2202">
+<p class="tbl-caption">表22.2●Threadインスタンスメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>th[key]</code></td>
+<td>スレッド固有データ</td>
+<td><code>th.<br />priority</code></td>
+<td>優先度</td>
+</tr>
+<tr>
+<td><code>th[key]<br />=val</code></td>
+<td>固有データ設定</td>
+<td><code>th.<br />priority<br />=val</code></td>
+<td>優先度の設定</td>
+</tr>
+<tr>
+<td><code>th.<br />abort_on_exception</code></td>
+<td>例外でプロセス中断</td>
+<td><code>th.raise(<br />exception)</code></td>
+<td>例外の発生</td>
+</tr>
+<tr>
+<td><code>th.<br />abort_on_exception<br />=val</code></td>
+<td>中断状態の設定</td>
+<td><code>th.run</code></td>
+<td>スレッドを実行させる</td>
+</tr>
+<tr>
+<td><code>th.alive?</code></td>
+<td>生きているか</td>
+<td><code>th.<br />safe_level</code></td>
+<td>安全レベル</td>
+</tr>
+<tr>
+<td><code>th.exit</code></td>
+<td>スレッドの終了</td>
+<td><code>th.status</code></td>
+<td>スレッドの状態</td>
+</tr>
+<tr>
+<td><code>th.join</code></td>
+<td>スレッド終了を待つ</td>
+<td><code>th.stop?</code></td>
+<td>停止しているか</td>
+</tr>
+<tr>
+<td><code>th.key?(key)</code></td>
+<td><code>key</code>の対応データがあるか</td>
+<td><code>th.value</code></td>
+<td>スレッドの戻り値</td>
+</tr>
+<tr>
+<td><code>th.keys</code></td>
+<td><code>key</code>の一覧</td>
+<td><code>th.wakeup</code></td>
+<td>スレッドを起こす</td>
+</tr>
+<tr>
+<td><code>th.kill</code></td>
+<td>スレッドの終了</td>
+<td></td>
+<td></td>
+</tr>
+</table>
+</div>
+<p class="in">Rubyのスレッドに特有の注意すべき点がいくつかあります。</p>
+<p class="in">第一は<code>main</code>スレッドが終了すると他のスレッドは全部終了することです。<code>main</code>スレッドとはプログラムが始まった時点で最初に動作しているスレッドです。プロセスと違ってRubyのスレッドに親子関係はありませんが、<code>main</code>スレッドだけは特別扱いされます。<code>main</code>スレッドが終了すると他のスレッドは処理中だろうが問答無用で強制終了されます。</p>
+<p class="in">第二の注意点は、実行中に例外が発生したスレッドは（デフォルトでは）黙って終了することです。プログラム開発中に予想外の例外が原因で、いつの間にかスレッドがいなくなってびっくりすることがときどきあります。これに対応する方法はいくつかあって、一番簡単なものはデバッグ中はインタプリタに <code>-d</code>オプションを渡すことです。<code>-d</code>オプションが与えられるとインタプリタは例外が発生すると、たとえその例外が捕捉されても例外名と発生したプログラム中の場所を標準エラー出力に表示してくれます。</p>
+<p class="in">もう1つの方法は<code>abort_on_exception</code>を指定することです。<code>abort_on_exception</code>を指定したスレッドが例外で中断されるとインタプリタ全体が強制終了します。<code>Thread</code>のクラスメソッドで指定するとすべてのスレッドに対して有効になります。</p>
+<div class="plist">
+<pre>t = Thread.new{...}
+t.abort_on_exception=true       <span class="cmt"># tでの例外で終了</span>
+
+Thread.abort_on_exception=true  <span class="cmt"># すべての例外で終了</span></pre>
+</div>
+<p class="in">上記の <code>-d</code>オプションも<code>abort_on_exception</code>もどちらかというとデバッグ用の対応ですが、実際の運用時向けのチェック手段もあります。例外で終了したスレッドに対して<code>join</code>メソッドや<code>value</code>メソッドを呼ぶと、それらのメソッドがスレッドを終了させた例外を再発生させます。スレッド中で例外が発生したかどうかチェックしたり、例外に対応させたりする場合に有効です。</p>
+<a id="page_314"/>
+<div class="plist">
+<pre>t = Thread.new{...}
+t.join      <span class="cmt"># tの終了を待つ</span>
+            <span class="cmt"># 例外があれば再発生</span></pre>
+</div>
+<p class="in"><code>join</code>メソッドはスレッドの終了の待ち合わせ、<code>value</code>メソッドはスレッドの終了を待ったうえで、スレッドに与えたブロックが最後に評価した値を返します。</p>
+</section>
+<section id="chap2204" class="level2">
+<h3>スレッドの実行状態</h3>
+<hr class="hr-gray" />
+<p class="in">スレッドには以下の4つの状態があります。</p>
+<div class="description">
+<p class="ditem"><code>run</code></p>
+<p class="dni">実行中。厳密にいえばRubyのスレッドは処理を少しずつ細切れに切り替えながら行うので、実行中というよりは「実行可能」という感じでしょうか。</p>
+<p class="ditem"><code>stop</code></p>
+<p class="dni">停止中。停止の理由は「IO待ち」「<code>select(2)</code>待ち」「時間待ち」「<code>join</code>待ち」があります。「時間待ち」とは指定した時間まで停止している状態（<code>sleep</code>など）。「<code>join</code>待ち」とは他のスレッドの終了を<code>join</code>メソッドで待っている状態のことです。</p>
+<p class="ditem"><code>to_kill</code></p>
+<p class="dni">終了処理中。スレッドが強制終了されて、完全に終了する前に<code>ensure</code>などの処理を行う状態。</p>
+<p class="ditem"><code>killed</code></p>
+<p class="dni">終了。終了処理が完全に終わってしまった状態。一度終了したスレッドは復活することはありません。<code>Thread.list</code>でも終了してしまったスレッドは一覧に含まれません。</p>
+</div>
+<p class="in">これらの状態は<a href="#fig2201">図22.1</a>のように状態遷移します。</p>
+<div class="fig" id="fig2201">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch22/22-1.jpg" alt="fig2201" />
+  </div>
+  <p class="fig-caption">図22.1●スレッドの状態遷移</p>
+</div>
+<p class="in">スレッドの現在の状態を知るメソッドは<code>status</code>, <code>alive?</code>, <code>stop?</code> です。「生きている」場合には<code>status</code>はスレッドの現在の状態を文字列で返します（<code>killed</code>状態については<code>nil</code>を返します）。<code>alive?</code> はスレッドが「生きている」かどうかを返します。<code>stop?</code> はスレッドが停止しているときに真を返します。「停止している」には<code>killed</code>状態も含まれます。</p>
+<p class="in">あと、状態とは直接は関係ないのですが、<code>Thread.pass</code>を実行すると現在のスレッドの状態は<code>run</code>のまま、他の<code>run</code>状態のスレッドに実行権を譲ります。Rubyのスレッドは時間が経つと勝手に実行権を取り上げるようになっているので、明示的にこれを指定する必要があるケースは少ないですけど。</p>
+</section>
+<section id="chap2205" class="level2">
+<a id="page_315"/>
+<h3>スレッドとセキュリティ</h3>
+<hr class="hr-gray" />
+<p class="in">スレッドはただ処理を（擬似）並列に実行するための仕掛けですから、「スレッドとセキュリティに何の関係があるの」という疑問はもっともです。しかし、Rubyのセキュリティモデルはスレッドを利用しているのです。昨年の<a href="p-034.xhtml#chap15">8月号</a>の本連載『CGI』でも解説したようにRubyでは変数 <code>$SAFE</code>の値を操作することで、セキュリティレベルを設定できます。<code>$SAFE</code>に設定する値とその意味を<a href="#table2203">表22.3</a>に示します。</p>
+<div class="table" id="table2203">
+<p class="tbl-caption">表22.3●セキュリティレベルとその意味</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">セキュリティレベル</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td style="text-align: center;"><code>0</code></td>
+<td>外部から入力された値が汚染される（デフォルト）</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>1</code></td>
+<td>汚染された値による危険な操作が禁止される</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>2</code></td>
+<td>プロセスやファイルに対する危険な操作が禁止される</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>3</code></td>
+<td>生成されるすべてのオブジェクトが汚染される</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>4</code></td>
+<td>グローバル情報の変更が禁止される</td>
+</tr>
+</table>
+</div>
+<p class="in">このセキュリティレベルはスレッド独立の値です。ということは、あるスレッドで <code>$SAFE</code>を高く設定しても他のスレッドには影響を与えないということです。これを利用して信頼できないプログラムをスレッドに隔離して実行することができます。</p>
+<div class="plist">
+<pre><span class="kwd">def</span> safe_eval(str)
+  Thread.new{
+    $SAFE = 4           <span class="cmt"># ここだけレベル4に</span>
+    eval(str)           <span class="cmt"># 文字列の評価・実行</span>
+  }.value               <span class="cmt"># 結果を受け取る</span>
+<span class="kwd">end</span>
+
+safe_eval(<span class="str">&quot;1+1&quot;</span>)        <span class="cmt"># =&gt; 2 (安全だから)</span>
+safe_eval(<span class="str">&quot;`rm -r /`&quot;</span>)  <span class="cmt"># 例外「Insecure operation」</span></pre>
+</div>
+</section>
+<section id="chap2206" class="level2">
+<h3>スレッドの使用例</h3>
+<hr class="hr-gray" />
+<p class="in">それではスレッドを使ったプログラムの使用例を見てみましょう（<a href="#list2201">リスト22.1</a>）。</p>
+<div class="plistc" id="list2201">
+<p class="lst-caption">リスト22.1●スレッドによるソケットサーバー</p>
+<pre>require <span class="str">&quot;socket&quot;</span>
+
+gs = TCPserver.open(0)
+loop <span class="kwd">do</span>
+  <span class="cmt"># スレッドの起動</span>
+  <span class="cmt"># startの引数はブロックパラメータに渡る</span>
+  Thread.start(gs.accept) <span class="kwd">do</span> |s|
+    処理を行う
+    s.close
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_316"/>
+<p class="in">簡単ですね。先月解説したプロセスを使ったソケットサーバー（<a href="#list2202">リスト22.2</a>）と比較するとより直接的であることがわかると思います。</p>
+<div class="plistc" id="list2202">
+<p class="lst-caption">リスト22.2●forkによるソケットサーバー</p>
+<pre>require <span class="str">&quot;socket&quot;</span>
+
+gs = TCPserver.open(0)
+loop <span class="kwd">do</span>
+  s = gs.accept
+  fork <span class="kwd">do</span>
+    fork <span class="kwd">do</span>     <span class="cmt"># zombie化を避ける二重fork</span>
+      処理を行う
+      s.close
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+  s.close       <span class="cmt"># 親では不要</span>
+  Process.wait  <span class="cmt"># 直接の子を「供養」</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">まだ、<code>Thread.start</code>の引数について説明していませんでしたね。<code>Thread.start</code>に引数を渡すとその引数がブロックパラメータに代入されます。スレッドに対して値を渡す1つの方法です。もちろん、ブロックからは外側の変数が見えるので、変数によって渡せばよいと思うのは自然なことですが、このプログラムのループ部分を、</p>
+<div class="plist">
+<pre>s = gs.accept
+Thread.start() <span class="kwd">do</span>
+  処理を行う
+  s.close
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">と書き換えても一応動作しますが、実はタイミングによって誤動作します。つまり、スレッドの処理が終わる前に次の<code>accept</code>が実行されると変数<code>s</code>の値が書き換わってしまうからです。</p>
+<p class="in">スレッドプログラミングではそれぞれのスレッドが同時に動くため、通常以上にプログラムの挙動の予想が困難です。より想像力が必要だともいえるでしょう。</p>
+</section>
+<section id="chap2207" class="level2">
+<a id="page_317"/>
+<h3>共有の苦痛</h3>
+<hr class="hr-gray" />
+<p class="in">スレッドを使えば情報のやりとりが簡単というのはうれしいことばかりではありません。実社会でもそうですが、共同生活でお互いが勝手なことをしていては遅かれ早かれ破綻します。スレッド処理においては、以下のような問題が発生する可能性があります。</p>
+<ul>
+<li><p>データ整合性の喪失</p></li>
+<li><p>デッドロック</p></li>
+</ul>
+<p class="in">これらはスレッドによる問題というよりは並列処理全般で発生する問題ですが、スレッドでは空間を共有するためより起こりやすいということです。</p>
+<p class="in">これらの問題を個別に見てみましょう。</p>
+<section id="chap220701" class="level3">
+<h4>データ整合性の喪失</h4>
+<p class="in">先ほどのソケットサーバーの例でもありましたが、共有しているデータを書き換えると思わぬ悪影響が発生します。スレッド同士は同じ空間を共有しているので、意図せずに同じ変数やオブジェクトを同時にアクセスしている可能性があります。「データ整合性の喪失」の例として最もよく使われるのが銀行口座の例です（<a href="#fig2202">図22.2</a>）。</p>
+<div class="fig" id="fig2202">
+  <!-- <div class="image50"> -->
+  <div class="image500">
+      <img src="../image/ch22/22-2.jpg" alt="fig2202" />
+  </div>
+  <p class="fig-caption">図22.2●銀行口座の整合性喪失</p>
+</div>
+<p class="in">簡単に流れを説明すると、ユーザーAは口座の残高を取得し、引き出したぶんの2千円を引いた額を新しい残高として設定します。一方、ユーザーBも同様に、口座の残高を取得し、引き出したぶんの4千円を引いた新しい残高を設定します。最初は1万円しかなかったのに、最終的には合計が1万2千円になっています。こんな銀行はまずいでしょう。</p>
+<p class="in">この手順がまずいのは複数の並列手続き（スレッド）から口座を共有していることに無頓着だったせいです。残高を取得してから新しい残高を設定するまでの処理は、途中で割り込まれてはいけません。このような分割してはいけない処理のことを「アトミックな処理」と呼びます。アトミックな処理の間、他のスレッドがこの口座を操作しないように保護してやる必要があります。</p>
+</section>
+<section id="chap220702" class="level3">
+<h4>デッドロック</h4>
+<p class="in">デッドロックは複数のスレッドが資源を奪いあって身動きが取れなくなる状態です。銀行口座に続きプログラミングでない例で恐縮ですが、古典的な例として「哲学者の<ruby>晩餐<rt>ばんさん</rt></ruby>」を紹介しようと思います。哲学者の晩餐とは以下のような話です。</p>
+<a id="page_318"/>
+<div class="blockquote">
+<p class="in">5人の哲学者が丸いテーブルに座っています。哲学者の前にはスパゲティの皿が置いてあります。また、哲学者の両側には1本ずつ箸が置いてあります（全部で5本）。哲学者は一日中思索しますが、ときどきお腹が空いたら両側の箸を取り、スパゲティを食べます。</p>
+<p class="in">さて、ある瞬間、偶然に哲学者全員がスパゲティを食べようとします。同時に全員が食べるだけの箸はありませんので、哲学者はそれぞれ箸を取りますが、箸が2本手に入らないので食べることができず、全員が飢えてしまいます。あるいは全員でなくても隣り合った哲学者が同時に箸を取りあうと面倒なことが発生します。</p>
+</div>
+<p class="ih">「スパゲティを箸で食うのか」とか「手で食べたらいけないのか」とか「スパゲティがダメならケーキを食べたらいいじゃないの」とかツッコミどころ満載の話ですが、まあ古典ですから。ともかく、このように資源（この場合は箸）が足りない場合、上手に考えないとデッドロックになります。プログラムは普通哲学者以上に融通が効かないので、餓死するまで停止することになるでしょう。</p>
+<p class="in">Rubyのサンプルプログラムに<code>philos.rb</code>というものがあります。これを実行すると<a href="#fig2203">図22.3</a>のような出力を延々と続けます。</p>
+<div class="figconsole" id="fig2203">
+<div class="borderconsole">
+<pre>-o-o-o|*|o-o-o-o-o
+-o|*|o|*|o-o-o-o-o
+-o|*|o|*|o|*|o-o-o
+-o|*|o-o-o|*|o-o-o
+|o|*|o-o-o|*|o-o|*
+|o-o-o-o-o|*|o-o|*
+|o-o|*|o-o|*|o-o|*
+|o-o|*|o-o-o-o-o|*
+|o-o|*|o-o-o|*|o|*
+...</pre>
+</div>
+<p class="fig-caption">図22.3●philos.rb の出力</p>
+</div>
+<p class="in">これは実はこの<code>philos.rb</code>は「哲学者の晩餐」シミュレータなのです。各行は丸いテーブルを直線に引き伸ばしたものだと考えてください。行の内容は単位時間ごとの哲学者とテーブルの状態を表しています。「<code>o</code>」は思索している哲学者、「<code>*</code>」は食事している哲学者です。また、「<code>-</code>」は置かれている箸、「<code>|</code>」は使用中の箸です。</p>
+<p class="in">ただ、<code>philos.rb</code>はデッドロックを避けるようにプログラムされています。具体的には、空腹になった哲学者はそれぞれまず右手側の箸を取り（空いていなければ待つ）、それから左手側の箸を取ります。左の箸が空いていなければ、右手の箸も一度返してしまい、空腹を我慢しつつ思索に戻ります。このようにすればむやみに箸を占有しないのでデッドロックは発生しません。このような「ルール」を用意することで、哲学者たちは飢えてしまうことはありません、空腹を少々我慢することはあっても。</p>
+</section>
+</section>
+<section id="chap2208" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はスレッドによる並列処理のさわりについて学びました。また、スレッドによって発生しやすいトラブルについても学びました。このトラブルはプロセスでも発生します。</p>
+<p class="in">並列処理のトラブルはタイミングによって起きたり起きなかったりするのでつらいです。トラブルが起きないようにするためには、そもそもトラブルが起きない構造にする必要があります。それには……あ、今月は誌面が尽きてしまいました。トラブルが起きないスレッドプログラミングについては来月、ということで。ではまた。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-048.xhtml">&lt;&lt; 前ページ</a>　<a href="p-050.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

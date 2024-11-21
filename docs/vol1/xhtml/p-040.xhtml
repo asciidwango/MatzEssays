@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第17章 CGIの道具箱</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-039.xhtml">第17章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap1714" class="level2">
+<a id="page_260"/>
+<h3>◆ Ruby開発日記 ◆ 時代はLispに追いついたか</h3>
+<hr class="hr-green" />
+<p class="in">Lispというプログラミング言語があります。</p>
+<p class="in">1958年以来、Lispはプログラミング言語の独立峰としてそびえています。それが色あせないのは、数学をベースにしているからだと思われます。Lispは広く使われることはありませんでしたが、そこで生まれた概念は「知る人ぞ知る」奥義としてコンピュータサイエンスの世界で受け継がれていたのです、ここ40年ほどの間。</p>
+<section id="chap171401" class="level3">
+<h4>みんなLispから教わった</h4>
+<p class="in">Lispから始まって、やっと最近になって一般の人も知るようになった概念はたくさんあります。たとえば以下のようなものがあげられます（これらはみんなRubyにもあります）。</p>
+<div class="description">
+<p class="ditem">スタティックスコープ</p>
+<p class="dni">Lisp以外の初期のプログラミング言語にはグローバル変数しかありませんでした。当時はLispだけがローカル変数（関数に閉じた変数）という概念を持っていました。</p>
+<p class="ditem">再帰</p>
+<p class="dni">ローカル変数のない言語には関数が自分自身を呼び出す再帰の実現は不可能です。</p>
+<p class="ditem">多重継承</p>
+<p class="dni">クラスや継承の概念を生んだのはLispではなくSimulaですが、複数のスーパークラスを持つ多重継承を発明したのは（おそらく）Lisp界の住人です。Rubyも採用しているMix-inという考え方もLispから受け継いでいます。</p>
+<p class="ditem">ガベージコレクション</p>
+<p class="dni">使われなくなったデータを自動的に回収してくれる便利な機能、ガベージコレクションが世に広く知られるようになったのはJava以降でしょうか。しかし、Lispは1960年代からこの機能を持っていました。実に世の中は40年遅れていたわけです。</p>
+<p class="ditem">例外</p>
+<p class="dni">これもJavaによって知られるようになった機能ですが、Lispではやはり60年代（後半?）からあったようです。</p>
+<p class="ditem">動的な型</p>
+<p class="dni">昔の言語といえば、変数や式に型がある静的な型か、あるいは、いっそ型がないBCPLのようなものが主流でした。しかし、Lispは一貫して型は変数ではなくデータそのものにあるという考えで設計されていました。</p>
+</div>
+</section>
+<section id="chap171402" class="level3">
+<a id="page_261"/>
+<h4>世の中はLispに進むのか</h4>
+<p class="in">では、世の中が40年以上をかけてLispの隠された機能に追いついてきたのならば、世の中はこのままLispの方向に進み続けるのでしょうか?</p>
+<p class="in">私はそうは思いません。</p>
+<p class="in">Lispには上で紹介しなかった「知られざる奥義」があり、そしてそれは今後も他の言語には伝わらないだろうと思うからです。その奥義は「データとプログラムの同一視」です。Lispのプログラムはこんな感じです。</p>
+<div class="plist">
+<pre>(<span class="kwd">defun</span> fact (n)
+  (if (= n 0)
+        1
+    (* n (fact (- n 1)))))</pre>
+</div>
+<p class="in">Lispのプログラムはかっこがとても多いのですが、単純な階乗のアルゴリズムですから、意味を取るのはそれほど難しくないと思います。実はこの「プログラム」はそのまま「データ」なのです。Rubyの式で書くとこんな感じでしょうか。</p>
+<div class="plist">
+<pre>[:defun, :fact, [:n],
+  [:<span class="kwd">if</span>, [:= :n 0],
+    1,
+    [:*, [:fact, [:- :n 1]]]]]</pre>
+</div>
+<p class="in">Rubyだとちょっと醜いですが、Lispではこのようにシンボルとリストからなるデータ構造でプログラムが表現されています。これにより、</p>
+<ul>
+<li><p>プログラムがプログラムを生成すること</p></li>
+<li><p>プログラムの構造を解析したり、一部変更したりすること</p></li>
+</ul>
+<p class="ni">の両方が容易になります。前者だけならRubyでも<code>eval</code>を使うことで実現できますが、後者は現実的ではありません。このプログラムとデータの同一視により、Lispにはマクロ機能という言語自身をどんどん拡張する機能があります。</p>
+<p class="in">しかし、これほど優れている（ように見える）機能も広く受け入れられることはないでしょう。私はそう感じます。</p>
+<p class="in">その理由は2つあります。</p>
+<div class="description">
+<p class="ditem">かっこが多いと見栄えが悪い</p>
+<p class="dni">Lispのプログラムは非常にかっこが多用されます。この「普通でない」見栄えは人々から敬遠されてきた理由の1つです。これは今後も変わらないでしょう。外見は人気の重要な要素です。</p>
+<p class="ditem">マクロは強力すぎ</p>
+<p class="dni">マクロは強力ですばらしい機能ですが、見方を変えると、Lispという大きな枠組みの中でいくつもの専用言語を作っていることでもあります。これは「常識がどこでも通用する」という一貫性とは逆行する性質です。かなり頭のいい人でないとついていけないと思います。言語は「普通の人」のためにあるのです。</p>
+</div>
+<a id="page_262"/>
+<p class="in">さて、私の予想は当たるでしょうか。それとも参考文献に示すように世の中はLispを受け入れるのでしょうか。それはあと10年経ったら明らかになる、かもしれません。</p>
+<section id="chap171403" class="level4">
+<h4>参考文献</h4>
+<p class="ni">「普通のやつらの上を行け — Beating the Averages —」<br />
+Paul Graham著, Shiro Kawai訳<br />
+<span class="link">http://www.shiro.dreamhost.com/scheme/trans/beating-the-averages-j.html</span></p>
+<p class="ni">「人気の言語を作るには — Being Popular —」<br />
+Paul Graham著, Shiro Kawai訳<br />
+<span class="link">http://www.shiro.dreamhost.com/scheme/trans/being-popular-j.html</span></p>
+</section>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-039.xhtml">&lt;&lt; 前ページ</a>　<a href="p-041.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

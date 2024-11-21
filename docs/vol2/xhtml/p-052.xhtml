@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第63章 オープンソースのマーケティング</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第63章</p>
+<!-- Body -->
+<section id="chap63" class="level1">
+<a id="page_267"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">63</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+オープンソースのマーケティング
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">オープンソースマガジン</span>, 2006年7月号]</p>
+<div class="newlead">
+<p class="in">技術者として「良いものを作れば売れる（or 広まる）」という考えは自然なものです。私もそのように感じてきましたし、実際Rubyについても開発開始（1993年）からこの記事を書く少し前（2005年頃）まで、私自身がそれほど広報活動をしたわけではありません。しかし、Ruby on Railsの登場は私の考えを変えました。きちんとした情報発信をしなければ、たとえ良いものでも広まらない、あるいは広まるのが遅すぎるという事実は私にとって驚きでした。まあ、気がついたからと言ってすぐに行動を改められるわけではなく、Rubyの広報活動はコミュニティメンバーに任せきりではありますが、それでも各種情報発信やカンファレンスの開催などでRubyに対する認知は大きく向上したのは確かです。</p>
+</div>
+<section id="chap6301" class="level2">
+<h3>マーケティング表裏</h3>
+<hr class="hr-gray" />
+<p class="in">マーケティングはお金に魂を売った人たちのもの、それが言い過ぎなら、ビジネス指向の人たちだけのもの。そんなふうに考えていた時期が私にもありました。技術者は技術で勝負。技術的に優れたものを作ればそれでよい、と思っていたからです。しかし最近、少々考えを改めつつあります。</p>
+<p class="in">たしかにマーケティングと呼ばれる活動の中には、<ruby>些細<rt>ささい</rt></ruby>なことを大げさに表現したり、技術的にたいしたことのないものをさもすばらしいことのように表現して、大衆の耳目を集めるのが目的となっているものもあります。エンジニアやハッカーのような中身がわかっている人々にとって、そのような活動はあまり尊敬できるものではありません。むしろ軽蔑や<ruby>揶揄<rt>やゆ</rt></ruby>の対象となることが多いでしょう。</p>
+<p class="in">しかし、すべてのマーケティング活動がそのような「邪悪なもの」というわけではありません。マーケティングには人間の心理的特性に着目し、好意的な反応を引き出すというような興味深い側面もあります。今回はそのようなマーケティングの側面と、オープンソースにおけるマーケティングについて考えてみましょう。</p>
+</section>
+<section id="chap6302" class="level2">
+<a id="page_268"/>
+<h3>オープンソースとマーケティング</h3>
+<hr class="hr-gray" />
+<p class="in">オープンソースソフトウェア（以下OSS）は、その定義から無償で入手<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> できる必要があるので、市場の拡大・活性化を目的とするマーケティングとは無縁のようにも感じられます。OSSのユーザーが増えても、その増大に応じた「売り上げ」が上がるわけでもありませんし、ユーザーが増えたからといって開発者が増えるとも限りません。</p>
+<p class="in">しかし、OSSの成功のためには、ある種のマーケティングが役に立つのではないかと最近感じ始めています。効果的なマーケティング手法を使うことによって、OSSプロジェクトの成功確率が高まるのではないかと思うようになったからです。</p>
+</section>
+<section id="chap6303" class="level2">
+<h3>オープンソースの成功</h3>
+<hr class="hr-gray" />
+<p class="ih">「OSSの定義」を満たすライセンスを付けてソースコードを公開したからといって、必ずしも成功するとは限りません。一昔前にしばしば見受けられた「OSSにすればコミュニティができて、バザールモデル<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a> が成立し、開発サイクルがうまく回る」などという幻想は、現実が知られるにつれて目にしなくなってきました。</p>
+<p class="in">個人的な意見ですが、成功するためにまず必要なのは、何をもって成功とするかを定義することではないでしょうか。もちろん、偶然「成功」することもあるでしょうが、意図的に成功するには、どのような状態を達成できれば成功と見なすかを定めないと難しいはずです。</p>
+<p class="in">では、ここで「OSSの成功」を定義しておきましょう。人によって定義は違うでしょうが、パッと考えつく範囲内では、</p>
+<ul>
+<li><p>コミュニティの成立</p></li>
+<li><p>バザールモデルによる持続的な開発</p></li>
+<li><p>好きなこと（OSS開発）をやりつつ生活の安定</p></li>
+</ul>
+<p class="ni">などがあります。他にも、ビジネス的成功など、いろいろ考えられますが、とりあえず今回は上記のような成功に絞って考えましょう。</p>
+<p class="in">これらの成功をまとめると、「持続」というキーワードが登場するような気がします。コミュニティが成立しないようなプロジェクトは、オリジナルの開発者が延々と孤独に開発を続けることになりがちですし、開発者が飽きてしまえばそれでおしまいです。私自身の経験から考えても、外部からのインプットはモチベーションの維持に大変重要です。また、生活の安定も持続のために必要な要素で、学生主体のプロジェクトが主開発者の卒業や就職のために停止してしまった例<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a> もたくさんあります。逆に、持続性が期待できないプロジェクトには参加を<ruby>躊躇<rt>ちゅうちょ</rt></ruby>されるでしょうし、バザールモデルによる開発も成立しにくいでしょう。つまり、上記の定義に従えば、「OSSの成功とその持続性は、表裏一体である」ということができます。</p>
+</section>
+<section id="chap6304" class="level2">
+<a id="page_269"/>
+<h3>持続することの難しさ</h3>
+<hr class="hr-gray" />
+<p class="ih">「継続は力なり」という言葉もありますが、逆に「それだけ継続することは難しい」ということを意味しています。</p>
+<p class="in">先日調査した結果<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a> によると、Freshmeat.Net<a href="#fn5" class="footnote-ref" id="fnref5" epub:type="noteref" role="doc-noteref">5</a> に登録されている25841プロジェクトのうち、実に61%に当たる15779プロジェクトが1年以上更新されていませんでした。「とりあえずアイデアを思い付いて、プロジェクトを登録してみた」というPlanningレベルでは、実に8割を超えるプロジェクトが停滞しています。このデータは、持続的開発が実に困難であることを示しています。プロジェクトをOSSとして公開しても、必ずしもコミュニティが成立するわけではなく、またそれだけで持続的に開発できるわけではないのです。</p>
+<p class="in">では、持続的開発には何が必要なのでしょうか。重要なのは、開発者の生活の安定と外部からの継続的なインプットだと思います。しかし、これらは鶏と卵のようなものです。つまり、開発者の生活が安定するために仕事を頑張りすぎればOSSを開発する時間はなくなってしまいますし、逆にOSSを開発するために仕事を抑制すれば今度は生活が安定しません。一番よいのはOSS開発者としてどこかの企業に雇用され、OSS開発自体が仕事になることですが、そのためにはOSSそのものの価値が高く評価されることも必要でしょうし、OSS開発が安定している、つまりすでに持続的な開発が行われているかどうかが重視されそうです。持続的な開発のために生活の安定を求めているのに、そのためにはすでに持続的な開発が行われていることを求められるようでは、簡単な解決策はなさそうです。</p>
+<p class="in">では、いったいどうすればよいのでしょう。</p>
+</section>
+<section id="chap6305" class="level2">
+<h3>持続への解決策</h3>
+<hr class="hr-gray" />
+<p class="in">1つには開発者の生活の安定でしょう。OSS開発にかまけていても生活に不安がなければ、心配することなく開発に没頭できます。特に経済的な側面で心配のないことが重要です。しかし、親の遺産を受け継ぐような運のよい話はめったにありませんし、ビジネス的に成功してお金持ちになった人は、今度はビジネスに対する責任からOSS開発どころではない人のほうが多そうです。結局、これはあまり一般的に有効な方法ではなさそうですね。</p>
+<a id="page_270"/>
+<p class="in">もう1つの方法がマーケティングの利用です。商品ではないので「広報」と呼んだほうがよいのかもしれません。オープンソースは商品ではありませんから、売れなければならないというプレッシャーはありませんし、単純に考えればユーザーがどれほど増えても関係ないと思えます。しかし、ある程度以上のユーザーを獲得できれば、開発モチベーションの観点からも、コミュニティ形成の観点からも、大変有利です。また、LinuxやRubyのようにスポンサーによる支援<a href="#fn6" class="footnote-ref" id="fnref6" epub:type="noteref" role="doc-noteref">6</a> を受けるためには、そのプロジェクトが技術的に優れていることは当然として、「どれだけユーザーがいて、どれだけの影響力があるか」が重要になります。</p>
+</section>
+<section id="chap6306" class="level2">
+<h3>マーケティング手法</h3>
+<hr class="hr-gray" />
+<p class="in">近年、OSS分野のマーケティングにおける成功例としては、Ruby on Rails<a href="#fn7" class="footnote-ref" id="fnref7" epub:type="noteref" role="doc-noteref">7</a>（以下Rails）があげられるでしょう。RailsはWebアプリケーションフレームワークとして優れている点はもちろんですが、「Javaの10倍の生産性」というわかりやすいキャッチフレーズや「わずか10分でブログソフトを実装」という人目を引くビデオによって注目されました。「わかる人だけわかればよい」というようなテキストオンリーの無愛想なドキュメントが横行するOSS業界にあって、このアプローチは特異だったように思えます。</p>
+<p class="in">具体的には、</p>
+<ul>
+<li><p>何が達成できるのか、わかりやすい表現</p></li>
+<li><p>特にビジュアルな表現</p></li>
+</ul>
+<p class="ni">が重要のようです。Rubyのような言語はこれが苦手なので、ずっと困っていました。言語はプログラムを書けば原理的には何でもできるからです。差別化も難しいですし。しかし、Railsの成功のおかげで「RubyではRailsが使えます」といえるようになりました。最近、Rubyが注目されている原因<a href="#fn8" class="footnote-ref" id="fnref8" epub:type="noteref" role="doc-noteref">8</a> の1つはRailsでしょう。ありがたいことです。</p>
+<p class="in">これからはオープンソース分野においても、見栄えや広報などマーケティング的側面がますます重要視されるのかもしれません。</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">無償で入手</span></p>
+<p>正確には「無償で入手することを妨げてはならない」。有償の頒布が禁じられているわけではないし、配布手数料・複製コストなどを徴収することも認められている。
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">バザールモデル</span></p>
+<p>1997年5月にEric S. Raymond氏が発表した論文「伽藍とバザール（The Cathedral and the Bazaar）」に登場するキーワードで、有志の開発者がゆるく組織化されたソフトウェア開発モデル。Linuxが代表格。<br />
+<span class="link">http://www.catb.org/~esr/writings/cathedral-bazaar/</span>
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">主開発者の卒業や就職のために停止してしまった例</span></p>
+<p>筆者にとって印象に残っているのは、カリフォルニア大学バークレー校で開発されていたSatherという言語。Eiffelの影響を受けつつも、より優れた言語であったSatherだが、主開発者の卒業による開発のバトンタッチに手間取り、とうとう消えてしまった。
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">調査した結果</span></p>
+<p>2006年3月調べ。
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn5">
+<p><span class="k">Freshmeat.Net</span></p>
+<p><span class="link">http://freshmeat.net/</span>
+<a href="#fnref5" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn6">
+<p><span class="k">スポンサーによる支援</span></p>
+<p>CMっぽくなるが、「ネットワーク応用通信研究所はRubyの開発を支援しています」。
+<a href="#fnref6" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn7">
+<p><span class="k">Ruby on Rails</span></p>
+<p>Webアプリケーションフレームワーク。Rubyによる動的プログラムを活用した生産性に定評がある。<br />
+<span class="link">http://www.rubyonrails.org/</span>
+<a href="#fnref7" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn8">
+<p><span class="k">Rubyが注目されている原因</span></p>
+<p>もう1つの原因は「開発者のヒゲ」ではないかと邪推している。一説によると、開発者がヒゲを生やしている言語は成功するらしい。<br />
+<span class="link">http://www.rubyist.net/~matz/20041206.html#p02</span>
+<a href="#fnref8" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-051.xhtml">&lt;&lt; 前ページ</a>　<a href="p-053.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

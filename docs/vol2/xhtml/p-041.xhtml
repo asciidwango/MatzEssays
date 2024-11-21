@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第54章 言語の重要性 その2</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第54章</p>
+<!-- Body -->
+<section id="chap54" class="level1">
+<a id="page_223"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">54</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+言語の重要性 その2
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">UNIX USER</span>, 2005年10月号]</p>
+<div class="newlead">
+<p class="in">前回「言語の重要性」の続編です。今回は、自作言語について語っています。多くの人にとって、プログラミング言語はプログラムを開発するために「学ぶもの」であって、「作るもの」ではありません。人間というのは無意識のうちに線を引いて「ここからは自分の領域ではない」と思い込んでしまうもののようで、「言語を作る」ことというのは典型的な領域外に属する活動のようです。この「無意識の線引き」からは誰も自由ではなく、最近、Rubyのために「コンパイラ・コンパイラ」（構文解析機のソースコードを自動生成するツール）を開発する話になったときに、自分がコンパイラ・コンパイラは既存のものを利用するだけで新規に開発することを意識の外に置いていたことを自覚して<ruby>愕然<rt>がくぜん</rt></ruby>とした経験があります。</p>
+<p class="in">今回は「おまけ」としてOSCON参加レポートもついています。そういえばこの頃は直接Rubyをテーマにしない海外カンファレンスにもたまには出席していましたね。カンファレンスへの招待が増えるにつれて、Rubyを直接テーマにしないカンファレンスへの出席は避けるようになってしまいました。2024年にはRuby on Rails20周年ということでRails World Conferenceに出席しますが、それは本当に稀有な例外です。</p>
+</div>
+<section id="chap5401" class="level2">
+<h3>本当のハッカーの定義</h3>
+<hr class="hr-gray" />
+<p class="in">しばらく前の話になりますが、VA Linux Business Forum 2005においてOSS Roundupという討論会に参加しました。これは、私を含むオープンソースに深く関わっている5名のパネリストがオープンソースに関して自由に語る形式のものです。この中で「ハッカーとは何か?」という話題が登場しました。一番定義が緩いのは「オープンソースプログラマー」の肩書でテレビにも出演していらっしゃる小飼弾氏で、「（民主主義社会では）あらゆる人はハッカーである」と定義しておられました。それはまた極端な。</p>
+<p class="in">でも、これをきっかけにイベントが終わったあと、「本当のハッカーの定義は何だろうか?」と改めて考えました。私は、小飼さんほど範囲を広げるつもりはないのですが、自分の中で「ハック」という用語をプログラミングに限定しているわけでもなさそうです。あえて、言語化すると「普通の人は変えられないと思い込んでいるものも変えることができる力を持つ人」くらいでしょうか。そして、コンピュータに関連した領域では、その力の源はプログラミング能力にありそうです。コンピュータに関係ない領域でも、政治力を駆使して社会を変革する「ソーシャルハック」とかありそうな気がします。経済力と常識にとらわれない発想力で社会に大きな影響を与えるライブドアの堀江さんなどは、「ソーシャルハッカー」なのかもしれません。まあ、そんな私でも、やっぱり何も修飾なしに「ハッカー」という単語を使えばやっぱりそれはプログラミングを行うハッカーのことを指しますけどね。</p>
+</section>
+<section id="chap5402" class="level2">
+<a id="page_224"/>
+<h3>キーワードはINSANE</h3>
+<hr class="hr-gray" />
+<p class="in">もっと最近の話になりますが、8月1日から5日まで米オレゴン州ポートランドで開催されたO’Reilly Opensource Convention（通称OSCON）<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> に参加してきました。前述の弾さんとは、ここでもまたご一緒しました。また、David Thomas, Rich Kilmer, Jim Weirichなど、Rubyを通じて知り合った海外の友人と再会できたのもうれしいことです。OSCONのリポートは<a href="p-042.xhtml#chap5405">227ページ</a>を参照していただくとして、世界中からオープンソースに関心がある人々とハッカーが集う様子は壮観でした。</p>
+<p class="in">さて、OSCONで強く感じたキーワードはINSANEです。辞書を引くと「正気じゃない」「精神異常の」とか「ばかげた」「非常識な」とかひどい意味が並んでいますが、実際にはもっとずっとポジティブに使われています。口語で「正気の<ruby>沙汰<rt>さた</rt></ruby>じゃない」や「普通じゃない」などというときのニュアンスに近いでしょうか。この連載で何度も繰り返しているハッカーの「ブレーキが壊れている」様子をよく表現していると思います。</p>
+<p class="in">OSCONの4日目に、Larry Wall（Perl）、Rasmus Lerdorf（PHP）、Guido van Rossum（Python）と一緒にランチをとる機会がありました。言語デザイナーとして、こんな豪華なメンバーのランチに参加できたのは光栄の極みです。Unicode対応のやり方とか、最近のトピックについていろいろと話をした<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a> のですが、ここでもINSANEは話題になっていました。GuidoがLarryに向かって「あなたたち（Perlピープル）のINSANEさはけた違いだ」と言っていましたが、これは「あなたたちは気が違っている」という意味ではなく、「われわれも確かにINSANEだが、Perlの人たちにはかなわない」というニュアンスでしょう。Guidoは、「われわれはこれだけ後方互換性に気を使って言語を変化させているのに、まだ変化が速いといわれる」とちょっと残念そうでした。確かにPythonピープルは保守的な人が多いかも。先入観でしょうか。それに比べると、Rubyはずいぶんいいかげんだなあ。</p>
+</section>
+<section id="chap5403" class="level2">
+<a id="page_225"/>
+<h3>自分言語を作るのは難しくない!?</h3>
+<hr class="hr-gray" />
+<p class="in">正直なところ、世の中にこれだけたくさんの言語があって、それぞれに特徴を持っているのに、さらにまた新しい言語を作ろうと思い付くその時点ですでに相当INISANEでしょう。常識的な人間であれば「これだけいろんな言語があるんだから、この中から自分の目的に合うものを探そう」という発想をするはずです。そこを「自分の言語を作ろう」と思っちゃうんですから、INSANEといわれても仕方がありません。しかも、言語を作ってそれを成功させようと思ったら、ただ単に言語をデザインするだけでなく、</p>
+<ul>
+<li><p>処理系を実装（誰も代わりに「自分言語」の処理系を書いてくれない）</p></li>
+<li><p>ドキュメントを書き（誰も代わりに「自分言語」のドキュメントを書いてくれない）</p></li>
+<li><p>Webサイトを用意（誰も代わりに……以下省略）</p></li>
+</ul>
+<p class="ni">などする必要があります。なかなか厳しいいばらの道ですよね。</p>
+<p class="in">じゃあ、「自分の言語」を作るのは本当に非現実的なことなのでしょうか。まつもとがRubyを作ったのは、本当に彼が「正気じゃない」からでしょうか。そうでないとは言い切れないのが悲しいところですが、私も最初から他の人と違ったことをしたいからRubyを作ったわけではないのです。「成功しよう」とか「完璧なものを作ろう」とか最初から気負うから大変なのですが、実際には「作りたい」という思いがあったから作った、そして言語の設計や実装はそれほど難しいことではないから実現できたわけです。</p>
+<p class="in">冷静に考えてみると、システムをデザインするということは、ある意味、言語に<ruby>語彙<rt>ごい</rt></ruby>を加えていくことに他なりません。「どのような語彙をそろえているか」は言語の性質を決定しますから、自分の言語をデザインしていることでもあります。その辺をもうちょっと突き詰めて、語彙を超えて文法の領域にまで手を入れたくなると、アラ不思議、自分言語の出来上がり、ということになります。</p>
+<p class="in">ここ数十年のコンピュータサイエンスの進歩により、言語処理系の開発は本当に簡単になりました。特別に変な文法でなければ、BNF<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a> に似たような記法で文法を定義するだけで、コンパイラと呼ばれるツールを使ってあっという間に構文解析器を自動生成することができます。今や性能のことを第一に考えなければ、簡単な言語を作ることなんて数日あればできることです。</p>
+<p class="in">しかし、自分言語を作ることで何かメリットがあるのでしょうか?　ええ、あるんです。</p>
+<p class="in">1つ目のメリットは、言語処理系というものがプログラミングの中でしばしば登場するテクニックの集合体であることです。たとえば、設定ファイルを読み込むルーチンなどは、言語処理系の字句解析、構文解析そのものです。また、言語処理系はコンピュータサイエンスの総合芸術ですから、処理系を実装するために用いたテクニックはあらゆるプログラミングに応用できます。</p>
+<p class="in">また、よい言語をデザインしようということは、人間の気持ちをより深く考えることでもあります。つまり、インターフェースのあるべき姿について、より深い考察を行うことでもあるわけです。自分言語を作る2つ目のメリととしては、言語レベルでの使い勝手を考えることで、プログラムの使い勝手に関するより深い経験と知識を身につけられることがありそうです。</p>
+</section>
+<section id="chap5404" class="level2">
+<a id="page_226"/>
+<h3>一段高いプログラマーへの道</h3>
+<hr class="hr-gray" />
+<p class="in">最後に、言語デザインはとにかく面白いです。プログラミングの世界は、結局すべてのものが言語によって表現されるので、言語を変化させることはあらゆるもののあり方を変化させることでもあります。つまり、言語のデザインは、究極の自由だといえるでしょう。このような自由を享受する機会は、それほど多くないはずです。</p>
+<p class="in">自分言語をデザインするということは、一段高いプログラマーへの道に通じているのかもしれません。たとえ結果的に、その言語が他の人にまったく使われなかったとしても……。そう思って、昨年からlangsmithメーリングリスト<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a> を運営しています。言語好きな人たちが集まって、自分の新言語を発表したり、議論したりしています。この中から未来を担う言語が登場したり、時代をリードするプログラマーが誕生したりするといいなと思っているのです。</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">OSCON</span></p>
+<p>今年のOSCONの情報ページやプレゼンテーション資料は以下のURLで公開されている。</p>
+<p class="i2w"><span class="link">http://conferences.oreillynet.com/os2005/</span><br />
+<span class="link">http://conferences.oreillynet.com/pub/w/38/presentations.html</span>
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">いろいろと話をした</span></p>
+<p>LL（Lightweight Language）言語のデザイナーが顔を合わせてざっくばらんな話ができる機会はそうそうあるものではなく（前回は2年前）、せっかくの超貴重な機会なのだが、私は英語が拙くてあまり突っ込んだ話はできなかった。痛恨。
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">BNF</span></p>
+<p>Backus Naur Formの略。BNF記法は、ALGOL 60の文法定義を形式的に行うために考案されたものである。
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+<ul class="none">
+<li><p><code>右辺 ::= 左辺</code></p></li>
+</ul>
+<p>という形式で文法要素を決定するルールを並べていくことで全体の文法を定義する。yacc（yet another compiler compiler）のようなツールはBNF（に似た）記法を受け入れて構文解析を行うソースコードを出力する。
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">langsmithメーリングリスト</span></p>
+<p>アドレスは&lt;langsmith@quickml.atdot.net&gt;。参加するためには、まつもとのアドレス&lt;matz@ruby-lang.org&gt;にCCしながら上のアドレスに参加希望のメールを出すこと。
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-040.xhtml">&lt;&lt; 前ページ</a>　<a href="p-042.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

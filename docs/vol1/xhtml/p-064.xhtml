@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第29章 再入門オブジェクト指向</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-063.xhtml">第29章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap2908" class="level2">
+<a id="page_400"/>
+<h3>◆ Ruby開発日記 ◆ LL Saturday</h3>
+<hr class="hr-green" />
+<p class="in">8月9日、台風10号が接近しつつある中、東京渋谷にある法学館5号館で、LL Saturdayと銘打ったイベントが開催されました。</p>
+<p class="in">LLとはLightweight Languageの略で、軽量級プログラミング言語として最近注目されているPerl, PHP, Python, Ruby（アルファベット順）について、それぞれの第一人者が解説するというような感じのイベントです。</p>
+<p class="in">軽量級といっても、言語仕様が小さいとか、プログラムのサイズが小さいとかいう意味ではありません。また、実行時の負荷が軽いという意味でもありません。</p>
+<p class="in">Lightweight Languageというのはもともとは一昨年からMITで開催されているイベントの名前で、スクリプト言語やLisp, MLなどの言語をまとめるために考え出された名称です。</p>
+<p class="in">主催者としては当初はDynamic Languageと呼びたかったらしいのですが、それではMLのような型推論を行う静的型の言語が含まれなくなるなど、いろいろ悩んだ末に付けた名前のようです。</p>
+<p class="in">昨年、私は2回目になるLL2に出席してきました。LL1ではLightweight Languageの定義については議論されなかったようでしたので、そこで「脳力の消費量が少ない言語」という「俺定義」を披露してきました。もちろんこれがLLの公式な定義になるわけがないのですが、LL2の出席者にはそれなりに前向きに受け取ってもらえたようです。</p>
+<p class="in">さて、そんなLightweight Languageについて日本でも語ろうと企画が始まったLL Saturdayですが、定員200名で出席者の募集を行ったところわずか3日でいっぱいになるという「事件」が発生しました。それなりに注目を浴びていたようです。</p>
+<p class="in">当日は悪天候の中、150名を超す人たちが会場に集まりました。スタッフによるとこの条件での150名はいいほうだそうです。会場ではアスキーやオライリージャパンを始めとする出版社がLL関連書籍を陳列・販売していました。会場だけの特別割引もあり、結構売れていたようです。</p>
+<p class="in">肝心のプログラムですが、</p>
+<ul>
+<li><p>Language Update</p></li>
+<li><p>オブジェクト指向とLL</p></li>
+<li><p>君ならどう書く</p></li>
+</ul>
+<p class="ni">という3本立てでした。</p>
+<section id="chap290801" class="level4">
+<h5>Language Update</h5>
+<p class="in">各言語の最近の話題を解説していました。Perlは5.8.0のリリース間近、PHPはPHP 5のリリースが年内に予定されていて、Pythonは2.3がリリースされたばかり、Rubyも1.8.0のリリース直後ということで、それぞれの最新バージョンの動向などが紹介されました。</p>
+<p class="in">Perl 6の話題も期待されていたと思うのですが、このことに関してはPonie（Perl 6のインタプリタエンジンであるParrot上に再実装されるPerl 5）くらいしか紹介されませんでした。</p>
+<a id="page_401"/>
+<p class="in">それぞれの新しい機能が紹介される中、言語機能としてはお互いに参考にしあって次第に近づいてきているような印象を受けました。特にPerl 6やPythonの新バージョンはRubyが持っていた機能の同等品を取り込んできて（Rubyを参考にしたとは限りませんが）、ますます差が近づいているようでした。</p>
+<p class="in">将来はParrotのような「共通エンジン」が登場して、言語の違いは文法の違いだけになってしまうのかもしれません。</p>
+</section>
+<section id="chap290802" class="level4">
+<h5>オブジェクト指向とLL</h5>
+<p class="in">それぞれの言語のオブジェクト指向機能について紹介したのちに、「Lightweight Languageにおけるオブジェクト指向」などについて語るパネルが行われました。</p>
+<p class="in">パネルのほうは少々発散気味でしたが、Python担当の磯さんが「手順としてプログラムをとらえる人はオブジェクト指向とか構造体とかが理解しにくい」という発言が印象的でした。</p>
+</section>
+<section id="chap290803" class="level4">
+<h5>君ならどう書く</h5>
+<p class="in">同じテーマについて各言語で独立にプログラムを書くことで、それぞれの言語の比較をしようという試みです。</p>
+<p class="in">テーマは3つあって</p>
+<ul>
+<li><p>RSSビューア</p></li>
+<li><p>Apacheログ解析</p></li>
+<li><p>ネットワークじゃんけん</p></li>
+</ul>
+<p class="ni">でした。今回取り上げた言語はそれぞれライブラリが充実してきていますので、この程度のタスクは割と簡単に実現できてしまいます。</p>
+<p class="in">しかし、Lightweight Languageというだけあって、皆さん、</p>
+<ul>
+<li><p>会場でデバッグ</p></li>
+<li><p>プレゼン中にコード変更</p></li>
+</ul>
+<p class="ni">など、驚くようなフットワークの軽さを見せつけてくださいました。会場のディスプレイの見にくさとあいまって、聴衆を混乱に陥れてくださいました。いや、冗談です。</p>
+<p class="in">このセッションで印象的だったのはきたさんのプレゼンです。彼が書いたRubyのコードからviのエディタコマンドで<code>end</code>行を消すと、あら不思議、なんとなくPythonのコードに見えてくるじゃありませんか。行末にコロンを追加したら本当に動くかもしれません。</p>
+<p class="in">言語設計者としてはPythonとRubyは相当違うと日頃から思っているのですが、日常的な使用では実は大した差なんてないのかもしれません。</p>
+<p class="in">LL Saturday全体を通して振り替えると、ディスプレイの解像度の低さと、相性の悪いPCによるトラブルが続出したことを除けば、全体に質の高いイベントだったのではないでしょうか。</p>
+<p class="in">なお、じゃんけん対決による最強Lightweight Language決定戦ではRubyが圧勝であったことをご報告しておきます。単なる乱数の結果ではあるんですが。</p>
+<a id="page_402"/>
+<p class="in">さて、このようにして終了したLL Saturdayだったのですが、私はイベント終了後、懇親会の誘いも断って、松江に帰るためにそそくさと羽田空港に向かって移動したのですが、なんと私が乗るはずだった出雲空港行きは天候事情のため欠航になってしまいました。</p>
+<p class="in">こんなことなら懇親会に出ればよかったです。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-063.xhtml">&lt;&lt; 前ページ</a>　<a href="p-065.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

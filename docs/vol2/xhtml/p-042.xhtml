@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第54章 言語の重要性 その2</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　<a href="p-041.xhtml">第54章</a>　&gt;　まつもと ゆきひろのOSCONレポート</p>
+<!-- Body -->
+<section id="chap5405" class="level2">
+<a id="page_227"/>
+<h3>まつもと ゆきひろのOSCONレポート</h3>
+<hr class="hr-green" />
+<div class="lead">
+<p class="ni">2005年8月1日から8月6日にかけてアメリカ、オレゴン州ポートランド開催されたO’Reilly Open Source Convention 2005に参加してきました。アメリカに限らず世界のあちこちからハッカーが集まる特別な機会について、やや偏った視点からレポートします。</p>
+</div>
+<section id="chap540501" class="level3">
+<h4>OPEN SOURCE CONVENTION</h4>
+<p class="in">オープンソースコンベンションはもともとはO’Reillyが主催していたPerl Conferenceが母体になっています。Perl Conferenceの規模が段々大きくなり、他のオープンソースに関するイベントも取り込むようになってオープンソースコンベンションという形になりました。3年前まではアメリカ西海岸のあちこちで開催されていましたが、一昨年にオレゴン州ポートランド市に定着し、昨年からは毎年Oregon Convention Centerで開催することにしたようです。Linus Torvaldsもオレゴン在住のようですし、今やオレゴン州はオープンソースの聖地と呼んでもよいのかもしれません。しかし、その割にはポートランド空港の入国管理官との間に、</p>
+<div class="blockquote">
+<p class="ni"><span class="k">管理官　:</span> 入国目的は?</p>
+<p class="ni"><span class="k">ハッカー:</span> OSCONに出席するため</p>
+<p class="ni"><span class="k">管理官　:</span> OSCON?</p>
+<p class="ni"><span class="k">ハッカー:</span> オープンソースのイベントである</p>
+<p class="ni"><span class="k">管理官　:</span> オープンソースとは何か?</p>
+<p class="ni"><span class="k">ハッカー:</span> ソースコードを自由に……</p>
+<p class="ni"><span class="k">管理官　:</span> ?</p>
+<p class="ni"><span class="k">ハッカー:</span> あーっ、めんどくさい</p>
+<p class="ni"><span class="k">ハッカー:</span> そのパソコンはネットに繋がってないのか</p>
+<p class="ni"><span class="k">管理官　:</span> 繋がってない</p>
+<p class="ni"><span class="k">ハッカー:</span> インターネットで見れば一瞬なのに</p>
+<p class="ni"><span class="k">管理官　:</span> まあ、いいでしょう。次回は書類を用意して</p>
+<p class="ni"><span class="k">ハッカー:</span> @#%@!#$%</p>
+</div>
+<p class="ni">のようなやりとりが実際に行われたようで、聖地といえども一般への周知はまだまだのようです。</p>
+</section>
+<section id="chap540502" class="level3">
+<h4>トラック</h4>
+<p class="in">OSCONは2000人以上が参加する巨大なイベントです。セッションは複数のトラックに別れて同時並行に開催されます。だいたい興味深い話が同時に行われることになっているようで、泣く泣く選ばなければならないなどということはしょっちゅうです。今年開設されたトラックは以下のとおりです。</p>
+<a id="page_228"/>
+<div class="description">
+<p class="ditem">Apache</p>
+<p class="dni">Apache 2.2の話題から各種モジュール、Webスケーラビリティまでさまざまな話題が取り扱われました。</p>
+<p class="ditem">Databases</p>
+<p class="dni">海外ではMySQLが人気なのですが、MySQLに限らずPostgreSQL, Firebird, IngresなどさまざまなDBMSが取り上げられました。それぞれの開発者が直接「対決」するセッションもありました。</p>
+<p class="ditem">Emerging Topics</p>
+<p class="dni">新しい話題全般を詰め込んだセッションです。Macromedia Flashを利用したリッチクライアント技術から、オープンソース開発のケーススタディまで、雑多な内容が詰め込まれています。</p>
+<p class="ditem">Java</p>
+<p class="dni">あまりオープンソース的でないといわれることの多いJavaですが、Spring, Hibernate, Tapestry, Eclipseのような具体的なオープンソースソフトウェアにフォーカスしたセッションが多数開かれていました。</p>
+<p class="ditem">Perl Confernece 9</p>
+<p class="dni">前述のようにOSCONの母体となったPerl Conferenceです。今年で9年目になります。もっとも独立したイベントにはなっておらず、「OSCONにはPerl関連のセッションが多いな」程度の印象です。Perl 6やPerl 5それぞれの最新情報が披露されました。</p>
+<p class="ditem">PHP Conference 5</p>
+<p class="dni">Perl同様PHP Conferenceも併設されています。</p>
+<p class="ditem">Products &amp; Serveces</p>
+<p class="dni">オープンソースビジネス企業が自社の経験や商品を披露するトラックです。今年のOSCONはビジネスとしてのオープンソースも注目されており、たくさんの人を集めていました。</p>
+<p class="ditem">Python</p>
+<p class="dni">Pythonについてのトラックもあります。Pythonは毎年2月にPython Conference（通称PyCon）を別に開いているので、Conferenceという名前は付いていません。</p>
+<p class="ditem">Ruby</p>
+<p class="dni">昨年のOSCONにはRubyトラックがなかったのですが（一昨年にはあった）、今年は開設されました。今年は平均的なJavaによる開発よりも10倍生産性が高いといううわさのWebアプリケーションフレームワークRuby on Railsが大変話題で、注目を集めていました。</p>
+<p class="ditem">Security</p>
+<p class="dni">Securityセッションではセキュリティ、特にネット上でのセキュリティについてさまざまな角度から扱っていました。</p>
+<p class="ditem">XML</p>
+<p class="dni">「なぜXMLか」とかいうような段階はすでに過ぎ去り、具体的にどのようにXMLを扱うかというようなレベルに到達していました。「なぜSOAPは複雑でなければならないか」というセッションはなかなか興味をひかれました。時間の都合で聞けませんでしたが。</p>
+</div>
+</section>
+<section id="chap540503" class="level3">
+<a id="page_229"/>
+<h4>Perl 6</h4>
+<p class="in">やはり、Perl Conferenceから始まったOSCONではPerlが幅を効かせています。割り当てられる部屋もPerl関係は数百人が収容できる大部屋がほとんどで、ときには異様に密度が低いこともありました。それでもDamian ConwayとLarry WallがPerl 6のあるべき姿を紹介するセッションは広い会場でも立ち見が出るほどの盛況ぶりでした。Perl 6は話を聞けば聞くほど「ほんとに実装できるんかいな」というような「何でもあり」の仕様なのですが、Haskellで実装されたPugsと呼ばれるPerl 6コンパイラ（フロントエンド）も、Parrotと呼ばれる仮想マシン（バックエンド）も順調に開発が進行しているということで、このままであれば、あと数年で普通の人が実際に使えるPerl 6が手に入るかもしれません。数年前にも同じことを聞いたようにも思いますが。</p>
+</section>
+<section id="chap540504" class="level3">
+<h4>Ruby</h4>
+<p class="in">今年はRubyは注目されていました。Ruby関連のセッション（<a href="#table5401">表54.1</a>）はどれも超満員でした。もっとも部屋が狭かっただけという説もありますが。</p>
+<div class="table" id="table5401">
+<p class="tbl-caption">表54.1●Ruby関連のセッション</p>
+<table class="tbl01">
+<tr>
+<td>Extracting Rails from Basecamp</td>
+<td>David Heinemeier Hansson</td>
+</tr>
+<tr>
+<td>Yield to the Block:<br />The Power of Blocks in Ruby</td>
+<td>Yukihiro Matsumoto, netlab.jp</td>
+</tr>
+<tr>
+<td>10 Things Every Java Programmer<br />Should Know About Ruby</td>
+<td>Jim Weirich, Consultant, Compuware</td>
+</tr>
+<tr>
+<td>A Starry Afternoon, a Sinking Symphony,<br />and the Polo Champ Who Gave It All Up<br />for No Reason Whatsoever</td>
+<td>why the lucky stiff</td>
+</tr>
+<tr>
+<td>Metaprogramming Ruby</td>
+<td>Glenn Vanderburg, Principal, Delphi Consultants, LLC</td>
+</tr>
+<tr>
+<td>Dependency Injection:<br />Vitally Important or Completely Irrelevant?</td>
+<td>Jim Weirich, Consultant, Compuware</td>
+</tr>
+</table>
+</div>
+<p class="in">今年の注目は、やはりRuby on Railsのおかげでしょう。実際に10倍の生産性の違いがあるかどうかはともかく、チュートリアルでは目の前ですいすいとWebアプリケーションが実装されていく姿はやはり感動を覚えます。おかげでRails 開発者のDavid Heinemeier Hansssonは、このOSCONで発表されたO’Reilly+Google the Best Hacker of the Year Awardを受賞しました。めでたいことです。</p>
+</section>
+<section id="chap540505" class="level3">
+<h4>オープンソース全般</h4>
+<p class="in">OSCONは技術主体のイベントではあるのですが、やはりビジネスとしてのオープンソースに関心は高く、それ向けのセッションはかなり人が多かったようです。また、「オープンソースと女性」というテーマでの議論も行われていました。しかし、確かにOSCONでも女性は少数派ですが、少なくとも、ほぼ皆無の日本よりはずっとたくさんの女性を見掛けたことだけは確かです。</p>
+</section>
+<section id="chap540506" class="level3">
+<a id="page_230"/>
+<h4>まとめ</h4>
+<p class="in">技術主体のオープンソース関連のイベントとしては世界最大といってもよいOSCONからのレポートをお届けしました。私は時間（と体調）の都合からあまりたくさんのセッションに参加することができませんでした。来年はもっと体調を整えて、積極的に参加したいと思っています。やはりここが最新情報が発信される場であり、人と人とのコネクションが構築される場所ですから。それにはもっと英語を勉強しなくちゃな。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-041.xhtml">&lt;&lt; 前ページ</a>　<a href="p-043.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

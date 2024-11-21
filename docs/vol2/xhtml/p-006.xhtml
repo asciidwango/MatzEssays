@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第33章 Wiki Wiki</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第33章</p>
+<!-- Body -->
+<section id="chap33" class="level1">
+<a id="page_025"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">33</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+Wiki Wiki
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年2月号]</p>
+<div class="newlead">
+<p class="in">そういえば純粋なWikiページを見かけることはなくなりましたね。むしろWikipediaのことを省略してWikiと呼ぶのを聞くことが増えたかもしれません。誰でも気付いたときに情報を更新できるというWikiの性質は、インターネットユーザーが増大した現代ではノイズが多すぎてしまうということなのかもしれません。紹介しているWikiシステムもほとんどがリンク切れです。牧歌的な時代は終わってしまったということでしょうかね。</p>
+<p class="ih">「Ruby開発日記」は「日本Rubyの会」についてです。開発コミュニティとは別に、イベントの主催などを支援する組織としての日本Rubyの会の発足について語っています。現在でも日本Rubyの会はユーザーコミュニティとして活発に活動しています。</p>
+</div>
+<div class="lead">
+<p class="ni">この連載でも前の連載でも今までずっと直接プログラム開発に関係するテーマばかり見てきましたが、今月からしばらくユーザーの視点からRubyで記述されたプログラムをどう使うかという観点でRubyの世界を探検します。今月のテーマはWikiです。</p>
+</div>
+<section id="chap3301" class="level2">
+<h3>Wikiとは何か</h3>
+<hr class="hr-gray" />
+<p class="in">Wikiとは一言でいうと「誰でも自由に編集可能なWebページ群」です。もともとはWard Cunninghamがデザインパターンに関する情報を集めようとして始めたものです。cs.com（<span class="link">http://c2.com/cgi/wiki</span>）にあるオリジナルのWikiには数え切れないほどのいろいろな情報があります。</p>
+<p class="in">聞くところによると最初のWikiは350行程度のPerlスクリプトだったのだそうです。c2.comは今でも300ドルくらいの自作機で自宅のDSLを使って運用しているそうです。</p>
+<p class="in">Wikiとはハワイの言葉で「迅速」という意味があるそうです。Ward Cunninghamは最初このシステムを「QuickWeb」と名付けようとしていたそうですが、個人的には「Wiki」という名前にしたのが正解だった思います。短くて印象に残りやすくいい名前です。やっぱり名前は重要ですよね。</p>
+<a id="page_026"/>
+<p class="in">Wikiの歴史や詳細についてはWiki唯一の解説書、Bo Leuf, Ward Cunningham著『Wiki Way — コラボレーションツールWiki』（ソフトバンクパブリッシング、ISBN4-7973-1832-5）を参照してください。</p>
+</section>
+<section id="chap3302" class="level2">
+<h3>Wikiの特徴</h3>
+<hr class="hr-gray" />
+<p class="in">Wikiには以下にあげるような特徴があります。</p>
+<div class="description">
+<p class="ditem">ページの追加・編集が自由</p>
+<p class="dni">Wikiのページを見るとどこかに「Edit this page」とか「編集」いうようなリンクがあります。そこをリンクするとページの内容を含むテキストフィールドが現れます。適当に編集した後、「Save」ボタンを押すとあら不思議、その編集結果が反映されてしまいます。</p>
+<p class="din">誰でも情報を追加できるという点でWikiはWeb掲示板に似ています。ただ、Wikiではただ単に時系列に沿ってコメントを追加していくだけでなく、新しいページを作ったり、既存のページを編集することが自由にできます。ですから、掲示板などに比べて極端に自由度が高いということができます。逆に自分で意識しないと時間の情報が保存されませんし、誰が書いたのかさえわからないので、注意が必要です。</p>
+<p class="ditem">書式は簡単なマークアップ</p>
+<p class="dni">オリジナルWikiは編集時にHTMLを直接書くのを許すのではなく、簡単なマークアップを使っています（<a href="#table3301">表33.1</a>）。HTMLを直接許すと何でもできてしまいますから、妥当な制約だと思います。Wikiクローンと呼ばれるWiki互換システムでは書式が追加されていたり、あるいはまったく別の書式を採用していたりしますが、これについては後述します。</p>
+<p class="ditem">WikiNameによるリンク</p>
+<p class="dni">他のWikiページへのリンクはWikiNameと呼ばれる形式で指定します。WikiNameは英単語の先頭を大文字にして結合した文字列です。プログラミングではCamelCaseと呼ばれる形式ですね。Wikiページではこの形式の文字列は、その名前を持つ別のページへのリンクであると見なされます。もし、その名前のページが存在しなければ、WikiNameの右側に「?」というリンクが表示され、そこをクリックすると、WikiNameのページを編集することができます。</p>
+<a id="page_027"/>
+<p class="din">WikiNameは英語では便利な形式ですが、単語を区切る習慣も大文字小文字の区別もない日本語には向きません。そこで日本発のWikiでは「<code>[[</code>」と「<code>]]</code>」で囲まれたものをリンクと解釈するように拡張されているものが多いようです。</p>
+</div>
+<div class="table" id="table3301">
+<p class="tbl-caption">表33.1●Wikiマークアップ</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">マークアップ</span></th>
+<th><span class="k">意味</span></th>
+<th><span class="k">マークアップ</span></th>
+<th><span class="k">意味</span></th>
+</tr>
+<tr>
+<td><code>WikiName</code></td>
+<td>Wikiページへのリンク</td>
+<td><code>&lt;tab&gt;項目: 説明</code></td>
+<td>定義リスト項目</td>
+</tr>
+<tr>
+<td><code>&lt;空行&gt;</code></td>
+<td>段落の区切り <code>&lt;p&gt;</code></td>
+<td><code>&lt;行頭空白&gt;</code></td>
+<td><code>&lt;pre&gt;</code></td>
+</tr>
+<tr>
+<td><code>—-</code></td>
+<td>水平線 <code>&lt;hr&gt;</code></td>
+<td><code>&lt;tab&gt;&lt;空白&gt;:&lt;tab&gt;</code></td>
+<td>引用</td>
+</tr>
+<tr>
+<td><code>&lt;tab&gt;*</code></td>
+<td>リスト項目レベル1</td>
+<td><code>”文字列”</code></td>
+<td>イタリック指定</td>
+</tr>
+<tr>
+<td><code>&lt;tab&gt;&lt;tab&gt;*</code></td>
+<td>リスト項目レベル2</td>
+<td><code>”’文字列”’</code></td>
+<td>ボールド指定</td>
+</tr>
+<tr>
+<td><code>&lt;tab&gt;1</code></td>
+<td>番号付きリスト</td>
+<td><code>URL</code></td>
+<td>リンク</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap3303" class="level2">
+<h3>Wikiの魅力</h3>
+<hr class="hr-gray" />
+<p class="in">Wikiは「誰でも編集可能」という点を除けば、ただ単に簡易なマークアップを用いたWebページにすぎませんから、ほとんどあらゆることに使うことができます。しかし、一番向いているのは協同作業による情報の集積でしょう。もともとのc2.comでの目的もデザインパターンの事例や情報を集めることでした。</p>
+<p class="in">Rubyホームページ（<span class="link">http://www.ruby-lang.org/ja/</span>）では、リファレンスマニュアルやインストールガイドなどにWikiクローンの一種“RWiki”を用いて情報を最新に保っています。Wikiを使ってみんなで寄ってたかって本の原稿の校正を行った例もあるそうです。</p>
+</section>
+<section id="chap3304" class="level2">
+<h3>そんなことで大丈夫?</h3>
+<hr class="hr-gray" />
+<p class="in">ところで気になるのが、Wikiの安全性です。</p>
+<p class="in">単なる掲示板でさえ「荒らし」と呼ばれる行為により、悪口などが書き込まれたり、大量の書き込みによってサーバーが<ruby>麻痺<rt>まひ</rt></ruby>したり、そこまで行かなくても劣悪な状況に追い込まれる事態が問題になっています。Wikiではメッセージの追加だけではなく、自由な変更を許していますから、より深刻な事態が発生しそうです。ページにゴミが書き込まれたり、内容が消されたりしないのでしょうか?　とても不安です。</p>
+<p class="in">ところが、実際にWikiを運用している人の話を聞くとそれほど問題にはなっていないようです。Wikiという仕組みがあまり知られていないせいではないかと思っていましたが、先日デンマークで開かれたJAOOカンファレンスでWard Cunninghamと会ったときにこのことについて話をしたら、c2.comのような超有名な場所でも「荒らし」のような行為による問題はほとんどないそうです。ただ、大量書き込みでロードアベレージが100を超えた（!）ケースが数度あったので、そういう悪質な書き込みはIPアドレスではねているということでした。「私の非力でかわいそうなマシンをいじめないでくれ」とは彼の弁です。</p>
+<p class="in">Wikiで意外と問題が発生しない理由の1つは悪意を持った人よりも善意を持った人のほうが割合として多いことではないかと思います。ですから、ちょっとしたいたずら書きが発見されると発見した人が即座に修正してしまって問題が顕在化しないことが原因ではないかと考えられます。目玉がたくさんあると問題が早期に検出され重大化しない、というのはオープンソースにもつながる現象ですね。</p>
+<p class="in">Wikiに対する荒らしとしては、</p>
+<ul>
+<li><p>よく参照されるページにゴミを書き込む</p></li>
+<li><p>役に立たないページを作る</p></li>
+<li><p>ページの内容を消してしまう</p></li>
+</ul>
+<p class="ni">が考えられます。最初のものは発見した人が即座に消してしまいますし、2番目のものはWebサーバーのデータベースに少々無駄なデータが格納されるだけです。一番問題なのは“最後のページを消してしまう”ですが、これも適当なタイミングでバックアップを取っておけば被害は最小限で済むでしょう。</p>
+<a id="page_028"/>
+<p class="in">Wikiに問題が発生しないもう1つの理由は、Wikiという仕組みで「はいどうぞ、何でもしていいですよ」とあからさまに許された場合、人間はかえって悪いことがしにくい傾向があるのではないか?　と私は推測しています。</p>
+<p class="in">Wikiで運用しているRubyホームページのリファレンスマニュアルの場合も問題はほとんど発生していません。ごくたまに数行ゴミを書き込む人がいますが、すぐに対応されています。Rubyリファレンスマニュアルの場合、すべての修正内容が管理者にメールで報告されるので、より発見が早いのです。</p>
+</section>
+<section id="chap3305" class="level2">
+<h3>Wikiのもう1つの魅力</h3>
+<hr class="hr-gray" />
+<p class="in">Wikiはプログラマーに対しても魅力的です。Wikiというのは非常に単純な原理で動いていますから、Webシステムとしてはかなり簡単な部類に入ります。このことは最初のWikiがわずか350行のPerlスクリプトであったことからもわかります。簡単な実装で面白いことができるというのはプログラミングのテーマとして優れています。</p>
+<p class="in">ですから、こんな面白いものをプログラマーが放っておくわけがありません。世の中には自分の好みの機能を追加したWikiクローンと呼ばれるWiki互換システムがそれこそ星の数ほど実装されています。その実装もPerl, Python, Ruby, PHP, Javaなどさまざまです。ただ違う言語で実装しただけでなく、Zopeのようなコンテンツマネジメントシステムの上に構築されたZWikiのようなWikiクローンもあります。</p>
+</section>
+<section id="chap3306" class="level2">
+<h3>さまざまなWikiシステム</h3>
+<hr class="hr-gray" />
+<p class="in">このようにたくさんあるWikiクローンですが、もちろんRubyで実装されたものもたくさんあります。RAAなどを調べてみると、実に11ものWikiクローンがありました。眺めてみるとそれぞれの思想の違いなどもあって面白いです。</p>
+<p class="in">では、これら11のWikiクローンをひととおり紹介してみましょう。</p>
+<div class="description">
+<p class="ditem">AsWiki（<span class="link">http://aswiki.sourceforge.net/</span>）</p>
+<p class="dni">TANIGUCHI TakakiさんによるWikiクローンです。RubyによるテンプレートエンジンAmritaを使っているのが特徴です。RCSによる履歴管理もできます。</p>
+<p class="ditem">clWiki（<span class="link">http://clabs.org/ruby.htm</span>）</p>
+<p class="dni">Chris Morrisさんによるclwikiはデータをプレーンテキストで格納するのが特徴です。BlogkiというWikiによってBlogを書くプログラムが同梱されています。</p>
+<p class="ditem">KakiWiki（<span class="link">http://kakiwiki.homeunix.org/KakiWiki/kaki.rbx</span>）</p>
+<p class="dni">sayさんによるkakiwikiはtDiaryテーマが使えることと、国際化が特徴です。同じ名前のページを複数の言語で記述し、ブラウザのAccept-Languageで切り替えることができるそうです。また、ドキュメントツリーをキャッシュするため高速だそうです。</p>
+<p class="ditem">MiniRubyWiki（<span class="link">http://www.xpsd.com/MiniRubyWiki</span>）</p>
+<p class="dni">PhlipさんによるMiniRubyWikiは、Miniという名に反してWikiとしてひととおりの機能を備えています。また、実験中ですがWikiStyleSheetというWikiそのもの（マークアップ形式とか）をカスタマイズする機能を実装しています。</p>
+<a id="page_029"/>
+<p class="ditem">RWiki（<span class="link">http://rwiki.jin.gr.jp/cgi-bin/rw-cgi.rb</span>）</p>
+<p class="dni">咳さんによるRWikiは、マークアップとしてRDを使うというWikiの中では変わり種です。これについてはあとで説明します。</p>
+<p class="ditem">RDocWiki（<span class="link">http://www.sourceforge.net/projects/rdoc-wiki</span>）</p>
+<p class="dni">Michael NeumannさんによるRDocWikiは、RWikiがRDを使うようにRDoc形式を使うWikiクローンのようです。また、データをセーブするバックエンドなどを交換できるそうです。ただし、まだソースが公開されていません。RDocはRubyプログラムにドキュメントを追加する方法として最近広く使われている形式です。</p>
+<p class="ditem">Ruwiki（<span class="link">http://rubyforge.org/projects/ruwiki/</span>）</p>
+<p class="dni">Alan ChenさんのRuwikiはネームスペースをサポートしていて、同じ名前の複数のページを持つことができるそうです。海外では結構使われていると聞いたことがあります。</p>
+<p class="ditem">TaoWiki（<span class="link">http://f16.aaacafe.ne.jp/~yand/taowiki/taowiki.cgi</span>）</p>
+<p class="dni">a.yさんによるTaoWikiは、他のページをインクルードして部品として組み合わせる機能や、スタイルシートや動的なページも編集する機能があります。面白い。</p>
+<p class="ditem">Miki（<span class="link">http://www.mikihoshi.com/miki/</span>）</p>
+<p class="dni">kanさんのMikiは比較的小規模なWikiクローンです。標準配布のパッケージだけで動作するのでインストールが簡単です。</p>
+<p class="ditem">Tiki（<span class="link">http://todo.is.os-omicron.org/tiki.cgi</span>）</p>
+<p class="dni">todo.orgによるTikiはRubyによるWikiクローンの老舗といえると思います。Wikiとしてひととおりの機能をすべてそろえているだけでなく、テーマ、多言語対応、プラグイン機能など充実しています。SourceforgeにはTikiWikiという似たような名前のプロジェクトがありますが、こちらはPHPで実装されています。</p>
+<p class="ditem">Hiki（<span class="link">http://www.namaraii.com/hiki/</span>）</p>
+<p class="dni">最近登場した竹内仁さんによるHikiは、tDiaryテーマとtDiaryのプラグイン（の多く）がそのまま使える点がウケたのか人気上昇中です。tDiaryの資産をそのまま生かすという戦略が成功していますね。なぜかHikiだけはRAAに登録されていませんでしたが、有名なのでここに含めました。</p>
+</div>
+</section>
+<section id="chap3307" class="level2">
+<h3>RWiki</h3>
+<hr class="hr-gray" />
+<p class="in">（日本の）Ruby界で最も有名ではないかと思われるWikiがRWikiです。</p>
+<p class="in">RWikiはいわゆるWiki記法ではなく、RD形式を採用しています。RDはRuby Documentの略で、もともとRuby関係のドキュメントやマニュアルなどを記述するためにPerlのPOD（Plain Old Document）形式を参考に作られた（というか、私が作った）形式です。</p>
+<p class="in">RD形式はインデントを利用した形式が特徴です（<a href="#table3302">表33.2</a>）。RD形式の文章の例を<a href="#list3301">リスト33.1</a>に示します。</p>
+<a id="page_030"/>
+<div class="table" id="table3302">
+<p class="tbl-caption">表33.2●RD形式</p>
+<table class="tbl12">
+<tr>
+<td><span class="k">ブロック<br />形式</span></td>
+<td><code>=</code></td>
+<td>見出しレベル1</td>
+<td><span class="k">インライン<br />形式</span></td>
+<td><code>((&lt;...&gt;))</code></td>
+<td>リンク</td>
+</tr>
+<tr>
+<td></td>
+<td><code>==</code></td>
+<td>見出しレベル2</td>
+<td></td>
+<td><code>((*...*))</code></td>
+<td>強調</td>
+</tr>
+<tr>
+<td></td>
+<td><code>===</code></td>
+<td>見出しレベル3</td>
+<td></td>
+<td><code>((...))</code></td>
+<td>コード <code>&lt;code&gt;</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>&lt;空行&gt;</code></td>
+<td>段落の区切り</td>
+<td></td>
+<td><code>((%...%))</code></td>
+<td>キーボード入力</td>
+</tr>
+<tr>
+<td></td>
+<td><code>&lt;インデント&gt;</code></td>
+<td>引用</td>
+<td></td>
+<td><code>((-...-))</code></td>
+<td>脚注</td>
+</tr>
+<tr>
+<td></td>
+<td><code>*</code></td>
+<td>リスト（箇条書き）</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>(1)</code></td>
+<td>番号付きリスト</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>:</code></td>
+<td>用語定義</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</table>
+</div>
+<div class="plistc" id="list3301">
+<p class="lst-caption">リスト33.1●RD形式の文章例</p>
+<pre>= これは見出しです
+
+RD形式はRuby Documentの略です。その特徴は
+
+* プレーンテキストに近い見栄え
+* インデントを解釈する
+* ほどよいマークアップ
+
+です。文章中に（(*強調*)）や、
+（(&lt;リンク|URL:http://www.rubyist.net/~matz/&gt;)）を
+入れることができます。
+
+  インデントされた文章は引用です
+  プログラムをそのまま取り込むのに便利です
+
+  void
+  main(int argc, char **argv)
+  {
+      printf(&quot;hello world\n&quot;);
+  }
+
+箇条書きなどはネストできます。つまり
+
+* このような箇条書きの中に
+  * 次のレベルを埋め込むことができます
+* ネストの状態はインデントで決定されます
+
+これは
+
+(1) 番号付きリストでも
+    (1) 当然有効です
+    (2) あまり使わないかもしれませんが</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_031"/>
+<p class="in">実際、私の最初の本である『オブジェクト指向スクリプト言語Ruby』などの原稿や、本連載の原稿などはRDで記述されています。もっともこれらの原稿での変換は編集の人に手動でお願いしていますが。</p>
+<p class="in">RWikiのその他の特徴としては、以下のようなものがあり、Wikiとしてはかなり変わり種です。</p>
+<ul>
+<li><p><span class="k">WikiName不採用</span><br />
+リンクはRDのリンクだけを使います</p></li>
+<li><p><span class="k">リンク/逆リンクの表示</span><br />
+各ページ末尾に、このページからリンクしているページおよびこのページをリンクしているページの一覧がリストされます</p></li>
+<li><p><span class="k">更新時間の表示</span><br />
+上記一覧にはそれぞれ更新時間が表示されます</p></li>
+<li><p><span class="k">「?」の不在</span><br />
+普通のWikiでは存在しないページへのリンクには「<code>?</code>」マークが付くのですが、RWikiにはその機能はありません。そのリンクの更新時刻が「<code>-</code>」となるので、存在しないことがわかります。</p></li>
+</ul>
+</section>
+<section id="chap3308" class="level2">
+<h3>RWikiのインストール</h3>
+<hr class="hr-gray" />
+<p class="in">個人的にはWikiとの正しい関わり方は、既存のWikiに書き込むか、自分でWikiシステムを作るかどちらかだと思っているのですが、一応インストールについても説明しておきます。</p>
+<p class="in">開発者の咳さんによると、RWikiの開発当初の目的として「Rubyライブラリの紹介」というものがあったそうなので、RWikiのインストールには他のたくさんのライブラリをインストールする必要があり、かつてはなかなか面倒な作業でした。しかし、Ruby 1.8になってRWikiが使っていたほとんどのライブラリは標準添付になったのでインストールはずいぶん楽になりました。後必要なものは<code>RDtool</code>だけです。</p>
+<ul class="none">
+<li><p><span class="k">tarファイルの入手先</span><br />
+<span class="link">http://www2.pos.to/~tosh/ruby/rdtool/archive/rdtool-0.6.14.tar.gz</span><br />
+<span class="link">http://www2a.biglobe.ne.jp/~seki/ruby/rwiki-2.0.1.tar.gz</span></p></li>
+</ul>
+<p class="in">入手したtarファイルを展開し、READMEの内容に従いインストールします。</p>
+</section>
+<section id="chap3309" class="level2">
+<h3>RWiki活用事例</h3>
+<hr class="hr-gray" />
+<p class="in">RWikiはRuby日本語公式サイト（<span class="link">www.ruby-lang.org/ja</span>）でいろいろな目的に活用されています。</p>
+<ul>
+<li><p>Rubyインストールガイド</p></li>
+<li><a id="page_032"/><p>Rubyリファレンスマニュアル</p></li>
+<li><p>RDP（Ruby Documentation Project）</p></li>
+</ul>
+<p class="in">RDPはWikiを利用していろいろなライブラリなどのドキュメントを集積しようというプロジェクトです。</p>
+</section>
+<section id="chap3310" class="level2">
+<h3>Wikiの活用</h3>
+<hr class="hr-gray" />
+<p class="in">このようなWikiをどのように利用するのがよいでしょうか。</p>
+<p class="in">やはり一番向いているのはオリジナルWikiの対象であったドキュメントの集積でしょう。c2.comには1万5000を超えるページが集積されていて、毎月、数百ページずつ増加しているそうです。</p>
+<p class="in">ドキュメントの集積といえば、Wikipediaがあります。WikipediaはWikiを利用したWeb百科事典です。誰でも自由に項目を追加できますし、間違いを見つけたら訂正することができます。WikipediaのURLは、</p>
+<ul class="none">
+<li><p><span class="link">http://en.wikipedia.org/</span>（英語）</p></li>
+<li><p><span class="link">http://ja.wikipedia.org/</span>（日本語）</p></li>
+</ul>
+<p class="ni">です。</p>
+<p class="in">個人のホームページとしてWikiを利用するのもよいでしょう。RWiki公式サイトには個人名のページがいくつもあります。Wikiなので個人ページに他人が「ツッコミ」を書き込むこともしばしば発生し、双方向コミュニケーションが成立しています。</p>
+<p class="ih">『リファクタリング』で有名なMartin Fowlerは彼のBlogをWikiで書いています。名付けてBlikiだそうです。もっとも彼のBlikiは一般ユーザーは更新できませんので、厳密にはWiki的ではありません。注目すべきはこのBlikiの翻訳Bliki_jaで、Hikiで運用されています。こちらは普通のWikiですから自由に書き換えられます。</p>
+<ul class="none">
+<li><p><span class="k">Martin Fowler’s Bliki</span><br />
+<span class="link">http://martinfowler.com/bliki/</span></p></li>
+<li><p><span class="k">bliki翻訳</span><br />
+<span class="link">http://capsctrl.que.jp/kdmsnr/wiki/bliki/</span></p></li>
+</ul>
+<p class="in">その他にもメモやToDoリストなどにWikiを活用している例はたくさんあります。また関連リンク集と称して、ある特定のトピックに関するWebページへのリンクをWikiを使って集めたものもあり、結構便利に使われています。例として、私も関わった「日本発のオープンソース」の件の反応リンク集をあげておきます。</p>
+<ul class="none">
+<li><p><span class="link">http://sheepman.parfait.ne.jp/wiki/cmd=list/</span></p></li>
+</ul>
+<p class="ni">から「日本発のオープンソース」をクリックしてください。</p>
+</section>
+<section id="chap3312" class="level2">
+<a id="page_033"/>
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回はWikiについて紹介しました。</p>
+<p class="in">誰にでも自由に書き換えることができ、今までにないコラボレーションを実現できるWikiには新しいWebのあり方として、応用次第で大きな可能性が広がっています。あなたもWikiを活用してみませんか?</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-005.xhtml">&lt;&lt; 前ページ</a>　<a href="p-007.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

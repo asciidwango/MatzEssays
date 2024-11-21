@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第14章 数と電卓</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-031.xhtml">第14章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<section id="chap1415" class="level2">
+<a id="page_210"/>
+<h3>◆ 知られざるRuby ◆ coerce</h3>
+<hr class="hr-blue" />
+<p class="in">今月は数の相互変換体系である<code>coerce</code>について解説します。</p>
+<p class="in">異なる種別の数同士の演算は自動変換されて、演算結果はより「広い」種別の数になります。「広い」とは表現できる範囲が広いという意味です。整数よりも浮動小数点数のほうが「広い」ということですね。</p>
+<p class="in">その結果、整数と浮動小数点数との演算結果はより「広い」浮動小数点数になります。</p>
+<div class="plist">
+<pre>p 1 + 1.5  <span class="cmt"># =&gt; 2.5</span>
+p 1.5 * 2  <span class="cmt"># =&gt; 3.0</span></pre>
+</div>
+<p class="in">問題はより広い種別にどのように変換するか、です。組み込みの数クラスだけならまだ話は簡単ですが、すでに述べた有理数や複素数のようにRubyでは後から数クラスを追加できるので、ややこしくなります。</p>
+<p class="in">また、型を考慮する必要があるのが左辺だけなら、Rubyの演算はメソッドで実行されるので、左辺のクラスに応じて自動的にメソッドが選択されるのですが、数の場合には右辺も重要です。</p>
+<p class="in">それを解決するために用意されているのが<code>coerce</code>システムです。Rubyの数クラスの演算を行うメソッドは全部以下のようなルールで設計されています。</p>
+<ul>
+<li><p>メソッドは左辺のクラスに応じて選択される</p></li>
+<li><p>各メソッドは、右辺のクラスが自分の知っているクラスなら、それに応じた処理を行う。たとえば<code>Fixnum</code>は<code>Float</code>を知っているので左辺を<code>Float</code>に変換してから計算する</p></li>
+<li><p>右辺のクラスが自分の知らないクラスなら、まず右辺の数オブジェクトの<code>coerce</code>メソッドを左辺を引数にして呼び出す。<code>coerce</code>メソッドは右辺と左辺を適切なクラスに変換して<code>[左辺, 右辺]</code>という配列を返す</p></li>
+<li><p>右辺のクラスが左辺のクラスを知らなければ、どうやっても変換できないのでエラーになる</p></li>
+<li><p>改めて、変換された左辺と右辺に対して演算を行う。具体的には同じ名前のメソッドを呼び出す</p></li>
+</ul>
+<p class="in">この手順に従うクラスはRubyの既存の数クラスとうまく協調できます。たとえば、新しい数クラス<code>Rational</code>を定義してみましょう（<a href="#list1401">リスト14.1</a>）。簡単にするため、演算子は「<code>+</code>」だけ用意します。また、約分も行いません。きちんとした<code>Rational</code>クラスの実装は標準ライブラリの<code>rational.rb</code>を参照してください。</p>
+<a id="page_211"/>
+<div class="plistc" id="list1401">
+<p class="lst-caption">リスト14.1●新しい数クラスRationalの定義</p>
+<pre><span class="kwd">class</span> Rational &lt; Numeric
+  <span class="cmt"># インスタンス初期化(num=分子、den=分母)</span>
+  <span class="kwd">def</span> initialize(num, den)
+    @num = Integer(num)
+    @den = Integer(den)
+  <span class="kwd">end</span>
+  <span class="cmt"># 分子、分母の読み出しメソッドの定義</span>
+  attr_reader :num, :den
+
+  <span class="cmt"># 「+」の定義</span>
+  <span class="kwd">def</span> +(num)
+    <span class="kwd">case</span> num      <span class="cmt"># numのクラスで分岐</span>
+    <span class="kwd">when</span> Rational <span class="cmt"># 左辺と同じクラス</span>
+      x = @num * num.den
+      y = num.num * @den
+      Rational.new(x + y, @den * num.den)
+    <span class="kwd">when</span> Integer
+      self + Rational.new(num, 1)
+    <span class="kwd">when</span> Float
+      @num*1.0/@den + num
+    <span class="kwd">else</span>          <span class="cmt"># 自分の知らないクラス</span>
+      <span class="cmt"># coerceを行う</span>
+      <span class="cmt"># 右辺がRationalを知らなければエラー</span>
+      x, y = num.coerce(self)
+      x + y           <span class="cmt"># 改めて再計算</span>
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+
+  <span class="kwd">def</span> coerce(num) <span class="cmt"># 変換メソッド</span>
+    <span class="kwd">case</span> num
+    <span class="kwd">when</span> Integer  <span class="cmt"># 整数なら分母1のRationalに</span>
+      [Rational.new(num, 1), self]
+    <span class="kwd">when</span> Float    <span class="cmt"># Floatなら自分(右辺)をFloatに</span>
+      [num, @num*1.0/@den]
+    <span class="kwd">else</span>          <span class="cmt"># これら以外は知らない、エラー</span>
+      raise TypeError, <span class="str">&quot;#{num.type} can&#39;t be converted into #{self.type}&quot;</span>
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_212"/>
+<p class="in">これらを実際に計算すると以下のようになります。</p>
+<div class="plist">
+<pre>r = Rational.new(1,3)  <span class="cmt"># Rationalの生成</span>
+p r + 1                <span class="cmt"># =&gt; 「4/3」相当の有理数</span>
+<span class="cmt"># Rationalの+メソッドで処理</span>
+
+p 1 + r                <span class="cmt"># =&gt; 「4/3」相当の有理数</span>
+<span class="cmt"># Fixnumの+がRationalのcoerceを呼び、coerceが</span>
+<span class="cmt"># 左辺(Fixnum)をRationalに変換</span>
+
+p r + 1.0
+<span class="cmt"># Rationalの+メソッドで処理</span>
+
+p 1.0 + r   <span class="cmt"># =&gt; 1.333333333</span>
+<span class="cmt"># Floatの+がRationalのcoerceを呼び、coerceが</span>
+<span class="cmt"># 左辺(Float)をRationalに変換</span></pre>
+</div>
+<p class="in">えーと、把握できましたでしょうか。一度でわからなくても無理はありません。<code>coerce</code>システムはRubyで数の体系を自然に表現するために工夫されていますが、設計した本人もすぐにわからなくなります（笑）。たとえ理解できなくても、自分で新しい数クラスを設計しない限り用事はないかもしれません。<code>coerce</code>システムの実際に興味を持たれた方は、Rubyのソースの<code>numeric.c</code>や<code>rational.rb</code>, <code>complex.rb</code>などを参照してください。</p>
+<p class="in"><code>coerce</code>システムの設計には<code>rational.rb</code>などの開発者である石塚圭樹さんの多大な貢献があったことを申し添えておきます。</p>
+<p class="in">さて、本連載「初等Ruby講座」も回が進んで、知られざるRubyで解説するネタが減ってきました。もし、こんな「知られざるRuby」の一面について解説してほしいというリクエストがあれば、</p>
+<ul class="none">
+<li><p>matz@ruby-lang.org</p></li>
+</ul>
+<p class="ni">までメールをください。</p>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-031.xhtml">&lt;&lt; 前ページ</a>　<a href="p-033.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

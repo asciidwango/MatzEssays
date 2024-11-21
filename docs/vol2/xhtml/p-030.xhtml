@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第45章 ダイコン</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第45章</p>
+<!-- Body -->
+<section id="chap45" class="level1">
+<a id="page_169"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">45</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+ダイコン
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2005年2月号]</p>
+<div class="newlead">
+<p class="in">DI（Dependency Injection）について解説しています。私自身はDIについて否定的で、Rubyのような動的な言語では煩雑になるだけという意見を持っているのですが、この文章を書いた時点では意外と好印象で驚きます。20年の間に意見が変化したのでしょうか。タイトルは「DIコンテナ」から取ったものであると書いてありますが、他では聞いたことない略称なのでたんなるジョークとして理解すべきなんでしょうね。</p>
+<p class="ih">「Ruby開発日記」は「文字コードの<ruby>憂鬱<rt>ゆううつ</rt></ruby>」です。文字コードについて歴史的事情を含めて解説しています。この辺の悩みがRuby 1.9のM17N（多言語化、Multilingualization）につながるんですね。とはいえ、現在では文字コードはほぼUnicodeの勝利に終わったので、もう悩む必要はないのかもしれません。もっともUnicode自身が絵文字を含めて大変実装が難しいので、そういう意味での悩みは尽きないのですが。</p>
+</div>
+<div class="lead">
+<p class="ni">今月は、最近、（Java方面で）人気のDependency Injectionパターンと、それを実現するためのツールであるDIコンテナ、略してダイコンについて紹介します。</p>
+</div>
+<section id="chap4501" class="level2">
+<h3>Dependency Injection</h3>
+<hr class="hr-gray" />
+<p class="ih">「Dependency Injection（依存関係の挿入）」（通称DI）はソフトウェアを構成する単位（コンポーネント: モジュール、クラスなど）の間の依存性をコードから分離して、コンポーネント間の結合を弱め、再構成を可能にするデザインパターンです。DIはもともと「Inversion of Control（制御の反転）」（通称IoC）と呼ばれていました。しかし、これでは何の制御を反転させるのかわからないので、『リファクタリング』のMartin Fowlerらによって付けられた新しい名前が「Dependency Injection」です。</p>
+<p class="in">DIを言葉だけで説明するのは少々骨が折れるので、ちょっとした例を元に考えてみたいと思います。仮に私がBlogツールを開発しようとしているとしましょう。そのツールの構成はたとえば<a href="#fig4501">図45.1</a>のようになるでしょう。</p>
+<a id="page_170"/>
+<div class="fig" id="fig4501">
+  <!-- <div class="image50"> -->
+  <div class="image450">
+      <img src="../image/ch45/45-1.jpg" alt="fig4501" />
+  </div>
+  <p class="fig-caption">図45.1●Blogツール構成図</p>
+</div>
+<div class="table" id="table4501">
+<p class="tbl-caption">表45.1●各コンポーネントの機能</p>
+<table class="tbl01">
+<tr>
+<th>Blog</th>
+<th>全体の管理</th>
+</tr>
+<tr>
+<td>Input</td>
+<td>HTTPリクエストを解析する</td>
+</tr>
+<tr>
+<td>DBMS</td>
+<td>データを格納、検索する</td>
+</tr>
+<tr>
+<td>Markup</td>
+<td>テキストデータをHTML化する</td>
+</tr>
+<tr>
+<td>Plugin</td>
+<td>カレンダーなど各種部品</td>
+</tr>
+<tr>
+<td>Display</td>
+<td>テンプレートからHTMLを構成する</td>
+</tr>
+</table>
+</div>
+<p class="in">旧来のやり方で開発するならば、それぞれのコンポーネント（クラス）は全体を管理する<code>Blog</code>クラスが初期化します。たとえば<a href="#list4501">リスト45.1</a>のような感じでしょうか。</p>
+<div class="plistc" id="list4501">
+<p class="lst-caption">リスト45.1●従来型初期化</p>
+<pre><span class="kwd">class</span> Blog
+  <span class="kwd">def</span> initialize
+    @input   = Input.new(...)
+    @dbms    = DBMS.new(...)
+    @markup  = Markup.new(...)
+    @plugin  = Plugin.new(...)
+    @display = Display.new(...)
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+...</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">この場合、この<code>Blog</code>クラスは<code>Input</code>, <code>DBMS</code>, <code>Markup</code>, <code>Plugin</code>, <code>Display</code>の各クラスと強く結び付いてしまいます。<code>Blog</code>クラスを使うということは自動的にこれらのクラスを使うということになり、プログラムの内部構造に手を入れない限り、これらの組み合わせを変えられなくなってしまっています。たとえば、データを格納するDBMSを交換したくなった場合、あるいはMarkupの文法をTextileからRDに変更したくなった場合、プログラムを（この場合は<code>Blog</code>クラス）を書き換えるか、コンポーネントを置き換えできる仕組みを自分で作り込んでおく必要があります。</p>
+<p class="in"><a href="#list4501">リスト45.1</a>ではBlogクラスと他のクラスとの関係しか記述していませんが、実際のプログラムでは他のクラス相互も関係を持っていますから、依存関係はより複雑になり、クラスの置き換えの手間は増大するでしょう。また、各コンポーネントが強く連結されていると、コンポーネントごとのユニットテストを行うことが難しくなります。</p>
+<a id="page_171"/>
+<p class="in">結局、問題を引き起こしているのは依存性なのです。Dependency Injectionはそのような依存性を制御するテクニックです。</p>
+</section>
+<section id="chap4502" class="level2">
+<h3>ハリウッド原則</h3>
+<hr class="hr-gray" />
+<p class="in">このようなDIのことを「ハリウッド原則」に従っているといわれることがあります。「ハリウッド原則」とは「電話をするな。こっちが電話するから（Don’t call us. We’ll call you.）」ということなのだそうです。</p>
+<p class="in">つまり、映画を作るためにどのようなスタッフを選ぶかはプロデューサーが決定して通知するので、個々のスタッフは個別に他のスタッフやプロデューサーを呼び出してはいけないということです。DIコンテナに応用すると、個別のコンポーネントは他のコンポーネントやコンテナのことを関知する必要はない、というところでしょうか。</p>
+<p class="in">ハリウッド原則はDIに限らず、一般的にフレームワークと呼ばれるもの全般で有効なテクニックです。ということは、DIコンテナは各種フレームワークの基盤として応用できるツールであるということになります。Javaの世界でDIコンテナが注目されているのも、このあたりが理由のようです。</p>
+</section>
+<section id="chap4503" class="level2">
+<h3>Constructor Injection</h3>
+<hr class="hr-gray" />
+<p class="in">Martin Fowlerらによれば、依存関係の指定方法にはConstructor Injection, Setter Injection, Interface Injectionの3種類があるのだそうです。</p>
+<p class="in">Constructor Injectionはコンポーネントのオブジェクトを生成するときのコンストラクタ（Rubyの場合なら<code>new</code>）の引数として依存するコンポーネントを指定する方法です。Setter Injectionはコンポーネントオブジェクトの生成後にメソッドを使って依存するオブジェクトを指定する方法です。Interface Injectionは（Javaの）<code>interface</code>を用いてSetter Injection類似のことを行う手法ですが、<code>interface</code>のない（必要ない）Rubyでは用いられません。</p>
+<p class="in">では、実際にDIコンテナを使った例を見てみましょう（<a href="#list4502">リスト45.2</a>）。このサンプルプログラムで利用している<code>DI::Container</code>というクラスは自作のものです。実装は非常に簡単ですから、あとで紹介します。</p>
+<div class="plistc" id="list4502">
+<p class="lst-caption">リスト45.2●DI的初期化（Constructor Injection風味）</p>
+<pre><span class="kwd">class</span> Blog
+  <span class="kwd">def</span> initialize(input,disp)
+    @input   = input
+    @display = disp
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+...
+
+<span class="kwd">def</span> start_app
+  c = DI::Container.new
+  c.register(:blog, Blog, :input, :display)
+  c.register(:input, Input)
+  c.register(:dbms, DBMS)
+  c.register(:markup, Markup)
+  c.register(:plugin, Plugin, :dbms)
+  c.register(:display, Display, :dbms, :markup, :plugin)
+  blog = c.instance(:blog)
+  ...
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_172"/>
+<p class="in"><code>register</code>メソッドの引数の意味は</p>
+<div class="plist">
+<pre>サービス名, クラス, 依存するサービス名, ...</pre>
+</div>
+<p class="ni">です。</p>
+<p class="in">Constructor Injectionではコンテナに対してインスタンスが要求されると、コンテナはそのインスタンスがまだ生成されていなければ、そのクラスの<code>new</code>メソッドを使って生成します。そのとき、<code>new</code>メソッドには依存するサービスのインスタンスが引数として渡されます。</p>
+<p class="in"><a href="#list4502">リスト45.2</a>の<code>Blog</code>クラスの定義を見てください。他のコンポーネントは外から与えられ、<code>Blog</code>クラスの定義中に他のクラス名やそれらのインスタンスの生成方法は登場しません。これにより<code>Blog</code>クラスから他のコンポーネントへの依存性をなくすことができました。これならば、コンポーネントの構成を変更することも簡単ですし、依存するコンポーネントとして他のコンポーネントの「ふり」をするオブジェクトを与えれば、コンポーネントごとにユニットテストを行うこともできるようになりました。</p>
+<p class="in">ここで用いた<code>DI::Container</code>の定義を<a href="#list4503">リスト45.3</a>に示します。20行以下ということで、これはおそらく世界最少のDIコンテナ（の1つ）と言ってもよいでしょう。Rubyの記述力には驚くばかりです（自画自賛）。</p>
+<div class="plistc" id="list4503">
+<p class="lst-caption">リスト45.3●DI::Container（Constructor Injection）</p>
+<pre><span class="kwd">module</span> DI
+  <span class="kwd">class</span> Container
+    <span class="kwd">def</span> initialize
+      @services = {}
+      @instances = {}
+    <span class="kwd">end</span>
+    <span class="kwd">def</span> register(name, component, *dependency)
+      @services[name] = [component, dependency]
+    <span class="kwd">end</span>
+    <span class="kwd">def</span> instance(name)
+      <span class="kwd">return</span> @instances[name] <span class="kwd">if</span> @instances[name]
+      component, dependency = @services[name]
+      args = dependency.map {|service|
+        <span class="kwd">self</span>.instance(service)
+      }
+      @instances[name] = component.new(*args)
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_173"/>
+<p class="in"><code>DI::Container</code>が行っていることは簡単で、Rubyが読める人ならコードを見ればすぐわかるでしょう。初期化して（<code>initialize</code>）、サービスを登録して（<code>register</code>）、インスタンスの要求に対してまだ生成していないオブジェクトを生成する（<code>instance</code>）、これがDIのコアのすべてです。</p>
+</section>
+<section id="chap4504" class="level2">
+<h3>Setter Injection</h3>
+<hr class="hr-gray" />
+<p class="in">Setter Injectionは<code>new</code>メソッドで依存関係を指定するのではなく、属性指定で依存するコンポーネントを与えます。こちらはコンポーネントインスタンスを生成した後、属性設定メソッド（<code>obj.foo=val</code>のようなもの）を使って依存関係を構築します。Setter Injectionを使ったコンポーネントの定義を<a href="#list4504">リスト45.4</a>に示します。</p>
+<div class="plistc" id="list4504">
+<p class="lst-caption">リスト45.4●DIコンポーネント（Setter Injection風味）</p>
+<pre><span class="kwd">class</span> Blog
+  attr_accessor :input, :display
+  ...
+<span class="kwd">end</span>
+...</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">Constructor Injectionのコンポーネントと比べて、<code>initialize</code>での依存関係の構築がなくなり、<code>attr_accessor</code>だけになっているぶん、定義がずいぶん簡単になっているのがわかります。Setter Injectionを使うDIコンテナの定義を<a href="#list4505">リスト45.5</a>に示します。<a href="#list4505">リスト45.5</a>のDIコンテナはAPIはConstructor Injectionのものと同じにしてありますから、<code>start_app</code>の定義は<a href="#list4502">リスト45.2</a>のものから変更の必要はありません。</p>
+<div class="plistc" id="list4505">
+<p class="lst-caption">リスト45.5●DI::Container（Setter Injection）</p>
+<pre><span class="kwd">module</span> DI
+  <span class="kwd">class</span> Container
+    <span class="kwd">def</span> initialize
+      @services = {}
+      @instances = {}
+    <span class="kwd">end</span>
+    <span class="kwd">def</span> register(name, component, *dependency)
+      @services[name] = [component, dependency]
+    <span class="kwd">end</span>
+    <span class="kwd">def</span> instance(name)
+      <span class="kwd">return</span> @instances[name] <span class="kwd">if</span> @instances[name]
+      component, dependency = @services[name]
+      @instances[name] = c = component.new
+      args = dependency.map {|service|
+        c.__send__(service.to_s+<span class="str">&quot;=&quot;</span>, self.instance(service))
+      }
+      c
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_174"/>
+<p class="in">このバージョンの<code>DI::Container</code>には依存関係が循環していても動作するという副作用があります。が、Setter Injectionが必ずそうだという保証があるわけではありません。</p>
+</section>
+<section id="chap4505" class="level2">
+<h3>Block Injection</h3>
+<hr class="hr-gray" />
+<p class="in">Jim Weirichが自らのBlogで紹介したより「Rubyらしい」やり方がBlock Injectionです。あ、Block Injectionは私が名付けたもので、Jim本人はそうは呼んでいません。</p>
+<ul class="none">
+<li><p><span class="k">Jim WeirichのBlogの記事</span><br />
+<span class="link">http://onestepback.org/index.cgi/Tech/Ruby/DependencyInjectionInRuby.rdoc</span></p></li>
+</ul>
+<p class="in">Constructor InjectionやSetter Injectionはインスタンスの生成方法が厳密に定められていますが、Block Injectionはブロックを使ってインスタンス生成方法を指定するので、Constructor InjectionにもSetter Injectionにも対応できます。Block Injectionを使った例を<a href="#list4506">リスト45.6</a>に示します。</p>
+<div class="plistc" id="list4506">
+<p class="lst-caption">リスト45.6●Block Injection</p>
+<pre><span class="kwd">def</span> start_app
+  c = DI::Container.new
+  c.define(:blog) {|c| Blog.new(c.input, c.display)}
+  c.define(:input) {Input.new}
+  c.define(:dbms){DBMS.new}
+  c.define(:markup){Markup.new}
+  c.define(:plugin){|c|
+    p = Plugin.new
+    p.dbms = c.dbms
+  }
+  c.define(:display) {|c|
+    Display.new(c.dbms, c.markup, c.plugin)
+  }
+  blog = c.instance(:blog)
+  ...
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_175"/>
+<p class="in">ここでは仮にPluginコンポーネントだけSetter Injectionで定義され、残りはConstructor Injectionであるとしてみました。Block Injectionではインスタンス生成方法をブロックを指定するので、インスタンスを生成するメソッドは<code>new</code>でなくてもかまいませんし、Constructor InjectionもSetter Injectionも同時に利用できます。ということは、より柔軟性が高いということができます。</p>
+<p class="in">Block Injectionを行うDIコンテナを<a href="#list4507">リスト45.7</a>に示します。<code>instance_eval</code>などリフレクションを使った<code>define</code>メソッドの定義がちょっとトリッキーですが、それ以外は非常にシンプルだと思います。</p>
+<div class="plistc" id="list4507">
+<p class="lst-caption">リスト45.7●DI::Container（Block Injection）</p>
+<pre><span class="kwd">module</span> DI
+  <span class="kwd">class</span> Container
+    <span class="kwd">def</span> initialize
+      @services = {}
+      @instances = {}
+    <span class="kwd">end</span>
+    <span class="kwd">def</span> define(name, &amp;block)
+      @services[name] = block
+      <span class="kwd">class</span> &lt;&lt; <span class="kwd">self</span>
+        <span class="kwd">self</span>
+      <span class="kwd">end</span>.instance_eval {
+        define_method(name) { <span class="kwd">self</span>.instance(name) }
+      }
+    <span class="kwd">end</span>
+    <span class="kwd">def</span> instance(name)
+      <span class="kwd">return</span> @instances[name] <span class="kwd">if</span> @instances[name]
+      @instances[name] = @services[name].call(<span class="kwd">self</span>)
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<section id="chap4506" class="level2">
+<a id="page_176"/>
+<h3>DIコンテナライブラリ</h3>
+<hr class="hr-gray" />
+<p class="in">RAA（<span class="link">http://raa.ruby-lang.org/</span>）には、以下のDIコンテナライブラリが登録されています。</p>
+<ul>
+<li><p>Rico</p></li>
+<li><p>Copland</p></li>
+<li><p>Needle</p></li>
+</ul>
+<section id="chap450601" class="level3">
+<h4>Rico</h4>
+<p class="in">Thoughtworks（Martin Fowlerらがいる会社）に所属しているDan Northが、自作のJava用のDIコンテナPicoを自らRubyに移植したものがRicoです。私の知る限りではRuby用では最も古いDIコンテナです。古いといっても2003年ですが。</p>
+<p class="in">RicoはConstructor Injectionを採用しています。Ricoは古い実装ということもあり、機能が少なく実際にアプリケーションの一部として使うには物足りないかもしれませんが、DIパターンの実装を理解するためにちょっと試してみるのには役立つかもしれません。少ないと言っても上記の20行のDIコンテナよりははるかに高機能ですし。</p>
+</section>
+<section id="chap450602" class="level3">
+<h4>Copland</h4>
+<p class="in">Coplandはユタ州Brigham Young UniversityのJamis Buckが、Java用のDIコンテナHiveMindを参考に開発したものです。JamisはHiveMindとDIを理解するための習作として作ったと述べています。</p>
+<p class="in">CoplandはSetter Injectionを採用しています。Coplandのもう1つの特徴は、コンポーネントの構成はコードではなくYAMLで記述することです。Java系のDIコンテナでは構成をXMLで記述することが多いのですが、その影響を受けつつRubyらしさを出したということでしょうか。</p>
+<p class="in">しかし、作者のJamisはCoplandを開発しているうちに、「これはRubyらしくない」と感じたようです。その彼がよりRubyらしいDIコンテナとして、新たに開発したのが次に紹介するNeedleです。</p>
+</section>
+<section id="chap450603" class="level3">
+<h4>Needle</h4>
+<p class="in">Needleは「Rubyらしさ」を追求したLight-weightなDIコンテナライブラリです。ここでの「Rubyらしさ」はどうやらブロックと<code>method_missing</code>を多用したデザインのことのようです。</p>
+<p class="in">NeedleはRuby Conference 2004において、Jamis BuckとJim Weirichとの間で交わされた会話から生まれました。その後、JimはBlock Injectionに関するBlog記事を書き、JamisはNeedleを開発しました。</p>
+<p class="in">Needleを使ったDIプログラミングの例を<a href="#list4508">リスト45.8</a>に示します。</p>
+<a id="page_177"/>
+<div class="plistc" id="list4508">
+<p class="lst-caption">リスト45.8●Needleプログラミング例</p>
+<pre>require <span class="str">&#39;needle&#39;</span>
+
+<span class="kwd">def</span> start_app
+  r = Needle::Registry.new
+  r.define <span class="kwd">do</span> |b|
+    b.blog{Blog.new(r.input, r.display)}
+    b.input{Input.new}
+    b.dbms{DBMS.new}
+    b.makrup{Markup.new}
+    b.plugin{Plugin.new(r.dbms)}
+    b.display{Display.new(r.dbms, r.markup, r.plugin)}
+  <span class="kwd">end</span>
+  blog = r.blog
+  ...
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><code>define</code>メソッドがブロックに渡すものは「<code>Builder</code>」と呼ばれるオブジェクトで、このオブジェクトは自分が知らないメソッドが呼び出されると（<code>method_missing</code>を使って）、自動的にサービスを登録してくれます。<code>define</code>メソッドと<code>Builder</code>を使う代わりに</p>
+<div class="plist">
+<pre>r.register(:blog) {Blog.new(...)}</pre>
+</div>
+<p class="ni">を呼び出すこともできます。</p>
+<p class="in">Needleはオブジェクトの生成と依存関係の挿入以外にも、サービスの呼び出しにフックをかけるInterceptorと呼ばれる機能があります。この機能によってサービスの呼び出しをログに記録するなどの処理が可能になります（<a href="#list4509">リスト45.9</a>）。このInterceptor機能は、NeedleだけでなくRicoやCoplandでも実現されています。</p>
+<div class="plistc" id="list4509">
+<p class="lst-caption">リスト45.9●NeedleのInterceptor</p>
+<pre>reg.register(:foo) {...}
+reg.intercept(:foo).with {Needle::LoggingInterceptor}</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">これにより、サービス<code>foo</code>の呼び出しは<code>Needle::LoggingInterceptor</code>を使ってフックされることになります。自分でクラスを作ることによりフックをカスタマイズすることができますし、<code>with</code>の代わりに<code>doing</code>を使うことで、ブロックを使ってInterceptorを定義することもできます（<a href="#list4510">リスト45.10</a>）。</p>
+<a id="page_178"/>
+<div class="plistc" id="list4510">
+<p class="lst-caption">リスト45.10●NeedleのInterceptor</p>
+<pre>reg.register(:foo) {...}
+reg.intercept(:foo).doing {|chain,ctx|
+  ...
+  chain.process_next(ctx)
+}</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">InterceptorはなんとなくAOP（アスペクト指向プログラミング）を思い出させます。AOPという概念はこうして定着していくのかもしれません。</p>
+</section>
+</section>
+<section id="chap4507" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">Ruby界隈ではDIはまだまだ新しい概念です。私は昨年のJAOOカンファレンスでRicoについて紹介してもらいましたが、本当に理解しようとしたのはつい最近です。しかし、DIコンテナの基本部分がわずか20行以下で実装できるのは私にとっても驚きでした。簡単な割にはなかなか有効そうなテクニックなので、次の仕事ではDIを使ってみようかなあって考えています。</p>
+<p class="in">本連載のために参考にした記事をあげておきます。まだまだDIに対する理解が浅い私にとって、これらには大変お世話になりました。この場を借りて各記事の作者の方にお礼します。ありがとうございました。</p>
+<ul class="none">
+<li><p><span class="k">Martin FowlerによるDIの解説</span><br />
+<span class="link">http://www.martinfowler.com/articles/injection.html</span></p></li>
+<li><p><span class="k">角谷さんによるその邦訳</span><br />
+<span class="link">http://www.kakutani.com/trans/fowler/injection.html</span></p>
+<p class="in">Rubyist MagazineのDIコンテナ紹介の記事。本連載と思いっきりかぶっている。</p></li>
+<li><p><span class="link">http://jp.rubyist.net/magazine/?0002-RLR</span></p></li>
+<li><p><span class="k">Jim WeirichによるDI紹介の記事</span></p>
+<p class="in">この記事の内容がきっかけになってNeedleが生まれた。</p></li>
+<li><p><span class="link">http://onestepback.org/index.cgi/Tech/Ruby/DependencyInjectionInRuby.rdoc</span></p></li>
+<li><p><span class="k">Dave ThomasによるDI紹介の記事</span><br />
+<span class="link">http://www.pragprog.com/pragdave/Tech/TransparentIOC.rdoc</span></p></li>
+</ul>
+</section>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-029.xhtml">&lt;&lt; 前ページ</a>　<a href="p-031.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

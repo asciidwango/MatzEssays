@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第3章 UNIX系OS間の移植性について</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第3章</p>
+<!-- Body -->
+<section id="chap03" class="level1">
+<a id="page_043"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">3</span>
+<hr class="chap-hr" />
+<h2>
+UNIX系OS間の<br />移植性について
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">TransTECH</span>, 1999年9月号]</p>
+<div class="newlead">
+<p class="ih">「Rubyの父」としてではなく、歴戦のCプログラマーとして執筆した記事。同じ「UNIX系」と分類されるOSでもそれぞれ違いがあって、移植性のためには考慮すべきことがたくさんあり、それに対応する手段（特に<code>autoconf</code>）について紹介する記事。</p>
+<p class="in">UNIX系OSは事実上LinuxとmacOSだけと考えてもあまり問題のなくなった現代と違って、1990年代には本当に数多くのUNIX系OSがありました。コンピュータメーカーも今よりもずっと数が多く、それぞれの会社が独自のUNIX系OSを提供していました（<a href="#table0301">表3.1</a>）し、フリーソフトウェアに限っても、LinuxとFreeBSDがいい勝負で、どちらを選ぶか難しいという時代でした。この記事の背景にはそんな「UNIX系OS戦国時代」があります。当時のフリーソフトウェアはみんなこんなに面倒なことをして各種OSに対応していたんですよ。今は移植性を維持するのはずっと簡単になりました。いい時代になりましたね。</p>
+<div class="table" id="table0301">
+<p class="tbl-caption">表3.1●コンピューターメーカーとUNIX系OS（代表的なもののみ）</p>
+<table class="tbl03">
+<tr>
+<td>メーカー</td>
+<td>OS</td>
+</tr>
+<tr>
+<td>Sun</td>
+<td>Solaris</td>
+</tr>
+<tr>
+<td>IBM</td>
+<td>AIX</td>
+</tr>
+<tr>
+<td>HP</td>
+<td>HP-UX</td>
+</tr>
+<tr>
+<td>DEC</td>
+<td>Ultrix</td>
+</tr>
+</table>
+</div>
+</div>
+<section id="chap0301" class="level2">
+<h3>はじめに</h3>
+<hr class="hr-gray" />
+<p class="in">人間というのは自分の周りの環境が普遍的なものだと思い込んでしまう傾向があるようです。プログラミングにおいてもそれは例外ではありません。</p>
+<p class="in">Windows系プログラマーは下手にOS・アーキテクチャともに統一された環境にいるのでますますその傾向が強いようです。</p>
+<p class="in">一方、UNIX系OSではひとくちにUNIXといってもアーキテクチャも癖もさまざまなOSの集合ですから、このような分野における苦労を積んできています。複数のアーキテクチャで動作するプログラムを書くのはなかなかに大変なことです。各OSに独自の機能を使わなければそれで済むかといえば必ずしもそうでもありません。</p>
+<a id="page_044"/>
+<p class="in">本記事では、複数のOS・アーキテクチャで動作することを考慮したプログラムの開発において気を付けるべき点を簡単に紹介します。</p>
+</section>
+<section id="chap0302" class="level2">
+<h3>整数のサイズ</h3>
+<hr class="hr-gray" />
+<p class="in">C言語にはいくつかのサイズの整数があります。小さい方から順に<code>char</code>, <code>short</code>, <code>int</code>, <code>long</code>です（<code>long long</code>がある処理系もあります）。</p>
+<p class="in">C言語の規格にはそれぞれのサイズは、</p>
+<div class="plist">
+<pre>char &lt;= short &lt;= int &lt;= long</pre>
+</div>
+<p class="ni">であると定義してあります。逆にいうと具体的なサイズはまったく定義されていないということです。<code>int</code>は16ビットであると思い込むのはDOS時代を生きていた、すでに古いプログラマーですが、<code>int</code>は32ビットであると思い込むのは、同じくらい愚かなことです。</p>
+<p class="in">かつて汎用機にあったという36ビットとかいうようなヘンなアーキテクチャはとりあえず考慮しないにしても、ありふれた組み合わせだけでも<a href="#table0302">表3.2</a>のようなものがあります。</p>
+<div class="table" id="table0302">
+<p class="tbl-caption">表3.2●整数とポインタのサイズ</p>
+<table class="tbl03">
+<tr>
+<td><code>char</code></td>
+<td><code>short</code></td>
+<td><code>int</code></td>
+<td><code>long</code></td>
+<td><code>void*</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>16</td>
+<td>16</td>
+<td>32</td>
+<td>16</td>
+</tr>
+<tr>
+<td>8</td>
+<td>16</td>
+<td>32</td>
+<td>32</td>
+<td>32</td>
+</tr>
+<tr>
+<td>8</td>
+<td>16</td>
+<td>32</td>
+<td>64</td>
+<td>64</td>
+</tr>
+<tr>
+<td>8</td>
+<td>16</td>
+<td>64</td>
+<td>64</td>
+<td>64</td>
+</tr>
+<tr>
+<td>8</td>
+<td>32</td>
+<td>64</td>
+<td>64</td>
+<td>64</td>
+</tr>
+</table>
+</div>
+<p class="in">これらのサイズに暗黙の仮定を行っていると違うアーキテクチャに持っていくと破綻します。特に64ビット整数はこれからCPUの64ビット化に伴い出合うことが増えていくでしょう。</p>
+<p class="in">私の経験で結構ハマったのは、ポインタのサイズに対する仮定です。以前、あまり意識せずに<code>int</code>とポインタのサイズが同じであること、キャストによって相互変換できることを仮定してプログラミングしていました。</p>
+<p class="in">ところが、そのプログラムを違うCPU上の同じOSでコンパイルするととたんにクラッシュしました。そのマシンでは<code>int</code>のサイズは32ビットですが、ポインタは64ビットでした。キャストすると情報が落ちてしまうのです。</p>
+<p class="in">結局えらく苦労してサイズへの依存性をなくしましたが、気を付けているようでも意外と暗黙の仮定をしているものです。</p>
+</section>
+<section id="chap0303" class="level2">
+<h3>エンディアン</h3>
+<hr class="hr-gray" />
+<p class="in">整数のサイズと並んではまる原因になるのはエンディアンです。アメリカ先住民……などとお約束をいうつもりはありませんが、エンディアンとはCPU上でデータをどのように表現するかの決まりです（<a href="#fig0301">図3.1</a>）。</p>
+<div class="fig" id="fig0301">
+  <!-- <div class="image25"> -->
+  <div class="image200">
+      <img src="../image/ch03/3-1.jpg" alt="fig0301" />
+  </div>
+  <p class="fig-caption">図3.1●エンディアン</p>
+</div>
+<p class="in">整数の最上位データをアドレスの最上位に置くのがビッグエンディアンで、その逆がリトルエンディアンです。よく使われるインテル系CPUはリトルエンディアンですし、SunやMotrolaはビッグエンディアンです。中にはMIPSやPowerPCのように設定次第でビッグエンディアンとリトルエンディアンどちらにでもなるというCPUもあります。</p>
+<a id="page_045"/>
+<p class="in">Cレベルではエンディアンが問題になることはほとんどないので、普段はあまりエンディアンを意識することはありませんが、ネットワークやファイルに生のバイナリデータを書き出そうとすると問題になります。リトルエンディアンでの<code>1234</code>という32ビット整数データをファイルに直接書き込んで、ビッグエンディアンのマシンで読み込むと<code>3523477504</code>という値になります。</p>
+<p class="in">ネットワークプログラミングでは伝統的にビッグエンディアンを使うことがしきたりになっています。このことからビッグエンディアンのことをネットワークバイトオーダーと呼ぶこともあります。</p>
+</section>
+<section id="chap0304" class="level2">
+<h3>アラインメント</h3>
+<hr class="hr-gray" />
+<p class="in">ほとんどのCPUではある特定の数の倍数のアドレスに対するアクセスが高速になっています。たとえばインテルのx86では、奇数アドレスのデータのアクセスよりも、偶数アドレスのデータのアクセスのほうが高速です。CPUによってはそもそも奇数アドレスに対するアクセスを許さないものもあります（そういう場合には偶数アドレスにアクセスして、シフトする）。</p>
+<p class="in">そのことを反映して、構造体の各メンバーはその先頭アドレスが特定の数の倍数になるように場合に応じてすき間が入れられることがあります（4または8バイト境界に置かれることが多いようです）。このようなアドレス配置のことをアラインメントと呼びます。アラインメントもプラットフォームごとに異なるので、エンディアン同様構造体を直接書き出したりする場合には注意が必要です。</p>
+<p class="in">エンディアンとアラインメントについては苦い思い出があります。以前、私が関わっていたプロジェクトで、データ転送の効率化のために、ネットワーク経由で直接生の構造体をやりとりするプロトコルが採用されたことがありました。出力には構造体の内容を直接書き出し、入力には読み込んできたデータを構造体としてキャストするわけです。この方法ではデータを展開したり、解析する必要がまったくないのでプログラミングは簡単で、通信コストも最小で済むということでした。</p>
+<p class="in">しかし、実際には整数サイズやエンディアンの問題もありますし、そもそも構造体のアラインメントはプラットフォームによってまちまちなので、そのようなプロトコルは危険だと何度か進言しましたが、このプロジェクトではネットワーク全体で同じ機種を用いるのでエンディアンの問題などは将来にわたって発生しないとのことでした。</p>
+<p class="in">実際には、数年後にその仮定は<ruby>反故<rt>ほご</rt></ruby>になり、システムに対する別機種の導入が決定され、担当者は通信プロトコル処理部分の総取り換えという大変な目にあうことになります。</p>
+<p class="in">このことから未来のことは誰にもわからないことと、誰かが断言してもあまり簡単に信じてはいけないことがわかります。ですから、システムの設計にはある程度将来を見越した設計が必要であることもいえると思います。</p>
+</section>
+<section id="chap0305" class="level2">
+<a id="page_046"/>
+<h3>ANSI C/POSIX</h3>
+<hr class="hr-gray" />
+<p class="in">結局、移植性のための大原則は「決まっている以上のことを前提にしない」です。で、その「決まっていること」といえば、やはり規格ということになるでしょう。ここで重要な規格はANSI CとPOSIXです。</p>
+<p class="in">ANSI CはつまりC言語の仕様です。Cの文法は当然としても、ライブラリルーチンの多くもここで定義されています。この規格の範囲内であれば、UNIX系に限らず、ほぼあらゆるプラットフォームで動くわけですから、ぜひ押えておく必要があります。</p>
+<p class="in">しかし、ANSI Cには2つの点で限界があります。1つはいまだにANSI Cに対応していない処理系が存在することです。このような処理系にも対応したければ、より古い（そしてより厳密でない）仕様のCを使う必要があります。このような「古いC」をCのバイブルである『プログラミング言語C』という書物の愛称からK&amp;Rと呼ぶことがあります。実際にはK&amp;Rの第2版ではANSI Cを解説していますから、名前だけが慣習として残っていることになります。もっとも、最近ではANSIを満たしていない処理系は少なくなってきましたし、OS付属のCがANSI Cに対応していなくても、gccが使える場合がほとんどですから、この問題は次第に重要ではなくなってきています。</p>
+<p class="in">もう1つの問題は、世の中のプログラムはANSI Cだけで記述できるプログラムばかりではないことです。ANSIでは入出力を中心とした基本的な処理しか定義されていません。多くのプログラムはOSの提供するさまざまな機能や、より高度なライブラリを要求するでしょう。</p>
+<p class="in">そのような場合に役に立つのがPOSIXです。POSIXはIEEEという団体が定義したUNIX的OSに関する規格です。POSIXはシステムコールの挙動から、各種ツールの仕様までOSのほぼあらゆる分野を定義しています。ただ、問題は規格が大きすぎて完全に満たしているOSがなかなかないことです。ただ、ライブラリ/システムコールレベルでは多くのOSが満たしていますから、POSIXが重要であることに変わりはありません。</p>
+</section>
+<section id="chap0306" class="level2">
+<h3>規格を超えて</h3>
+<hr class="hr-gray" />
+<p class="in">規格を押えることはもちろん非常に重要ですが、それだけですべての問題が解決するわけではありません。たとえば、ライブラリの仕様がANSI CやPOSIXで定義されているものとは微妙に異なっているプラットフォームも数多く存在します。</p>
+<p class="in">歴史的にUNIXには亜流がたくさん存在し、しばしばそれぞれが微妙に異なる仕様を持っていました。POSIXはそれらを統一することが1つの目的でしたが、歴史的な事情から（あるいは別の理由から）、POSIXに準拠していないプラットフォームはいくらでもあります。</p>
+<p class="in">規格に従っているプラットフォームだけを相手にするのも1つの選択肢ですが、より多くのプラットフォームで動作させたいのであれば、ANSI CやPOSIXなどの規格は結局は参考程度にしか使えない場合が多いでしょう。</p>
+<p class="in">UNIX系OSでの問題に限っても、すでに述べた整数のサイズやエンディアン以外にも以下のような問題があります。</p>
+<ol>
+<li><a id="page_047"/><p><span class="k">同機能を持つ別関数</span><br />
+たとえば文字列から文字を探す関数は<code>index()</code>と<code>strchr()</code>の両方があり、どちらかしか持たないプラットフォームもあります。</p></li>
+<li><p><span class="k">同名で仕様の違う関数</span><br />
+たとえばシステムコールの<code>getpgrp()</code>はOSによって2引数を取る場合と、引数を1つも取らない場合があります。</p></li>
+<li><p><span class="k">ヘッダーファイルがない/名前が違う</span><br />
+たとえば<code>malloc</code>用のヘッダーファイルとして <code>&lt;malloc.h&gt;</code> というヘッダーファイルがあるプラットフォームも、<code>&lt;stdlib.h&gt;</code> などでカバーするプラットフォームもあります。名前が違う例としては <code>&lt;string.h&gt;</code> と <code>&lt;strings.h&gt;</code> をあげておきます。</p></li>
+</ol>
+<p class="in">古い時代のフリーソフトウェアでは、自分のプラットフォームに合わせてソースコードや<code>Makefile</code>の書き換えを要求したり、あるいは<a href="#list0301">リスト3.1</a>のようにプリプロセッサを使ってプラットフォームごとの個別の対応を追加したりしていました。</p>
+<div class="plistc" id="list0301">
+<p class="lst-caption">リスト3.1●個別の対応</p>
+<pre><span class="kwd">#if</span> defined(__hp9000s300) || (defined(__NetBSD__) &amp;&amp; (!defined(__alpha__) &amp;&amp;
+ !defined(__mips__))) || defined(__BORLANDC__) || (defined(__FreeBSD__) &amp;&amp; 
+__FreeBSD__ &lt; 3) || defined(NeXT) || defined(__WATCOMC__) || defined(__APPLE__)
+...
+<span class="kwd">#endif</span></pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap0307" class="level2">
+<h3>賢い対応（autoconf）</h3>
+<hr class="hr-gray" />
+<p class="in">では、こんな不毛な対応よりもマシな方法はないのでしょうか。</p>
+<p class="in">もちろん、あります。</p>
+<p class="in">ここではこのような問題を解決を支援するツールであるGNU <code>autoconf</code>を紹介します。</p>
+<p class="in">フリーソフトウェアをコンパイルしたことのある人ならば、GNUソフトウェアを始めとする最近のさまざまなフリーソフトウェアのコンパイル・インストールが、</p>
+<div class="borderconsole">
+<pre>./configure
+make
+make install</pre>
+</div>
+<p class="ni">という簡単な3ステップで行えることに気付いていることでしょう。この<code>configure</code>というプログラム（シェルスクリプト）が、そのプラットフォームで使える機能を確認して、その情報を取り出してくれるので、各プラットフォームの持つ機能に応じたコンパイルを行うことができます。</p>
+<p class="in">この<code>configure</code>というプログラムを生成してくれるツールが、<code>autoconf</code>です。</p>
+<a id="page_048"/>
+<p class="in"><code>autoconf</code>を引数なしで起動すると、カレントディレクトリにある<code>configure.in</code>というファイルから<code>configure</code>プログラムを生成します（<a href="#fig0302">図3.2(a)</a>）。</p>
+<p class="in"><code>configure.in</code>に限らず、<code>autoconf</code>ではファイルを生成する元になるファイルに <code>.in</code>という拡張子を付けることになっています。</p>
+<p class="in">この<code>configure</code>が実行されると、さまざまなチェックを行い、そのプラットフォームにおいてどのような機能を使うことができるかを検出してくれます。そして、その検出結果を反映したファイルをテンプレートから生成します（<a href="#fig0302">図3.2(b)</a>）。生成されるのは普通は<code>Makefile</code>です。</p>
+<div class="fig" id="fig0302">
+  <!-- <div class="image60"> -->
+  <div class="image500">
+      <img src="../image/ch03/3-2.jpg" alt="fig0302" />
+  </div>
+  <p class="fig-caption">図3.2●autoconf</p>
+</div>
+<section id="chap030701" class="level3">
+<h4>autoconfによるチェック</h4>
+<p class="in"><code>configure</code>では以下のようなさまざまなチェックを行うことができます。</p>
+<ul>
+<li><p>関数の存在チェック</p></li>
+<li><p>ライブラリの存在チェック</p></li>
+<li><p>ヘッダーファイルの存在チェック</p></li>
+<li><p>整数や各種データ型のサイズチェック</p></li>
+<li><p>エンディアンのチェック</p></li>
+<li><p>各種ツール（コンパイラ・リンカなど）の挙動チェック</p></li>
+<li><p><code>alloca</code>/<code>signal</code>など代表的なプラットフォームでの相違</p></li>
+<li><p>その他、ほぼあらゆるチェック</p></li>
+</ul>
+<p class="in">具体的な<code>configure.in</code>の記述の抜粋をリスト<a href="#list0302">リスト3.2</a>に示します。</p>
+<div class="plistc" id="list0302">
+<p class="lst-caption">リスト3.2●configure.inの記述（抜粋）</p>
+<pre>AC_INIT(main.c)       <span class="cmt"># 初期化(必ず存在するファイル名を指定)</span>
+
+AC_PROG_CC            <span class="cmt"># コンパイラのチェック</span>
+AC_PROG_INSTALL       <span class="cmt"># インストールプログラムのチェック</span>
+AC_PROG_YACC          <span class="cmt"># yaccのチェック</span>
+
+AC_C_CONST            <span class="cmt"># constがないコンパイラのチェック</span>
+AC_C_INLINE           <span class="cmt"># inlineがないコンパイラのチェック</span>
+AC_C_BIGENDIAN        <span class="cmt"># エンディアンのチェック</span>
+
+AC_CHECK_SIZEOF(int)  <span class="cmt"># 整数のサイズチェック</span>
+
+AC_TYPE_GETGROUPS     <span class="cmt"># 典型的な互換性チェック</span>
+AC_FUNC_ALLOCA
+
+AC_HAVE_HEADERS(string.h)
+      <span class="cmt"># 関数の存在チェック</span>
+AC_CHECK_FUNCS(strtoul)
+
+AC_OUTPUT(Makefile)   <span class="cmt"># 雛型(Makefile.in)からMakefileの生成</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_049"/>
+<p class="in"><code>configure.in</code>の中ではリスト<a href="#list0302">リスト3.2</a>の中に登場するものを始めとして、さまざまなチェックを行うことができます。実際、ポータブルなプログラムを記述するために必要なほとんどあらゆるチェックを網羅しているといえます。詳細はここでは説明しきれませんので、<code>autoconf</code>のドキュメントを参照してください。</p>
+<p class="in">ここでは<code>autoconf</code>の多彩なチェック機能のうち、特徴的だと思われる実際にプログラムのコンパイルを行うことによるチェックについて紹介します。</p>
+<p class="in"><a href="#list0303">リスト3.3</a>に、実際にコンパイルを行ってチェックを行う例を示します。これはCプリプロセッサマクロでの識別子の連結にANSIスタイルで新しく定義された <code>##</code> を使うスタイルか、それとも古いK&amp;Rで使われていた空のコメントを使うスタイルのどちらが使えるかを判定するものです。</p>
+<div class="plistc" id="list0303">
+<p class="lst-caption">リスト3.3●コンパイルによるチェック例</p>
+<pre>AC_TRY_COMPILE([#define paste(a,b) a##b],
+           [int xy = 1; <span class="kwd">return</span> paste(x,y);],
+           rb_cv_tokenpaste=ansi,
+           rb_cv_tokenpaste=knr)
+<span class="kwd">if</span> test <span class="str">"$rb_cv_tokenpaste"</span> = ansi; <span class="kwd">then</span>
+  AC_DEFINE(TOKEN_PASTE(x,y),[x##y])
+<span class="kwd">else</span>
+  AC_DEFINE(TOKEN_PASTE(x,y),[x/**/y])
+<span class="kwd">fi</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">この指定により、プログラムではコンパイラの種類にかかわらず、<code>TOKEN_PASTE(x,y)</code>というマクロを使うことで、識別子の連結を行うことができます。</p>
+</section>
+<section id="chap030702" class="level3">
+<h4>Makefile.in</h4>
+<p class="in"><code>configure</code>の実行によって生成される<code>Makefile</code>の雛型になる<code>Makefile.in</code>の例を<a href="#list0304">リスト3.4</a>に示します。</p>
+<div class="plistc" id="list0304">
+<p class="lst-caption">リスト3.4●Makefile.in</p>
+<pre>CC = @CC@
+YACC = @YACC@
+
+CFLAGS = @DEFS@
+OBJ = main.o
+
+main:   $(OBJ)
+    $(CC) $(LDFLAGS) $(OBJ) -o <span class="kwd">$@</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_050"/>
+<p class="in"><code>Makefile.in</code>の中に<code>@CC@</code>とか<code>@DEFS@</code>という文字列が登場します。この<code>@〜@</code>で囲まれた文字列が<code>configure</code>の検出結果に置き換わって<code>Makefile</code>が生成されます。生成された<code>Makefile</code>を<a href="#list0305">リスト3.5</a>に示します。</p>
+<div class="plistc" id="list0305">
+<p class="lst-caption">リスト3.5●生成されたMakefile</p>
+<pre><span class="cmt"># Generated automatically from Makefile.in by configure.</span>
+CC = gcc
+YACC = bison -y
+
+CFLAGS =  -DSIZEOF_INT=4 -DGETGROUPS_T=gid_t -DHAVE_ALLOCA_H=1 -DHAVE_ALLOCA=1 -DHAVE_STRING_H=1 -DHAVE_STRTOUL=1 
+OBJ = main.o
+
+main:   $(OBJ)
+    $(CC) $(LDFLAGS) $(OBJ) -o <span class="kwd">$@</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><code>@CC@</code>はCコンパイラの名前、<code>@DEFS@</code>は<code>configure</code>によって検出された各機能がプリプロセッサ用の定数として定義されていることがわかるでしょう。</p>
+<p class="in">プログラムのほうではこれらの定数を参照して、移植性の高いソフトウェアを開発することができるわけです。</p>
+<p class="in"><code>autoconf</code>を使っても違いを検出できるだけで、検出した結果を利用して移植性のあるプログラムを書くことは自分で行わなければなりません。残念なことにこの作業は（まだ）自動化できませんが、各種のOSで確実にコンパイルできるソフトウェアの記述はもはや<code>autoconf</code>なしには考えられません。</p>
+<p class="in">どのような条件を検出し、どのように対応するかは、それだけでも難しい問題です。しかし、幸いたくさんのプログラムのソースコードが公開されていますから、それらを参考にすることで多くのことを学ぶことができます。</p>
+</section>
+<section id="chap030703" class="level3">
+<h4>configure.inの自動生成（autoscan）</h4>
+<p class="in"><code>configure.in</code>の記述はなかなか複雑です。このような点をカバーする方法として<code>autoscan</code>というプログラムが提供されています。<code>autoscan</code>を引数なしで起動すると、起動されたディレクトリに存在するソースコードをスキャンして、最低限必要と思われるチェックを含む<code>configure.in</code>の記述を<code>configure.scan</code>という名前で生成してくれます。このファイルに少々手を加えて<code>configure.in</code>という名前に置き換えれば、とりあえず<code>autoconf</code>を使って<code>configure</code>を生成することができます。</p>
+<a id="page_051"/>
+<p class="in"><code>autoscan</code>の生成する<code>configure.in</code>は完全なものではありませんが、最初のとっかかりとしては十分なものを生成してくれます。あとは、これに手直しをしていくことで比較的容易に<code>autoconf</code>対応に移行することができます。</p>
+</section>
+<section id="chap030704" class="level3">
+<h4>autoconfのインストール</h4>
+<p class="in"><code>autoconf</code>の最新バージョンは2.13です。<code>autoconf</code>の実行にはマクロプロセッサのm4がインストールされている必要があります。</p>
+<p class="in"><code>autoconf</code>のインストールも、</p>
+<div class="borderconsole">
+<pre>./configure
+make
+make install</pre>
+</div>
+<p class="ni">で完了します。<code>autoconf</code>自身が<code>configure</code>を利用しているのは面白いですね。</p>
+<p class="in"><code>autoconf</code>や<code>autoscan</code>はそれ自身はGPL（GNU General Public License）が適用されるGNUソフトウェアですが、<code>autoconf</code>などを使って生成した<code>configure</code>スクリプトは自分の望むライセンスで配布することができますから、GPLが使えない局面でも<code>autoconf</code>を利用することができます。</p>
+</section>
+<section id="chap030705" class="level3">
+<h4>autoconfの仲間</h4>
+<p class="in">誌面の関係から詳しくは説明できませんが、<code>autoconf</code>の仲間には、<code>Makefile.in</code>の生成を支援し、make時の標準的なルールを自動生成してくれる<code>automake</code>, そして、種々のプラットフォームにおけるそれぞれに異なるダイナミックリンクライブラリの生成法を統一的に扱える<code>libtool</code>があります。</p>
+<p class="in">これらのツールおよび<code>autoconf</code>の詳細については</p>
+<ul class="none">
+<li><p><span class="link">http://www.gnu.org/software/autoconf/autoconf.html</span></p></li>
+<li><p><span class="link">http://www.gnu.org/software/automake/automake.html</span></p></li>
+<li><p><span class="link">http://www.gnu.org/software/libtool/libtool.html</span></p></li>
+</ul>
+<p class="ni">を参照してください（英文）。</p>
+</section>
+</section>
+<section id="chap0308" class="level2">
+<h3>非UNIXへの移植</h3>
+<hr class="hr-gray" />
+<p class="in"><code>autoconf</code>を用いても、各種プラットフォームに対応した移植性の高いプログラムを書くことはそれなりに大変ですが、ここまで対応すれば、かなりの確率で非UNIX環境でもコンパイルできます。</p>
+<p class="in">各種非UNIXプラットフォームにはUNIX系ソフトウェアのコンパイルを支援する処理系やツールが提供されています（<a href="#table0303">表3.3</a>）。これらを利用すれば、かなりのプログラムを動作させることができます。この中でも特にCygwin32は優れもので、シェルが提供されていますから<code>configure</code>スクリプトをそのまま動かすことも可能ですし、普通に考えればUNIX環境に固有に思えるXウィンドウシステムを使ったプログラムまでコンパイルできます。</p>
+<a id="page_052"/>
+<div class="table" id="table0303">
+<p class="tbl-caption">表3.3●UNIXソース用ツール</p>
+<table class="tbl01">
+<tr>
+<td>DOS</td>
+<td>DJGPP</td>
+<td>コンパイラ + 32ビットエクステンダ + ライブラリ</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>Cygwin32</td>
+<td>コンパイラ + ライブラリ + 各種ツール</td>
+</tr>
+<tr>
+<td>Mac</td>
+<td>MachTEN</td>
+<td>コンパイラ + ライブラリ + 各種ツール</td>
+</tr>
+<tr>
+<td>Mac</td>
+<td>MWP</td>
+<td>コンパイラ + ライブラリ + 各種ツール</td>
+</tr>
+<tr>
+<td>OS/2</td>
+<td>EMX</td>
+<td>コンパイラ + ライブラリ</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap0309" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">本記事では移植性を妨げる問題と、それに対する対応について駆け足で説明しました。限られた誌面では十分な解説はできませんでしたが、何かのきっかけになればと望んでいます。</p>
+<p class="in">移植性について学ぶ最善の方法は、実際に各種プラットフォームで動作するプログラムのソースコードを眺めることです。現在では各種フリーソフトウェアのソースコードが比較的容易に入手できます。移植性という観点からフリーソフトウェアを見てみるのも面白いかもしれません。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-003.xhtml">&lt;&lt; 前ページ</a>　<a href="p-005.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

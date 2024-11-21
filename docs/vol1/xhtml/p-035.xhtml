@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第15章 CGI</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-034.xhtml">第15章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<section id="chap1508" class="level2">
+<a id="page_225"/>
+<h3>◆ 知られざるRuby ◆ Webセキュリティ</h3>
+<hr class="hr-blue" />
+<p class="in">このようにCGIプログラムと言ってもその基本的な部分は通常のプログラムと変わりありません。環境変数や標準入力からデータを受け取り、標準出力に結果を（多くの場合はヘッダー付きHTMLとして）出力するだけです。</p>
+<p class="in">しかし、このように気軽にプログラムできるCGIには、実は落とし穴があるのです。それが、</p>
+<ul class="none">
+<li><p><span class="k">セキュリティ</span></p></li>
+</ul>
+<p class="ni">です。CGIプログラムは通常のプログラムとは以下の点が決定的に違います。</p>
+<ul class="none">
+<li><p><span class="k">入力が信頼できない。</span></p></li>
+</ul>
+<p class="in">CGIプログラムに対して入力を行うのは、ネットワークのかなたのクライアントです。クライアントはよい人ばかりとは限りません。場合によっては悪意を持つユーザーがクライアントになるかもしれません。</p>
+<p class="in">とはいうものの、それでは「信頼できない入力」のどこが危険なのかピンとこないかもしれませんね。では、どのような問題が発生し得るのかということと、その問題に対する対策を見てみましょう。</p>
+<section id="chap150801" class="level3">
+<h4>バッファオーバーラン</h4>
+<p class="in">セキュリティ問題としてたびたび報告されるのがこの「バッファオーバーラン（buffer overrun）」です。これは、入力に対して固定長のバッファを確保していた場合、バッファサイズよりもはるかに大きなデータを入力することによって、プログラムを異常終了させたり、あるいはスタックのジャンプアドレスをすり替えることで、プログラムを乗っ取ったりすることができる、というものです。</p>
+<p class="in">乗っ取りの原理の詳細は説明しませんが、外部からの入力が信頼できないときには固定長のバッファは危険です。幸い、Rubyならファイルから文字列の読み込みも、文字列操作も<code>String</code>クラスがメモリ割り当てを自動的に行ってくれますから、固定長のバッファを使わなくて済みます。ですから、Rubyのような「高級」な言語を使っていれば、バッファオーバーランの問題からは解放されるということです。CなどでCGIプログラムを開発する場合には気を使う必要があります。</p>
+</section>
+<section id="chap150802" class="level3">
+<h4>信頼できない実行</h4>
+<p class="in">たとえば、クライアントからの入力が文字列<code>str</code>に格納されていたとして、何も考えずに、</p>
+<div class="plist">
+<pre>system(str)</pre>
+</div>
+<p class="ni">と実行したらどうなるでしょう?　もし、<code>str</code>の内容が、</p>
+<div class="plist">
+<pre><span class="str">&quot;cat /etc/passwd&quot;</span></pre>
+</div>
+<p class="ni">だったり、あるいは最悪、</p>
+<a id="page_226"/>
+<div class="plist">
+<pre><span class="str">&quot;rm -rf /&quot;</span></pre>
+</div>
+<p class="ni">だったら?　このように外部からの入力を元に実行するのは危険です。では、基本的な部分は自分で用意するのならどうでしょう。たとえば、あるディレクトリにあるファイル名を入力させて、そのファイルの<code>ls -l</code>出力を表示させたければ、</p>
+<div class="plist">
+<pre>system <span class="str">&quot;ls -l /home/matz/tmp/#{str}&quot;</span></pre>
+</div>
+<p class="ni">とすれば、安全なのでしょうか。一見、危険はなさそうに見えますが、<code>str</code>の内容が、</p>
+<div class="plist">
+<pre><span class="str">&quot;../../../etc/passwd&quot;</span></pre>
+</div>
+<p class="ni">なら、<code>/etc/passwd</code>の情報が見えてしまいます。あるいは、</p>
+<div class="plist">
+<pre><span class="str">&quot;foo; rm -rf /&quot;</span></pre>
+</div>
+<p class="ni">なら、<code>ls</code>の表示だけをさせるつもりだったのに、うっかり「<code>rm -rf /</code>」まで実行してしまいます。大変なことです。</p>
+<p class="in"><code>system</code>と同じくらい危ないのが<code>eval</code>です。<code>eval</code>は文字列をプログラムとして評価します。ですから、先ほどの<code>system</code>と同じように、外部からの文字列をそのまま<code>eval</code>に渡すと、</p>
+<div class="plist">
+<pre>eval(str)</pre>
+</div>
+<p class="ni">で、<code>str</code>の内容が、</p>
+<div class="plist">
+<pre><span class="str">&quot;system &#39;rm -rf /&#39;&quot;</span></pre>
+</div>
+<p class="ni">なんてこともできてしまいます。</p>
+<p class="in">と、考えてみると、CGIプログラムって恐いですね。そうなんです、CGIを楽しむためにはCGIの危険性をも十分に把握しておくべきだと思います。自動車は便利なものですけど、ひとたび間違うと凶器になるのでちゃんと教習所で運転を勉強するのと同じですね。</p>
+<p class="in">このようなセキュリティ上の問題への対処を簡単にするため、Rubyではいくつかのセキュリティレベルを用意しています。Rubyのセキュリティレベルは、何もチェックを行わないレベル0から、最も厳しいレベル4までありますが、今回は誌面の関係上、CGIに便利なセキュリティレベル1についてだけ説明します。</p>
+<p class="in">CGIプログラムに便利なレベル1では「汚染された値による危険な操作」が禁止されます。</p>
+<p class="ih">「汚染された値」とは、いま話題にしている「信頼できない入力」のことです。普段は見えませんがRubyのすべてのオブジェクトには「信頼できるか」マークが付いています。そして、外部から入力されたデータ（たとえばファイルからの入力とか、環境変数の値とか）にはすべて「信頼できない」とマークが付けられています。また、信頼できないデータから派生したデータにも「信頼できない」マークが付きます。たとえば<code>str</code>が信頼できないとき、</p>
+<div class="plist">
+<pre>a = <span class="str">&quot;ls -l &quot;</span> + str</pre>
+</div>
+<p class="ni">と文字列を結合した結果<code>a</code>も信頼できないわけです。あるオブジェクトが信頼できないかどうかは<code>tainted?</code> メソッドで調べられます。</p>
+<div class="plist">
+<pre>puts str.tainted?  <span class="cmt"># =&gt; true</span>
+puts a.tainted?    <span class="cmt"># =&gt; true</span>
+puts &quot;a&quot;.tainted?  <span class="cmt"># =&gt; false</span></pre>
+</div>
+<a id="page_227"/>
+<p class="ih">「危険な操作」とは先ほど説明した<code>system</code>や<code>eval</code>のようなメソッドのことです。具体的には<a href="#table1502">表15.2</a>に示すメソッドは、引数に「信頼できない」マークが付いているとエラーになります。</p>
+<div class="table" id="table1502">
+<p class="tbl-caption">表15.2●レベル1で禁止されるメソッド</p>
+<table class="tbl00">
+<tr>
+<td><code>test</code>, <code>eval</code>, <code>require</code>, <code>load</code>, <code>trap</code></td>
+</tr>
+<tr>
+<td><code>File</code>, <code>FileTest</code>, <code>IO</code>, <code>DIRの各メソッド</code></td>
+</tr>
+</table>
+</div>
+<p class="in">何らかの内容チェック（たとえばファイル名なら「<code>.</code>」や「<code>/</code>」を含まないとか）を行って「信頼できる」と確信できたデータに対しては、明示的に「信頼できない」マークを外すことができます。</p>
+<div class="plist">
+<pre>str.untaint</pre>
+</div>
+<p class="ni">これで<code>str</code>の文字列は「信頼できる」ことになります。実際にテストが正当かどうかはRubyは関知しませんので、くれぐれもご注意を。</p>
+<p class="in">このセキュリティレベルによって、単純なセキュリティバグを自動的に検出できるのはRubyのメリットの1つですね。Perlにも同種の機能がありますが、個人的にはRubyのもののほうが使いやすいと思います。設計者のひいき目でしょうが。</p>
+<p class="in">セキュリティレベルの指定の方法は2つあります。1つは変数 <code>$SAFE</code>への代入です。</p>
+<div class="plist">
+<pre>$SAFE = 1</pre>
+</div>
+<p class="ni">と変数 <code>$SAFE</code>に整数を代入すると、それ以降の実行が指定したセキュリティレベルで行われます。<code>$SAFE</code>の値は現在の値よりも小さい数を指定できません。</p>
+<p class="in">もう1つの方法は、コマンドライン引数で指定する方法です。Rubyのコマンドライン引数に <code>-T&lt;数字&gt;</code> を指定するとRubyプログラムの実行がそのセキュリティレベルで行われます。数字を省略すると<code>1</code>を指定したと見なされます。入門編で「おまじない」として <code>#!</code> 行に <code>-T</code>を指定しましたが、これはこのセキュリティレベル1を指定していたのです。</p>
+</section>
+<section id="chap150803" class="level3">
+<h4>XSS</h4>
+<p class="in">最後に紹介する問題はXSS（Cross Site Scripting）です。これはクライアントからの入力をそのままCGIの出力に含めてしまう危険です。たとえば、Web掲示板がユーザーの入力のタグをそのまま通してしまうと、</p>
+<ul>
+<li><p>勝手に画像を埋め込まれたり</p></li>
+<li><p>予期しないリンクを作られたり</p></li>
+<li><p><code>&lt;SCRIPT&gt;</code> タグによりJavaScriptを埋めこまれたり</p></li>
+</ul>
+<p class="ni">する場合があります。特に最後のものはクライアント側で実行されるプログラムですから、危険がいっぱいです。</p>
+<p class="in">残念ながら現在のRubyはXSSは自動検出してくれません。ユーザーからの入力を元に出力を行う場合にはHTMLタグなどをエスケープすることを忘れないようにしてください。HTMLのエスケープには<code>CGI.escapeHTML</code>メソッドが使えます（<a href="#fig1506">図15.6</a>）。</p>
+<div class="fig" id="fig1506">
+  <!-- <div class="image100"> -->
+  <div class="image800">
+      <img src="../image/ch15/15-6.jpg" alt="fig1506" />
+  </div>
+  <p class="fig-caption">図15.6●CGI.escapeHTML</p>
+</div>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-034.xhtml">&lt;&lt; 前ページ</a>　<a href="p-036.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

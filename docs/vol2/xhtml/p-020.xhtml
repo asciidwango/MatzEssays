@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第40章 tDiary</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第40章</p>
+<!-- Body -->
+<section id="chap40" class="level1">
+<a id="page_109"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">40</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+tDiary
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年9月号]</p>
+<div class="newlead">
+<p class="in">今回はtDiaryの解説です。が、BlogだのWeb日記やらが低調となった現代ではあまりピンとこないですね。tDiaryの作者のただただしさんは「20年続くソフトウェア」という標語を掲げて開発していたと聞きますが、2024年でtDiaryは25周年だそうですから、目的は達成したと言っても過言ではないですね。わたしの日記はいまだにtDiaryですが、もうかなり長い間更新もしていません。Rubyは開発開始から30年以上経ちましたが、まだまだ健在です。もともと言語はソフトウェアの中でも寿命が長いジャンルではありますが。</p>
+<p class="ih">「Ruby開発日記」は「挑戦!　言語塾」というタイトルで当時開設したばかりのlangsmithメーリングリストの話題です。このメーリングリストは、しばらくの間は続きましたがそのうち立ち消えてしまいました。その後も何度かこのようなコミュニティが立ち上がりましたが、なかなか続きません。協力して同じものを作るコミュニティは継続しやすいですが、それぞれが別々のものを作るコミュニティは続かないものなのかもしれません。</p>
+</div>
+<div class="lead">
+<p class="ni">以前、Blogについて紹介したときに、さらりと触れたtDiaryですが、今月はこの「Rubyのキラーアプリ」とうわさされるtDiaryとその周辺について探検してみましょう。</p>
+</div>
+<section id="chap4001" class="level2">
+<h3>tDiary</h3>
+<hr class="hr-gray" />
+<p class="in">tDiaryは、ただただしさんによって開発されているWeb日記ツールです。tDiaryの「t」は「ただのt」であるとも、「ツッコミのt」であるともいわれていますが、確かなことはわかりません。余談ですが「ただただし」というのは本名だそうです。</p>
+<p class="in">日記ツールとしてのtDiaryの特徴は、</p>
+<a id="page_110"/>
+<ul>
+<li><p>ツッコミ</p></li>
+<li><p>トラックバック</p></li>
+<li><p>テーマ</p></li>
+<li><p>スタイル</p></li>
+<li><p>プラグイン</p></li>
+<li><p>多言語対応</p></li>
+</ul>
+<p class="ni">などです。</p>
+<p class="ih">「ツッコミ」とは要するにコメントです。「コメント」でなく「ツッコミ」と表現されているのは、「ちょっとした気の利いた短文を入れてほしい」という意味が込められているのだそうです。ですから、tDiaryでのツッコミは短く愛を込めたものが推奨されています。別にツッコミの長さの制限はないので、短いものしか許されないというわけではありません。</p>
+<p class="ih">「トラックバック」は<a href="p-008.xhtml#chap34">2004年3月号</a>の本連載でも説明しましたが、トラックバック対応のサイト同士が、「あなたのことを話題にしましたよ」という連絡を行うための仕掛けです。新しい日記文を登録するときにトラックバック先のアドレス（Trackback Ping URL）を指定すると、そのURLを使ってtDiaryが自動的に先方のサイトに通知してくれます。もちろん、tDiaryもトラックバックを受け付けることができます。</p>
+<p class="ih">「テーマ」はCSS（Cascading Style Sheet）を使ってサイトの外観を変更できる機能です。tDiaryはテンプレートを変更することなく、「テーマ」と呼ばれるCSSを取り換えるだけで外観を変更できます。テーマによって自分の日記の個性を表現することができますし、気分に合わせて日記の外観を変化させることも簡単です。tDiaryとともに配布されているテーマであれば、設定画面から簡単に選択できますし、そうでなくてもインストールは簡単です。tDiaryテーマはすでに200種類以上公開されています。また、tDiaryのテーマを理解するツールも数多くあります。たとえば、日記サイトの「はてな」、Wikiの「Hiki」などです。</p>
+<ul class="none">
+<li><p><span class="k">テーマギャラリー</span><br />
+<span class="link">http://www.tdiary.org/20021001.html</span></p></li>
+</ul>
+<p class="in">あまりにたくさんあるので選択するのが大変なくらいです。zphotoを使ったFlashによる選択ツールも便利です。</p>
+<ul class="none">
+<li><p><span class="link">http://tdiary2.tdiary.net/theme/zphoto.swf</span></p></li>
+</ul>
+<p class="in">サムネイル画像にカーソルを合わせるとイメージが拡大され、クリックするとサンプルページにジャンプします。</p>
+<p class="ih">「スタイル」は日記文の入力フォーマットです。tDiaryのデフォルトでは、日記のフォーマットは簡易化されたHTMLです（<a href="#table4001">表40.1</a>）。</p>
+<div class="table" id="table4001">
+<p class="tbl-caption">表40.1●tDiary HTMLフォーマット</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">入力フォーマット</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td>空行</td>
+<td>セクションの区切り</td>
+</tr>
+<tr>
+<td>セクション先頭</td>
+<td>サブタイトル</td>
+</tr>
+<tr>
+<td>行</td>
+<td>段落</td>
+</tr>
+<tr>
+<td>「<code>&lt;</code>」で始まるセクション</td>
+<td>整形の対象外</td>
+</tr>
+<tr>
+<td><code>&lt;%= plugin %&gt;</code></td>
+<td>プラグイン</td>
+</tr>
+</table>
+</div>
+<p class="in">その他にもWikiの記法を使うWikiスタイル、Ruby界ではよく使われているRDを使うRDスタイルなどが用意されています。もちろん私は自分が考案したRDを使うのが好みなので、RDスタイルを愛用しています。スタイル情報はエントリごとに記録されていますから、途中でスタイルを変更することも可能です。</p>
+<a id="page_111"/>
+<p class="ih">「プラグイン」はtDiaryにさまざまな機能を追加するものです。上記のトラックバックなどもプラグインで実現されています。他にも以下のようないろいろな機能がプラグインで提供されています。</p>
+<div class="description">
+<p class="ditem">絵日記プラグイン</p>
+<p class="dni">画像のアップロードと本文での表示を実現します。</p>
+<p class="ditem">Amazonアフィリエイトプラグイン</p>
+<p class="dni">ISBNに対応するAmazon.co.jpの購入ページへのリンクを生成します。表紙の画像（書影）を取り込むこともできます。</p>
+<p class="ditem">脚注プラグイン</p>
+<p class="dni">脚注を付けます。脚注はその日のエントリの下にまとめて表示されます。</p>
+<p class="ditem">リンク生成プラグイン</p>
+<p class="dni">自分の日記のエントリへのリンクを簡単に生成します。</p>
+<p class="ditem">カレンダープラグイン</p>
+<p class="dni">カレンダーを表示します。表示形式・機能によっていくつかのカレンダープラグインが存在します。</p>
+<p class="ditem">ToDoプラグイン</p>
+<p class="dni">ToDoリストを管理します。</p>
+<p class="ditem">RSS出力プラグイン</p>
+<p class="dni">最新のエントリのRSS（RDF Site Summary）を出力します。</p>
+<p class="ditem">コメントメールプラグイン</p>
+<p class="dni">ツッコミが付いたときにメールで通知するプラグイン。qmail, sendmail, SMTPそれぞれに対応版があります。</p>
+<p class="ditem">最近のエントリ一覧プラグイン</p>
+<p class="dni">最近のエントリのリストを表示するプラグイン。サイドバーに置くのが効果的です。</p>
+<p class="ditem">更新時刻表示プラグイン</p>
+<p class="dni">日記を更新した時刻をグラフで表示してくれるプラグインです。人によっては生活パターンが明らかになってしまうかもしれません。</p>
+</div>
+<p class="in">その他数多くのプラグインが開発されています。</p>
+<ul class="none">
+<li><p><span class="k">プラグインリスト</span><br />
+<span class="link">http://tdiary-users.sourceforge.jp/cgi-bin/wiki.cgi?PluginList</span></p></li>
+</ul>
+<p class="in">安定版ではtDiary 2.0から「多言語対応」が含まれるようになりました。1.4まではボタンやメニューなどの言語はデフォルトでは日本語に決め打ちでした。カスタマイズで英語などに変更することはできましたが、統一的な枠組みはなくそれなりに大変な作業でした。2.0からは設定1つで言語を切り替えられます。tDiaryの標準配布には、日本語（ja）、英語（en）、中国語（zh）のリソースが含まれています。韓国語などの新しい言語への対応も（その言語がわかれば）そんなに大変ではないでしょう。</p>
+</section>
+<section id="chap4002" class="level2">
+<a id="page_112"/>
+<h3>tDiaryのインストール</h3>
+<hr class="hr-gray" />
+<p class="in">原稿執筆時点でのtDiaryの最新版は、6月27日（たださんの誕生日）にリリースされた2年ぶりの安定バージョンである2.0です。入手先は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.tdiary.org/20021112.html</span></p></li>
+</ul>
+<p class="ni">です。tDiaryのインストールは、過去に何らかのWebアプリケーション（またはCGI）のインストールの経験があれば、難しいことはまったくありません。</p>
+<p class="in">Debianなどではパッケージになっていますが、ここでは自分のサイトにゼロからインストールする手順を説明します。まず、ソースを入手します。2.0のソースは、</p>
+<ul class="none">
+<li><p><span class="link">http://www.tdiary.org/download/tdiary-full-2.0.0.tar.gz</span></p></li>
+</ul>
+<p class="ni">です。サイズは約1.7Mバイトあります。デフォルト以外のプラグインとテーマを除いた最少パッケージ（134Kバイト）もありますが、プラグインやテーマが使えなくてはtDiaryの魅力半減ですから、ここではすべてのプラグインとテーマを含んだフルパッケージをダウンロードします。</p>
+<p class="in">パッケージを展開したものをサーバーのホームディレクトリの「<code>public_html</code>」ディレクトリに転送した後は、</p>
+<ul>
+<li><p>ホームディレクトリに <code>.htpasswd</code>を用意</p></li>
+<li><p><code>public_html</code>に <code>.htaccess</code>を用意</p></li>
+<li><p>（CGIが書き込み可能な）データディレクトリの用意</p></li>
+<li><p><code>tdiary.conf</code>にデータディレクトリの設定</p></li>
+</ul>
+<p class="ni">をするだけで、基本的なインストールは完了です。後はブラウザで日記を表示させ、設定メニューから、プラグインやテーマなどを設定することができます。</p>
+<p class="in">トラックバックを使うためには<code>misc/plugin/trackback</code>ディレクトリにある<code>tb.rb</code>を<code>public_html</code>直下にコピーし、実行可能（<code>chmod a+x tb.rb</code>）にしておきます。</p>
+<p class="in">詳しいインストール方法は、</p>
+<ul class="none">
+<li><p><span class="k">tDiary FAQ</span><br />
+<span class="link">http://tdiary-users.sourceforge.jp/cgi-bin/wiki.cgi?FAQ#i1</span></p></li>
+</ul>
+<p class="ni">を参照してください。</p>
+</section>
+<section id="chap4003" class="level2">
+<h3>BlogKit</h3>
+<hr class="hr-gray" />
+<p class="ih">「Web日記」と「Blog」がどこが違うのか、という論争には加わりたくないのですが、MovableTypeを始めとするBlogツールとWeb日記ツールであるtDiaryとは、トラックバックなど共通の機能を持ちますが、記事の扱いで少しだけ差があります。</p>
+<a id="page_113"/>
+<p class="in">tDiaryは日記ツールですから、日が重要な単位になります。同じ日に複数の話題を書くとそれぞれはその日のエントリの中の1セクションになります。コメントやトラックバックも日単位です。一方、MovableTypeなどのいわゆるBlogツールではセクションに当たる1つの記事が1つの単位です。コメントやトラックバックなども記事単位で付きます。同じ日に複数のエントリを書いたとしても、それは「たまたま日付が同じである連続したエントリ」であるとしか扱われません。この辺が日記ツールとBlogツールの違いといるかもしれません。</p>
+<p class="in">tDiaryを使っていても、記事単位で扱いたいという要望はあると思います。特に同じ日に全然違った話題で複数のセクションを書いたときに、コメントが混ざってしまわないように、セクションごとにコメントやトラックバックを受け付けたいという希望を持つ人は多いような気がします。また、いわゆるBlogツールがほしいが、同時にtDiaryのテーマ機能やプラグインも利用したいという要望もあるでしょう。それらを解決するのがBlogKitです。</p>
+<p class="in">基本的な発想は、tDiaryの日付を他のBlogツールにおける記事番号として扱おう、というものです。記事の日付そのものは別に記録する「最終更新時刻」で表示します。</p>
+<p class="in">BlogKitを導入するとtDiaryの挙動が以下のように変化します。</p>
+<ul>
+<li><p>日付が意味を持たなり、記事番号扱いになる</p></li>
+<li><p>記事に「最終更新時刻（Last-Modified）」が付くようになる</p></li>
+<li><p>リスト表示時には、記事の最初のセクションだけサマリーとして表示される</p></li>
+<li><p>「更新」を選ぶと、自動的に空いている記事番号を割り当てる</p></li>
+<li><p>Recent EntriesやWhat’s Newで更新情報が公開される</p></li>
+<li><p>なにやら英語っぽい表記になる</p></li>
+</ul>
+<p class="in">これらの挙動の変化によって、tDiaryを「日記」に特化したツールを超えて、Blogツールとして扱うことができるようになります。</p>
+<p class="in">1日1つ以上のエントリを連続して入力すると「日付のように見える番号」が恐ろしい勢いで進んでいくことになりますが、まあ、気にしない、ということで。</p>
+<p class="in">BlogKitは、</p>
+<ul class="none">
+<li><p><span class="link">http://www.tdiary.org/download/tdiary-blogkit-2.0.0.tar.gz</span></p></li>
+</ul>
+<p class="ni">から入手できます。「Rubyホームページ（<span class="link">http://www.ruby-lang.org/</span>）」もtDiary+BlogKitで運用されています。</p>
+</section>
+<section id="chap4004" class="level2">
+<h3>ツッコミメール</h3>
+<hr class="hr-gray" />
+<p class="in">さて、インストールも完了し、tDiaryを運用できるようになったということで、tDiaryの利用をより便利にする小技をいくつか紹介しましょう。</p>
+<p class="in">まずはツッコミメール機能です。<code>comment_mail</code>プラグインを有効にすると、ツッコミが行われたときにメールが届きます。これは大変便利な機能ですが、このままでは、ツッコミした人の情報がログを見ないとわからないという不満があります。</p>
+<a id="page_114"/>
+<p class="in">困ったことがあれば自分で解決できるのがオープンソースのよいところです。そこでこの点も改善してみましょう。この改善はツッコミメールのテンプレート（<code>skel/mail.rtxt</code>）を書き換えることで行います。<code>mail.rtxt</code>はeRubyファイルでプラグインなどを使うことができます。私は<a href="#list4001">リスト40.1</a>のような<code>mail.rtxt</code>を使っています</p>
+<div class="plistc" id="list4001">
+<p class="lst-caption">リスト40.1●mail.rtxt</p>
+<pre>From: &lt;%= name %&gt; &lt;&lt;%= mail %&gt;&gt;
+To: &lt;%= receivers.join(&#39;, &#39;) %&gt;
+Date: &lt;%= date %&gt;
+Message-Id: &lt;%= message_id %&gt;
+Subject: &lt;%= mail_header %&gt;-&lt;%= serial %&gt; 
+&lt;%= name %&gt;
+MIME-Version: 1.0
+Content-Type: text/plain; charset=&quot;iso-2022-jp&quot;
+Content-Transfer-Encoding: 7bit
+Errors-To: &lt;%= receivers[0] %&gt;
+X-Mailer: tDiary &lt;%= TDIARY_VERSION %&gt;
+X-URL: http://www.tdiary.org/
+X-REMOTE-ADDR: &lt;%=TCPSocket.gethostbyname(ENV[&#39;REMOTE_ADDR&#39;])[0] rescue ENV[&#39;REMOTE_ADDR&#39;]%&gt;
+
+&lt;%= body %&gt;
+--
+&lt;%= @conf.index =~ %r|^https?://|i ? &#39;&#39;: @conf.base_url %&gt;&lt;%= @conf.index.sub(%r|^\./|, &#39;&#39;) %&gt;&lt;%= anchor(@date.strftime(&#39;%Y%m%d&#39;) + (&#39;#c%02d&#39; % serial)) %&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">追加されたのは、「<code>X-REMOTE-ADDR</code>」で始まるヘッダー部の最後の行です。内容はツッコミを書いた人のホスト名が表記されます。逆引きができなかった場合には、IPアドレスが表示されます。</p>
+</section>
+<section id="chap4005" class="level2">
+<h3>tdiary-mode.el</h3>
+<hr class="hr-gray" />
+<p class="in">私がtDiaryを選んだ理由の1つが<code>tdiary-mode.el</code>により、Emacsで文章を書き、Emacsの中から文章をアップロードできることです。</p>
+<p class="in">そしてもう1つの理由が、文書フォーマットを選択することができ、RDを使うことができる点です。</p>
+<p class="in">ところが、<code>tdiary-mode.el</code>はtDiaryのデフォルトの文書フォーマットである「簡易HTML」に対応して、HTML文書の入力支援しか持っていません。RDの入力には不要なものばかりです。RD文書入力用には<code>rd-mode.el</code>がありますから、tDiaryで日記を書くためにもぜひ利用したいものです。</p>
+<p class="in">なければ自分でできるのがオープンソースのよいところです。元Emacs Lispハッカーの私は、<code>tdiary-mode.el</code>を改造して、RD版<code>tdiary-mode.el</code>を作りました。これは<code>tdiary-mode.el</code>が<code>html-mode</code>をベースにしているところを、<code>rd-mode</code>をベースにするように変更しただけのものです。</p>
+<a id="page_115"/>
+<p class="in">改造版<code>tdiary-mode.el</code>は573行もありますから、ここにリストは載せられませんが、付録CD-ROMに収録してもらうことにします。RDでtDiaryを利用していらっしゃる人には利用価値があるのではないでしょうか。</p>
+<p class="in">この<code>tdiary-mode.el</code>はRDとHTMLが切り替えられないのが欠点です。私はRDしか使わないので困ってないのですが、誰か有志（勇士）がよりよいものを作ってくださらないかと期待しています。</p>
+</section>
+<section id="chap4006" class="level2">
+<h3>http.el</h3>
+<hr class="hr-gray" />
+<p class="in">唐突に話は変わりますが、先日、<span class="link">www.ruby-lang.org</span>として利用していたマシンがクラックされてしまいました。実質的な被害はなさそうだったのですが、改ざんがないことを証明できなかったので大変な思いをしました。ホスト管理者は大変な思いをして復旧していました。</p>
+<p class="in">そんなこともあるので、<span class="link">www.ruby-lang.org</span>とマシンを共有しているので、その影響を受けることになりました。tDiaryのアップデートもSSL経由のHTTPSでなければ行えないようになりました。Plain HTTP経由のBASIC認証ではパスワードが<ruby>漏洩<rt>ろうえい</rt></ruby>する危険があるからです。</p>
+<p class="in">まあ、妥当な制限だと思いましたが、1つ困ったことが起きました。<code>http.el</code>がHTTPSに対応していないのです。<code>http.el</code>は、<code>tdiary-mode.el</code>がtDiaryの更新のために利用している小さな（127行）Emacs Lispプログラムです。<code>http.el</code>は簡易ブラウザとしてEmacsの中からWWWを呼び出すことができます。</p>
+<p class="in">困ったことがあれば、まず調査、そして自分で解決です。ちょっと調べた範囲内では、<code>http.el</code>をSSL対応にするコードは存在しないようです。しかし、<code>ssl.el</code>というプログラムがあって、SSLによるネットワーク接続を（opensslを使って）実現しているようです。</p>
+<p class="in">そこでまたハックです。</p>
+<p class="in"><code>ssl.el</code>を利用したちょっとした改造により、「<code>https:</code>」で始まるURLへのアクセスはSSL経由でアクセスするようになりました。改造した<code>http.el</code>（128行）もCD-ROMに収録しておきます。今回収録する各種プログラムのライセンスはGPLとします。</p>
+</section>
+<section id="chap4007" class="level2">
+<h3>トラックバック</h3>
+<hr class="hr-gray" />
+<p class="in">トラックバックはBlogや日記の間をつなぐ面白い仕掛けです。「あなたのエントリに言及しました」という連絡により、文章や発想が広がっていきます。</p>
+<p class="in">しかし、いかんせんトラックバックは面倒です。Permalink（エントリに対応する恒常的URL）を開き、Trackback Ping URLをコピーし、自分のページの更新ページにそれをペーストするのは、結構な手間で、思わず「そんなことするくらいならトラックバックは止めよう。リンク元解析で見つけてくれるよ」と感じてしまいます。</p>
+<p class="in">しかし、私は間違っていました。トラックバックには「Trackback Auto-Discovery」という仕様があって、エントリにRDFでPing URLを含めることができるのでした。後は適切なツールでそれを抽出するだけです。無知は罪ですよね。</p>
+<a id="page_116"/>
+<p class="in">抽出するにはBookmarkletを使います。Bookmarkletとは、ブックマークのURL欄に登録しておく小さなJavascriptプログラムです。Javascript対応のブラウザでは、ブックマークから選択することで、現在表示中のページに対してJavascriptプログラムを起動することができます。</p>
+<p class="in">Trackback Ping URLを抽出するBookmarkletを<a href="#list4002">リスト40.2</a>に示します（すべて1行です）。</p>
+<div class="plistc" id="list4002">
+<p class="lst-caption">リスト40.2●trackback bookmarklet</p>
+<pre>javascript:document.getElementsByTagName( &quot;html&quot; )[0].innerHTML.match(/trackback:ping=[\&#39;\&quot;](http.+)[\&#39;\&quot;]/i);var pingUrl = RegExp.$1;location.href = &#39;http://YOURSITE/update.rb?plugin_tb_url=&#39;+escape(pingUrl);</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">JavaScript対応のブラウザで新規ブックマークの登録を行い、そのURL欄に<a href="#list4002">リスト40.2</a>の内容を登録します。<a href="#list4002">リスト40.2</a>の<code>YOURSITE</code>の部分は自分の日記のURLに変更してください。ブックマークのタイトルは適当に「Trackback」とでもしておくとよいでしょう。Trackback Auto-Discoveryに対応したページを表示中にこのBookmarkletを起動すると、Trackback Ping URLが入力された状態で日記の更新ページにジャンプします。</p>
+<p class="in">tDiaryのトラックバック対応はTrackback Auto-Discoveryに対応しています。その他、MovableType他多くのBlogツールが対応していますので、このBookmarkletは使いでがあると思います。私も以前よりもトラックバックを打つことが多くなったような気がします。</p>
+<p class="in">このtrackback bookmarkletも<code>trackback.js</code>としてCD-ROMに収録しておきます。</p>
+</section>
+<section id="chap4008" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はWeb日記ツールtDiaryを改めて紹介してみました。こうして「困ったこと」を解決していくたびに思うのは、「オープンソースってありがたい」ってことです。商用ツールではなかなか自分で解決というわけにはいきません。問題を解決してそれを公表することで、他の人を助けることもできるようになります。</p>
+<p class="in">開発者から見たtDiaryの醍醐味は、やはりプラグインでどんどん機能を拡張できる点でしょう。機能を追加することでtDiaryがますます使いやすくなります。日記を書くことよりも機能を追加することのほうが楽しくなるという本末転倒な結果になってしまうケースもありますが、趣味なんだからよしとしましょう。プラグインプログラミングはRubyの入門にも向いていそうです。近いうちにtDiaryプラグインプログラミングについても探検してみたいと思います。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-019.xhtml">&lt;&lt; 前ページ</a>　<a href="p-021.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

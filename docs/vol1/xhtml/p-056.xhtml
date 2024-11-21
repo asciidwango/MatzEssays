@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第25章 XMLとYAML</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-055.xhtml">第25章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap2508" class="level2">
+<a id="page_352"/>
+<h3>◆ Ruby開発日記 ◆ 迷惑メールをやっつけろ</h3>
+<hr class="hr-green" />
+<p class="in">私は毎日数百通のメールを受け取ります。そのうちの大部分はRuby関連を始めとするメーリングリストからのものです。要するに一日のかなりの割合をメールの読み書きに費やしているわけです。おそらくはプログラミングしている時間よりも長いでしょう。しかし、ここのところspamとか迷惑メールと呼ばれる不要なメールの割合が次第に増えてきました。</p>
+<ul>
+<li><p>出会い系サイトの紹介</p></li>
+<li><p>アダルトグッズの販売</p></li>
+<li><p>spam用アドレスの販売</p></li>
+<li><p>意図不明でサイトに誘導するもの</p></li>
+<li><p>ウィルス、ワーム</p></li>
+<li><p>「量子論は間違っている」</p></li>
+<li><p>詐欺（私はコンゴの富豪の未亡人で……）</p></li>
+</ul>
+<p class="in">きりがありません。こんなもので商売になると思う人がいるのが信じられませんが、いずれにせよこんなものを読まされて人生の貴重な時間を浪費するのは耐えられません。そこで少々対策を施すことにしました。</p>
+<p class="in">私は会社においてあるサーバーにすべてのメールを集めて、そこからPOPで自分のノートパソコンにメールを取り込んでいます。POPで取り込む際にfetchmailとprocmailを使ってMaildirフォルダに分類し、それをローカルホストのIMAPサーバーを経由してcmailで読んでいます（<a href="#fig2501">図25.1</a>）。</p>
+<div class="fig" id="fig2501">
+  <!-- <div class="image80"> -->
+  <div class="image700">
+      <img src="../image/ch25/25-1.jpg" alt="fig2501" />
+  </div>
+  <p class="fig-caption">図25.1●迷惑メール対策</p>
+</div>
+<p class="in">こんなことをしているのは、</p>
+<ul>
+<li><p>メールの取得は安定的に（会社のサーバー）</p></li>
+<li><p>1メール1ファイルを実現したい（Maildir）</p></li>
+<li><p>cmailを使いたい</p></li>
+</ul>
+<p class="ni">というニーズを実現するためです。</p>
+<a id="page_353"/>
+<p class="in">迷惑メールを撃退するために、まず私が始めたことは、サーバーにspamassassinというソフトを導入したことです。これは迷惑メールの持つ特徴をルールによって検出し「spamらしさ」を判定したうえで、ある一定以上のspamスコアを持つメールを排除するというものです（実際の排除はprocmailが行います）。このソフトの効力は絶大で、しばらくは私に届く迷惑メールが激減しました。特に英語のspamを見ることはなくなりました。</p>
+<p class="in">ところがspamassassinも万能ではありません。まず、第1にspamassassinは英語圏で開発されたもので、ルールも英語の迷惑ルール対象に用意されていますから、日本語の迷惑メールをほとんど検出できないことです。第2にはspam業者も学習してきて単純なルールはすり抜けるようなメールを用意するようになってきたのでした。</p>
+<p class="in">そこに登場したのが「人気の言語を作るには」という論文で知られるPaul Grahamの「a Plan for spam」という論文です。これは要するにメールをBayesianフィルタで統計的に処理することで迷惑メールかどうか判定しよう、というものです。自分で作ってもよかったのですが、Bayesian処理の数学的側面に負けてしまったので（笑）、既存のものを使うことにしました。私が選んだのはspamprobeというソフトです。日本語には対応していないようだったので少々不安だったのですが、試しにしばらく運用したところ問題なく日本語の迷惑メールも検出できるようです。</p>
+<p class="in">Bayesianフィルタは学習によって成長します。単語の間の関連や頻度を学習結果と比較することによってメール全体のスコアを決定するという仕組みです。そこで今までに蓄えた「正しいメール」と「迷惑メール」をspamprobeに食わせてやるとデータベースを作ってくれます。</p>
+<p class="in">spamprobeはノートパソコン側に設定することにしました。spamassassinをすり抜けてくるメールは微妙なので、誤判定が起きては嫌だったのと、サンプルを学習させるのに手元のほうが便利だったからです。spamprobeが計算したスコアを使ってノートパソコン側のprocmailで迷惑メールを「ゴミ箱フォルダ」にまとめることにしました。</p>
+<p class="in">さて、これでほとんどの迷惑メールが退治できるようになりました。通販も、詐欺も、ウィルスもきちんと排除します。これで一件落着と思ったのですが、ただ1つだけ問題が残っていました。実は私のところにはアンケートサイトからのメールや、通販サイトからのメールも来るのですが、これらは迷惑メールと非常に似た構造を持っています。これらを迷惑メールと区別しなければなりません。メール分類ソフトにはよく「ホワイトリスト」という「このアドレスは大丈夫だよ」というような機能が付いているのですが、spamprobeにはそのような機能はないようです。</p>
+<p class="in">そこでどうしたかというと、bogofilterという別のBayesianフィルタソフトを使って自分にとって有用なメールをspamprobeに渡す前に分別することにしました。これで完璧です。</p>
+<p class="in">しかし、構築したときは段階的に行ったので気にもしませんでしたが、サーバー側のspamassassinと合わせて全部で3段にもフィルタをかけるのは少々異常かもしれません。</p>
+<p class="in">ところで、Bayesianフィルタはサンプルをたくさん与えて学習させるほど賢くなります。ソフトウェアがだんだん頭が良くなっていく様子を見るとなんだかかわいく感じてしまいます。昔の「たまごっち」のようなイメージなんですが、感情移入しすぎでしょうか。</p>
+<p class="in">私のフィルタたちは今日もメールを餌にして成長しています。</p>
+<section id="chap250801" class="level4">
+<a id="page_354"/>
+<h5>参考文献</h5>
+<p class="ni">smapassassin<br />
+<span class="link">http://www.spamassassin.org/</span></p>
+<p class="ih">「a Plan for spam」<br />
+<span class="link">http://www.paulgraham.com/spam.html</span><br />
+<span class="link">http://www.shiro.dreamhost.com/scheme/trans/spam-j.html</span>（和訳）</p>
+<p class="ni">spamprobe<br />
+<span class="link">http://sourceforge.net/projects/spamprobe/</span></p>
+<p class="ni">bogofilter<br />
+<span class="link">http://sourceforge.net/projects/bogofilter/</span></p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-055.xhtml">&lt;&lt; 前ページ</a>　<a href="p-057.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

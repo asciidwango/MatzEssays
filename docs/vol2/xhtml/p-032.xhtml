@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第46章 最終回・ネタのタネ</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第46章</p>
+<!-- Body -->
+<section id="chap46" class="level1">
+<a id="page_181"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">46</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+最終回・ネタのタネ
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2005年3月号]</p>
+<div class="newlead">
+<p class="ih">『Linux Magazine』連載「探訪Ruby」の最終回で、（当時の）私の情報源を紹介しています。とはいえ、紹介されているRAA, RubyForgeはすでになく、メーリングリストは現存するものの低調です。ブログなども紹介されているものは（私自身の「Matzにっき」を含めて）ほとんど止まっています。IRCもSlackやDiscordに置き換えられましたね。「アンテナ」が紹介されていますが、この言葉も久々に耳にしましたね。現代ではRSSにすっかり置き換えられていて、そのRSSも利用者が減っていますね。Ruby関連のカンファレンスの紹介もありますが、RubyConfの参加者が数十人と今とはまったく違った印象ですね。たとえばRubyKaigi 2024の参加者が1400人であることを考えると隔世の感があります。</p>
+<p class="in">では、現在の情報源は何かと考えると、私はいまだにRSSリーダーを使っています。あとは、X（旧Twitter）かなあ。どちらも当時はなかったものですね。YouTubeやTikTokで情報発信というのもあるようですね。</p>
+<p class="ih">「Ruby開発日記」は「型についての一考察」です。この頃は動的型全盛期だったはずですが、すでに静的型についての検討が行われているのは興味深いですね。しかも、静的型に対する私の態度がこれだけ時間が経ってもまったく変化していない。</p>
+</div>
+<div class="lead">
+<p class="ni">最終回となる今回は、今までの連載を振り返るとともに、今まで紹介してきたようなRuby関連の情報をどのように入手できるかについて紹介します。</p>
+</div>
+<section id="chap4601" class="level2">
+<h3>連載のまとめ</h3>
+<hr class="hr-gray" />
+<p class="in">本連載は2003年12月号から、「入門Ruby」に続く連載として始まりました。前回の連載は初心者を卒業してから<ruby>幾星霜<rt>いくせいそう</rt></ruby>の私にとって入門記事を書くのは結構厳しく、音を上げてしまったというのが、正直なところです。それに続くこの「探訪Ruby」はRuby関連の最新情報を紹介するような連載として始まりました。<a href="#table4601">表46.1</a>に第1回から先月までの本連載の過去の内容を示します。</p>
+<a id="page_182"/>
+<div class="table" id="table4601">
+<p class="tbl-caption">表46.1●「探訪Ruby」連載リスト</p>
+<table class="tbl14">
+<tr>
+<td>03年12月号</td>
+<td>Rubyの国へようこそ</td>
+<td>Rubyの簡単な紹介と連載の方向性について</td>
+</tr>
+<tr>
+<td>第1回</td>
+<td>オープンソースのビジネスストーリー</td>
+<td>ビジネス視点からのオープンソース論</td>
+</tr>
+<tr>
+<td>04年1月号</td>
+<td>テスト第一主義</td>
+<td>テストファーストプログラミング</td>
+</tr>
+<tr>
+<td>第2回</td>
+<td>オープンソースと特許</td>
+<td>ソフトウェア特許の問題点と課題</td>
+</tr>
+<tr>
+<td>04年2月号</td>
+<td>Wiki Wiki</td>
+<td>誰にでも書き換え自由なWikiについて</td>
+</tr>
+<tr>
+<td>第3回</td>
+<td>日本Rubyの会</td>
+<td>RubyConf 2003と日本Rubyの会</td>
+</tr>
+<tr>
+<td>04年3月号</td>
+<td>Blogの世界</td>
+<td>Rubyによる各種Blogソフトウェアの紹介</td>
+</tr>
+<tr>
+<td>第4回</td>
+<td>Rubyの未来</td>
+<td>Riteについて</td>
+</tr>
+<tr>
+<td>04年4月号</td>
+<td>アスペクト指向</td>
+<td>アスペクト思考の紹介とAspectR</td>
+</tr>
+<tr>
+<td>第5回</td>
+<td>ごみ集め</td>
+<td>ガベージコレクション入門</td>
+</tr>
+<tr>
+<td>04年5月号</td>
+<td>RubyとEmacs</td>
+<td>ruby-modeとRRBの紹介</td>
+</tr>
+<tr>
+<td>第6回</td>
+<td>Emacsによる開発</td>
+<td>Emacsのある生活</td>
+</tr>
+<tr>
+<td>04年6月号</td>
+<td>Instiki</td>
+<td>Instiki, Redcloth, Madeleineの紹介</td>
+</tr>
+<tr>
+<td>第7回</td>
+<td>歴史は繰り返す</td>
+<td>過去の失敗から学ぶ</td>
+</tr>
+<tr>
+<td>04年7月号</td>
+<td>テンプレート</td>
+<td>各種テンプレートライブラリの紹介</td>
+</tr>
+<tr>
+<td>第8回</td>
+<td>プロトタイプな世界</td>
+<td>プロトタイプベース言語</td>
+</tr>
+<tr>
+<td>04年8月号</td>
+<td>DBM</td>
+<td>dbm, gdbm, bdb, qdbmの紹介</td>
+</tr>
+<tr>
+<td>第9回</td>
+<td>メールリーダーの新アプローチ</td>
+<td>検索ベースのMUAについて</td>
+</tr>
+<tr>
+<td>04年9月号</td>
+<td>tDiary</td>
+<td>tDiaryの紹介など</td>
+</tr>
+<tr>
+<td>第10回</td>
+<td>挑戦! 言語塾</td>
+<td>Langsmithメーリングリストについて</td>
+</tr>
+<tr>
+<td>04年10月号</td>
+<td>Webアプリケーションの基礎</td>
+<td>HTTPとCGIについて解説</td>
+</tr>
+<tr>
+<td>第11回</td>
+<td>Lightweight Language Weekend</td>
+<td>LLWイベントレポート</td>
+</tr>
+<tr>
+<td>04年11月号</td>
+<td>Webアプリケーションの基礎（その2）</td>
+<td>CGIとセッション</td>
+</tr>
+<tr>
+<td>第12回</td>
+<td>汝は人狼なりや?</td>
+<td>人狼BBSの紹介</td>
+</tr>
+<tr>
+<td>04年12月号</td>
+<td>Webアプリケーションフレームワーク</td>
+<td>CGIKit解説</td>
+</tr>
+<tr>
+<td>第13回</td>
+<td>Ruby Conference 2004レポート</td>
+<td>行ってないのにレポート</td>
+</tr>
+<tr>
+<td>05年1月号</td>
+<td>マークアップ・マークダウン</td>
+<td>RD, Redcloth, Blueclothの紹介</td>
+</tr>
+<tr>
+<td>第14回</td>
+<td>名前重要</td>
+<td>私の「座右の銘」について</td>
+</tr>
+<tr>
+<td>05年2月号</td>
+<td>ダイコン</td>
+<td>Dependency Injectionについて</td>
+</tr>
+<tr>
+<td>第15回</td>
+<td>文字コードの憂鬱</td>
+<td>文字コードに由来するトラブルなど</td>
+</tr>
+<tr>
+<td>05年3月号</td>
+<td>ネタのタネ</td>
+<td>最終回、情報収集の方法</td>
+</tr>
+<tr>
+<td>最終回</td>
+<td>型に関する一考察</td>
+<td>プログラミング言語と型について</td>
+</tr>
+</table>
+</div>
+<p class="in">本編のほうはそのときどきの最新ネタを紹介したつもりですが、ちょっと難しすぎたかもしれません。また誌面と私自身が下調べに使える時間の両方の制約から内容の突っ込み具合が足りないと感じられた方もいらっしゃるかもしれません。一方、私の日ごろ考えていることの一端を書きつづった「Ruby開発日記」は、いろいろな人に楽しんでいただけたようです。どうやら「役に立たないが面白い」という評価を受けていたようですが、そうだとしたらまったく私の狙いどおりということになります。</p>
+</section>
+<section id="chap4602" class="level2">
+<a id="page_183"/>
+<h3>Ruby情報の集め方</h3>
+<hr class="hr-gray" />
+<p class="in">さて、今まで本連載で紹介してきたようなRuby界での情報を得るためにはどうしたらよいでしょうか。私が利用しているものは、主に以下のような方法です。</p>
+<ul>
+<li><p>RAA</p></li>
+<li><p>RubyForge</p></li>
+<li><p>メーリングリスト</p></li>
+<li><p>Blog/日記</p></li>
+<li><p>Web Magazine</p></li>
+<li><p>IRC</p></li>
+<li><p>各種イベント</p></li>
+</ul>
+<p class="in">それら1つ1つについてもうちょっと詳しく紹介してみましょう。</p>
+</section>
+<section id="chap4603" class="level2">
+<h3>RAA（Ruby Application Archive）</h3>
+<hr class="hr-gray" />
+<p class="in">RAA（<span class="link">http://raa.ruby-lang.org/</span>）は今回の連載の最大の情報源です。これはRuby関連のアプリケーション、ライブラリ、その他についての情報を集めたインデックスサイトです。RAAはインデックス情報を提供するだけで、ソフトウェアの配布などは行いません。オープンソースコミュニティでたとえるならば、freshmeat.netであって、sourceforge.netではないというところでしょうか。</p>
+<p class="in">RAAのトップページには、新たに登録された5プロジェクトと、最近更新された10プロジェクトがリストされています。これをウォッチしているだけでかなり最新状況を把握できます。最近ではRSSフィードにも対応しています。</p>
+<ul class="none">
+<li><p><span class="link">http://raa.ruby-lang.org/index.rdf</span></p></li>
+</ul>
+<p class="ni">をお使いのRSSリーダーに登録すれば、いつでも最新の更新をチェックできます。RAAは単にライブラリだけではなく、ドキュメントやRubyで書かれたアプリケーションもインデックスしていますから、RAAの更新をチェックするだけでRuby界隈の動向のかなりの割合をカバーできそうです。</p>
+<p class="in">原稿執筆時点で、RAAには220カテゴリーにわたる1308のプロジェクトが登録されています。またプロジェクトを登録している開発者は646人に及びます。</p>
+</section>
+<section id="chap4604" class="level2">
+<h3>RubyForge</h3>
+<hr class="hr-gray" />
+<p class="in">RAAがfreshmeat.netのRuby版であるならば、sourceforge.netのRuby版がRubyForge（<span class="link">http://rubyforge.org</span>）です。RubyForgeはRuby関連のプロジェクトをホスティングするサイトです。RubyForgeはCVSリポジトリ、バグトラッキングなどオープンソースプロジェクトに必要なツールをさまざまに取りそろえています。ホスティングにはSourceForgeで使われていたソフトウェアから派生したgForgeを使っています。残念ながらgForgeはPHPで記述されています。まあ、使えるツールは使えばいい、何でもRubyで再発明する必要はない、という現実的な判断なのでしょう。アメリカ人らしい合理性です。</p>
+<a id="page_184"/>
+<p class="in">RubyForgeもRSSフィード</p>
+<ul class="none">
+<li><p><span class="link">http://rubyforge.org/export/rss_sfnews.php</span></p></li>
+</ul>
+<p class="ni">を提供しています。原稿執筆時点で、RubyForgeには469プロジェクト、1419ユーザーが登録されています。RubyForgeはInfoEther社の提供で運営されています。</p>
+</section>
+<section id="chap4605" class="level2">
+<h3>メーリングリスト</h3>
+<hr class="hr-gray" />
+<p class="in">昔からRubyの開発はメーリングリストを主体として行われてきました。Web全盛のこの時代にあっても、いまだにコミュニティの中心と開発の母体はメーリングリストにあるといえます。Ruby関連のメーリングリストはたくさんありますが、ここでは主要な4つのメーリングリストを紹介します。</p>
+<p class="in">ruby-listはRubyユーザーのためのメーリングリストです。ruby-listは最も古いメーリングリストです。その始まりは1995年にさかのぼります。最近は書籍やWebから情報を得られるせいか流量がすっかり少なくなってしまい、メールはだいたい日に数通程度です。雰囲気は良好だと思っていますが、聞くところによると初心者には近寄りがたいところがある、と感じられるところもあるそうです。そうなのか。まあ、「なんか動きがおかしいのですが」という質問に対して、「このパッチで直ります」などと、開発者メーリングリスト顔負けの回答が来ることがあるところなどが原因なのでしょうか。とはいえ、別に恐いところでないので気軽に参加していただければよいと思います。</p>
+<p class="in">原稿執筆時点でのruby-listの累計メール数は40537、登録メンバー数は2470名です。</p>
+<p class="in">ruby-devは開発者のためのメーリングリストです。バグレポートや修正パッチ、あるいはRubyの仕様を改善する提案などが流れています。C言語の知識や各種OSに関する移植性などの情報、プログラミングテクニック、また言語やライブラリの設計のあり方についても論じられることがあります。Rubyに関わっていて一番面白いのは、もしかしたらここではないかと思います。言語そのものに関心がある人、Rubyの実装に興味がある人だけでなく、プログラミング全般に興味のある人にもお勧めのメーリングリストです。原稿執筆時点でのruby-devの累計メール数は25473、登録メンバー数は661名です。</p>
+<p class="in">ruby-listとruby-devは日本語のメーリングリストですが、海外でも広く使われているRubyには英語のメーリングリストも存在します。それがユーザー向けのruby-talkと開発者向けのruby-coreです。</p>
+<p class="in">ruby-talkの登録メンバー数は1306名しかいませんが、NetNewsのcomp.lang.rubyニュースグループと相互乗り入れを行っています。ruby-talkに投稿したメールは自動的にcomp.lang.rubyに流れますし、逆にcomp.lang.rubyに投稿された記事はruby-talkの転送されます。そのため、ruby-talkの読者の数がどれだけいるのかは調べることができません。おそらくは万単位の人が読んでいるのだろうと想像します。読者数を反映するのか、メールの流量も多く、今や日本語のRuby関連のメーリングリストの流量すべてを合わせたものの数倍の量のメールが流れます。現在までの累計メール数は126464で、実にruby-listの4倍を超えます。同様の形態を取っているcomp.lang.pythonやcomp.lang.perlよりは流量が少ないとはいえ、下手をすると1日に100通をゆうに超えるメールが流れます。これが全部英語ですから、読むのもなかなか大変です。</p>
+<a id="page_185"/>
+<p class="in">ruby-talkではいくつか面白い企画が行われています。その内のいくつかを紹介します。</p>
+<div class="description">
+<p class="ditem">ruby-dev summary</p>
+<p class="dni">最近では、海外ユーザーのほうが多くなってしまったと思われるRubyですが、開発の中心はいまだに日本人が担っています。そのことから重要な議論はruby-devメーリングリストで日本語で行われることが多いです。そのような「最新動向」をぜひとも知りたいという非日本人のためにruby-devでの議論のサマリーをruby-talkに紹介するという企画です。数名の日本人ボランティアが毎週翻訳を行っています。新規ボランティアは常時募集中です。</p>
+<p class="ditem">Ruby Quiz</p>
+<p class="dni">毎週出されるプログラミング課題にRubyで答えるという企画です。ルールとして、問題提出後48時間は解答をポストしないことになっています。最近の問題としては「コマンドライン引数で受け取った数字をASCIIアートでLCD表示しなさい」というものがありました。</p>
+<p class="ditem">Ruby Weekly News</p>
+<p class="dni">Ruby関連の情報を毎週まとめています。当然ですが海外のニュースが中心です。</p>
+<p class="ditem">comp.lang.ruby FAQ</p>
+<p class="dni">comp.lang.rubyニュースグループ（およびruby-talkメーリングリスト）に関する「よくある質問」をまとめたものです。1カ月に1回程度ポストされています。このFAQリストをメンテナンスしているのは<em>Ruby Way</em>の著者であるHal Fultonです。</p>
+</div>
+<p class="in">英語による開発者メーリングリストruby-coreには351名の登録メンバーがおり、累計メール数は4230通です。こちらはNetNewsと相互接続していないので流量はおとなしいものです。ruby-devに負けないくらい濃い内容のものが多いですが、メールの量はruby-devよりもはるかに少ないです。</p>
+<p class="in">これらのメーリングリストは開発者と直接やりとりできる機会でもあります。あまり気負わずに参加してみてはどうでしょうか。</p>
+<p class="in">これらのメーリングリストに参加するには、「ruby-*-ctl@ruby-lang.org」にメールを送ります。メールのサブジェクトは空でよく、本文に「subscribe 名字名前」という行を含めます。アドレスの「*」の部分にはメーリングリストの名前「list」「dev」「talk」「core」が入ります。Fromアドレス宛に登録確認メールが来ますので、そのメールに返答することで登録が完了します。</p>
+</section>
+<section id="chap4606" class="level2">
+<h3>Blog/日記</h3>
+<hr class="hr-gray" />
+<p class="in">Blogや日記から得られる情報も馬鹿になりません。Ruby関連の日記やBlogを監視するためには、アンテナと呼ばれるものが便利です。アンテナは各種Webページをチェックして最近更新されたものから順に並べてくれます。</p>
+<p class="in">Ruby関連のアンテナで最も充実しているものは、おそらく、Ruby hotlinks（通称「るるりん」、<span class="link">http://www.rubyist.net/~kazu/samidare/</span>）でしょう。とりあえずRubyに関係ありそうな話題が頻繁に登場する日記などはほとんどカバーしているのではないでしょうか。</p>
+<a id="page_186"/>
+<p class="in">その他に私が愛用しているアンテナは、\ayアンテナ（<span class="link">http://kazuhiko.tdiary.net/a/</span>）です。これらには直接Rubyに関連ないページもたくさん含まれていますが、面白いものが多いです。</p>
+<p class="in">さて、個別のBlogからもいくつか紹介しておきましょう。まず、最初に紹介するのは私自身の「にっき」（あるいはBlog）です。</p>
+<p class="in">Matzにっき（<span class="link">http://www.rubyist.net/~matz/</span>）は、Rubyのこと、プログラミング言語論から私の家族や日常生活まで、雑多な内容の日記です。更新は毎日とはいかないのですが、365日毎日ぶんのエントリを書いています。最近はRubyの記事に混じって、「XML批判」とか「PHPについての考察」なんかも書いています。</p>
+<p class="in">もう1つはYAML for Rubyの開発者、why the luckystiffが音頭をとって始まったRedHanded（<span class="link">http://redhanded.hobix.com/</span>）です。日本語がわからないなりに、日本の状況を一生懸命ウォッチしている姿が印象的です。最近はライターに日本人も加わり、より的確に強力に日本の情報を「世界に発信」してくれるのではないでしょうか。</p>
+</section>
+<section id="chap4607" class="level2">
+<h3>Web Magazine</h3>
+<hr class="hr-gray" />
+<p class="in">Ruby界でも「雑誌のスタイルをとったWeb」であるWeb Magazineが発行されました。その名もRubyist Magazine（<span class="link">http://jp.rubyist.net/magazine/</span>）、略して「るびま」です。現時点では、第4号まで、ほぼ月一（ただし、1月はお休み）で発行されています。例として第4号の目次を<a href="#table4602">表46.2</a>に示します。</p>
+<div class="table" id="table4602">
+<p class="tbl-caption">表46.2●Rubyist Magazine 第4号 目次</p>
+<table class="tbl00">
+<tr>
+<th style="text-align: left;">0004号（2004-12）</th>
+</tr>
+<tr>
+<td>巻頭言</td>
+</tr>
+<tr>
+<td>Rubyist Hotlinks 第4回</td>
+</tr>
+<tr>
+<td>Rubyではじめるプログラミング</td>
+</tr>
+<tr>
+<td>RubyOnRailsを使ってみる</td>
+</tr>
+<tr>
+<td>Ruby Library Report 第3回</td>
+</tr>
+<tr>
+<td>lilyでブログカスタマイズ 第2回</td>
+</tr>
+<tr>
+<td>Win32OLE活用法 第2回</td>
+</tr>
+<tr>
+<td>build Ruby on Windows 第1回</td>
+</tr>
+<tr>
+<td>Ruby/Tk講習会レポート</td>
+</tr>
+<tr>
+<td>RubyNews</td>
+</tr>
+<tr>
+<td>RubyEventCheck</td>
+</tr>
+<tr>
+<td>編集後記</td>
+</tr>
+</table>
+</div>
+<p class="in">入門から高度な内容までカバーした充実した内容です。これだけのクオリティのWeb Magazineを毎月、しかも、無料で、発行していることは驚きに値します。</p>
+<p class="ih">「るびま」が発行されたときには海外の人たちから、続々と「いいなぁ」という声が上がりました。そこで、現在はartima.comのBill Vennersを中心に英語版のRuby Web Magazineの発行に向けて準備中なのだそうです。無事発行の暁には、「るびま」との翻訳記事のやりとりも行いたい、とのことです。</p>
+</section>
+<section id="chap4608" class="level2">
+<h3>IRC</h3>
+<hr class="hr-gray" />
+<p class="in">Intenet Relay ChatでもRubyについて語り合っている人々がいます。Ruby関連のチャンネルはたくさんあるようですが、主要なものは日本語では「%Ruby」、英語では「#ruby-lang」です。</p>
+<a id="page_187"/>
+<div class="description">
+<p class="ditem">%Ruby</p>
+<p class="dni">irc.tokyo.wide.ad.jpなどでコネクトできます。*.jpドメインからの接続に限定されています。最近はあんまり盛り上がっていないようです。「%rrr」というチャンネルもあると聞いたことがありますが、私は参加したことがありません。</p>
+<p class="ditem">#ruby-lang</p>
+<p class="dni">irc.freenode.netでコネクトできます。こちらは180名以上の参加者がおり、活発な議論が行われています。WebアプリケーションフレームワークであるRuby on Railsについて語り合う「#rubyonrails」やRubyForgeを話題とする「#rubyforge」などもあるそうですが、こちらも参加したことはありません。</p>
+</div>
+<p class="in">しかし、IRCはリアルタイムな会話なので大変時間を消費します。IRCに没頭すると開発の時間や原稿を書く時間がごっそり削られてしまいますから、私はこれらのチャンネルにログ記録用のbotを常駐させて、1日一度のペースでログをメールで読んでいます。これらのチャンネルでmatzを見つけて、話しかけてもお返事できないかもしれませんから、あらかじめごめんなさい。だいたい、matzをキーワードにして斜め読みしていますから、IRCで私に何か伝えたいときには、ログの中にmatzという単語を含めると確実です。</p>
+</section>
+<section id="chap4609" class="level2">
+<h3>各種イベント</h3>
+<hr class="hr-gray" />
+<p class="in">ネット上のやりとりもよいですが、ときには直接顔を合わせるのも大変有効です。Rubyもあちこちで認知されていて、Rubyに関連する話題が取り上げられるイベントも増えてきています。現時点で予定がはっきり決まっているのは『オープンソースカンファレンス2005』です。</p>
+<ul class="none">
+<li><p>『オープンソースカンファレンス2005』</p></li>
+<li><p>2005年3月25日(金)・26日(土) 10:00-17:00</p></li>
+<li><p>開催場所: 日本電子専門学校 7号館（東京・大久保）</p></li>
+<li><p>主催: オープンソースカンファレンス実行委員会</p></li>
+</ul>
+<p class="in">それからLightweight Languageというイベント（一昨年はLL Saturday、昨年はLL Weekend）が毎年開かれています。これはMITで開かれているLightweight LanguageというイベントにインスパイアされたRuby, Python, Perl, PHPなどの軽量言語を取り扱うカンファレンスです。実は、このLightweight Languageが今年も開催されるという情報を入手しました。まだ、日程や場所などは未確定です。昨年は、Ruby, Python, Perl, PHPにとどまらず、Curl, Gauche,Groovy, Pnuts, Squeakなどについても紹介されました。今年はどのようなプログラムになるでしょうか。</p>
+<p class="in">また、大阪では毎年『関西オープンソース』というイベントが大阪産業創造館で行われており、きっと今年も開催されるでしょう。</p>
+<p class="in">海外でもイベントは行われています。今年、確定しているものは、8月のOSCON 2005（O’Reilly Open Source Convention. August 1-5, 2005. Portland, OR）および、秋頃のRuby Conferenceです。Ruby Conferenceはアメリカ東海岸と西海岸で交代で開催されています。昨年は東海岸（バージニア州）で開かれたので、今年はどこか西海岸で開催されるでしょう。</p>
+<a id="page_188"/>
+<p class="in">Ruby Conferenceは毎年の参加者が50名から60名程度のこぢんまりとしたカンファレンスです。しかし、Dave ThomasやDavid Alan Black, Hal FultonなどRuby界の有名人と直接会うことができますし、なによりプレゼンテーションの内容が、この人数にはもったいないくらいに高度かつ良質なものばかりです。毎年、日本人は3～4名くらいしか参加していません（昨年は私も出席できませんでした、残念）が、今年はもうちょっと多くの日本人が参加できればよいと思っています。言語が英語なのがちょっと難点ですが。夏頃までには開催地も決まり、情報が<span class="link">http://www.rubycentral.org/conference/</span>で告知されると思います。</p>
+<p class="in">一方のO’Reilly OSCONのほうは、オープンソース全般をカバーする大規模なカンファレンスです。私は2003年に出席する機会がありましたが、キーノートスピーチでは聴衆が数千人を超える本当に大きなカンファレンスでした。OSCONではPerl, Python, MySQLなどオープンソースソフトウェアごとにトラックが割り当てられ、同じ部屋で連続してそのソフトウェアに関するセッションが開かれます。</p>
+<p class="in">昨年は人材不足などからRubyトラックを開催できませんでしたが、今年はすでにRubyトラックを実現するための画策が始められているそうです。日程（と予算）の都合がつけば今年は私もぜひ出席したいと考えています。こちらも詳細はまだ発表になっていませんが、いずれ、<span class="link">http://conferences.oreillynet.com/</span>で告知されることでしょう。こちらもLarry WallやGuido van Rossumや、そのほかオープンソース業界の有名人と直接コンタクトできる貴重な機会です。日本からOSCONに参加するツアーとか組んだらどうかなあ。「まつもとゆきひろと行くOpen Source Convention」とか。いかがでしょう。</p>
+<p class="in">アメリカのイベントばかり紹介しましたが、ヨーロッパでは、EuRuKo（European Ruby Conference）が開催されています（昨年の会場はドイツ、カールスルーエ）。今年も開催されそうですが、まだ情報が入ってきていません。</p>
+</section>
+<section id="chap4610" class="level2">
+<h3>おわりに</h3>
+<hr class="hr-gray" />
+<p class="in">長らく続いてきた連載もこれが最終回です。なごり惜しい気はしますが、お別れです。ただ、Rubyそのものはこれからも発展を続けます。これからますます広がっていく「Rubyの世界」の中で、皆さんとまたどこかで再会できることと思います。そのときまで、さようなら。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-031.xhtml">&lt;&lt; 前ページ</a>　<a href="p-033.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

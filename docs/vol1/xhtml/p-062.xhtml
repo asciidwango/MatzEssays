@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第28章 独習Ruby</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-061.xhtml">第28章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap2814" class="level2">
+<h3>◆ Ruby開発日記 ◆ オープンソースコンベンション2003</h3>
+<hr class="hr-green" />
+<p class="in">7月6日から11日まで、オレゴン州ポートランドでオープンソースコンベンション2003が開かれました。</p>
+<p class="in">オープンソースコンベンションはO’Reillyが毎年開催しているオープンソース関連の最大のイベントです。このイベントは当初Perl Conferenceとして始まりましたが、次第に他のオープンソースソフトウェアも取り込んで、ここ5年ほどはオープンソースコンベンション（OSCON）として定着しています。</p>
+<p class="in">さて、Ruby関連の書籍はO’Reillyからは1冊しか出版されていないせいか、あるいはその1冊もさして売り上げに貢献していないせいか、それとも他の理由かわかりませんが、とにかく昨年まではRubyはOSCONからはお呼びがかかりませんでした。</p>
+<p class="in">ところが今年はRubyトラックが用意され複数のRubyの発表がありました。これがO’Reillyの方針転換か、Ruby人口の増加と知名度のアップが原因かはよくわかりませんが。私も今回Rubyの作者として招待されました。久しぶりの海外遠征です。</p>
+<p class="in">OSCONのプログラムからRuby関連のものを抜き出したものを<a href="#table2802">表28.2</a>に示します。</p>
+<div class="table" id="table2802">
+<p class="tbl-caption">表28.2●Ruby Conferenceプログラム</p>
+<table class="tbl10">
+<tr>
+<td>7/8</td>
+<td>08:45-17:15</td>
+<td>Ruby in a Day 1日チュートリアル</td>
+</tr>
+<tr>
+<td>7/10</td>
+<td>10:45-11:30</td>
+<td>The Power and Philosophy of Ruby</td>
+</tr>
+<tr>
+<td>7/10</td>
+<td>11:30-12:15</td>
+<td>Ruby for Perl Programmers</td>
+</tr>
+<tr>
+<td>7/10</td>
+<td>13:45-14:30</td>
+<td>Take a FreeRIDE with Ruby</td>
+</tr>
+<tr>
+<td>7/10</td>
+<td>14:30-15:15</td>
+<td>Data-Driven Classes in Ruby</td>
+</tr>
+<tr>
+<td>7/10</td>
+<td>16:30-17:15</td>
+<td>Understanding Ruby’s Object Model</td>
+</tr>
+<tr>
+<td>7/10</td>
+<td>17:15-18:00</td>
+<td>What I Did on My Summer Vacation</td>
+</tr>
+</table>
+</div>
+<p class="in">このリストからもわかるように7月10日（木）は「Rubyの日」で、一日中何かしらRuby関連のプログラムが開かれていました。</p>
+<p class="in">プログラムが行われた部屋は50名程度でいっぱいになってしまう小さな部屋だったのですが、中には立ち見が出るほど盛況だったものもありました。Rubyがアメリカのオープンソース界でも注目を集めつつあることが実感できました。</p>
+<a id="page_388"/>
+<p class="in">それでは、プログラムの内容を1つずつ見てみましょう。</p>
+<section id="chap281401" class="level4">
+<h5>Ruby in a Day</h5>
+<p class="in">Dave Thomasがあちこちでやっているチュートリアルです。ユーザーの手元のコンピュータで実際にプログラムを作って学ぶ実践的なチュートリアルでなかなか好評だったようです。私は会場にこの日の夕方に着いたので出席できませんでした。</p>
+</section>
+<section id="chap281402" class="level4">
+<h5>The Power and Philosophy of Ruby</h5>
+<p class="ih">「Rubyの日」の先頭は私による発表です。「言語が人間の思考に影響を与える」という仮説に従って、プログラマーによりよい影響を与えるプログラミング言語とはどのようなものかということについて論じました。発表資料は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.rubyist.net/~matz/slides/oscon2003/index.html</span></p></li>
+</ul>
+<p class="ni">にあります。発表後、その仮説は「Sapir-Whorf Hypotheses」と呼ぶのだと教えてもらいました。私が考え出した仮説と同じことを70年以上も前に考えた人がいるとは驚きです。</p>
+</section>
+<section id="chap281403" class="level4">
+<h5>Ruby for Perl Programmers</h5>
+<p class="in">Phil TomsonによるPerlユーザーのためのRuby入門です。ポートランド在住の彼は地元のPerlユーザーグループで同じ発表を行ったのだそうです。「みんな優しかったよ。殺されないですんだし」とは彼の弁です。</p>
+</section>
+<section id="chap281404" class="level4">
+<h5>Take a FreeRIDE with Ruby</h5>
+<p class="in">Rich Kilmerが数年前から作っているIDE（統合開発環境）FreeRIDEとそのベースになっているアーキテクチャFreeBASEの解説です。彼はDARPAから仕事を受けているベンチャー企業の経営者で、JavaをRubyに置き換えて生産性を実現していると言っていました。</p>
+</section>
+<section id="chap281405" class="level4">
+<h5>Data-Driven Classes in Ruby</h5>
+<p class="in">Michael GrangerとDavid McCorkhillによるクラス設計の話。私はこのプログラムには用事で参加できませんでした。彼らはこの2月にrubycrafters.comというRubyをベースにした企業を立ち上げたのだそうです。やるな。</p>
+</section>
+<section id="chap281406" class="level4">
+<h5>Understanding Ruby’s Object Model</h5>
+<p class="in">Rubyのオブジェクトモデルについて。Rubyのソースコード中、<code>object.c</code>にある図をきちんと説明したという感じでしょうか。</p>
+<p class="in">発表したChris Pineは最近子供が産まれたそうなのですが、「女の子だったらRubyと名付けたのに……」と言っていました。実際は男の子だったので「C」という名前にしたそうです。本気?</p>
+</section>
+<section id="chap281407" class="level4">
+<a id="page_389"/>
+<h5>What I Did on My Summer Vacation</h5>
+<p class="in">Dave Thomasが昨年の夏休みに奥さんの働くNGOのためにWebシステムを構築したという話で、昨年のRuby Conferenceでの発表とほぼ同内容です。結局夏休みはなかったということなんでしょうか。</p>
+<p class="in">このWebシステムというのが、教育者と生徒が教材を管理するというもので、長年の歴史的事情により発注も支払いも教材管理も複雑怪奇で、しかもそのビジネスルールをそのままWeb化する必要があったという厳しい条件があったのにもかかわらず、Rubyを使ったので6週間で完成したという話でした。</p>
+<p class="in">会場から「Pythonでもできるんじゃないか」という質問がありましたが、「できるかもしれないが、私には無理だった」と答えていました。確かにPythonが得意な人とRubyが得意な人と割とはっきり分かれる傾向があるようです。Dave Thomasは「猫好きと犬好きみたいなもの」と形容していました。</p>
+<p class="in">OSCONはもちろんRuby関連以外にもPerlやPython, Apache, PHPなど盛りだくさんでした。私としてはPerlの作者Larry Wallと再会できたことや、Pythonの作者Guido van Rossumと会えたことなどが貴重な経験でした。もちろん良好な関係でしたとも。一緒に夕食を食べたりもしましたしね。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-061.xhtml">&lt;&lt; 前ページ</a>　<a href="p-063.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

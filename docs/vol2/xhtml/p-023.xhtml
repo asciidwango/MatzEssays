@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第41章 Webアプリケーションの基礎</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　<a href="p-022.xhtml">第41章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap4113" class="level2">
+<h3>◆ Ruby開発日記 ◆ Lightweight Language Weekend</h3>
+<hr class="hr-green" />
+<p class="in">昨年「Lightweight Lightweight Saturday」と題して開催され、日本唯一の軽量言語専門イベントとしてすっかり定着した「Lightweight Language」が、今年はいっそうパワーアップして帰ってきました。今年は「Lightweight Language Weekend」というタイトルで8月7日(土)、8日(日) の2日にわたって、東京新宿区の日本電子専門学校を会場として開催されました。</p>
+<p class="in">昨年は土曜日のみの1日イベントでしたが、今年は「Weekend」の名のとおり、2日間にわたるイベントに成長していました。開催期間が延びただけでなく、出席者も順調に増加していました。出世魚のようです。この調子で成長すれば、来年は「Lightweight Language Week」、さらに将来には「Lightweight Language Month」とかにまで行くのではないでしょうか。</p>
+<a id="page_129"/>
+<p class="in">冗談はともかく、日本ではこの種のイベントを休日以外に行うのはまだまだ難しいようです。「LL Weekend」のようなマイナーな言語を含むイベントの場合、仕事として認知されることはまだまだ難しいのからでしょうか。</p>
+<p class="in">アメリカではRubyのようなマイナーな言語のカンファレンスでも、金曜午後から日曜午前までの間で開催しています。また、アメリカは日本のように一極集中していませんから、どこで開いても大変な距離の移動が必要な参加者がいて、平日開催以上に障害は大きいように思います。そんな状況下でもそれなりに参加者が集まるというのは、アメリカのIT業界の層の厚さを意味しているのでしょうか。</p>
+<p class="in">今年の「LL Weekend」のプログラムは<a href="#table4102">表41.2</a>のとおりです。自称「LLの専門家」として参加してきた私ですが、個人的な事情で1日目しか参加できませんでしたので、1日目を中心にレポートします。2日目については参加された方からうかがった内容を中心に報告します。</p>
+<div class="table" id="table4102">
+<p class="tbl-caption">表41.2●LL Weekend プログラム</p>
+<table class="tbl01">
+<tr>
+<th colspan="2">1日目: 8月7日 (土)</th>
+</tr>
+<tr>
+<td>10:00〜12:00</td>
+<td>Language Update</td>
+</tr>
+<tr>
+<td>13:00〜14:30</td>
+<td>LLを仕事に</td>
+</tr>
+<tr>
+<td>15:00〜16:40</td>
+<td>君ならどう書く</td>
+</tr>
+<tr>
+<th colspan="2">2日目: 8月8日 (日)</th>
+</tr>
+<tr>
+<td>10:00-10:10</td>
+<td>「その場でどう書く」課題発表</td>
+</tr>
+<tr>
+<td>10:10-12:00</td>
+<td>LLとblog</td>
+</tr>
+<tr>
+<td>13:00-14:00</td>
+<td>Lightning Talk</td>
+</tr>
+<tr>
+<td>14:30-16:30</td>
+<td>その場でどう書く</td>
+</tr>
+</table>
+</div>
+<section id="chap411301" class="level3">
+<h4>Language Update</h4>
+<p class="in">Common Lisp, Curl, Gauche, Groovy, Haskell, Perl, PHP, Pnuts, Python, Ruby, Squeakの各言語の近況を紹介するセッションです。「これは本当にLLなのか、と疑問の声があがる」とか、「Update以前に誰も知らないので紹介に終始してしまう」などという事態も発生しましたが、なかなか興味深いセッションでした。Curl, Gauche, Groovy, Haskell, Pnutsなどは知名度を高めるために一生懸命言語を紹介していました。宣伝に一番成功したのはGroovyだったような気がします。意外なのは海外では不動の地位を確立しているPythonがほとんどの時間を言語紹介に費やしたことです。Language Updateに限らずPythonは奮闘していました。世界的なPythonの広まりを考えると違和感ありまくりなのですが。</p>
+<p class="in">RubyのUpdateは私が紹介したのですが、コンピュータの調子が悪く、プロジェクターの画面が出ずに苦労しました。ここ数年、プレゼンのたびに苦労しているので「これはもうプレゼンはするな」という啓示かと愚痴っていたら「新しいコンピュータを買えってことじゃないですか」とツッコまれてしまいました。</p>
+</section>
+<section id="chap411302" class="level3">
+<h4>LLを仕事に</h4>
+<p class="in">アンケートの結果を元にBOF形式で語るセッションでした。</p>
+<p class="in">世間では仕事に使う言語としてはLLはほとんど認知されていなんだなあ、ということが実感できたセッションでした。というか、職業プログラマーの愚痴大会化していたような。皆さん、厳しい環境で我慢しておられるのですね。個人的にはもう少し住みよい環境を求めて流動化してもよいような気がするのですが。</p>
+<p class="in">あと、アンケートの引用から、Rubyユーザーの忠誠度の高さがうかがえました。Rubyってば愛されてるなあ。</p>
+</section>
+<section id="chap411303" class="level3">
+<h4>君ならどう書く</h4>
+<p class="in">デザインパターンを重視した「ls-lRシェル」と「nQueenゲーム」の2つのお題に各言語の代表者が挑戦するセッション。Ruby陣営は私の会社から前田修吾くんと、転職したばかりのかずひこくんを送り込みました。前者は言語の差よりも挑戦者の性格が出たような気がします。後者はSqueakが優勝でRubyは2位に終わりました。ちょっとテストが甘かったのが敗因のようです。ゲームとしては面白かったのですが、コードの中身まで踏み込めなかったのは残念でした。</p>
+</section>
+<section id="chap411304" class="level3">
+<a id="page_130"/>
+<h4>LLとblog</h4>
+<p class="in">BlogツールのほとんどはLLで記述されているので、各種Blogツール（日記ツール）の関係者による発表。技術的な話よりもBlogビジネスとかの話が中心になったようで、ちょっと残念かも。</p>
+</section>
+<section id="chap411305" class="level3">
+<h4>Lightning Talk</h4>
+<p class="in">制限時間5分でとにかく発表してしまうという「ライトニングトーク」です。今回は10人の人々が交代で話してくださいました。詳細はプログラムのページ、</p>
+<ul class="none">
+<li><p><span class="link">http://ll.jus.or.jp/llw2004/program.html</span></p></li>
+</ul>
+<p class="ni">を参照してください。Rubyからは「日本Rubyの会」設立の発表と、次期Ruby VMと期待されているYARV（Yet Another Ruby VM）の発表がありました。</p>
+</section>
+<section id="chap411306" class="level3">
+<h4>その場でどう書く</h4>
+<p class="in">朝、発表になったお題に対して、午後までにプログラムを完成させて、それについて発表するというセッションです。今回のテーマはスケジュール管理のWebプログラムということでした。時間が短いこともあって苦労された人も多かったようです。たださんがtDiaryのプラグインを2行ほど修正して飛び入りしたりと、会場からの反響も大きかったようです。</p>
+</section>
+<section id="chap411307" class="level3">
+<h4>まとめ</h4>
+<p class="in">2日目の様子は伝聞なのですが、全体に荒削りながら楽しめるイベントであったようです。ただ、来年に向けて少々改善の余地はあるようです。個人的にはもっと技術面にフォーカスした内容を期待したいです。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-022.xhtml">&lt;&lt; 前ページ</a>　<a href="p-024.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

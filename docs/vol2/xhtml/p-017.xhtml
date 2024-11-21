@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第38章 テンプレート</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　<a href="p-016.xhtml">第38章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap3809" class="level2">
+<a id="page_094"/>
+<h3>◆ Ruby開発日記 ◆プロトタイプな世界</h3>
+<hr class="hr-green" />
+<p class="in">オブジェクト指向の三要素といえば、昔から、</p>
+<ul>
+<li><p>継承</p></li>
+<li><p>情報<ruby>隠蔽<rt>いんぺい</rt></ruby></p></li>
+<li><p>動的結合</p></li>
+</ul>
+<p class="ni">の3つと相場が決まっていたものですが、本当にこれらは必須なものなのでしょうか。</p>
+<p class="in">たとえば、Common Lispのオブジェクト指向機能であるCLOSには情報隠蔽を支援する機能はなく、オブジェクトのインスタンス変数（スロットと呼ぶ）は自由にアクセスできます。では、CLOSはオブジェクト指向ではないかというと、そんなことはないでしょう。</p>
+<p class="in">C++では<code>virtual</code>と明示的に指定しなければ動的結合が行われません。では、動的結合がなければオブジェクト指向とは呼べないでしょうか。個人的にはそんな環境でオブジェクト指向プログラミングをしたくはありませんが、しかし、そんな私でも動的結合がなければオブジェクト指向ではないというのは少々言い過ぎのように思います。</p>
+<p class="in">では、継承はどうでしょうか。</p>
+<p class="in">広く知られているオブジェクト指向言語には、たいてい継承機能が付いています。オブジェクトの種類をまとめるクラスが存在して、あるクラスの機能を受け継いで、一部変更・追加などを行い別のクラスを作り出すことが継承です。</p>
+<p class="in">クラスというのは、たとえば四本足で「わんわん」と<ruby>吠<rt>ほ</rt></ruby>える生き物を「犬」という総称的な名前を付けて分類する行為の延長線上ですから、人間にとって非常に自然な発想であるのは確かです。また、多くの教科書で継承の例題として生物の分類（脊椎動物→哺乳類→犬など）が頻繁に用いられるように、継承も日常的な発想の延長です。</p>
+<p class="in">しかし、自然ではあっても必須かというとそうでもないかもしれません。別のやり方があるからです。クラスを使うクラス主義に対して、プロトタイプ主義と呼ばれるこのやり方では、クラスという単位を使わずにオブジェクトだけを単位とします。</p>
+<p class="in">クラス主義が「このクラスに属するオブジェクトを1つ作る」と指定するところを、プロトタイプ主義では「あのオブジェクトと同じのをもう1つ」と指定します。クラスの代わりに具体的なオブジェクトが「雛形（プロトタイプ）」になるわけです。</p>
+<p class="in">クラス主義が継承を使って「あのクラスと同じだけど、ここが違うクラスを作る」となるところで、プロトタイプ主義では「あのオブジェクトと同じだけど、ここが違うオブジェクト」を新しく作り、それを新しい雛形にします。</p>
+<p class="in">プロトタイプ主義ではクラスという抽象的な存在は登場せず、代表的なオブジェクトという具体的な存在によってプログラミングを行います。</p>
+<p class="in">このようなプロトタイプ主義の言語のはしりはSelfという言語であるといわれています。Selfはプロトタイプ型Smalltalkというべき言語で、ずっとSunで研究が行われてきました。Self自体はまだまだ知る人ぞ知るという感じですが、Selfの研究成果はJavaのHotSpotに応用されたり、morphicやtraitsなどの一部の機能はSmalltalkに「逆輸入」されたりしています。</p>
+<a id="page_095"/>
+<p class="in">しかし、もしかするとプロトタイプ主義の起源はオブジェクト指向の他の多くの機能と同じようにLisp界にあるのかもしれません。Common Lispのオブジェクト指向CLOSの仕様について議論されているとき、参考にされたものの1つにHP（Hewlett Packard）で開発されていたCommon Objectというものがあったそうです。このCommon Objectではクラスとオブジェクトの区別がなく、クラスの役割はその種別の代表となるオブジェクトが果たしていたそうです。正確な仕様や開発時についての情報が入手できませんでしたが、あるいはSelfよりも早い時期にプロトタイプ主義を導入していたのかもしれません。</p>
+<p class="in">他にもプロトタイプ主義の言語はいくつかあるのですが、一番有名なものはJavaScriptかもしれません。歴史的な事情からJavaの名前を使っているもののたいして似ていないJavaScriptはいっぷう変わったオブジェクト指向機能を備えています。JavaScriptを通じてプロトタイプ型オブジェクト指向プログラミングを学んだ人も多いのではないでしょうか。JavaScriptはいまだに進歩を続けていて、バージョン2.0では今度はクラスも導入されたり、セレクタネームスペースというまだ珍しい機能を提供したりしています。JavaScriptは今後注目すべきオブジェクト指向言語かもしれません。</p>
+<p class="in">時代がプロトタイプ主義に追いついたのか、最近になってプロトタイプ型言語が次々登場しています。皆さんもプロトタイプ型言語で未来の（?）プログラミングを体験してみませんか?</p>
+<div class="description">
+<p class="ditem">Io（<span class="link">http://www.iolanguage.com/</span>）</p>
+<p class="dni">Ioはプロトタイプ型オブジェクト指向スクリプト言語です。非常に小さな文法と性能がよい（自称）スクリプト言語です。</p>
+<p class="ditem">Prothon（<span class="link">http://www.prothon.org/</span>）</p>
+<p class="dni">ProthonはPythonをベースにプロトタイプ主義で再設計したものです。今年の7月までは仕様を模索している段階だそうです。</p>
+<p class="ditem">SeRuby（<span class="link">http://kumiki.c.u-tokyo.ac.jp/~ichiyama/projects/reports/seruby/</span>）</p>
+<p class="dni">SeRubyは言語ではなく、Rubyの上でプロトタイプ型オブジェクト指向プログラミングを実現するものです。わずか200行ほどのRubyプログラムで実現されています。</p>
+<p class="ditem">Ruby</p>
+<p class="dni">さて、われらがRubyはもちろんクラス型オブジェクト指向言語なのですが、特異メソッドを使ってプロトタイププログラミング（もどき）を行うことができます。オブジェクトの生成は雛形となるオブジェクトを<code>clone</code>することで行い、オブジェクトの定義には特異クラス定義、</p>
+<div class="plistd">
+<pre>class &lt;&lt;obj
+  ...
+end</pre>
+</div>
+<p class="dni">を使います。ただ、Rubyではいくつかのオブジェクト（<code>true</code>, <code>false</code>, <code>nil</code>, <code>fixnum</code>, <code>symbol</code>）に特異メソッドが定義できませんから実用には難しいかも。</p>
+</div>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-016.xhtml">&lt;&lt; 前ページ</a>　<a href="p-018.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

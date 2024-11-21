@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第8章 オブジェクトと変数</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-013.xhtml">第8章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<section id="chap0809" class="level2">
+<a id="page_103"/>
+<h3>◆ 知られざるRuby ◆ 変数</h3>
+<hr class="hr-blue" />
+<p class="in">入門編でも変数について学びましたが、こちらではより詳細に変数について見てみましょう。変数のルールは、詳細に見ると結構いろいろ複雑です。でも、普通に使うぶんにはあまり問題にならないように設計したつもりです。本当です、信じてください。</p>
+<section id="chap080901" class="level3">
+<h4>ローカル変数</h4>
+<p class="in">ローカル変数で注意すべき点は、スコープ（有効範囲）と宣言です。</p>
+<p class="in">変数はある特定の範囲だけで有効な変数です。特定の範囲とは、以下のいずれかです。</p>
+<ul>
+<li><p><code>def</code>文（<code>def</code>から<code>end</code>まで）</p></li>
+<li><p><code>class</code>文（<code>class</code>から<code>end</code>まで）</p></li>
+<li><p><code>module</code>文（<code>module</code>から<code>end</code>まで）</p></li>
+<li><p>トップレベル（上記のすべての外側、ファイル末尾まで）</p></li>
+<li><p>ブロック（<code>do</code>から<code>end</code>まで、<code>{</code> から <code>}</code> まで）</p></li>
+</ul>
+<p class="in">この範囲内で代入されたローカル変数はそのスコープの終わりまで存在します。代入はメソッドの引数やブロックのパラメータとして値が設定されることを含みます。その範囲の実行が終わるとローカル変数は自動的に消滅します。他の言語に慣れた人は、<code>begin</code>文が新しい変数スコープを作らないことに注意する必要があります。</p>
+<p class="in">ブロックによるスコープを例外として、外側のスコープのローカル変数は見えません。ブロックによるスコープの場合には外側のスコープのローカル変数も参照することができます。</p>
+<p class="in">このブロックのルールは少々ひっかかりやすくて、たとえば、</p>
+<div class="plist">
+<pre>[<span class="str">&quot;foo&quot;</span>, <span class="str">&quot;bar&quot;</span>, <span class="str">&quot;baz&quot;</span>, <span class="str">&quot;quux&quot;</span>].each <span class="kwd">do</span> |x|
+   <span class="kwd">if</span> <span class="mcm">/^q/</span> =~ x
+     len = x.length
+   <span class="kwd">end</span>
+   <span class="kwd">break</span>
+<span class="kwd">end</span>
+puts len</pre>
+</div>
+<p class="ni">というプログラムで、<code>q</code>から始まる要素の長さを求めようと考えた場合、結果を代入した<code>len</code>という変数が、ブロック内部で初出のため、結果を出力しようとブロック終了後で参照した場合、すでに消えてなくなっている、というような目にときどき出くわします。</p>
+<p class="in">Rubyは変数の宣言のない言語として知られていますが、明示的な宣言文がないというだけで、変数の種別によっては代入が変数宣言的な役割を果たしています。ローカル変数もスコープの中での最初の代入が宣言の役割を果たします。しかたがないのでこのような場合には、ブロックの前にローカル変数<code>len</code>を初期化してやる必要があります。</p>
+<a id="page_104"/>
+<p class="in">個人的には、この設計はあんまりよくなかったなあと思うときもあって、できることならば直したいと思っているのですが、コトはそんなに簡単ではないので将来直せるかどうかはわかりません。</p>
+<p class="in">この仕様は別に誰かを悩ませるためではなくて、それなりに目的があるのです。この仕様が役に立つ場合もいくつかはあるのです。たとえば<code>Proc</code>を使って名前のない手続きを作ろうとしたときに、この仕様によってブロック内部の変数をその手続きのローカル変数として使えます。</p>
+<div class="plist">
+<pre>fact = Proc.new{|n|    <span class="cmt"># nはブロック内ローカル変数</span>
+  <span class="kwd">if</span> n == 0
+    1
+  <span class="kwd">else</span>
+    n * fact.call(n - 1)
+  <span class="kwd">end</span>
+}
+puts fact.call(5)</pre>
+</div>
+<p class="in">また、スレッドではスレッドローカル変数としても役に立ちます。</p>
+<div class="plist">
+<pre>Thread.new <span class="kwd">do</span>
+  <span class="kwd">for</span> i <span class="kwd">in</span> data        <span class="cmt"># iは外部から影響を受けない</span>
+    ....
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">代入が行われていないローカル変数の参照は、引数のないメソッド呼び出しとみなされます。たとえ同じスコープの後ろのほうで変数に代入していてもです。ということは、やろうと思えば、</p>
+<div class="plist">
+<pre>puts      <span class="cmt"># 引数のないputsは改行を出力する</span>
+puts = 5  <span class="cmt"># putsというローカル変数ができる</span>
+puts      <span class="cmt"># ローカル変数アクセス、改行出力されない</span></pre>
+</div>
+<p class="ni">ということもできてしまうわけです。が、こういうのは当然よくない例であり、やるべきではありません（よね）。</p>
+<p class="in">ローカル変数はコンパイル時に決定されます。ですから、変数が定義されているかどうかを判定する<code>defined?</code> はその場所でローカル変数が定義されているかどうかだけを判定します。</p>
+<div class="plist">
+<pre>2.times <span class="kwd">do</span>          <span class="cmt"># 2回ループするんだけど...</span>
+  puts defined?(a)  <span class="cmt"># ここではaは定義されてないからnil</span>
+  a = 25            <span class="cmt"># ここからendまでaが有効</span>
+  puts a            <span class="cmt"># 25を出力</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">また、実行時に<code>eval</code>で定義されたローカル変数はプログラムからは見えません。</p>
+<div class="plist">
+<pre>eval(<span class="str">&quot;a = 25&quot;</span>)
+puts a              <span class="cmt"># 見えない、エラー</span></pre>
+</div>
+</section>
+<section id="chap080902" class="level3">
+<a id="page_105"/>
+<h4>グローバル変数</h4>
+<p class="in">グローバル変数はどこからでも見えるという非常に単純なルールがありますので、有効範囲について心配する必要はありません。</p>
+<p class="in">グローバル変数について注意すべき点は、アクセス（参照や代入）によって特別な処理が行われる変数があるという点です。たとえば、<code>$_</code> や<code>$1</code> などの特殊変数ではグローバル変数のような見かけをしているがローカル変数のようにメソッドごとに独立の値を持つものがあります。また、<code>$SAFE</code>という変数はスレッドごとに独立した値を持ちます。</p>
+<p class="in">グローバル変数にはRubyレベルでも代入が行われるときの処理を定義できます。処理の定義は<code>trace_var</code>メソッドで行います。</p>
+<div class="plist">
+<pre>trace_var 変数名 {|v| 手続き}</pre>
+</div>
+<p class="in">ブロックには新しい値がパラメータとして渡されます。たとえば、以下のように使います。</p>
+<div class="plist">
+<pre>$foo = 1
+trace_var(:$foo) {|v| puts <span class="str">&quot;$foo is #{v}&quot;</span>}
+$foo = 42    <span class="cmt"># &quot;$foo is 42&quot; と出力</span>
+$foo = <span class="str">&quot;hi&quot;</span>  <span class="cmt"># &quot;$foo is hi&quot; と出力</span></pre>
+</div>
+</section>
+<section id="chap080903" class="level3">
+<h4>インスタンス変数</h4>
+<p class="in">インスタンス変数には他の変数たちほど隠された働きはありません。ただ単に代入された値が設定されるだけです。インスタンス変数は最初に代入されたときからそのオブジェクト内に存在するようになります。代入によって初期化されていないインスタンス変数をアクセスするとその値は<code>nil</code>になります。インタプリタに <code>-w</code>オプションが指定されている場合には、未初期化のインスタンス変数のアクセスに対して警告が出力されます。</p>
+<p class="in">インスタンス変数が代入によって生じるということは、同じクラスのインスタンスでもそれぞれインスタンス変数が異なる場合がありえるということでもあります。これはC++やJavaなど他のクラス定義の中にインスタンス変数の定義が含まれるオブジェクト指向言語に慣れた眼には奇異に映るかもしれません。これはRubyの動的な性質を表しているといえると思います。</p>
+</section>
+<section id="chap080904" class="level3">
+<h4>クラス変数</h4>
+<p class="in">クラス変数への代入はメソッドの外側では定義としての働きがあり、メソッドの内側では値の更新を行います。</p>
+<p class="in">メソッドの内側でクラス変数への代入を行う場合、もしそのクラス定数がすでに外側で代入されていればそのまま変数の値を更新します。もし、そのクラス変数への代入が行われていなければ、エラーになります。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Foo
+  @@foo = 1
+  <span class="kwd">def</span> foo
+     @@foo = 2  <span class="cmt"># @@fooの値が変わる</span>
+     @@bar = 3  <span class="cmt"># 未定義、エラー!</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+</div>
+<a id="page_106"/>
+<p class="in">メソッドの外側でクラス変数へ代入を行うとき、もしそのクラス変数がすでに定義されていれば、クラス変数の名前が重複してクラス変数の有効範囲がわかりにくくなります。そこで、そういう場合には警告が出力されます（Ruby 1.7.xで <code>-w</code>オプションを指定した場合）。たとえば、以下のようなプログラムの場合、</p>
+<div class="plist">
+<pre><span class="kwd">module</span> M1
+  @@foo=1
+<span class="kwd">end</span>
+<span class="kwd">module</span> M2
+  @@foo=2
+<span class="kwd">end</span>
+<span class="kwd">class</span> Foo
+  include M1
+  include M2
+  p @@foo
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">クラス<code>Foo</code>ではモジュール<code>M1</code>から受け継いだ <code>@@foo</code>とモジュール<code>M2</code>から受け継いだ <code>@@foo</code>の両方が存在することになります。挙動としては後から引き継いだ<code>M2</code>の<code>@@foo</code>が有効になるのですが、あいまいであるので、</p>
+<div class="plist">
+<pre>warning: class variable @@foo of M1 is overridden by M2</pre>
+</div>
+<p class="ni">という警告が出力されます。</p>
+<p class="in">なお、クラス変数はそのクラスやモジュールを継承したすべてのクラスやモジュールからアクセスできるため、スコープを限定したグローバル変数といってもよいので利用には注意が必要です。</p>
+</section>
+<section id="chap080905" class="level3">
+<h4>定数</h4>
+<p class="in">定数の挙動を詳細まで見ると少々混乱するかもしれません。定数の振る舞いはRubyの中でもなかなか複雑になっています。まず、最初にRubyの定数というものは以下の性質があります。</p>
+<ul>
+<li><p>メソッドの中で代入できない、つまりトップレベルかクラス定義の中で代入する必要がある</p></li>
+<li><p>代入していない定数へのアクセスはエラーになる</p></li>
+<li><p>すでに代入された定数への再代入は「警告」になる、つまり警告はされるものの再代入は可能なので厳密には「定数」ではない</p></li>
+<li><p>定数の有効範囲は以下のとおり（有効範囲については<a href="#fig0803">図8.3</a>を見てください）</p>
+<ol>
+<li><p>代入されたクラスの中</p></li>
+<li><p>代入されたクラスに囲まれたクラスの中</p></li>
+<li><p>代入されたクラスのサブクラスの中</p></li>
+</ol></li>
+</ul>
+<div class="fig" id="fig0803">
+  <!-- <div class="image50"> -->
+  <div class="image800">
+      <img src="../image/ch08/08-3.jpg" alt="fig0803" />
+  </div>
+  <p class="fig-caption">図8.3●定数の有効範囲</p>
+</div>
+<a id="page_107"/>
+<p class="in">定数への代入はメソッドの中ではできませんから、定数の代入というのは定義とか宣言という意味合いが強くなります。</p>
+<p class="in">メソッドの外であれば、定数への代入は自由にできます。このとき、代入を行ったクラスで同じ名前の定数がすでに定義されていた場合、警告を出したうえで定数の値を書き換えてしまいます。</p>
+<p class="in">一方、代入を行ったクラスには同じ名前の定数がなくて、スーパークラスで定数が定義されている場合、現在のクラスにおいてだけ、その定数の値が置き換わります。元のクラスの定数の値には影響がないことに注意してください。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Foo
+  CONST1 = 1
+  CONST2 = 2
+  CONST1 = 3  <span class="cmt"># 警告のうえ、書き換え</span>
+<span class="kwd">end</span>
+
+<span class="kwd">class</span> Bar&lt;Foo
+  CONST2 = 4  <span class="cmt"># Barにおいてのみ値が置き換わる</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">最後にRubyの定数について誤解を招きやすい2つの点を注意しておきます。1つはすでに述べたように実際にはやろうと思えば定数の書き換えができる点です。警告はされるものの厳密には定数でないという点には注意が必要です。</p>
+<p class="in">もう1つの点は、定数というのはその値、つまり指しているオブジェクトが変わらないのであって、指しているオブジェクトの状態が変化しないわけではないという点です。つまり、以下のようなプログラムにおいて、</p>
+<div class="plist">
+<pre>ARRAY = [1,2,3,4]</pre>
+</div>
+<p class="ni">定数の参照する配列の要素を置き換えると、</p>
+<div class="plist">
+<pre>ARRAY[0] = 10</pre>
+</div>
+<p class="ni">定数<code>ARRAY</code>の指す配列は<code>[10,2,3,4]</code>になります。しかし、これは値が変わったわけではないという点に注意してください。配列を変化させたくなければ、<code>freeze</code>するという手があります。</p>
+<div class="plist">
+<pre>ARRAY.freeze
+ARRAY[0] = 20  <span class="cmt"># 内容の変更、エラー!</span></pre>
+</div>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-013.xhtml">&lt;&lt; 前ページ</a>　<a href="p-015.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

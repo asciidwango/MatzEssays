@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第32章 テスト第一主義</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第32章</p>
+<!-- Body -->
+<section id="chap32" class="level1">
+<a id="page_013"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">32</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+テスト第一主義
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年1月号]</p>
+<div class="newlead">
+<p class="in">もう今ではあまり聞かなくなったXP（eXtreme Programming）の中でもテスティングについて解説しています。ここでは網羅的なテスト（特にユニットテスト）の重要性について、熱心に解説しています。が、正直なところ、当時からテスト第一主義に関しては違和感を感じていました。何かというと、私たちは問題を解決するためにソフトウェアを開発したいが、テストが書きたいわけではないということですね。ただ、人類はソフトウェアの正しさを確認するテストよりもよい方法を知らないので渋々テストを書いているわけです。もうちょっと未来であればテストや正しさの確認は人工知能に任せられるようになるかもしれません。</p>
+<p class="ih">「Ruby開発日記」はソフトウェア特許についてです。現代（2024年）ではソフトウェア特許についてあまり話題に上らなくなっていますが、当時はホットなトピックでした。現代でも画像や動画フォーマットではソフトウェア特許のせいで自由な開発が難しくなったので問題解決したわけではないのですが。</p>
+</div>
+<div class="lead">
+<p class="ni">最近流行のソフトウェア開発技法であるエクストリーム・プログラミング（通称XP）に含まれるプラクティス（実践内容）の中でもテスティングは最も即効性のあるものです。今月はRubyにおけるテスティングを探検してみましょう。</p>
+</div>
+<section id="chap3201" class="level2">
+<h3>ソフトウェアテスト</h3>
+<hr class="hr-gray" />
+<p class="in">読者の皆さんの中に職業プログラマーの方がどのくらいいらっしゃるかはわかりませんが、ソフトウェア開発は以下のような手順に従うことが多いものです。</p>
+<ul>
+<li><p>ヒアリング・分析</p></li>
+<li><a id="page_014"/><p>設計</p></li>
+<li><p>実装</p></li>
+<li><p>単体テスト（ユニットテスト）</p></li>
+<li><p>結合テスト（アクセプタンステスト）</p></li>
+</ul>
+<p class="ih">「ヒアリング」で顧客のニーズを聞き出し、それをコンピュータで実行可能なやり方を見つけ出す「分析」、処理手順を決定する「設計」が続きます。そして「実装」でその設計に従い実際のプログラムを作り、作ったプログラムの各部分が正しく動くことを確認するのが「単体テスト」、プログラム全体が正しく動くことを確認するのが「結合テスト」です。結合テストは顧客がプログラムを受け入れるかどうかを確認するのでアクセプタンスとも呼ばれます。</p>
+<p class="in">上から順に作業を進めて最後まで行けばめでたく完成の運びになるわけです。このような「上から下へ」流れる開発工程を「ウォーターフォール」型開発と呼びます。しかし、世の中はそんなに甘くはないのです。</p>
+<p class="in">最初の問題は顧客は自分のほしいものが最初からわかっているわけではないということです。頭の中にあるのは、こんなものがほしいという漠然としたイメージだけです。それを聞き出し、分析し、設計して、「これでいいですね」と念押ししても、実際にモノを見るとイマジネーションが刺激されて、「ここはこうじゃなくて」とか「こんなこともできたらいいな」などの要望が発生します。それでなくても、分析のミス、設計のミスは珍しくありませんから、そのたびに手戻りが発生して、やり直す破目になります。</p>
+<p class="in">変化はソフトウェア開発の敵であり、そして日常でもあるのです。</p>
+<p class="in">エクストリーム・プログラミングはそうした状況の中、「変化を受け入れよう」という思想から生まれました。XPには具体的な行動である「12のプラクティス（実践）」があります（<a href="#table3201">表32.1</a>）。</p>
+<div class="table" id="table3201">
+<p class="tbl-caption">表32.1●XPの12のプラクティス</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">プラクティス</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td>計画ゲーム</td>
+<td>柔軟に頻繁に計画を見直す</td>
+</tr>
+<tr>
+<td>短期リリース</td>
+<td>シンプルなシステムを素早く構築、たびたびリリース</td>
+</tr>
+<tr>
+<td>メタファ</td>
+<td>比喩によるわかりやすいアーキテクチャを提示</td>
+</tr>
+<tr>
+<td>シンプルな設計</td>
+<td>いつもシンプルに。複雑さは積極的に除去</td>
+</tr>
+<tr>
+<td>テスティング</td>
+<td>常にテストする。顧客は検収テストを書く</td>
+</tr>
+<tr>
+<td>リファクタリング</td>
+<td>システムの振る舞いを変えずに常にシステムを改善</td>
+</tr>
+<tr>
+<td>ペアプログラミング</td>
+<td>いつも二人のプログラマーが1台のコンピュータに向かう</td>
+</tr>
+<tr>
+<td>共同所有</td>
+<td>誰でもいつでもすべてのコードを変更できる</td>
+</tr>
+<tr>
+<td>継続した結合</td>
+<td>タスクが終了するごとに1日に何度も結合テストを行う</td>
+</tr>
+<tr>
+<td>40時間労働</td>
+<td>週40時間以上働かない。残業しない</td>
+</tr>
+<tr>
+<td>オンサイトユーザー</td>
+<td>顧客をチームに加え、いつでも質問に答えてもらう</td>
+</tr>
+<tr>
+<td>コーディング規約</td>
+<td>ルールに従ってコーディングする</td>
+</tr>
+</table>
+</div>
+<p class="in">今回はこれら12のプラクティスのうち、テスティングについて取り上げます。</p>
+</section>
+<section id="chap3202" class="level2">
+<a id="page_015"/>
+<h3>仕様としてのテスト</h3>
+<hr class="hr-gray" />
+<p class="in">ソフトウェアを開発するときにテストするのは当たり前のことです。私はうっかりものなのでよく忘れることがありますが。だから、ただ単にテストするというだけでしたら別に珍しいことではありません。</p>
+<p class="in">XPのテスティングの特徴は、</p>
+<ul>
+<li><p>テストを自動化する。テスティングフレームワークを使う</p></li>
+<li><p>プログラム本体よりも先にテストを書く</p></li>
+<li><p>プログラム開発中頻繁にテストを行う。たとえばコンパイルを行うたびにテストする</p></li>
+</ul>
+<p class="ni">という点にあります。2番目や3番目の特徴はちょっと常識の範囲を超えているような気さえします。この辺がXPの「極端流」の由縁です。</p>
+<p class="in">プログラム本体よりも先にテストを書くということは、テストする本体がまだないわけですから、やってもしょうがないような気がします。それなのになぜ先にテストを書くかというと、そのテストそのものがプログラムのあるべき姿を示している、いわば仕様であると考えることができるからです。</p>
+<p class="in">普通、設計段階には仕様書というものがあります。これは日本語で書くことが多いのですが、人間の言語はとかくあいまいなものです。しかし、テストプログラムはプログラムですからあいまい性はありません。テストを書くということはコンピュータが実行可能な形で仕様を決めるということなのです。</p>
+<p class="in">一度テストプログラムを書いてしまえば、きちんとした仕様があるわけですから、自分がどこまでできたのか、直すべき点がどこなのかいつもはっきりわかりますし、また、仕様変更があっても、プログラム全体が正しく動作することを確認することができます。仕様変更する場合には、もちろん先にテストプログラムを新しい仕様に合わせて書き直してから開発を始めるわけです。</p>
+</section>
+<section id="chap3203" class="level2">
+<h3>test/unit</h3>
+<hr class="hr-gray" />
+<p class="in">XPのテスティングの特徴の1つはテスト用のライブラリ、テスティングフレームワークを用いることです。Java用にはJUnit、C++にはCppUnitがあり、その他いろいろな言語用にそれぞれのテスティングフレームワークがあります。</p>
+<p class="in">そしてRuby用にはテスティングフレームワークとして<code>test/unit</code>があります。実は最初のRuby版のテスティングフレームワークは<code>RubyUnit</code>といって、日本人の助田雅紀さんが開発したものがありました。<code>RubyUnit</code>とテスティングをテーマにした書籍『Rubyを256倍使うための本 極道編』（ISBN4-7561-3687-7）も出版されています。</p>
+<p class="in">一方、<code>test/unit</code>は<code>RubyUnit</code>の影響も受けながらNathaniel Talbottが開発したものです。<code>test/unit</code>はRuby 1.8.0以降には標準添付されています。<code>test/unit</code>は先達の<code>RubyUnit</code>に敬意を払っていますから、<code>RubyUnit</code>互換機能を持っています。ですから、<code>test/unit</code>があれば<code>RubyUnit</code>のために書かれたテストプログラムもほぼ完全に動作します。</p>
+<p class="in"><code>test/unitライブラリ</code>の使用例を<a href="#list3201">リスト32.1</a>に示します。</p>
+<a id="page_016"/>
+<div class="plistc" id="list3201">
+<p class="lst-caption">リスト32.1●test/unit使用例</p>
+<pre>require <span class="str">&#39;test/unit&#39;</span>
+
+<span class="kwd">class</span> TC_MyTest &lt; Test::Unit::TestCase
+  <span class="kwd">def</span> setup
+    <span class="cmt"># テスト前の準備</span>
+  <span class="kwd">end</span>
+     
+  <span class="kwd">def</span> teardown
+    <span class="cmt"># テスト後の後片付け</span>
+  <span class="kwd">end</span>
+ 
+  <span class="kwd">def</span> test_foo
+    <span class="cmt"># テストを行う。</span>
+    <span class="cmt"># testで始まるメソッドがテストされる</span>
+    assert(cond, <span class="str">&#39;Assertion was false.&#39;</span>)
+    assert_equal(expect, actual, <span class="str">&#39;unexpected result.&#39;</span>)
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><code>"setup"</code> や <code>"teardown"</code> メソッドはテスト前に実行されます（必要なければ定義しなくてもかまいません）。たとえばテストに用いるファイルの準備やデータベースの接続は<code>setup</code>メソッドで行い、それらの後始末を<code>teardown</code>メソッドで行います。必要な値をテストメソッド（メソッド名が<code>test</code>で始まるもの）に渡すためにはインスタンス変数を使うとよいでしょう。</p>
+<p class="in">テストメソッドでは実際のテスト項目のために<code>assert</code>（表明）メソッドを使いますが、<code>assert</code>として用いることができるメソッドのうち主要なものを<a href="#table3202">表32.2</a>に示します。</p>
+<div class="table" id="table3202">
+<p class="tbl-caption">表32.2●assertメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>assert(値[,メッセージ])</code></td>
+<td>値が真か</td>
+</tr>
+<tr>
+<td><code>assert_equal(値1,値2[,メッセージ])</code></td>
+<td>値が一致するか</td>
+</tr>
+<tr>
+<td><code>assert_raises(例外[,メッセージ])...</code></td>
+<td>ブロックが例外を出すか</td>
+</tr>
+<tr>
+<td><code>assert_instance_of(クラス,値[,メッセージ])</code></td>
+<td>クラスのインスタンスか</td>
+</tr>
+<tr>
+<td><code>assert_kind_of(クラス[,メッセージ])</code></td>
+<td>クラス（か子孫）のインスタンスか</td>
+</tr>
+<tr>
+<td><code>assert_respond_to(obj,id[,メッセージ])</code></td>
+<td><code>id</code>というメソッドを持つか</td>
+</tr>
+<tr>
+<td><code>assert_nil(値[,メッセージ])</code></td>
+<td><code>nil</code>か</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap3204" class="level2">
+<a id="page_017"/>
+<h3>テストのある生活</h3>
+<hr class="hr-gray" />
+<p class="in">テスト第一主義によるプログラム開発は以下のような手順で進みます。</p>
+<p class="in">まず、実際にプログラムを書く前にテストを書きます。このテストがプログラムの仕様になります。先にも書いたようにテストを書くことでこれから作るプログラムがどんな動きをするべきかが明確になります。</p>
+<p class="in">テストは、正しく書く必要があります。プログラムがどのように動くべきか確認するテストが正しいテストです。テストはメソッド1つ1つを確認するのがよいでしょう。実際に使われるケースに近いテストを行うのが望ましいとされます。ただし、実際の運用で間違った入力が行われることは珍しくありませんから、正しくない値がきたらきちんとエラーを検出するかとか、普段期待していないケースについてもテストしましょう。いろいろなケースについてテストする必要がありますから、テストプログラムは大きくなる傾向があります。私の知っているほとんどのケースではテストのほうがプログラム本体よりも大きくなっています。</p>
+<p class="in">テストを書いたら、プログラムの開発を始めます。メソッドを1つ完成させたらテストを実行してそのメソッドが正しく動くことを確認します。正しく動かなければ何か問題があるわけです。よく考えてメソッドを直します。あるいはテストを作るときに何か勘違いをしていて、テストのほうを直す必要があるかもしれません。修正が終わればまたテストを実行します。テストを全部パスするまでこれを繰り返します。</p>
+<p class="in">このようにプログラム開発とテストを繰り返し、ついに全部のテストにパスするようになれば、単体テストは完了です。最終的には完成したプログラムがきちんと動作して、顧客（自分自身かもしれませんが）の目にかなうかどうかを結合テストで確認して、晴れてプログラム完成ということになります。</p>
+<p class="in">このようにテスト第一主義で開発した場合には、プログラムがテストしたとおりに動くことはいつも確認されているわけですから、安心ですし、いくつテストがあってそのうちどのくらいパスしているかがはっきりわかりますから達成感があります。パスするテストが次第に増えていくのは快感で、やる気が増します。あまりに頻繁にテストを行うのでテスト中毒と呼ばれちゃったりすることもあります。</p>
+<p class="in">ソフトウェア開発の現場では、「動いているソフトウェアはいじらない」という教訓が言い伝えられています。ちょっとした変更が思わぬ副作用を引き起こすことがあるからです。変更してしまったことでバグを組み込んでしまったり、機能が損なわれたりすることを「デグレード」と呼ぶことがあります。ここはあまりきれいなコードでないので直したほうがあとでわかりやすいだろうな、と思っても、副作用が恐くて手出しできないこともあります。このようにまずいコードを直す行為を「リファクタリング」と呼びます。デグレードの危険性があるのでリファクタリングは大変勇気のいる行為です。ところが、きちんとテストが用意されていれば、変更による副作用がないことを確認できます。テストは変更に対する「勇気」を与えてくれます。</p>
+<p class="in">テスト第一主義が役に立つのは自分でプログラムを書くときばかりではありません。他の人が開発したプログラムを保守するときにも有効です。そのプログラムにテストがある場合にはテストコードを読むことでそのプログラムの仕様を理解できます。</p>
+<p class="in">では、他人が書いた、テストのないプログラムを保守するときにはどうしましょう。テスト第一主義の立場からいえば、（時間が許すならば）まずそのプログラムのためのテストを書くことをお勧めします。それによってプログラムに残っているかもしれないバグを見つけ出すことができますし、なによりテストがあればそれ以降の変更がない場合とは比べ物にならないくらい楽になります。</p>
+</section>
+<section id="chap3205" class="level2">
+<a id="page_018"/>
+<h3>システム構成の見直し</h3>
+<hr class="hr-gray" />
+<p class="in">テスト第一主義に移行するためにはプログラムの構成そのものを見直す必要があるかもしれません。テスト中毒者はテストのためならなんだってするものです。以下に示すのは、最近私が手伝ったプロジェクトでの話です。</p>
+<p class="in">このプロジェクトは一種のWebグループウェアの開発でした。しかし、段階的な開発を行ううちにプログラムの構成が複雑になり、保守が大変になってきました。古いシステムの構成を<a href="#fig3201">図32.1</a>に示します。</p>
+<div class="fig" id="fig3201">
+  <!-- <div class="image50"> -->
+  <div class="image450">
+      <img src="../image/ch32/32-1.jpg" alt="fig3201" />
+  </div>
+  <p class="fig-caption">図32.1●旧システム構成図</p>
+</div>
+<p class="in">このシステム構成にはいくつか問題がありました。</p>
+<ul>
+<li><p>モジュール化されていないので、修正の影響範囲が予想しにくい</p></li>
+<li><p>ロジックと出力が分離されていないので、外観の変更が難しい</p></li>
+<li><p>同じ理由でテストが書きにくい</p></li>
+<li><p>既存のデータベーススキーマに依存したコードがあちこちに分散していて将来の変更が難しい</p></li>
+</ul>
+<p class="in">そこでシステム構成を変更して、<a href="#fig3202">図32.2</a>のようにしてみました。よくいわれるWebアプリケーションの三層構造である、プレゼンテーション層、ビジネスロジック層、データベース層に似ていますが、もうちょっと細かく分割しています。</p>
+<div class="fig" id="fig3202">
+  <!-- <div class="image50"> -->
+  <div class="image450">
+      <img src="../image/ch32/32-2.jpg" alt="fig3202" />
+  </div>
+  <p class="fig-caption">図32.2●新システム構成図</p>
+</div>
+<section id="chap32050001" class="level4">
+<h5>プレゼンテーション</h5>
+<p class="in">eRubyで書かれたこの部分はグループウェア全体の外観を決定します。外観やグループウェアを構成する各部品（カレンダーとかToDoとか）の構成を変更したい場合には、このファイルを変更するだけで済みます。</p>
+<p class="in">実物は巨大なので、ここではすごく簡略化した例を載せておきます（<a href="#list3202">リスト32.2</a>）。</p>
+<a id="page_019"/>
+<div class="plistc" id="list3202">
+<p class="lst-caption">リスト32.2●プレゼンテーション例</p>
+<pre>&lt;<span class="kwd">meta</span> http-equiv=<span class="str">&quot;Content-Type&quot;</span> content=<span class="str">&quot;text/html; charset=euc-jp&quot;</span>&gt;
+&lt;% require <span class="str">&quot;example.rb&quot;</span> %&gt;
+&lt;<span class="kwd">html</span>&gt;&lt;<span class="kwd">head</span>&gt;
+&lt;<span class="kwd">title</span>&gt;sample presentaion&lt;/<span class="kwd">title</span>&gt;
+&lt;/<span class="kwd">head</span>&gt;
+&lt;<span class="kwd">body</span>&gt;
+&lt;<span class="kwd">table</span> <span class="kwd">border</span>=1 <span class="kwd">width</span>=<span class="str">&quot;100%&quot;</span>&gt;
+&lt;<span class="kwd">tr</span>&gt;&lt;<span class="kwd">td</span>&gt;&lt;%= calendar_html() %&gt;
+&lt;<span class="kwd">td</span>&gt;&lt;%= todo_html() %&gt;
+&lt;/<span class="kwd">tr</span>&gt;
+&lt;/<span class="kwd">table</span>&gt;
+&lt;/<span class="kwd">body</span>&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">これはカレンダーとToDoを表示するWebアプリケーションです。ここではWebアプリケーションの実体は<code>example.rb</code>にあることとします。<code>calendar_html()</code>と<code>todo_html()</code>がそれぞれ部品のHTMLを出力します。</p>
+</section>
+<section id="chap32050002" class="level4">
+<h5>HTML生成</h5>
+<p class="in">この部分は各部品のHTMLによる外観を決定します。下層にあるビジネスロジックから与えられたデータ（配列や文字列など）をHTMLに変換します（<a href="#list3203">リスト32.3</a>）。</p>
+<div class="plistc" id="list3203">
+<p class="lst-caption">リスト32.3●HTML生成</p>
+<pre><span class="kwd">def</span> todo_html()
+  str = <span class="str">&quot;&lt;ol&gt;&quot;</span>
+  <span class="kwd">for</span> todo <span class="kwd">in</span> todo_logic()
+    str &lt;&lt; <span class="str">&quot;&lt;li&gt;&quot;</span>
+    str &lt;&lt; todo
+  <span class="kwd">end</span>
+  str &lt;&lt; <span class="str">&quot;&lt;/ol&gt;&quot;</span>
+  <span class="kwd">return</span> str
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><a href="#list3203">リスト32.3</a>の例ではビジネスロジックに属する<code>todo_logic()</code>メソッドが返したtodoを表現する文字列の配列を元にしてHTMLを生成しています。</p>
+</section>
+<section id="chap32050003" class="level4">
+<h5>ビジネスロジック</h5>
+<p class="in">ビジネスロジックはアプリケーションの「what」の部分を担当します。上記の例であれば、カレンダーの日付を計算する、とかToDoをリストするとかがロジックになります。</p>
+<a id="page_020"/>
+<p class="in">ビジネスロジックはHTMLを直接生成するのではなく、返したいデータそのものを返すようにします。このようにすることで、外観と論理を分離することができますし、なによりロジック部分だけをテストすることができるようになります。テスト第一主義者としてはロジックのテストを行うことができるということは非常に重要です。</p>
+</section>
+<section id="chap32050004" class="level4">
+<h5>DBアクセス</h5>
+<p class="in">今回のアプリケーションはPostgreSQLを使っているので、データベースからのデータの取り出しや書き込みにはSQLを使うのですが、ビジネスロジックの中で直接SQLを使ってデータベースを呼び出すことは今回は避けました。データを取り出したい処理、あるいは更新したい処理ごとにメソッドを定義します。</p>
+<p class="in">その理由は大きく分けて2つあります。1つは将来データベースに関する大きな変更を加えたときに修正が1箇所にまとまっていたほうがわかりやすいことです。極端な話、将来リレーショナルデータベースではなく、オブジェクト指向データベースに移行するかもしれません。直接SQLを書き込んでいれば、そのような部分を探し回って修正する必要があります。</p>
+<p class="in">もう1つの理由はテストです。更新を伴うデータベースのテストは副作用があるのでなかなか難しいところがあります。しかし、この部分を独立させておけば、とりあえずそれらしいテスト用の結果を返すダミー（Mockと呼びます）に置き換えてテストすることができます。Mockはテストによく使われる手段です。</p>
+</section>
+<section id="chap32050005" class="level4">
+<h5>データベース</h5>
+<p class="in">一番下の層がデータベースです。先にも述べたように今回はPostgreSQLを用いました。データベースは以前のバージョンでも使われていたのでスキーマその他はそのままです。</p>
+</section>
+<section id="chap32050006" class="level4">
+<h5>新構成のメリット</h5>
+<p class="in">このような新構成にすることで、プログラムが役割ごとにモジュール化され保守や更新がより簡単になります。また、以前は難しかったWebアプリケーションのユニットテストを行うことができるようになります。アプリケーションの機能そのものを実現するビジネスロジックの部分は、単なるメソッド呼び出しですから、通常のテストプログラムの手法でテストできます。機能がきちんと実現されていれば、プレゼンテーションおよびHTML生成については、結合テストにおいて目視で確認できます。</p>
+<p class="in">こういう構成にする場合、各モジュールへの機能の振り分けを適切に行うことが重要です。それぞれのモジュールが持つべき機能をよく考えて設計すべきです。実際、今回のケースでも機能の分割を間違えていて数回構成の見直しが必要になりました。</p>
+<p class="in">原稿執筆時点では、このプロジェクトはまだ完了していません。コンサルタントとして参加した私としては、これで成功するといいなあと心から願っています。</p>
+</section>
+</section>
+<section id="chap3206" class="level2">
+<h3>生活を改める</h3>
+<hr class="hr-gray" />
+<p class="ih">「わかっちゃいるけどやめられない」というようなことはいろいろあるものです。頭では理解しているけれども、心では理解していないってことなんでしょうか。</p>
+<p class="in">私にとってはテスティングはそのような「頭では理解しているが心では理解していない」ことの1つです。ソフトウェアを開発する際に今回自分で説明したように、まずテストを書いてから開発にかかり、コンパイルするたびにテストを実行するという手順を踏めばよいことはわかっているのに、面倒だったり、つい昔ながらのやり方で押し通してしまうことがたびたびです。私が開発している最も大きなプログラムは実はRubyそのものなんですが。</p>
+<a id="page_021"/>
+<p class="in">しかし、最近になってようやっとそんなことではいけないと思い始めました。皆さんの協力もあってRubyそのもののテストも整ってきました。変更や改善を行うたびにテストを行い見直す習慣が次第についてきたようです。</p>
+<p class="in">それでもまだときどき忘れちゃうんですけど。</p>
+</section>
+<section id="chap3207" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回はXPのプラクティスの1つ、テスティングを中心に説明しました。あなたもテスト第一主義でソフトウェア開発してみませんか?　今までとは違う感覚が味わえるかもしれませんよ。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-003.xhtml">&lt;&lt; 前ページ</a>　<a href="p-005.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

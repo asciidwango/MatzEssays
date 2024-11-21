@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第28章 独習Ruby</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第28章</p>
+<!-- Body -->
+<section id="chap28" class="level1">
+<a id="page_379"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">28</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+独習Ruby
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年9月号]</p>
+<div class="newlead">
+<p class="in">今回は「Rubyを改めてまとめる」というテーマでの解説です。20年経っていてもRubyの基本的な仕様はさほど変わっていませんから、今でも有効な文章ではないでしょうか。もっとも、後半のリファレンスマニュアルページについては、若干見栄えが変わっていますが、それでもそのまま使えます。もちろん<code>ri</code>コマンドも健在です。</p>
+<p class="ih">「Ruby開発日記」は、オープンソースコンベンション2003出席記です。大変楽しいカンファレンスでした。このときまでに私が出席したことのあるカンファレンスの中では最大規模（キーノート出席者が1000人超え）で、オープンソースの勢いに感心しました。</p>
+<p class="in">このときに「サピア・ウォーフ仮説」という名前について教えてもらったと記録されています。「言語が思考に影響を与える」というこの仮説について名前を知らずに使っていました。独自に思いついたと言いたいところですが、おそらくは高校生のときに読んだSF小説『バベル17』から影響を受けたというのが正解でしょう。</p>
+</div>
+<div class="lead">
+<p class="ni">連載開始から2年近くが過ぎ、ここのところ「初等」の名にふさわしくないくらい高度な内容が続きましたが、今月は基本に立ち返って「独習」のためのコツなどについて学びましょう。</p>
+</div>
+<section id="chap2801" class="level2">
+<h3>Rubyの基礎</h3>
+<hr class="hr-gray" />
+<p class="in">そもそもプログラミング言語というものは本を読んだだけでわかるほど簡単なものではありません。ただ、全体像をつかむことで理解が速まるかもしれません。ここでは、復習を兼ねてRubyの全体構成を文法とライブラリに分けて眺めてみましょう。</p>
+</section>
+<section id="chap2802" class="level2">
+<a id="page_380"/>
+<h3>Rubyの文法</h3>
+<hr class="hr-gray" />
+<p class="in">まずはRubyの文法を駆け足で眺めてみましょう。詳細はリファレンスマニュアルや他の書籍に譲ることにして、概観を捉えてください。Rubyの文法を構成する要素はそんなに多くありません。</p>
+<ul>
+<li><p>オブジェクト式</p></li>
+<li><p>代入</p></li>
+<li><p>変数</p></li>
+<li><p>メソッド呼び出し</p></li>
+<li><p>演算子式</p></li>
+<li><p>定義文</p></li>
+<li><p>制御構造</p></li>
+</ul>
+<p class="in">これだけです。この7つの構文要素を押さえれば文法については完璧です。意外と簡単と思いませんか。</p>
+</section>
+<section id="chap2803" class="level2">
+<h3>オブジェクト式</h3>
+<hr class="hr-gray" />
+<p class="in">オブジェクト式というのはプログラム中で直接オブジェクトを表現するための文法です。オブジェクト式で表現できるオブジェクトは<a href="#table2801">表28.1</a>のとおりです。</p>
+<div class="table" id="table2801">
+<p class="tbl-caption">表28.1●Rubyのオブジェクト式</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">オブジェクト式</span></th>
+<th><span class="k">例</span></th>
+</tr>
+<tr>
+<td>整数</td>
+<td><code>1</code> <code>1_000</code></td>
+</tr>
+<tr>
+<td>浮動小数点数</td>
+<td><code>1.5</code> <code>3.145e20</code></td>
+</tr>
+<tr>
+<td>文字列</td>
+<td><code>"abc\n"</code> <code>'abc'</code></td>
+</tr>
+<tr>
+<td>正規表現</td>
+<td><code>/def+/</code></td>
+</tr>
+<tr>
+<td>配列</td>
+<td><code>[1, 2, [3]]</code></td>
+</tr>
+<tr>
+<td>ハッシュ</td>
+<td><code>{"a"=&gt;97, "b"=&gt;98}</code></td>
+</tr>
+<tr>
+<td>シンボル</td>
+<td><code>:foo</code></td>
+</tr>
+</table>
+</div>
+<p class="in">文字列と正規表現には<a href="#table2801">表28.1</a>に示したものの他に“<code>%</code>”で始まる「任意の区切り文字による表現」と「ヒアドキュメント」が使えます。</p>
+<div class="plist">
+<pre><span class="cmt"># 任意の区切り文字による表現</span>
+%!<span class="kwd">def</span>! %{abc} 
+
+<span class="cmt"># ヒアドキュメント</span>
+&lt;&lt;<span class="kwd">END</span>
+「&lt;&lt;」の後ろの表現（この場合はEND）までが文字列
+<span class="kwd">END</span></pre>
+</div>
+</section>
+<section id="chap2804" class="level2">
+<h3>変数</h3>
+<hr class="hr-gray" />
+<p class="in">変数とは値に対する名札です。Cをよく知っている人は「変数は名札である」ということに気を付けてください。</p>
+<p class="in">Rubyの変数は6種類あります。変数の種別ごとにそれぞれ名前の先頭に記号が付いているのでひと目で区別できます。</p>
+<a id="page_381"/>
+<ul>
+<li><p>ローカル変数（小文字の英字で始まる）</p></li>
+<li><p>グローバル変数（<code>$</code>で始まる）</p></li>
+<li><p>インスタンス変数（<code>@</code>で始まる）</p></li>
+<li><p>クラス変数（<code>@@</code>で始まる）</p></li>
+<li><p>定数（大文字の英字で始まる）</p></li>
+<li><p>擬似変数（ローカル変数と外見は同じ）</p></li>
+</ul>
+<p class="in">この中で、定数と擬似変数には説明が必要です。定数はクラスに所属する値で一度代入するとその値を変えることはできません。厳密にはやればできますが、怒られます。擬似変数は値は自動的に設定され変更することができないので「擬似」と呼ばれます。Rubyには、</p>
+<div class="plist">
+<pre><span class="kwd">self nil true false __FILE__ __LINE__</span></pre>
+</div>
+<p class="ni">の6つの擬似変数があります。</p>
+</section>
+<section id="chap2805" class="level2">
+<h3>代入</h3>
+<hr class="hr-gray" />
+<p class="in">代入とは変数の値を設定するものです。代入されて変数は初めて存在します。</p>
+<p class="in">代入は左辺（代入先）と右辺（代入元）を「<code>=</code>」でつなぎます。</p>
+<div class="plist">
+<pre>a = 123</pre>
+</div>
+<p class="ni">はローカル変数<code>a</code>の値を整数123に設定することになります。</p>
+<p class="in">Rubyでは代入の左辺も右辺も複数指定することができます。ですから、</p>
+<div class="plist">
+<pre>a, b = b, a</pre>
+</div>
+<p class="ni">とすれば変数<code>a</code>と<code>b</code>の値を交換することができます。右辺と左辺の数が合わないときには、余った左辺には<code>nil</code>が代入され、余った右辺の式は単に無視されます。</p>
+<p class="in">末尾の左辺の前に「<code>*</code>」を付けると余った右辺が配列として代入されます。</p>
+<div class="plist">
+<pre>a, b, *c = 1,2,3,4   <span class="cmt"># cは[3,4]になる</span></pre>
+</div>
+<p class="in">末尾の右辺の前に「<code>*</code>」を付けるとその式の値を配列として右辺に展開します。</p>
+<div class="plist">
+<pre>a, b, c = *[1,2,3]   <span class="cmt"># a=1, b=2, c=3になる</span></pre>
+</div>
+</section>
+<section id="chap2806" class="level2">
+<h3>メソッド呼び出し</h3>
+<hr class="hr-gray" />
+<p class="in">メソッド呼び出しは他の言語の関数呼出しに似た形式を使います。</p>
+<div class="plist">
+<pre>obj.method(arg1, arg2)</pre>
+</div>
+<p class="ni"><code>obj</code>の<code>method</code>というメソッドを呼び出します。引数の周りのかっこはあいまいでないときには省略できます。引数リストは代入の右辺と同様に末尾の式の前に「<code>*</code>」を置くと配列展開されます。</p>
+<a id="page_382"/>
+<p class="in">上の例における<code>obj</code>のような「<code>.</code>」の前の式を「レシーバ」と呼びますが、これは省略できます。</p>
+<div class="plist">
+<pre>method(arg1, arg2)</pre>
+</div>
+<p class="in">省略した場合のレシーバは<code>self</code>、すなわち現在実行中のメソッドのレシーバが使われます。ですから、Rubyでは、</p>
+<div class="plist">
+<pre>print <span class="str">&quot;hello world\n&quot;</span></pre>
+</div>
+<p class="ni">は<code>self</code>の<code>print</code>メソッドの呼び出しであると解釈されます。</p>
+<p class="in">メソッド呼び出しにはブロックを付加することができます。</p>
+<div class="plist">
+<pre>obj.each {|i| ....}
+obj.each <span class="kwd">do</span> |i| ... <span class="kwd">end</span></pre>
+</div>
+<p class="ni">ブロックには「<code>{}</code>」で囲まれたものと「<code>do end</code>」で囲まれたものがあり意味は同じです。</p>
+<p class="in">ブロックを付加されたメソッドはその中から「ブロックを呼び返す」ことができます。呼び返しは値を付けて行われることがあり、その値は「<code>||</code>」の間の変数に代入されます。</p>
+<p class="in">メソッドの中からブロックを呼び返すためには<code>yield</code>文を使います。</p>
+<div class="plist">
+<pre><span class="kwd">yield</span>         <span class="cmt"># 値を渡さない場合</span>
+<span class="kwd">yield</span> n       <span class="cmt"># 1つの値を渡す場合</span>
+<span class="kwd">yield</span> n1,n2   <span class="cmt"># 複数の値を渡す場合</span></pre>
+</div>
+</section>
+<section id="chap2807" class="level2">
+<h3>演算子式</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyの演算子式のほとんどは実際にはメソッド呼び出しです。つまり、</p>
+<div class="plist">
+<pre>1 + 2</pre>
+</div>
+<p class="ni">は「1オブジェクトの<code>+</code>メソッドを2を引数として呼び出す」という意味になります。演算子式の中には、</p>
+<div class="plist">
+<pre>obj[0]</pre>
+</div>
+<p class="ni">のような変則的なものもあります。これは「<code>obj</code>の<code>[]</code>メソッドを0を引数として呼び出す」ことを意味します。</p>
+<p class="in">演算子の中には文法として意味が決まっていて変更することができないものもあります。たとえば「<code>||</code>」演算子などは再定義できません。</p>
+</section>
+<section id="chap2808" class="level2">
+<h3>定義文</h3>
+<hr class="hr-gray" />
+<p class="in"><code>class</code>文、<code>module</code>文、<code>def</code>文、<code>undef</code>文、<code>alias</code>文は定義文と呼ばれます。それぞれクラス、モジュール、メソッドの定義、メソッド定義の取り消し、別名定義の働きがあります。</p>
+<div class="plist">
+<pre><span class="cmt"># クラス定義</span>
+<span class="kwd">class</span> Foo &lt; Object    <span class="cmt"># Objectを継承するFooを定義</span>
+  ....
+<span class="kwd">end</span>
+
+<span class="cmt"># モジュール定義</span>
+<span class="kwd">module</span> Bar            <span class="cmt"># モジュールBarを定義</span>
+  include Mod         <span class="cmt"># モジュールModの機能を取り込む</span>
+  ....
+<span class="kwd">end</span>
+
+<span class="cmt"># メソッド定義</span>
+<span class="kwd">def</span> foo(arg1, *rest)  <span class="cmt"># fooを定義。*は代入左辺と同じ</span>
+  ....
+<span class="kwd">end</span>
+
+<span class="cmt"># メソッドの取り消し</span>
+<span class="kwd">undef</span> bar             <span class="cmt"># barメソッドを未定義に</span>
+
+<span class="cmt"># 別名定義</span>
+<span class="kwd">alias</span> new old         <span class="cmt"># newをoldの別名に</span></pre>
+</div>
+<a id="page_383"/>
+<p class="in">定義文のバリエーションとして、特定のオブジェクトだけに作用する特異クラス定義と特異メソッド定義があります。これらの文を使うとある特定のオブジェクトにだけ機能や属性を追加できます。</p>
+<div class="plist">
+<pre><span class="cmt"># 特異クラス定義</span>
+<span class="kwd">class</span> &lt;&lt; obj          <span class="cmt"># ボディの定義がobjにだけ作用</span>
+  ....
+<span class="kwd">end</span>
+
+<span class="cmt"># 特異メソッド定義</span>
+<span class="kwd">def</span> obj.bar(arg)      <span class="cmt"># objだけにメソッドbarを定義</span>
+  ....
+<span class="kwd">end</span></pre>
+</div>
+</section>
+<section id="chap2809" class="level2">
+<h3>制御構造</h3>
+<hr class="hr-gray" />
+<p class="in">条件判断の<code>if</code>と<code>unless</code>, ループの<code>while</code>, <code>until</code>, <code>for</code>, ループ脱出の<code>break</code>, <code>redo</code>, <code>next</code>, <code>retry</code>, メソッド終了の<code>return</code>, 文のグループ化と例外処理を行う<code>begin</code>が制御構造です。</p>
+<p class="in">Rubyでは文法組み込みの制御構造だけでなく、メソッドとブロックを使って実行の流れを制御することもあります。たとえば無限ループを構成する<code>loop</code>メソッドや大域ジャンプを行う<code>catch</code>メソッドと<code>throw</code>メソッドなどがあります。</p>
+<div class="plist">
+<pre><span class="cmt"># 無限ループ</span>
+loop { ... }
+
+<span class="cmt"># 大域ジャンプ</span>
+catch(:foo) {
+   ...
+   throw(:foo)        <span class="cmt"># 対応するcatchまでジャンプ</span>
+   ...
+}</pre>
+</div>
+</section>
+<section id="chap2810" class="level2">
+<a id="page_384"/>
+<h3>Rubyのライブラリ</h3>
+<hr class="hr-gray" />
+<p class="in">ここまでかなり駆け足で説明してきましたが、Rubyの文法はこれで全部です。ここまでを理解していれば、どんなRubyのプログラムも「読む」ことができます。たとえば、</p>
+<div class="plist">
+<pre>n = Integer(ARGV[0])</pre>
+</div>
+<p class="ni">を見ると、</p>
+<ul>
+<li><p>定数<code>ARGV</code>の<code>[]</code>メソッドを0を引数として呼び出し</p></li>
+<li><p>その返ってきた値を引数にして<code>Integer</code>メソッドを呼び出し</p></li>
+<li><p><code>Integer</code>メソッドが返した値をローカル変数<code>n</code>に代入する</p></li>
+</ul>
+<p class="ni">という意味だとわかります。しかし、このプログラムの意味を「理解」するためには、<code>[]</code>や<code>Integer</code>などのメソッドがどのような動作をして、どんな値を返すかを知らなければなりません。</p>
+<p class="in">これらを実現しているのがRubyのライブラリです。このライブラリを理解して初めてRubyプログラムを理解することができます。</p>
+<p class="in">ライブラリはRubyインタプリタに組み込まれているものだけで、クラスを182個、モジュールを13個も含みます。その他のライブラリを考えると数え切れません。肝心なのは全部覚えることではなくて、どうやって調べればよいかを学ぶことです。</p>
+</section>
+<section id="chap2811" class="level2">
+<h3>リファレンスマニュアル</h3>
+<hr class="hr-gray" />
+<p class="in">ライブラリを調べるためによいリファレンスマニュアルがオンラインで参照できます。</p>
+<ul class="none">
+<li><p><span class="link">http://www.ruby-lang.org/ja/man/</span></p></li>
+</ul>
+<p class="in">ここでは日々進化するRubyに追随して更新されるリファレンスが提供されています（<a href="#fig2801">図28.1</a>）。</p>
+<div class="fig" id="fig2801">
+  <!-- <div class="image80"> -->
+  <div class="image700">
+      <img src="../image/ch28/28-1.jpg" alt="fig2801" />
+  </div>
+  <p class="fig-caption">図28.1●リファレンスマニュアル</p>
+</div>
+<p class="in">たとえば、トップから「組み込みクラス/モジュール/例外クラス」にジャンプし、そこから「<code>String</code>」に飛ぶと<code>String</code>クラスの詳細な解説を見ることができます。</p>
+<a id="page_385"/>
+<p class="in">しかし、いくら時代は「ブロードバンドで常時接続」になりつつあるとはいえ、いつもインターネットへのアクセスがあるとは限りません。それに上記のオンラインのリファレンスマニュアルは肝心のメソッドを調べるのに、そのクラスのページを開いてメソッドを探して、と少々面倒です。</p>
+<p class="in">そこで、オフラインで参照できるマニュアル用ツールが用意されています。それは<code>ri</code>（英語版）と<code>ReFe</code>（日本語版）です。</p>
+<p class="in">Dave Thomasによる<code>ri</code>の出力例は<a href="#fig2802">図28.2</a>のようになります。</p>
+<div class="figconsole" id="fig2802">
+<div class="borderconsole">
+<pre>------------------------------------------------------------- Array#each
+    arr.each {| item | block } -&gt; arr
+------------------------------------------------------------------------
+    Calls block once for each element in arr, passing that element as a
+    parameter.
+       a = [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ]
+       a.each {|x| print x, &quot; -- &quot; }
+    produces:
+       a -- b -- c --</pre>
+</div>
+<p class="fig-caption">図28.2●ri</p>
+</div>
+<p class="in"><code>ri</code>の入手先は以下のとおりです。</p>
+<ul class="none">
+<li><p><span class="link">http://www.pragmaticprogrammer.com/ruby/downloads/ri.html</span></p></li>
+</ul>
+<p class="ni">Dave Thomasは<code>ri</code>の（というか元になった<em>Programming Ruby</em>の）1.8対応版を執筆中だそうです。</p>
+<p class="in">一方、<code>ReFe</code>は<code>Racc</code>などの作者としても有名な青木さんによる日本語ドキュメントツールです。<code>ReFe</code>の出力例は<a href="#fig2803">図28.3</a>のようになります。</p>
+<div class="figconsole" id="fig2803">
+<div class="borderconsole">
+<pre>Array#each
+--- each {|item| .... }
+
+    各要素に対してブロックを評価します。self を返します。
+
+    例:
+
+        # 1、2、3 が順番に表示される
+        [1, 2, 3].each do |i|
+          puts i
+        end</pre>
+</div>
+<p class="fig-caption">図28.3●refe</p>
+</div>
+<p class="in"><code>ReFe</code>の入手先は以下のとおりです。</p>
+<ul class="none">
+<li><p><span class="link">http://www.loveruby.net/ja/prog/refe.html</span></p></li>
+</ul>
+<p class="in"><code>ri</code>と<code>ReFe</code>はドキュメントの言語以外にもいくつかの点が違います。</p>
+<ul>
+<li><p><code>ReFe</code>のほうがサンプルコードが少ない</p></li>
+<li><p><code>ReFe</code>は名前の補完を行うので<code>each</code>だけで<code>each</code>を含むすべての名前を検索できる</p></li>
+<li><a id="page_386"/><p><code>ri</code>は組み込みライブラリのみ、<code>ReFe</code>は標準添付のライブラリもかなりカバーしている</p></li>
+<li><p>また<code>ReFe</code>は青木さんらしくソースコードも一部解説している</p></li>
+</ul>
+<p class="ni">これらの違いを踏まえて両方を使い分けるのがよいのではないでしょうか。</p>
+</section>
+<section id="chap2812" class="level2">
+<h3>マニュアルの参照の仕方</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyのリファレンスを参照していて、一番困るのはメソッドの説明が見つけにくいことです。たとえば、<code>Array</code>クラスの<code>each_with_index</code>メソッドの説明が読みたいと思って、<code>ReFe</code>を使っても、</p>
+<div class="borderterminal">
+<pre>not match: Array#each_with_index</pre>
+</div>
+<p class="ni">と表示できません。</p>
+<p class="in">それはそのようなメソッドがスーパークラスかインクルードされているモジュールで定義されていることを意味しています。<code>ri</code>や<code>ReFe</code>は「そのクラスで定義されているメソッド」しか解説してくれないからです。</p>
+<p class="in">あるクラスのスーパークラスまたはインクルードされているモジュールは<code>ancestors</code>メソッドで得ることができます。たとえば<code>Array</code>クラスについては、</p>
+<div class="borderterminal">
+<pre>[Array, Enumerable, Object, Kernel]</pre>
+</div>
+<p class="ni">であることがわかります。これらのクラスやモジュールを順に調べていけば、<code>Enumerable</code>に<code>each_with_index</code>が定義されていることがわかると思います。</p>
+<a id="page_387"/>
+<p class="in">また、メソッド名だけで<code>ri</code>や<code>ReFe</code>を起動するとそのメソッドを持つクラスの一覧を表示してくれるので役に立ちます。</p>
+</section>
+<section id="chap2813" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月は久しぶりにRubyの基礎を概観してみました。これからRubyを勉強したいという人に役立てば幸いです。</p>
+<p class="in">Rubyを身につけるには実際にコードを書いたり、読んだりするのが一番です。文法を押さえたらコードを探検しに行くのはどうでしょう。RAAにはRubyのプログラムがたくさんあります。</p>
+<ul class="none">
+<li><p><span class="link">http://raa.ruby-lang.org/</span></p></li>
+</ul>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-060.xhtml">&lt;&lt; 前ページ</a>　<a href="p-062.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

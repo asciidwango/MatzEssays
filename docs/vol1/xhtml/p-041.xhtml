@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第18章 ファイル処理</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第18章</p>
+<!-- Body -->
+<section id="chap18" class="level1">
+<a id="page_263"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">18</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+ファイル処理
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年11月号]</p>
+<div class="newlead">
+<p class="in">当時、新しいデジカメEXILIMを買ったのがうれしくて書いた記事ですね。そういえば、あのカメラはどこにやったかな。捨ててないと思うんだけど。で、記事のほうはデジカメをUSBマウントしてPCにコピーするツールを開発することを通じて、Rubyのファイル操作機能を学ぶというテーマでした。現在では、スマートフォンで写真を撮って、自動的にGoogle PhotoなりiCloudなりにバックアップされますが、当時はこういうちょっとしたツールがありがたかったものです。</p>
+<p class="ih">「Ruby開発日記」は「プログラミング言語の人気の厳選は外見で決まる」という仮説の披露です。20年経っても証明はできていないのですが、相変わらず間違ってはいないのではないかと考えています。本文中、「日本語20冊、英語6冊、ドイツ語3冊、フランス語1冊」出版されているとありますが、現在では何冊あるのでしょうか。昔はRuby関連本が書かれるたびに完成した本を頂いたりしたものですが、最近はそういうこともなく、仮にそうしたとするとあっという間に本棚があふれてしまうことでしょう。当時は、Rubyを扱った本が近所の本屋に並ぶのを見るのが夢でしたが、それも早々に叶いました。</p>
+</div>
+<div class="lead">
+<p class="ni">今月はスクリプト言語の原点に立ち返ってファイル処理について考えてみます。</p>
+</div>
+<section id="chap1801" class="level2">
+<h3>散財自慢</h3>
+<hr class="hr-gray" />
+<p class="in">愛用のデジカメが故障したのを機会に、新しいデジカメを買うことにしました。貧乏性の私にしては珍しい散財です。就職以来、貧乏はだいぶ改善されましたが、貧乏性（貧乏症）はなかなか直りません。学生時代は貧しかった。</p>
+<a id="page_264"/>
+<p class="in">で、買ったのはCasioのEXILIMです（<a href="#fig1801">図18.1</a>）。このカメラは124万画素しかありませんが、日常のスナップには十分です。しかも、</p>
+<ul>
+<li><p>小さい（名刺サイズ）</p></li>
+<li><p>機敏（起動1秒、シャッター0.01秒）</p></li>
+</ul>
+<p class="ni">という点が気に入りました。前のカメラは300万画素クラスでしたが、オートフォーカスやらフラッシュのチャージやらにとかく時間がかかり、反応の遅さが気になっていたからです。これだけ機敏に動作すると撮ろうと思ったものをタイミングを逃さず撮ることができます。便利だ。</p>
+<p class="in">買ったその日に200万画素になったEXILIMの新機種が発表されるというオチまでついてしまいましたが、いいんです、気に入ってるんだから。</p>
+<div class="fig" id="fig1801">
+  <!-- <div class="image50"> -->
+  <div class="image500">
+      <img src="../image/ch18/18-1.jpg" alt="fig1801" />
+  </div>
+  <p class="fig-caption">図18.1●Casio EXILIM EX-M1</p>
+</div>
+</section>
+<section id="chap1802" class="level2">
+<h3>Linuxとの連携</h3>
+<hr class="hr-gray" />
+<p class="in">このEXILIMというカメラにはUSBクレードルが付属していて、これに乗せると充電とPCとの接続ができます。USB接続についてはUSBマスストレージクラスに対応しているので、Linuxからも利用することができます。</p>
+<p class="in">ただし、私のマシンにはEXILIMのプロダクト番号がまだ登録されておらず、そのままではUSBコネクタを指した時点でエラーになってしまいました。USBの設定ファイルである <code>/etc/usbmgr/usbmgr.conf</code>を見ると必要なのはベンダーIDとプロダクトIDのようです。そこで、<code>/var/log/syslog</code>のエラーメッセージから、</p>
+<div class="plist">
+<pre>Aug 29 19:45:04 ev usbmgr[18644]: vendor:0x7cf product:0x1001</pre>
+</div>
+<p class="ni">という行を見つけ出し、それを参考にして<code>/etc/usbmgr/usbmgr.conf</code>に<a href="#list1801">リスト18.1</a>の記述を追加しました。</p>
+<div class="plistc" id="list1801">
+<p class="lst-caption">リスト18.1●/etc/usbmgr/usbmgr.confへの追加</p>
+<pre><span class="cmt"># Casio Exilim</span>
+vendor 0x7cf product 0x1001 module scsi_mod , sd_mod , usb-storage</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">これでroot権限で、</p>
+<div class="borderterminal">
+<pre># mount -t msdos /dev/sda1 /mnt</pre>
+</div>
+<a id="page_265"/>
+<p class="ni">とすればファイルシステムとしてマウントできした。めでたし、めでたし。そして、<code>/etc/fstab</code>というファイルに<a href="#list1802">リスト18.2</a>の記述を追加しておけば、root権限がなくても一般ユーザーで、</p>
+<div class="borderterminal">
+<pre>$ mount /mnt</pre>
+</div>
+<p class="ni">と実行するだけでマウントできるようになります。</p>
+<div class="plistc" id="list1802">
+<p class="lst-caption">リスト18.2●/etc/fstabへの追加</p>
+<pre>/dev/sda1 /mnt msdos defaults,user,noauto  0  0</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">私はUSB接続のデジカメに関する知識はそれほどないのですが、この方法はEXILIM以外にも富士フィルムのFinePix601でも有効でしたから、たぶん普遍的なのではないかと思います。聞くところによるとDCFというデジタルカメラのファイルシステムの規格があるのだそうです。FATファイルシステムを使うのも、ディレクトリの構成やファイル名がほぼ共通なのも、その規格に従っているのでしょう。</p>
+</section>
+<section id="chap1803" class="level2">
+<h3>画像管理</h3>
+<hr class="hr-gray" />
+<p class="in">これでデジカメのメモリがファイルシステムとして見えるようになりました。画像はマウントポイントの下に<code>dcim</code>というディレクトリがあって、その下に<code>100casio</code>というディレクトリがあり、その下に<code>cimg0001.jpg</code>のような名前のファイルが並んでいます。</p>
+<p class="in">要するに普通のディレクトリとファイルですから、後は<code>cp</code>でファイルをコピーしたり、<code>rm</code>で削除したりと普通のファイルと同様に操作できます。また、gimv（<a href="#fig1802">図18.2</a>）のようなイメージビューアを使うのも1つの方法でしょう。</p>
+<div class="fig" id="fig1802">
+  <!-- <div class="image80"> -->
+  <div class="image700">
+      <img src="../image/ch18/18-2.jpg" alt="fig1802" />
+  </div>
+  <p class="fig-caption">図18.2●gimv</p>
+</div>
+<p class="in">とはいえ、撮った画像がたまってくると管理が面倒になってきます。そこで私は<a href="#list1803">リスト18.3</a>のような簡単なシェルスクリプトを使っていました。ええ、私でもときどきはシェルも使うんです。</p>
+<a id="page_266"/>
+<div class="plistc" id="list1803">
+<p class="lst-caption">リスト18.3●画像管理シェルスクリプト</p>
+<pre><span class="cmt">#! /bin/sh</span>
+
+ls -l --time-style=long-iso /mnt/dcim/*/* | <span class="kwd">awk</span> <span class="str">&#39;{print $6&quot; &quot;$8}&#39;</span> | <span class="kwd">while</span> <span class="kwd">read</span> date file; <span class="kwd">do</span>
+  <span class="kwd">test</span> -d $date || mkdir $date
+  <span class="kwd">echo</span> cp $file $date/`basename $file`
+  cp -p $file $date/`basename $file`
+<span class="kwd">done</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">私はこのスクリプトに<code>import</code>という名前を付けていました。デジカメをマウントした状態でこのスクリプトを実行すると、写真を撮った日付のディレクトリにファイルを保存してくれるというわけです。小さいけれどなかなか便利なスクリプトです。</p>
+<p class="in">ところが、EXILIMを使うようになって困ったことが出てきました。EXILIMは今までの画像の番号を覚えていてくれないので、一度カメラから画像を削除してしまうとまた<code>cimg0001.jpg</code>から番号を振ります。ですから、たとえばメモリが足りなくなって画像を一度PCに転送してからカメラから削除すると、同じ名前の画像が複数できてしまうのです。前のカメラは今まで撮った番号を覚えていてくれたんだけどなあ。しかたがありません。新しい管理プログラムを書くことにしましょう。仕様は以下のようなものを考えました。</p>
+<ul>
+<li><p>マウントされていなければ自動的にマウントする</p></li>
+<li><p>扱うファイルの拡張子は <code>.jpg</code>, <code>.wav</code>, <code>.avi</code>, <code>.mpg</code>（EXILIMは<code>mpg</code>は扱えませんが）</p></li>
+<li><p>デジカメ内のファイルを撮影日（<code>2002-10-08</code>のような形式）の名前の付いたディレクトリにコピー</p></li>
+<li><p>ファイルにはその日のディレクトリ内で重複しない名前を付ける</p></li>
+<li><p>ただし、<code>.jpg</code>ファイルと同じファイル名（拡張子以外の部分）を持つ <code>.wav</code>ファイルがあったとき、それは <code>.jpg</code>ファイルに対する音声メモなので拡張子以外は同じままにしなければならない</p></li>
+<li><p>デジカメの付けたファイル名は信頼できない。異なるファイルに対して番号部分は自分で割り当てる</p></li>
+</ul>
+<p class="in">このプログラムも先ほどのスクリプトの延長でシェルで書き始めたのですが、だんだんロジックが複雑になってきて、手に負えなくなってきました。この辺がシェルの限界でしょう。しかし、私たちにはシェルよりずっとよいRubyがあるじゃありませんか。</p>
+<div class="blockquote">
+<p class="ni">いや、今まで忘れたんだけど。</p>
+</div>
+<p class="ih">「Rubyの作者がそんなことじゃだめじゃん」という声が聞こえてくるようです。おっしゃるとおりです。すいません。</p>
+<p class="in">そこで気を取り直してRubyで書いてみることにしました。Rubyにはシェルよりもずっとマシな制御構造がありますし、道具もいろいろそろっています。意外と簡単に書けました。それでもコメントや空行も入れると90行くらいになりました。元のスクリプトが7行だったのに比べるとずいぶん複雑になったものです。</p>
+</section>
+<section id="chap1804" class="level2">
+<h3>手品のタネ</h3>
+<a id="page_267"/>
+<hr class="hr-gray" />
+<p class="in">今回のプログラムで一番工夫が必要なのは、要件の中にある、</p>
+<ul>
+<li><p>異なるファイルに対して番号部分は自分で割り当てる</p></li>
+</ul>
+<p class="ni">点です。</p>
+<p class="in">これを実現するためには、ファイル名に頼らないで、ファイル内容の同一性を判定する必要があります。とはいえ、127万画素の1280×960の画像ファイルはだいたい250Kバイト近くありますから、ファイルを全部読み込んですべての内容の比較をするのはコストが高すぎます。</p>
+<p class="in">同一性判定にほしいのは、ファイルの内容によって違う結果になり、</p>
+<ul>
+<li><p>重複の危険性が無視できるくらい小さく</p></li>
+<li><p>しかも値のサイズは小さく</p></li>
+<li><p>できれば計算量も少ない</p></li>
+</ul>
+<p class="ni">というような値です。このような値がもしあれば、それを各画像ファイルの「指紋」のように使って、比較することができます。</p>
+<p class="in">しかし、そんな都合のよい値を計算する方法がありえるものでしょうか。</p>
+<div class="blockquote">
+<p class="ni">ええ、あるんです。</p>
+</div>
+<p class="in">実は上記のすべてを満たした値の計算方法が存在していて、それは一般に「ハッシュ値」と呼ばれています。「ファイルの内容を反映した短い値」という意味で「ダイジェスト値」と呼ばれることもあります。ハッシュ値を計算するアルゴリズムはいくつかあるのですが、ここではRubyに最初から添付されている「MD5」アルゴリズムを利用することにします。</p>
+<p class="in">MD5アルゴリズムはRFC 1321で定義されています。これはもともとは公開鍵暗号の署名などに使う目的で開発されました。つまり、ある人が本当にその文を書いたことを証明するために、メッセージのハッシュ値を計算し、その値をその人の秘密鍵で暗号化します。そしてその秘密鍵で暗号化されたハッシュ値をそのメッセージに対する「署名」としてメッセージと一緒に送ります。</p>
+<p class="in">メッセージと署名を受け取った人は、署名を相手の公開鍵で復号化し、得られたハッシュ値とメッセージのハッシュ値が等しいかどうかをチェックします。</p>
+<p class="in">もし、メッセージが相手を名乗った第三者からのものであれば、署名をその人の公開鍵で正しく復号化できない（のでハッシュ値は一致しない）はずです。もし、メッセージが配送の途中で改ざんされていれば、メッセージのハッシュ値と署名から得られるハッシュ値が一致しないはずです。</p>
+<p class="in">つまり、手元で計算したハッシュ値と復号化したハッシュ値が一致したということでメッセージが本人からのもので書き換えられていないことが保証されるわけです。</p>
+<p class="in">しかし、MD5がハッシュ値として持っている以下のような便利な性質は、今回の目的である同一性検査に最適です。</p>
+<a id="page_268"/>
+<ul>
+<li><p>結果は16バイトの整数列</p></li>
+<li><p>データが1ビットでも違うと結果がまったく異なる</p></li>
+<li><p>重複の可能性はかなり低い</p></li>
+<li><p>計算量は割と小さい</p></li>
+</ul>
+<p class="in">同一性検査以外にもMD5を使うことができます。たとえば、<code>cgi/session.rb</code>ではユニークなセッションIDを作るために16進表記のMD5を使っています。実際には16進表記のMD5の32文字は長すぎるので前半16文字だけ使っています。半分に切り詰めても重複する可能性は十分に低いようです。</p>
+</section>
+<section id="chap1805" class="level2">
+<h3>下準備</h3>
+<hr class="hr-gray" />
+<p class="in">それでは例によって実際のプログラムを解説する前に、利用する既存のライブラリについて説明しておきます。今回使おうと思っているのは以下のものです。</p>
+<ul>
+<li><p><code>digest/md5</code></p></li>
+<li><p><code>ftools</code></p></li>
+</ul>
+<p class="in"><code>digest/md5</code>は先ほど説明したMD5アルゴリズムを実現するクラスライブラリです。</p>
+<p class="in">一方、<code>ftools</code>はシェルで扱うようなファイル操作を強化するライブラリです。</p>
+</section>
+<section id="chap1806" class="level2">
+<h3>digest/md5</h3>
+<hr class="hr-gray" />
+<p class="in"><code>digest/md5</code>はアルゴリズム部分はL. Peter Deutschさんの作です。DeutschさんはGhostscriptの作者でもありますが、その他にもLispやSmalltalkの実装などで多大な業績があり、私にとっては尊敬する雲の上の人の一人です。昨年、OOPSLAというカンファレンスでご本人にお会いしたときには緊張して言葉が出なかったくらいです。Rubyのことはご存じでしたが、最近はPythonを使っているとのことでした。残念。</p>
+<p class="in">Rubyインターフェイス部分の作者はknuさんことAkinori MUSHAさんです。</p>
+<p class="in"><code>Digest::MD5</code>クラスのメソッドを<a href="#table1801">表18.1</a>に示します。</p>
+<div class="table" id="table1801">
+<p class="tbl-caption">表18.1●Digest::MD5クラスのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">クラスメソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>Digest::MD5.digest(data)</code></td>
+<td><code>data</code>のハッシュ値を返す</td>
+</tr>
+<tr>
+<td><code>Digest::MD5.hexdigest(data)</code></td>
+<td><code>data</code>の16進表記ハッシュ値</td>
+</tr>
+<tr>
+<th><span class="k">インスタンスメソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>md5.update(data)</code></td>
+<td><code>data</code>を追加</td>
+</tr>
+<tr>
+<td><code>md5 &lt;&lt; data</code></td>
+<td><code>data</code>を追加</td>
+</tr>
+<tr>
+<td><code>md5.digest</code></td>
+<td>ハッシュ値</td>
+</tr>
+<tr>
+<td><code>md5.hexdigest</code></td>
+<td>16進表記ハッシュ値</td>
+</tr>
+</table>
+</div>
+<p class="in">MD5値の求め方には2通りあります。1つはMD5オブジェクトにデータをどんどん追加しながらハッシュ値を計算し、最後にその計算結果を取り出す方法です。具体的には以下のようになります。</p>
+<div class="plist">
+<pre>md5 = Digest::MD5.new
+md5.update(data)
+sum1 = md5.digest     <span class="cmt"># 16バイトのハッシュ値</span>
+sum2 = md5.hexdigest  <span class="cmt"># 16進表記のハッシュ値(32文字)</span></pre>
+</div>
+<a id="page_269"/>
+<p class="in"><code>update</code>は途中に何回に分けて呼んでもかまわないので、たとえばファイルを1行ずつ読み込んで<code>update</code>を呼んでも、ファイル全体を一度に呼んで<code>update</code>を呼んでも同じ結果になります。</p>
+<p class="in">もう1つのやり方は、クラスメソッドを使って一度に計算する方法です。クラスメソッドは内部的に<code>MD5</code>オブジェクトを生成して計算を行います。</p>
+<div class="plist">
+<pre>sum = Digest::MD5.digest(data)
+sum = Digest::MD5.hexdigest(data)</pre>
+</div>
+<p class="in">このやり方では一度にハッシュを計算できます。ただ、やっていることは上記のように<code>MD5</code>オブジェクトを作って計算しているだけですから、クラスメソッドを使っても1行で書けるだけで、効率に違いはありません。</p>
+</section>
+<section id="chap1807" class="level2">
+<h3>ftools</h3>
+<hr class="hr-gray" />
+<p class="in"><code>ftools</code>ライブラリはシェルで扱うようなファイル操作を実現するクラスメソッドを<code>File</code>クラスに追加します。<code>ftools</code>の作者はebanさんこと、わたなべひろふみさんです。</p>
+<p class="in"><code>ftools</code>が追加するクラスメソッドを<a href="#table1802">表18.2</a>に示します。</p>
+<div class="table" id="table1802">
+<p class="tbl-caption">表18.2●ftoolsのクラスメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>File.compare(from,to[,verbose])</code></td>
+<td>内容比較</td>
+</tr>
+<tr>
+<td><code>File.copy(from,to[,verbose])</code></td>
+<td>コピー</td>
+</tr>
+<tr>
+<td><code>File.chmod(files...[,verbose])</code></td>
+<td>モード変更</td>
+</tr>
+<tr>
+<td><code>File.install(from,to[,mode[,verbose]])</code></td>
+<td>インストール</td>
+</tr>
+<tr>
+<td><code>File.makedirs(files...)</code></td>
+<td>ディレクトリ作成</td>
+</tr>
+<tr>
+<td><code>File.move(from,to[,verbose])</code></td>
+<td>移動</td>
+</tr>
+<tr>
+<td><code>File.safe_unlink(files...)</code></td>
+<td>削除</td>
+</tr>
+<tr>
+<td><code>File.syscopy(from,to)</code></td>
+<td>コピー</td>
+</tr>
+</table>
+</div>
+<p class="in">それぞれのメソッドの挙動はメソッド名から想像されるとおりなのですが、注意すべき点をいくつか説明しておきます。</p>
+<ul>
+<li><p><code>verbose</code>引数を持つメソッドは、<code>verbose</code>が真のときメッセージを出力する</p></li>
+<li><p><code>syscopy</code>と<code>copy</code>の違いは<code>verbose</code>引数があるかないかだけで、実際には<code>copy</code>は内部で<code>syscopy</code>を呼んでいる</p></li>
+<li><p><code>copy</code>にはUNIXのコマンド名を連想させる<code>cp</code>という別名がある。同様に、<code>move</code>には<code>mv</code>, <code>compare</code>には<code>cmp</code>, <code>safe_unlink</code>には<code>rm_f</code>という別名がある</p></li>
+<li><p><code>copy</code>と<code>install</code>の違いは、<code>install</code>のほうが「ていねいな」コピーを行う点。具体的には、<code>install</code>は以下の処理を行う</p>
+<ol class="list_parentheses">
+<li>コピー先のファイルがすでにあればまず削除</li>
+<li><code>copy</code>を行う（<code>copy</code>メソッドを使う）</li>
+<li><code>mode</code>が指定されていれば<code>chmod</code>する</li>
+</ol></li>
+<li><p><code>chmod</code>はもともと<code>File</code>クラスのメソッドとして定義されているが、<code>ftools</code>は<code>verbose</code>引数を持つように再定義している</p></li>
+<li><a id="page_270"/><p><code>makedirs</code>は<code>mkdir</code>と違って、親ディレクトリがなければ作る。たとえば、<code>Dir.mkdir("/tmp/foo /bar/baz")</code>は、<code>/tmp</code>, <code>/tmp/foo</code>, <code>/tmp/foo/bar</code>が存在しているときにだけ、指定されたディレクトリを作り、なければ失敗する。一方、<code>makedirs</code>は<code>File.makedirs("/tmp/foo/bar/baz")</code>とすると、途中のディレクトリがなければ作られる。<code>makedirs</code>には<code>makepath</code>という別名もある</p></li>
+</ul>
+<p class="in">これらの機能を使うと、今までシェルスクリプトで記述していたような手続きもRubyで簡単に書くことができます。ただ、Rubyには<code>sh -x</code>のような今何をやっているかを表示する機能はないのがちょっと寂しいところです。</p>
+</section>
+<section id="chap1808" class="level2">
+<h3>プログラムの構造</h3>
+<hr class="hr-gray" />
+<p class="in">さて、そんなこんなで出来上がった画像管理スクリプトが<a href="#list1804">リスト18.4</a>です。</p>
+<a id="page_271"/>
+<div class="plistc" id="list1804">
+<p class="lst-caption">リスト18.4●画像管理Rubyスクリプト</p>
+<pre><span class="cmt">#! /usr/bin/ruby1.7</span>
+
+require <span class="str">&quot;ftools&quot;</span>                 <span class="cmt"># (1)</span>
+require <span class="str">&quot;digest/md5&quot;</span>
+
+MOUNT = <span class="str">&quot;/mnt&quot;</span>
+
+<span class="kwd">class</span> DateDir                    <span class="cmt"># (2)</span>
+  attr_reader :max
+  <span class="kwd">def</span> initialize(date)
+    max = <span class="str">&quot;0000&quot;</span>
+    @sizes = []
+    <span class="kwd">for</span> f <span class="kwd">in</span> Dir.glob(<span class="str">&quot;#{date}/*&quot;</span>)
+      <span class="kwd">if</span> <span class="mcm">/(\d+)\./</span>.match(f)
+        <span class="kwd">if</span> $1 &gt; max
+          max = $1
+        <span class="kwd">end</span>
+      <span class="kwd">end</span>
+      <span class="kwd">unless</span> @sizes.assoc(f)
+        sum = get_md5(f)
+        @sizes.push [f, sum]
+      <span class="kwd">end</span>
+    <span class="kwd">end</span>
+    @max = max.to_i
+  <span class="kwd">end</span>
+  DATE_DIRS = {}
+  <span class="kwd">def</span> DateDir.get(date)
+    <span class="kwd">unless</span> dd = DATE_DIRS[date]
+      DATE_DIRS[date] = new(date)
+    <span class="kwd">else</span>
+      dd
+    <span class="kwd">end</span>
+  <span class="kwd">e</span>nd
+  private_class_method :new
+
+  <span class="kwd">def</span> find(file)
+    found = @sizes.rassoc(get_md5(file))
+    <span class="kwd">if</span> found
+      return found[0]
+    <span class="kwd">else</span>
+      <span class="kwd">return</span> <span class="kwd">false</span>
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> push(file, orig)
+    @sizes.push([file, get_md5(orig)])
+    @max += 1
+  <span class="kwd">end</span>
+
+  private
+  <span class="kwd">def</span> get_md5(file)              <span class="cmt"># (3)</span>
+    Digest::MD5.digest(File.read(file))
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+                                 <span class="cmt"># (4)</span>
+<span class="kwd">if</span> File.open(&quot;/etc/mtab&quot;).grep(<span class="mcm">%r|^/dev/sda1|</span>).size == 0
+  system <span class="str">&quot;mount #{MOUNT}&quot;</span>
+<span class="kwd">end</span>
+                                 <span class="cmt"># (5)</span>
+<span class="kwd">for</span> file <span class="kwd">in</span> Dir.glob(<span class="str">&quot;#{MOUNT}/dcim/*/*.{jpg,avi,wav,mpg}&quot;</span>).sort_by{|x|File.mtime(x)}
+  mtime = File.mtime(file)
+  date = mtime.strftime(<span class="str">&quot;%Y-%m-%d&quot;</span>)
+  fname = File.basename(file)
+  base, num, ext = <span class="mcm">/([a-z]*)(\d+)(\..*)$/</span>.match(fname)[1,3]
+  <span class="kwd">unless</span> File.directory? date
+    Dir.mkdir date
+    dest = <span class="str">&quot;#{date}/#{base}0001#{ext}&quot;</span>
+  <span class="kwd">else</span>
+    d = DateDir.get(date)        <span class="cmt"># (6)</span>
+    dest = <span class="kwd">nil</span>
+    <span class="kwd">if</span> ext == <span class="str">&quot;.wav&quot;</span>             <span class="cmt"># (7)</span>
+      jpgfile = <span class="str">&quot;#{File.dirname(file)}/#{base}#{num}.jpg&quot;</span>
+      <span class="kwd">if</span> File.exist?(jpgfile) <span class="kwd">and</span>
+        found = d.find(jpgfile)
+        dest = found.sub(<span class="mcm">/jpg$/</span>, <span class="str">&quot;wav&quot;</span>)
+        <span class="kwd">if</span> d.find(dest)
+          <span class="kwd">next</span>
+        <span class="kwd">end</span>
+      <span class="kwd">end</span>
+    <span class="kwd">end</span>
+    <span class="kwd">unless</span> dest                  <span class="cmt"># (8)</span>
+      <span class="kwd">if</span> d.find(file)
+        <span class="kwd">next</span>
+      <span class="kwd">end</span>
+      d.push(dest, file)         <span class="cmt"># (9)</span>
+      dest = <span class="str">&quot;#{date}/#{base}%04d#{ext}&quot;</span> % d.max
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+  File.copy(file, dest, <span class="kwd">true</span>)    <span class="cmt"># (10)</span>
+  File.utime(mtime, mtime, dest) <span class="cmt"># (11)</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_272"/>
+<p class="in">まず、例によって先頭で必要なライブラリを<code>require</code>しています (1)。今回はすでに説明したように<code>ftools</code>ライブラリと<code>digest/md5</code>ライブラリを使います。</p>
+<p class="in">続いて定義されている<code>DateDir</code>クラスは日付ごとのディレクトリが持つ情報を格納するクラスです (2)。そのメソッドは<code>initialize</code>メソッドによる初期化と、重複しているファイルを見つける<code>find</code>、新たに作ったファイルの情報を<code>DateDir</code>に追加する<code>push</code>です。内容によるファイルの重複チェックは先ほど説明したとおりMD5を使って行われます。</p>
+<p class="in">それから<code>attr_accessor</code>によってファイルに付けられた通し番号の最大値を返す属性<code>max</code>（実体はインスタンス変数）を定義しています。</p>
+<p class="in"><code>DateDir</code>クラスは同じ日付に対しては同じオブジェクトが得られるべきなので、クラスメソッド<code>DateDir.find</code>で重複チェックを行っています。また、間違って<code>new</code>を直接呼んでしまわないように<code>private_class_method</code>を使って<code>private</code>宣言しています。これで、<code>new</code>メソッドはレシーバを省略した形式でしか呼び出せなくなります。</p>
+<p class="in"><code>get_md5</code>メソッドはファイル名からその内容のMD5ハッシュ値を求める「関数」です (3)。内容はまあ見たとおりですね。<code>Digest::MD5</code>クラスを使ってMD5ハッシュ値を計算しています。</p>
+<p class="in">ここからがこのスクリプトの処理の本質になります。この画像管理スクリプトは以下の手順で処理を行います。</p>
+<p class="in">まず、必要であればデジカメデバイスのマウントを行います (4)。マウントされているドライブの情報は <code>/etc/mtab</code>に含まれています。ここにUSBで接続したデジタルカメラ（デバイスは <code>/dev/sda1</code>）が含まれていなければ、<code>system</code>メソッドを使って<code>mount</code>コマンドを呼び出しマウントします。すでに説明したように <code>/etc/fstab</code>で <code>/dev/sda1</code>に対して<code>user</code>オプションが設定されていれば一般ユーザー権限でマウントできるはずです。</p>
+<a id="page_273"/>
+<p class="in">マウントが済んだらデジカメのメモリ中の画像ファイルの情報を取り出します。DCF規格に従ったデジカメの場合、画像はマウントしたファイルシステムに以下のように格納されているはずです。</p>
+<div class="plist">
+<pre>dcim/&lt;数字&gt;&lt;メーカー&gt;/&lt;接頭子&gt;&lt;数字&gt;.&lt;拡張子&gt;</pre>
+</div>
+<p class="in">具体的にはこんな感じです。</p>
+<div class="plist">
+<pre>dcim/100casio/cimg0001.jpg</pre>
+</div>
+<p class="in">拡張子は<code>jpg</code>（画像）、<code>avi</code>（動画）、<code>wav</code>（音声）、<code>mpg</code>（動画）くらいでよいのではないでしょうか。他の拡張子に対応させる場合には、リストの (5) の部分のパターンを変更すればよいでしょう。</p>
+<p class="in">これらのファイルのファイル名のリストを取り出します (4)。ワイルドカードマッチで取り出したファイルのリストを<code>sort_by</code>メソッドで日付順にソートしています。この<code>sort_by</code>メソッドは1.7系にしかないメソッドなので、お使いのRubyが1.6系である場合には、この部分を、</p>
+<div class="plist">
+<pre>.sort{|a,b| File.mtime(a) &lt;=&gt; File.mtime(b)}</pre>
+</div>
+<p class="ni">に書き換える必要があります。個人的には<code>sort_by</code>を始めとする便利なメソッドが増えているので日々使うのもすっかり1.7系に移行してしまいました。ただ、1.7系はまだ開発版なので万人にお勧めとはいかないのが残念なところです。</p>
+<p class="in">ここからはこのファイル名リストに含まれるファイル名1つ1つに対して処理を行います。</p>
+<p class="in">まず、ファイルの更新時間（<code>mtime</code>）から（<code>2002-09-11</code>）のような形式で日付を取り出しておきます。これがファイルコピー先のディレクトリ名になります。</p>
+<p class="in">日付が得られたので、その日付を元に<code>DateDir</code>オブジェクトを作ります (6)。これは<code>DateDir.get</code>メソッドを呼ぶだけです。</p>
+<p class="in">スクリプトの要件で定義したように、ファイルの拡張子が <code>.wav</code>であれば、それは <code>.jpg</code>ファイルに対する音声メモです (7)。拡張子以外の部分が等しい <code>.jpg</code>ファイルがデジカメ上にあるかをチェックを行い、存在すればそのファイルが日付ディレクトリにコピーされているかを調べます。あるファイルと同一のファイルが日付ディレクトリ内にあるかどうかは<code>DateDir</code>クラスの<code>find</code>メソッドを使います。もしあれば、コピーされている画像ファイルの拡張子だけを <code>.wav</code>に変えた名前をコピー先ファイル名とします。</p>
+<p class="in">音声メモでなければ、日付ディレクトリ内にそのファイルと同じ内容を持つファイルがあるかどうか<code>DateDir</code>クラスの<code>find</code>メソッドでチェックします (8)。</p>
+<p class="in">チェックの結果同じファイルが存在しなければ、ファイルのコピーを行います。コピーによりファイルが増えるわけですから<code>push</code>メソッドで情報の更新を行います (9)。ファイル名は日付ディレクトリ中の最大通し番号（<code>max</code>メソッドで得られる）を使います。</p>
+<p class="in">実際のコピーには<code>ftools</code>ライブラリが提供する<code>File.copy</code>メソッドを使います (10)。</p>
+<p class="in">できるだけ元のファイルの情報を残しておきたいので、ファイルの更新時間もコピーします (11)。これは<code>File.utime</code>メソッドによって行います。<code>utime</code>メソッドは作成時間と更新時間の両方を設定できますが、ここでは手を抜いて両方を元のファイルの更新時間（<code>mtime</code>）に指定しています。</p>
+</section>
+<section id="chap1809" class="level2">
+<a id="page_274"/>
+<h3>宿題</h3>
+<hr class="hr-gray" />
+<p class="in">今回は画像ファイルの同一性判定にMD5ハッシュを使いましたが、同一性判定の方法は他にいくつもあります。たとえば、まずサイズが同じかどうかを判定し、サイズが同じだった場合に限って内容を直接比較するというアプローチもありえます。ファイルのサイズが重複するケースは比較的少ないうえ、ファイルサイズは<code>File.stat</code>で内容を読み込むことなく得られますから、一度全部のファイルを読み込んでMD5ハッシュを計算するよりも速いでしょう。</p>
+<p class="in">実際に実装したら確かにずいぶん高速でした。こんなシンプルな方法のほうが速いのになぜわざわざMD5を使ったかというと、実は、</p>
+<ul>
+<li><p>最初に思い付いたのがMD5を使う方法だった</p></li>
+<li><p>すぐにサイズを使ったほうがきっと速いと気が付いたが、せっかくだからMD5の解説がしたかった</p></li>
+</ul>
+<p class="ni">というような理由です。</p>
+<p class="in">MD5を使った比較から、サイズをベースにした比較への変更は読者への宿題にしておきましょう。性能向上することが明らかなほうがやる気が出るというものです。</p>
+<p class="in">ちなみに元のプログラムではファイルの比較が<code>DateDir</code>クラスの中にまとめられているので、<code>initialize</code>メソッドと<code>find</code>メソッド、それから<code>push</code>メソッドを書き換えるだけで、対応できます。行にして3行ですね（<code>get_md5</code>メソッドを削るぶんも合わせると全部で7行の変更）。簡単ですので、どうぞやってみてください。</p>
+<p class="in">解答は本誌付録CDに収録してもらうようにします。</p>
+</section>
+<section id="chap1810" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">ということで、今回はシェルスクリプトが得意とするようなファイル処理をRubyでやってみました。また、<code>ftools</code>と<code>digest/md5</code>の紹介も行いました。</p>
+<p class="in">これで本当に簡単な数行のスクリプトの場合を除けば、ファイル処理においてもRubyは優れているということを示すことができたと思います。まあ、もともと、Perl以降のスクリプト言語はその辺を目指して登場してきたものなので、当たり前といえば当たり前なんですけどね。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-040.xhtml">&lt;&lt; 前ページ</a>　<a href="p-042.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第15章 CGI</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第15章</p>
+<!-- Body -->
+<section id="chap15" class="level1">
+<a id="page_215"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">15</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+CGI
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年8月号]</p>
+<div class="newlead">
+<p class="in">CGIについての解説回です。もはや純粋なCGIでWebアプリケーションを開発する人はいなくなってしまいましたから、原理的な部分としてしか役立たないでしょうね。時代の変化は残酷です。</p>
+<p class="ih">「Ruby開発日記」では、プログラマー危機説について語っています。こちらはシステムが複雑化してしまうと、入門者がいきなり高度なものを学ぶ必要があって、それによって挫折してしまうのではないかという懸念です。幸い、現時点ではそのようなことはまだ起きていないですし、Scratchをはじめとするプログラミング初心者向けのツールも充実しています。しかし、CopilotやChatGPTのようなAIツールや、ノーコード・ローコードと言われるような開発手法が発展すると、過去の懸念がまた復活するのではないかと憂慮しています。</p>
+</div>
+<div class="lead">
+<p class="ni">Web上でCGIプログラムを動作させることで、フォームを使用してアンケートを処理したり、動的なページを作成したりすることができます。テキスト処理を行うCGIプログラムはRubyの得意分野の1つです。</p>
+</div>
+<section id="chap1501" class="level2">
+<h3>WWW</h3>
+<hr class="hr-gray" />
+<p class="in">ちょうどRubyの開発が始まった頃の1993年にコンピュータ業界にとって革命的な発明が行われました。この発明はWWW（World Wide Web）と呼ばれるもので、当時CERNにいたTim-Burners Leeによって行われました。</p>
+<p class="in">WWWはいろんな意味で今までの常識をくつがえす発明でした。まず1つ目の非常識はすべての情報を毎回サーバーまで取りに行く点です。WWWではリンクを張ったページがたとえば地球の反対側のサーバー上にあれば、実際にその地球の反対側にあるマシンまで通信を行います。これ以前インターネット（WWW以前からインターネットはあるんですよ、念のため）では通信量を減らすことを第一に考えてあらゆるものが設計されていました。WWWのすごいところはそういう気づかいとか遠慮とかいうものをあっさり切り捨てたところです。ある意味『富豪主義』と言ってもよいでしょう。通信回線の速度や価格が飛躍的に改善された現在では当然に思えることも、過去には驚くべき発想の転換だったというわけです。</p>
+<a id="page_216"/>
+<p class="in">2つ目の非常識は通信内容としてプレーンテキストではなく、マークアップ言語であるHTMLを採用した点です。これ以前ではインターネットの通信はプレーンテキストが主流でした。メールもネットニュースも基本はプレーンテキストの転送でした。ところがWWWではSGMLの流れをくむHTML（Hyper Text Markup Language）を採用することによって、</p>
+<ul>
+<li><p>他のページへのリンク（ハイパーテキスト）</p></li>
+<li><p>文章の構造の明確な表現</p></li>
+<li><p>画像や表組みなどの見栄えの表現</p></li>
+</ul>
+<p class="ni">が可能になりました。最初のWWWはあくまでもテキストベースで、画像の表示などができるようになったのはだいぶ後のMosaicブラウザの登場を待つ必要があったのですが、それでもHTMLを使うという選択が現在の「インターネットといえばWWW」という状態を生んだといっても言い過ぎではないでしょう。実際うちの小学生の娘はまだインターネットとWWWの区別がついていません。おまけに5歳の息子はインターネットを使えば何でもわかると信じてます。いや、確かに最近はいろいろわかるけど。</p>
+<p class="in">3つ目の非常識はサーバーとクライアントの比重の逆転です。サーバー/クライアントモデルは昔からある形態ですが、もともとは重い仕事はサーバーで、軽い仕事はクライアントでという仕事の割り振りが行われてきました。しかし、WWWにおいてはサーバーの仕事は（少なくとも当初は）HTMLファイル内容の転送が主で、その他のHTMLファイルの解釈や表示など重い仕事がクライアントに割り振られました。このようなクライアントのほうが重い傾向はX Window Systemですでに見られましたが、WWWはそれを決定的にしました。</p>
+<p class="in">このような驚くべき（今では当然ですが）発明によりWWWはコンピュータとネットワークのあり方を一変させてしまいました。この発明がなければ、世界はまるで違ったものになっていたに違いありません。</p>
+</section>
+<section id="chap1502" class="level2">
+<h3>CGI</h3>
+<hr class="hr-gray" />
+<p class="in">発明されたばかりのWWWではサーバーはファイルに格納されたHTMLコンテンツをクライアントに転送することだけが仕事でした（<a href="#fig1501">図15.1</a>）。HTTPクライアントはHTTPサーバーにURL（Unified Resource Locator）という形式でページを指定すると、サーバーは対応するHTMLファイルを読み出して、その内容をクライアントに転送します。</p>
+<div class="fig" id="fig1501">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch15/15-1.jpg" alt="fig1501" />
+  </div>
+  <p class="fig-caption">図15.1●HTMLコンテンツの転送</p>
+</div>
+<p class="in">URLはいわゆる「http://〜」ってやつですね。ホームページアドレスと呼ぶ人もいますが、実際には「ホームページ」でないものを指す場合もあるので不適切です。</p>
+<p class="in">しかし、毎回毎回同じリクエストに対して同じ返答を返すだけでなく、クライアントの要求に応じてコンテンツを生成する要求が出てくるのは、ある意味必然でした。</p>
+<p class="in">そこで登場したのがCGI（Common Gateway Interface）です。CGIでは、HTTPサーバーへの要求に対してCGIプログラムを起動します。各要求ごとにプログラムを起動してしまうところが「富豪主義」らしいといえます。クライアントからの要求の情報は主に環境変数を使ってCGIプログラムに渡されます。CGIプログラムからの出力（標準出力）はそのまま（正確には若干サーバーで加工されて）クライアントに転送されます（<a href="#fig1502">図15.2</a>）。</p>
+<a id="page_217"/>
+<div class="fig" id="fig1502">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch15/15-2.jpg" alt="fig1502" />
+  </div>
+  <p class="fig-caption">図15.2●CGIの仕組み</p>
+</div>
+<p class="in">HTTPサーバーとCGIとの間の情報のやりとりは環境変数と標準入出力だけを使って行われますから、それらをアクセスできればどんな言語を使ってもCGIプログラムを記述できるというわけです。しかし、HTTPプロトコルもHTMLも結局はテキストですから、テキスト処理の得意な言語がCGIプログラムにも向いているということになります。ですから、RubyやPerlなどはCGI向き言語といえます。</p>
+</section>
+<section id="chap1503" class="level2">
+<h3>動的ページでできること</h3>
+<hr class="hr-gray" />
+<p class="in">では、CGIによってダイナミックに内容を生成できるとどんなことができるでしょうか。ちょっと考えただけでも、</p>
+<ul>
+<li><p>掲示板</p></li>
+<li><a id="page_218"/><p>チャット</p></li>
+<li><p>アンケート</p></li>
+<li><p>Web日記</p></li>
+<li><p>ゲーム</p></li>
+<li><p>占い・性格診断</p></li>
+<li><p>電子メール管理</p></li>
+<li><p>データベースフロントエンド</p></li>
+</ul>
+<p class="ni">などなどいろいろな可能性がありそうです。動的ページさえあれば、HTMLで表現できる範囲なら事実上何でも可能だと断言してもよいでしょう。</p>
+</section>
+<section id="chap1504" class="level2">
+<h3>初めてのCGI</h3>
+<hr class="hr-gray" />
+<p class="in"><a href="#list1501">リスト15.1</a>は、最も簡単なCGIプログラムです。</p>
+<div class="plistc" id="list1501">
+<p class="lst-caption">リスト15.1●簡単なCGI（hello.cgi）</p>
+<pre><span class="cmt">#! /usr/bin/ruby -T</span>
+
+print <span class="str">&quot;Content-type: text/html; encoding=EUC_JP\n\n&quot;</span>
+print <span class="str">&quot;&lt;html&gt;&lt;head&gt;&lt;title&gt;CGI&lt;/title&gt;&lt;/head&gt;&lt;body&gt;\n&quot;</span>
+print <span class="str">&quot;こんにちは世界っ!\n&quot;</span>
+print <span class="str">&quot;&lt;/body&gt;&lt;/html&gt;\n&quot;</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">このプログラムは出力に何の変化もないのでCGIである必然性もないようなプログラムですが、最初ですから。最初の行はこのプログラムがRubyで実行されることを示しています。「<code>-T</code>」はCGI用のおまじないです。あとで説明しますが、CGIプログラムの最初の行はこのようにしておくのがよいでしょう。あ、Rubyインタプリタのインストールしてある位置によっては、</p>
+<div class="plist">
+<pre><span class="cmt">#! /usr/local/bin/ruby -T</span></pre>
+</div>
+<p class="ni">などに書き換える必要があるかもしれません。ファイル名はとりあえず<code>hello.cgi</code>としておきます。拡張子<code>.cgi</code>は「このプログラムはCGIですよ」という印です。</p>
+<p class="in">このプログラムを</p>
+<div class="borderconsole">
+<pre>$ ruby hello.cgi</pre>
+</div>
+<p class="ni">のように、そのまま実行してみると<a href="#fig1503">図15.3</a>の出力が得られます。</p>
+<div class="figconsole" id="fig1503">
+<div class="borderconsole">
+<pre>$ ruby hello.cgi
+Content-type: text/html; encoding=EUC_JP
+
+&lt;html&gt;&lt;head&gt;&lt;title&gt;CGI&lt;/title&gt;&lt;/head&gt;&lt;body&gt;
+こんにちは世界っ!
+&lt;/body&gt;&lt;/html&gt;</pre>
+</div>
+<p class="fig-caption">図15.3●簡単なCGIの出力</p>
+</div>
+<a id="page_219"/>
+<p class="in">これがCGIの出力の基本的な構造です。最初の1行目はCGIの出力の本体部分に関する情報を含むもので「ヘッダー」と呼ばれます。この「Content-type」ヘッダーはデータのフォーマットが「HTMLで書かれたテキストで、文字コードはEUC-JPである」ことを意味しています。他にも追加のヘッダーを指定することはありますが、この「Content-type」ヘッダーは必須です。ヘッダーと本体の間は空行で区切られます。</p>
+<p class="in">空行から最後までが本体です。ここではHTMLを直接<code>print</code>しています。</p>
+<p class="in">さて、これはCGIですから、直接実行しては意味がありません。そこでHTTPサーバーから実行するように設定します。</p>
+<p class="in">この設定はHTTPサーバーによって異なるのですが、とりあえずApacheについて説明しておきます。</p>
+<p class="in">まず、CGIプログラムをApacheから見える場所に置きます。ここではとりあえず、</p>
+<ul class="none">
+<li><p>/home/matz/public_html/hello.cgi</p></li>
+</ul>
+<p class="ni">に置いたとしましょう。この場所に置いたファイルは（Apacheの設定にもよりますが）、</p>
+<ul class="none">
+<li><p>http://ホスト名/~matz/hello.cgi</p></li>
+</ul>
+<p class="ni">というURLでアクセスできるようになります。</p>
+<p class="in">次に、CGIプログラムのパーミッションを確認します。CGIプログラムはHTTPサーバーから直接起動されるため、実行ビットが設定されている必要があります。</p>
+<div class="borderconsole">
+<pre>% chmod 755 hello.cgi</pre>
+</div>
+<p class="ni">としておきましょう。</p>
+<p class="in">それから、CGIが実行できるようなApacheの設定になっているかどうかを確認しましょう。とりあえず「拡張子<code>.cgi</code>の付いたファイルをCGIとして実行する」ためにはApacheの設定ファイル<code>httpd.conf</code>に、</p>
+<div class="plist">
+<pre>Options ExecCGI
+AddHandler cgi-script .cgi</pre>
+</div>
+<p class="ni">を（なければ）追加します。詳細はApacheのドキュメントを参照してください。これで、ブラウザで上記URLでアクセスすると、</p>
+<a id="page_220"/>
+<div class="borderconsole">
+<pre>こんにちは世界っ!</pre>
+</div>
+<p class="ni">と表示されるはずです。表示されなかったら、</p>
+<ul>
+<li><p>URLは正しいか</p></li>
+<li><p>パーミッションは設定されているか</p></li>
+<li><p><code>#!</code>行のパスは正しいか</p></li>
+<li><p>Apacheの設定は正しいか</p></li>
+</ul>
+<p class="ni">などを確認してください。</p>
+</section>
+<section id="chap1505" class="level2">
+<h3>クライアントからの入力</h3>
+<hr class="hr-gray" />
+<p class="in">しかし、変化のないCGIではHTMLファイルと変わりありません。CGIのパワーを生かすためには、ダイナミックに変化するページを作らなくてはなりません。考えてみるとダイナミックに変化するページとは、</p>
+<ul>
+<li><p>時刻や最新のニュースなどリクエスト内容は同じで、ページ内容が刻々変化するもの</p></li>
+<li><p>アンケートや検索エンジンのようにユーザーから何らかの入力を受け取り、その入力に応じたページ</p></li>
+</ul>
+<p class="ni">のいずれかに分類できます。後者ではユーザーからの入力を受け付ける必要があります。ユーザーからの入力はフォームHTMLの<code>form</code>タグを使って指定します。</p>
+<p class="in"><a href="#list1502">リスト15.2</a>はHTMLフォームの例です。フォーム入力そのものはただのHTMLでCGIである必要はありませんが、そのフォームからの入力を処理するのがCGIになります。</p>
+<div class="plistc" id="list1502">
+<p class="lst-caption">リスト15.2●フォーム入力例（アンケート）</p>
+<pre>&lt;<span class="kwd">html</span>&gt;
+&lt;<span class="kwd">head</span>&gt;&lt;<span class="kwd">title</span>&gt;アンケート入力&lt;/<span class="kwd">title</span>&gt;&lt;/<span class="kwd">head</span>&gt;
+
+&lt;<span class="kwd">body</span>&gt;
+&lt;<span class="kwd">form</span> <span class="kwd">action</span>=&#39;<span class="str">&quot;enquiry.cgi&quot;</span>&#39;&gt;
+  &lt;<span class="kwd">table</span> <span class="kwd">border</span>=<span class="str">&quot;0&quot;</span> <span class="kwd">align</span>=<span class="str">&quot;center&quot;</span>&gt;
+  &lt;<span class="kwd">tr</span>&gt;&lt;<span class="kwd">th</span> <span class="kwd">nowrap</span>&gt;性別:
+  &lt;<span class="kwd">td</span>&gt;
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;radio&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;gender&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;m&quot;</span>&gt;男性
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;radio&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;gender&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;f&quot;</span>&gt;女性
+  &lt;<span class="kwd">tr</span>&gt;&lt;<span class="kwd">th</span> <span class="kwd">nowrap</span>&gt;年齢:
+  &lt;<span class="kwd">td</span>&gt;
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;radio&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;age&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;19&quot;</span>&gt;20歳未満
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;radio&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;age&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;20&quot;</span>&gt;20代
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;radio&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;age&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;30&quot;</span>&gt;30代
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;radio&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;age&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;40&quot;</span>&gt;40代
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;radio&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;age&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;50&quot;</span>&gt;50代以上
+  &lt;<span class="kwd">tr</span>&gt;&lt;<span class="kwd">th</span> <span class="kwd">nowrap</span>&gt;趣味:
+  &lt;<span class="kwd">td</span>&gt;
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby1&quot;</span>&gt;コンピュータ
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby2&quot;</span>&gt;映画鑑賞
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby3&quot;</span>&gt;音楽鑑賞
+    &lt;<span class="kwd">br</span>&gt;
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby4&quot;</span>&gt;工作
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby5&quot;</span>&gt;読書
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby6&quot;</span>&gt;スポーツ
+    &lt;<span class="kwd">br</span>&gt;
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby7&quot;</span>&gt;アウトドア
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby8&quot;</span>&gt;旅行
+    &lt;<span class="kwd">br</span>&gt;
+    その他: &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;text&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;hobby0&quot;</span>&gt;
+  &lt;<span class="kwd">tr</span>&gt;&lt;<span class="kwd">th</span>&gt;&lt;<span class="kwd">td</span>&gt;
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;submit&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;送信&quot;</span>&gt;
+    &lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;reset&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;クリア&quot;</span>&gt;
+  &lt;/<span class="kwd">table</span>&gt;
+&lt;/<span class="kwd">form</span>&gt;
+&lt;/<span class="kwd">body</span>&gt;
+&lt;/<span class="kwd">html</span>&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_221"/>
+<a id="page_222"/>
+<p class="in"><code>form</code>タグでは<code>action</code>として<code>submit</code>ボタンが押されたときに起動されるCGIのURLを指定します。ここではファイル名だけの相対URLを指定しています。</p>
+<p class="in">個々の入力フィールドは<code>input</code>タグや<code>textarea</code>タグ、<code>select</code>タグなどで指定します。<code>input</code>タグは<code>type</code>を使ってフィールドの種別を指定します（<a href="#table1501">表15.1</a>）。</p>
+<div class="table" id="table1501">
+<p class="tbl-caption">表15.1●inputタグのtype</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">タグ</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>checkbox</code></td>
+<td>チェックボックス</td>
+</tr>
+<tr>
+<td><code>file</code></td>
+<td>fileアップロード</td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td>隠しフィールド</td>
+</tr>
+<tr>
+<td><code>image</code></td>
+<td>イメージボタン</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>パスワード入力</td>
+</tr>
+<tr>
+<td><code>radio</code></td>
+<td>ラジオボタン</td>
+</tr>
+<tr>
+<td><code>reset</code></td>
+<td>リセットボタン</td>
+</tr>
+<tr>
+<td><code>submit</code></td>
+<td>サブミットボタン</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td>テキスト入力</td>
+</tr>
+</table>
+</div>
+<p class="in">これらの入力フィールドには1つ1つ、<code>name="foo"</code> というような名前を付ける必要があります。この名前はあとでCGIプログラムでフィールドの入力結果を取り出すために使われますから、各々別の名前を付けておきます。</p>
+<p class="in"><a href="#list1502">リスト15.2</a>のHTMLをブラウザで表示させると<a href="#fig1504">図15.4</a>のようになります。</p>
+<div class="fig" id="fig1504">
+  <!-- <div class="image50"> -->
+  <div class="image500">
+      <img src="../image/ch15/15-4.jpg" alt="fig1504" />
+  </div>
+  <p class="fig-caption">図15.4●HTMLフォーム（HTML）</p>
+</div>
+</section>
+<section id="chap1506" class="level2">
+<h3>CGIプログラムへの入力</h3>
+<hr class="hr-gray" />
+<p class="in">HTMLフォームへの入力はHTTPの仕様に従ってHTTPクライアントからHTTPサーバーに渡され、さらにそれはCGIの規約に従ってCGIプログラムに渡されるのですが、今回は入門編ですのでHTTPやCGIの仕様の詳細までは踏み込みません。</p>
+<p class="in">Rubyにはそのようなやりとりの解釈をしてくれる<code>cgi</code>ライブラリがすでに存在するので、それを使うことにします。<code>cgi</code>ライブラリを使うためにはまず<code>require</code>する必要があります。</p>
+<div class="plist">
+<pre>require <span class="str">&quot;cgi&quot;</span></pre>
+</div>
+<p class="in">それからCGIデータを取り出すCGIオブジェクトを作ります。</p>
+<div class="plist">
+<pre>cgi = CGI.new</pre>
+</div>
+<p class="in">そして各フィールドの値を取り出します。</p>
+<div class="plist">
+<pre>name, = cgi[<span class="str">&quot;name&quot;</span>]</pre>
+</div>
+<p class="in">代入文の変数名の後ろの「<code>,</code>」は「配列の最初の要素の取り出し」を意味します。複数の同名のフィールドがあった場合のため、<code>cgi</code>オブジェクトはフィールドの値の配列を返します。同じ名前のフィールドが1つしかないことが確実な場合にはこのように変数名の後ろにコンマをつけるのが簡単・確実です。</p>
+<p class="in"><a href="#list1503">リスト15.3</a>はアンケート入力のHTMLフォームから、確認用にその結果を表示するCGIです。</p>
+<a id="page_223"/>
+<div class="plistc" id="list1503">
+<p class="lst-caption">リスト15.3●フォーム処理CGI</p>
+<pre><span class="cmt">#! /usr/bin/ruby -T</span>
+
+require <span class="str">&#39;cgi&#39;</span>            <span class="cmt"># cgiライブラリのrequire</span>
+
+cgi = CGI.new            <span class="cmt"># cgiオブジェクトの生成</span>
+
+gender, = cgi[<span class="str">&quot;gender&quot;</span>]  <span class="cmt"># genderフィールドの値</span>
+age, = cgi[<span class="str">&quot;age&quot;</span>]        <span class="cmt"># ageフィールドの値</span>
+
+<span class="cmt"># ヘッダーとHTMLの先頭部の出力</span>
+print &lt;&lt;EOS
+Content-type: text/html; encoding=EUC_JP
+
+&lt;html&gt;&lt;head&gt;&lt;title&gt;アンケート入力確認&lt;/title&gt;&lt;/head&gt;&lt;body&gt;
+&lt;p align=&quot;center&quot;&gt;入力ありがとうございます&lt;/p&gt;
+&lt;p align=&quot;center&quot;&gt;入力内容は以下のとおりでよろしいですか?&lt;/p&gt;
+
+&lt;table border=<span class="str">&quot;1&quot;</span> align=<span class="str">&quot;center&quot;</span>&gt;
+  &lt;tr&gt;&lt;th nowrap&gt;性別:&lt;td&gt;
+EOS
+
+<span class="kwd">if</span> gender == <span class="str">&quot;f&quot;</span>
+  print <span class="str">&quot;女性\n&quot;</span>
+<span class="kwd">else</span>
+  print <span class="str">&quot;男性\n&quot;</span>
+<span class="kwd">end</span>
+
+print <span class="str">&quot;&lt;tr&gt;&lt;th nowrap&gt;年齢:&lt;td&gt;\n&quot;</span>
+
+<span class="kwd">case</span> age
+<span class="kwd">when</span> <span class="str">&quot;19&quot;</span>
+  print <span class="str">&quot;20歳未満&quot;</span>
+<span class="kwd">when</span> <span class="str">&quot;20&quot;</span>
+  print <span class="str">&quot;20代&quot;</span>
+<span class="kwd">when</span> <span class="str">&quot;30&quot;</span>
+  print <span class="str">&quot;30代&quot;</span>
+<span class="kwd">when</span> <span class="str">&quot;40&quot;</span>
+  print <span class="str">&quot;40代&quot;</span>
+<span class="kwd">when</span> <span class="str">&quot;50&quot;</span>
+  print <span class="str">&quot;50代以上&quot;</span>
+<span class="kwd">else</span>
+  print <span class="str">&quot;不明&quot;</span>
+<span class="kwd">end</span>
+
+hobbies = %w(
+  <span class="kwd">nil</span>
+  コンピュータ
+  映画鑑賞
+  音楽鑑賞
+  工作
+  読書
+  スポーツ
+  アウトドア
+  旅行)
+
+print <span class="str">&quot;&lt;tr&gt;&lt;th nowrap&gt;趣味:&lt;td&gt;\n&quot;</span>
+<span class="kwd">for</span> i <span class="kwd">in</span> 1..8
+  hobby, = cgi[<span class="str">&quot;hobby%d&quot;</span>%i]
+  <span class="kwd">if</span> hobby
+    printf <span class="str">&quot;&lt;label&gt;%s&lt;/label&gt;\n&quot;</span>, hobbies[i]
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+hobby, = cgi[<span class="str">&quot;hobby0&quot;</span>]
+<span class="kwd">if</span> hobby
+  printf <span class="str">&quot;&lt;label&gt;その他: %s&lt;/label&gt;\n&quot;</span>, hobby
+<span class="kwd">end</span>
+print <span class="str">&quot;&lt;/table&gt;&lt;/form&gt;&lt;/body&gt;&lt;/html&gt;\n&quot;</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_224"/>
+<p class="in">このCGIの実行結果は<a href="#fig1505">図15.5</a>のようになります。</p>
+<div class="fig" id="fig1505">
+  <!-- <div class="image50"> -->
+  <div class="image500">
+      <img src="../image/ch15/15-5.jpg" alt="fig1505" />
+  </div>
+  <p class="fig-caption">図15.5●フォーム処理CGI実行結果</p>
+</div>
+</section>
+<section id="chap1507" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回はCGIプログラミングの基本の基本について説明しました。CGIプログラミングは奥が深く、今回は誌面の関係もあってさわりしか紹介できませんでした。ぜひ次回にでも、この続きを実例も交えてもっと詳しく説明したいと思います。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-033.xhtml">&lt;&lt; 前ページ</a>　<a href="p-035.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

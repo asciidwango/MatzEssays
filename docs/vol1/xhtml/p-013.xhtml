@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第8章 オブジェクトと変数</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第8章</p>
+<!-- Body -->
+<section id="chap08" class="level1">
+<a id="page_095"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">8</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+オブジェクトと変数
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年1月号]</p>
+<div class="newlead">
+<p class="in">変数についての説明です。そういえばこの頃は「変数は入れ物」という発想をする人が多くて、たとえば複数のローカル変数が同じ配列を指しているときに、片方の変数経由で配列要素を書き換えるともう1つの変数も変わってしまって驚いた、などという話を頻繁に聞きました。そういう誤解がこの記事を書く動機になったのですが、最近はそういう誤解は減ったように感じます。やはり、JavaScriptやPythonのようなメジャーな言語もRubyと同じ変数モデルを採用しているからでしょうか。</p>
+<p class="ih">「開発日記」はアメリカで開催された第1回RubyConfについての話題です。自分の作った言語に関するカンファレンスが（勝手開催のOOPSLAの前座とはいえ）、アメリカで開催されるのは私にとって感激でした。ここでは出席者は70名くらいと書いてあるんですが、別の資料には34名とあって矛盾しています。私の記憶は信用できないんで、本当は34名だったんでしょう、たぶん。</p>
+</div>
+<div class="lead">
+<p class="ni">Rubyはオブジェクト指向言語ですから、オブジェクトという単語がいつもつきまといます。しかし、これがわかりにくい原因なのだという意見もあります。今回はこのオブジェクトの基礎を解説しようと思います。けれど、いわゆるオブジェクト指向プログラミングでよく使われる継承とかカプセル化のような難しげな概念には踏み込みません。</p>
+</div>
+<section id="chap0801" class="level2">
+<h3>オブジェクトとは</h3>
+<hr class="hr-gray" />
+<p class="in">オブジェクト（object）とは英語で「モノ」という意味です。Rubyで扱うものは、すべてこれオブジェクトです。ですから、整数の1も、文字列の<code>"abc"</code>もオブジェクトです。Rubyプログラムで表現するものは、現実世界の具体的な存在を表したもの（たとえば犬）も、抽象的なもの（たとえば集合）もすべてオブジェクトです。</p>
+<a id="page_096"/>
+<p class="in">Rubyではオブジェクトのことを値と呼ぶこともあります。これは重要な点ですので覚えておいてください。</p>
+<div class="blockquote">
+<p class="ni">Rubyでは値とはオブジェクトのことである</p>
+</div>
+<p class="in">世の中の種々雑多なモノがあるように、オブジェクトもさまざまです。しかし、1つだけ決まっていることがあります。それは「すべてのオブジェクトは命令に反応する」という点です。オブジェクトに命令すれば、オブジェクトは自分が知っている命令であれば、それに対応する仕事を実行しますし、知らない命令であれば「そんな命令は知らない」と返事します。たとえば文字列にはその長さを求めるように命令することができ、犬には<ruby>吠<rt>ほ</rt></ruby>えるように命令することができます。</p>
+<p class="in">つまり、どのようなオブジェクトであっても、そのオブジェクトがどんな命令を受け付け、それに対してどんな仕事をしてくれるかを知っていれば、使いこなすことができます。現実世界と違ってオブジェクトは知っている命令には完全服従します。ただし、「正しくプログラムされていれば」ですが。これがオブジェクト指向の最低限の決まりごとです。</p>
+<p class="in">この命令のことを「メッセージ」、命令に対応する仕事のことを「メソッド」と呼びます。でも、この2つはあまり区別されないで、単にメソッドと呼ばれることも多いです。</p>
+</section>
+<section id="chap0802" class="level2">
+<h3>メソッド</h3>
+<hr class="hr-gray" />
+<p class="in">メソッドを呼び出すためには、Rubyでは以下のような文法を使います。</p>
+<div class="plist">
+<pre>obj.x()</pre>
+</div>
+<p class="ih">「<code>obj</code>」の部分が「オブジェクト」です。この部分にはオブジェクトを指定する式が書けます。このオブジェクトはメッセージを受け取るオブジェクトですから、「レシーバ」と呼ばれることがあります。</p>
+<p class="ih">「<code>x</code>」の部分が「メッセージ」です。これでレシーバの<code>x</code>という名前の「メソッド」を呼び出しているわけです。<code>()</code>の部分は今回は空ですが、コンマ（<code>,</code>）で区切った任意の数の式が書けます。これはメソッドの「引数」（「ひきすう」と読みます）と呼ばれ、メソッドに与える追加的な情報になります。たとえば文字列の長さを求めるためには文字列に<code>length</code>メッセージ を送ります。言い換えれば、文字列の<code>length</code>メソッドを呼び出すということです。</p>
+<div class="plist">
+<pre><span class="str">&quot;abc&quot;</span>.length() <span class="cmt"># 3が得られる</span></pre>
+</div>
+<p class="in">メソッド引数のためのかっこは原則的に省略できますから、上の命令は、</p>
+<div class="plist">
+<pre><span class="str">&quot;abc&quot;</span>.length</pre>
+</div>
+<p class="ni">と書いても同じです。ただし、あまり省略しすぎるとプログラムが読みにくくなるかもしれません。特に引数がある場合には混乱のもとです。やりすぎは禁物です。</p>
+<p class="in">メソッド呼び出しには、メッセージの受け手であるオブジェクトを省略した形式もあります。その場合の形式は、</p>
+<div class="plist">
+<pre>x(arg1, arg2)</pre>
+</div>
+<p class="ni">のようになります。<code>x</code>がメッセージで、<code>arg1</code>と<code>arg2</code>が引数です。引数が2個なのは単なる例で、任意の数が指定できます。この場合のメッセージの受け手は、実行中のメソッドのレシーバになります。</p>
+<a id="page_097"/>
+<p class="in">メソッドの外側でも、レシーバ用に用意されたオブジェクトが設定されていて、受け手が省略されたメッセージを受け取ってくれます。Rubyのプログラムにおいては常に何らかのオブジェクトがレシーバ、あるいは別の言い方をすると省略時のメッセージの受け手として控えています。レシーバは、いつも<code>self</code>という変数（正確には「擬似変数」と呼びます）によって参照することができます。</p>
+<p class="in">今話した「その辺のオブジェクト」がなにもので、どのような機能と振る舞いを持つかについては、今後詳しく説明することにしましょう。</p>
+<p class="in">ですから、先月までにすでに出ていた、</p>
+<div class="plist">
+<pre>puts <span class="str">&quot;hello&quot;</span></pre>
+</div>
+<p class="ni">なども、この「その辺のオブジェクト」が<code>puts</code>メソッドを実行してくれていたわけなんですね。この例の場合、<code>puts</code>が「メッセージ」で、<code>"hello"</code>が引数になります。引数の周りのかっこが省略されていますね。</p>
+<p class="in">メソッドの呼び出しはRubyの基本的な機能の1つです。先月学んだ制御構造などを除いては、Rubyのほとんどの機能はこのメソッド呼び出しを使って利用することができます。</p>
+</section>
+<section id="chap0803" class="level2">
+<h3>クラス</h3>
+<hr class="hr-gray" />
+<p class="in">オブジェクトはおおむね種別ごとに分類できます。手あかのついたような例ですが、ここにポチというオブジェクトがあった（いた）場合、私たちはそれを犬であると認識するわけです。現実世界に犬というモノがあるわけではなく、犬というのはあくまでも抽象的な種別にすぎないわけです。この種別のことを「クラス」と呼びます。ですから、ポチは犬クラスに属するオブジェクトということになるわけです。クラスに属することを強調するときにはオブジェクトのことをインスタンスと呼ぶことがあります。ですから、犬クラスに属するオブジェクトであるポチは、犬クラスのインスタンスと呼ぶわけです。</p>
+<p class="in">同じクラスに属するオブジェクトは原則として同じメッセージに反応し、同じメソッドを持ちます。しかし、ポチは同じ犬クラスのオブジェクトであっても別の犬であるタロやジロとは性質は似ているものの微妙に違うように、同じメソッドといえどもいつも同じ結果を返すわけではありません。具体的には毛皮の色が違ったりするわけです。</p>
+<p class="in">クラスを定義するためには<code>class</code>文を使います。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Foo
+ ...
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">また、他のクラスの定義を元に新しいクラスを作るときには、元になるクラスを指定します。元になるクラスのことをスーパークラスと呼びます。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Bar&lt;Foo
+ ...
+<span class="kwd">end</span></pre>
+</div>
+<a id="page_098"/>
+<p class="in">クラスの中ではメソッドなどを定義します。メソッド定義は<code>def</code>文を使います。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Dog
+  <span class="kwd">def</span> bark(how)    <span class="cmt"># 「吠える」メソッド</span>
+    puts how
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">これで<code>Dog</code>クラスに属するオブジェクトは吠えることができるようになりました。</p>
+<div class="plist">
+<pre>pochi = Dog.new     <span class="cmt"># Dogオブジェクトはこうして作る</span>
+pochi.bark(<span class="str">&quot;わんっ&quot;</span>) <span class="cmt"># 吠えさせてみよう、わんっ</span></pre>
+</div>
+<p class="in">クラスの定義については、今回はここまでにしておきます。詳細は今後きちんと説明することにします。</p>
+</section>
+<section id="chap0804" class="level2">
+<h3>オブジェクト基礎のまとめ</h3>
+<hr class="hr-gray" />
+<p class="in">ここでここまで学んだことをまとめておきましょう。重要な用語は以下のとおりです。</p>
+<div class="description">
+<p class="ditem">オブジェクト</p>
+<p class="dni">オブジェクトは「モノ」です。オブジェクトにはそれぞれ機能があり、命令すると仕事をしてくれます。Rubyで取り扱うあらゆるものはオブジェクトです。ですから、Rubyにおいて「値」とはオブジェクトのことです。</p>
+<p class="ditem">メッセージ</p>
+<p class="dni">オブジェクトに命令するときの命令の名前がメッセージです。</p>
+<p class="ditem">メソッド</p>
+<p class="dni">メッセージを受けたオブジェクトが実際に行う作業のことをメソッドと呼びます。慣習としてメッセージよりもメソッドという単語をよく使います。ですから、「文字列に<code>length</code>メッセージを送る」よりも「文字列の<code>length</code>メソッドを呼び出す」という言い方のほうが頻繁に見かけます。</p>
+<p class="ditem">クラス</p>
+<p class="dni">オブジェクトの「種別」がクラスです。同じクラスに属するオブジェクトは（まだ説明していない例外を除いて）、同じメソッドを持ち、同じメッセージに反応します。</p>
+</div>
+</section>
+<section id="chap0805" class="level2">
+<h3>オブジェクトの指定</h3>
+<hr class="hr-gray" />
+<p class="in">で、このオブジェクトを指定する方法は3つあります。それは、「リテラル」「変数」「式」の3つです。</p>
+<p class="in">ある種のオブジェクトはたびたび用いられるので、プログラムの中で直接表現する方法が用意されています。たとえば、プログラムの中で数字の1が登場すれば、それは整数の1オブジェクトという意味ですし、<code>"abc"</code> は文字列オブジェクトを意味します。</p>
+<p class="in">変数はオブジェクトに付けるラベルのようなものです。オブジェクトにラベルを付けておけば、あとでそのラベルでオブジェクトを使うことができます。たとえば、</p>
+<div class="plist">
+<pre>a = <span class="str">&quot;abc&quot;</span></pre>
+</div>
+<a id="page_099"/>
+<p class="ni">という形で<code>"abc"</code>という文字列に<code>a</code>という名前を付けておくと、</p>
+<div class="plist">
+<pre>a.length</pre>
+</div>
+<p class="ni">という形で<code>a</code>という名前を付けたオブジェクトの<code>length</code>メソッドを呼び出すことができます。</p>
+<p class="in">そして、メソッド呼び出しや<code>1+1</code>のようなものが式です。上の<code>length</code>メソッドの呼び出しも式です。これらの組み合わせでオブジェクトを表現することができます。</p>
+</section>
+<section id="chap0806" class="level2">
+<h3>変数の種別</h3>
+<hr class="hr-gray" />
+<p class="in">変数には以下の種類があります。</p>
+<ul>
+<li><p>ローカル変数</p></li>
+<li><p>グローバル変数</p></li>
+<li><p>クラス変数</p></li>
+<li><p>インスタンス変数</p></li>
+<li><p>定数</p></li>
+<li><p>擬似変数</p></li>
+</ul>
+<section id="chap080601" class="level3">
+<h4>ローカル変数</h4>
+<p class="in">ローカル変数はメソッドの中だけで有効な変数です。ローカル変数の名前はアルファベットの小文字またはアンダーライン（<code>'_'</code>）で始まります。</p>
+</section>
+<section id="chap080602" class="level3">
+<h4>グローバル変数</h4>
+<p class="in">グローバル変数とはつまりプログラムのどこからでもアクセスできる変数です。どこからでもアクセスできるってことは、誰がいつ変更したのかわからなくなりやすいってことでもあるので、これを使うのはあんまりお勧めじゃありません。</p>
+<p class="in">グローバル変数の名前は <code>$</code> から始まります。多用するとプログラムが醜くなりますね。これもお勧めしない理由の1つです。グローバル変数の例はこんな感じです。</p>
+<div class="plist">
+<pre>$foo
+$_
+$1</pre>
+</div>
+<p class="in">なお、グローバル変数の一部はローカル変数と同じように振る舞うものがあります（たとえば<code>$_</code>, <code>$~</code>, <code>$1</code> など）。ですから、グローバル変数というよりもむしろ「スペシャル変数」というような名前のほうが適切なのかもしれません。呼び名を変えようかなあ。</p>
+</section>
+<section id="chap080603" class="level3">
+<a id="page_100"/>
+<h4>インスタンス変数</h4>
+<p class="in">インスタンス変数はオブジェクトごとの変数です。「犬の名前」とか「毛皮の色」とかオブジェクトごとに違う状態を表現するための変数です。インスタンス変数は名前が、<code>@</code> で始まります。こんな感じです。</p>
+<div class="plist">
+<pre>@foo</pre>
+</div>
+<p class="in">インスタンス変数は実行中のメソッドのレシーバに属します。</p>
+</section>
+<section id="chap080604" class="level3">
+<h4>定数</h4>
+<p class="in">変数なのに定数とはなにごとかと、毎回説明してて思うんですが、こればっかりはしょうがありません。</p>
+<p class="in">定数とはクラスに属する固定された（ほんとはちょっと違うんですが）値のことです。クラスが違えばアクセスできる定数も変わります。</p>
+<p class="in">定数の名前は大文字で始まります。定数の例はこんな感じです。</p>
+<div class="plist">
+<pre>ARGV
+RUBY_VERSION</pre>
+</div>
+<p class="in">それから、クラス名も定数です。</p>
+<div class="plist">
+<pre>String
+Array</pre>
+</div>
+<p class="in">値が設定されていない定数は存在しませんから、アクセスはエラーになります。</p>
+</section>
+<section id="chap080605" class="level3">
+<h4>クラス変数</h4>
+<p class="in">定数にちょっと似てるのがクラス変数です。クラス変数は名前が、<code>@@</code> で始まります。クラス変数はこんな感じです。</p>
+<pre><code>@@foo</code></pre>
+<p class="in">定数と同様に値が設定されていないクラス変数は存在しませんから、アクセスはエラーになります。しかし、クラス変数は「変数」ですから、値を自由に変えることができます。</p>
+</section>
+<section id="chap080606" class="level3">
+<h4>擬似変数</h4>
+<p class="in">別の意味で定数に似ているのが擬似変数です。擬似変数というのは、見かけはローカル変数と同じなのに値が固定で代入できないものです。擬似変数に代入しようとすると文法エラーになります。</p>
+<p class="in">擬似変数には<a href="#table0801">表8.1</a>の6つがあります。</p>
+<div class="table" id="table0801">
+<p class="tbl-caption">表8.1●擬似変数</p>
+<table class="tbl01">
+<tr>
+<td><code>true</code></td>
+<td>真（条件が成立していること）を示す値</td>
+</tr>
+<tr>
+<td><code>false</code></td>
+<td>偽（条件が成立していないこと）を示す値</td>
+</tr>
+<tr>
+<td><code>nil</code></td>
+<td>未定義（初期化されてないとか）を示す値</td>
+</tr>
+<tr>
+<td><code>self</code></td>
+<td>実行中のメソッドのレシーバ</td>
+</tr>
+<tr>
+<td><code>__FILE__</code></td>
+<td>実行中のファイル名</td>
+</tr>
+<tr>
+<td><code>__LINE__</code></td>
+<td>実行中の行番号</td>
+</tr>
+</table>
+</div>
+</section>
+</section>
+<section id="chap0807" class="level2">
+<a id="page_101"/>
+<h3>代入</h3>
+<hr class="hr-gray" />
+<p class="in">代入とは変数（など）にオブジェクトを割り当てる操作です。言い方を変えればオブジェクトに名前を付けると言ってもよいでしょう。決して間違えてはいけないのは「変数はオブジェクトを『指す』もので、オブジェクトの容器ではない」ことです（<a href="#fig0801">図8.1</a>）。</p>
+<div class="fig" id="fig0801">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch08/08-1.jpg" alt="fig0801" />
+  </div>
+  <p class="fig-caption">図8.1●複数の変数が同じオブジェクトを指す</p>
+</div>
+<p class="in">ここではとりあえず「変数は容器である」という考え方を「Rubyでない考え方」、「変数は参照である」という考え方を「Rubyの考え方」と呼ぶことにします。普段はあまり問題にならないのですが、ここを押さえておかないと複数の変数が同じオブジェクトを指しているときに混乱します（<a href="#fig0802">図8.2</a>）。</p>
+<div class="fig" id="fig0802">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch08/08-2.jpg" alt="fig0802" />
+  </div>
+  <p class="fig-caption">図8.2●複数の変数が同じオブジェクトを指す</p>
+</div>
+<p class="ih">「Rubyでない考え方」では文字列の一部を変更した場合、元の文字列は変化しますが、代入先は変化しません。一方、「Rubyの考え方」では、指している先が変化しますから、変数<code>a</code>の値と変数<code>b</code>の値も同時に変化するように見えます。これはつまり、変数<code>a</code>から参照されるオブジェクトも、変数<code>b</code>から参照されるオブジェクトも同じであるということを意味しています。</p>
+<p class="ih">「なんで?」と思う人もいるかもしれません。実は、これは「値」という言葉をどうとらえるかにかかっているのです。</p>
+<p class="in">最初のほうで説明したように、Rubyでは「値」とはいつも「オブジェクト」のことです。ですから、変数<code>a</code>の値が <code>"abc"</code> だとすると、その「値」を変数<code>b</code>に代入するということは、<code>"abc"</code> という文字列オブジェクトが変数<code>b</code>からも参照できるようになるということを意味します（<a href="#fig0802">図8.2</a>(2)）。代入に当たってオブジェクトのコピーは発生しません。</p>
+<a id="page_102"/>
+<p class="in">一方、「Rubyでない考え方」では「値」は「ある種の状態」です。ですから、この考え方のもとでは <code>"abc"</code> という「値」は「文字<code>a</code>, <code>b</code>, <code>c</code>が順に並んでいる状態」のことです。これを代入するということは、変数<code>b</code>の格納している状態が変数<code>a</code>と同じになるということです（<a href="#fig0802">図8.2</a>(1)）。一度代入されてしまえば、変数<code>a</code>の値と変数<code>b</code>の値は無関係ですから、変数<code>a</code>の値を変化させても変数<code>b</code>には影響されません。</p>
+<p class="in">BASICやPerlなど多くの言語では「変数は容器」という「Rubyでない考え方」を採用しています。それらの言語の知識がある人はこの点に引っかかることが多いようです。しかし、Lisp, Smalltalkなどの言語ではRubyと同じ「変数は参照」という考え方を採用しています。一度慣れてしまえば、Rubyのような考え方のほうが一貫性があって理解しやすいと思います。Cなどでは構造体変数などは「容器」として振る舞いますが、ポインタは「参照」として振る舞うのでますます混乱します。そういえば、Perl 5にも「参照」というポインタのようなものがありますね。</p>
+</section>
+<section id="chap0808" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回はオブジェクトと変数について説明してみました。今回説明した部分は基本的すぎてあまり具体的な実例が出せませんでした。しかし、ここは基礎として重要ですから我慢してください。</p>
+<p class="in">次回はより具体的なクラスについて学ぼうと思います。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-012.xhtml">&lt;&lt; 前ページ</a>　<a href="p-014.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

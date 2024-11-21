@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第57章 ソースを読もう</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第57章</p>
+<!-- Body -->
+<section id="chap57" class="level1">
+<a id="page_243"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">57</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+ソースを読もう
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">オープンソースマガジン</span>, 2006年1月号]</p>
+<div class="newlead">
+<p class="in">ソースの読み方について解説しています。多くの人はプログラミングはソースコードを記述することだと認識しているようですが、実際にはコードを読む時間のほうがずっと長いものです。特にデバッグのときにはコードに間違いがないか一生懸命読むものです。そういう観点から、コードの読み方と、それから（将来の自分を含めた）誰かがコードを読むときに読みやすいコードを書くコツについて簡単ながら説明しています。「プログラミングはむしろ人間のため」という原則を思い出させる記事ですね。</p>
+</div>
+<section id="chap5701" class="level2">
+<h3>ハッカー能力を向上させる方法</h3>
+<hr class="hr-gray" />
+<p class="ih">『Code Reading』<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> という書籍があります。私が監訳をしているからいうわけではないのですが、結構よい本です。今回の「ハッカーズライフ」はこの本を読んだ人には当り前のことかもしれません。</p>
+<p class="in">ハッカーとしての能力を身につけるのに最も優れた方法は、実際にコードを書くことと、他の人の書いた優れたソースコードを読むことだと思います。特にコードを読むことは普段あまり強調されませんが、他人のソースコードはいろんな意味で知恵と知識の源です。考えてみれば、私自身もたくさん他人のソースコードを読んで学んだように思います。</p>
+<p class="ih">「コードを読むことは勉強になる」ということで、世の中には「Linuxカーネル読書会」と称して、Linuxカーネルのソースを<code>main</code>関数から読み進めていく会合もあるのだそうです。一度出席してみたい気もしますが、私自身はそのような読み方でモチベーションが維持できるような気がしません。なんていうのかな、相手が巨大すぎるというか。ソースコードには小説のような読み物ではないので、漠然とソースコードを読むことはなかなかできないものです。</p>
+</section>
+<section id="chap5702" class="level2">
+<a id="page_244"/>
+<h3>ソースコード読解の秘訣</h3>
+<hr class="hr-gray" />
+<p class="in">私が過去にどのようなソースコードの読み方をしてきたのか振り返ってみると、プログラミング能力の向上を目指したコードの読み方のヒントがあるかもしれません。</p>
+<p class="in">まず1つは、「全体を読もうとしない」ことです。ソースコードには「物語」はないので、全体を通して読む必要はありません。面白そうなところをつまみ食いして、先人の知恵を学べばそれで十分です。</p>
+<p class="in">もう1つは、「目的を持って読む」ことです。何かを学ぼうと思ってソースコードを読めば、効果的に読解して知識を得ることができます。たとえば<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a>、「再起下降構文解析の実装法を学ぶ」とか、「この処理系がどのようにガベージコレクションを実装しているか」とか、「なぜこの処理系はこんなに高速に動作するのか」とかです。プログラミングの教科書にあるコードは非常に小規模なものが多く、枠組を理解することはできますが、実用的なプログラムでどのような問題が発生するか、あるいはそれら問題にどう対処するかについては、あまり教えてくれません。実際に動いているプログラムはそのような「教科書が教えてくれない話」の宝庫です。</p>
+<p class="in">目的を持って読む、といえば、自分のプログラムに取り込むためにソースコードを読むというのも1つの重要な目的です。幸いなことに現代ではオープンソース、言い換えればライセンス的に自由なソフトウェアのソースコードがたくさん手に入ります。自分が十分に理解していない領域のコードでも、他の人が苦労して作ってくれたソースコードを参考にして問題解決できることはたびたびあります。私が体験した最近の例ではpom（phase of the moon）というプログラムがあります。pomは月の満ち欠け（月齢）を表示するプログラムです。昨年、末の娘が生まれたとき、空に見事な満月がかかっているのに感動して、他の人の生まれた日の月齢が知りたくなりました。で、pomを使おうと思ったのですが、あいにくエポック（1970年1月1日）以前には対応していません。そこで、BSDライセンスのpomのソースコードを入手し、Cのソースコードをほぼ逐語的にRubyに書き換えました。日付ライブラリがエポック以前に対応しているRubyでは、そのままエポック以前の日付にも対応したpom<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a> が完成したわけです。</p>
+<p class="in">ただし、ライセンス的に自由なソフトウェアといっても、何をするのも完全に自由なもの<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a> はそれほどありません。他の人が作ったソースコードを取り込むときには、それぞれのライセンスを尊重するようにしましょう。特にGPLは「ソフトウェアの自由」を保証するため、いくつかの制約<a href="#fn5" class="footnote-ref" id="fnref5" epub:type="noteref" role="doc-noteref">5</a> が加えられています。理由があってそのような制約があるのですから、無視しないようにしましょう。</p>
+</section>
+<section id="chap5703" class="level2">
+<a id="page_245"/>
+<h3>ソースコードの読み方テクニック</h3>
+<hr class="hr-gray" />
+<p class="in">ソースコードを読み解くときには、まずプログラム全体の枠組みを理解することが有効でしょう。プログラム全体を読む必要はないのですが、自分がほしい情報がどこにあるかを見つけ出すためには、プログラム全体の構造のイメージをつかんでおくと便利なのです。ここで最も役に立つのはソースファイル名です。たいていのソフトウェアのソースコードはいくつかのファイルに分割されていますし、各ファイルにはプログラムの機能に関連した名前が付いています。たとえば、メモリ管理について知りたいときには「<code>memory.c</code>」とか「<code>gc.c</code>」などという名前の付いたファイルが怪しいといえます。</p>
+<p class="in">それで見つからない場合には、プログラムのスタートである<code>main</code>関数（Cの場合）からたどっていくことになります。ここでもプログラム全体を読む必要はないので、個別の関数の働きは関数名から推測して、必要そうなところを探すのに集中します。</p>
+<p class="in">ソースコード探索における最大の武器はgrepです。grepは「正規表現にマッチする行を見つける」という単純なツールですが、適当なキーワードを検索するとか、関数やメソッド、変数を探すなど、いろいろな目的に活用できます。Emacsなどgrep機能を支援するエディタでは、見つけた行に直接ジャンプすることも可能です。その他、関数定義に直接ジャンプするctags<a href="#fn6" class="footnote-ref" id="fnref6" epub:type="noteref" role="doc-noteref">6</a> や、プログラムをハイパーテキストとして参照するGLOBAL<a href="#fn7" class="footnote-ref" id="fnref7" epub:type="noteref" role="doc-noteref">7</a> なども役に立ちます。</p>
+<p class="in">プログラム読解向けツールのニューフェイスは、ソースコード検索エンジンGonzui<a href="#fn8" class="footnote-ref" id="fnref8" epub:type="noteref" role="doc-noteref">8</a> でしょう。プログラム中の識別子をインデックス化するctagsやGLOBALとは違い、Gonzuiはさまざまな検索を支援しています。関数定義だけでなく、関数の呼び出しを見つけることもできますから、「関数呼び出しの実例から使い方を学ぶ」というような使い方にも向いています。</p>
+</section>
+<section id="chap5704" class="level2">
+<h3>良いソースコード/悪いソースコード</h3>
+<hr class="hr-gray" />
+<p class="in">このように、ソースコードを読む経験を積むと、読みやすいソースコードと読みにくいソースコードがあることに気が付くと思います。私が最悪と思ったのは（失礼ながら）Perl 5のソースコードです。</p>
+<ul>
+<li><p>ライブラリ手続きが<code>pp.c</code>, <code>pp_ctl.c</code>, <code>pp_hot.c</code>, <code>pp_sys.c</code>などに分散しており、ファイル名が手続きを探すヒントにならない</p></li>
+<li><p>関数定義にマクロが使われているためctagsの類が使えない</p></li>
+<li><p>内部データのアクセスにもマクロが多用されており、また極端な省略形が使われているため、名前から機能が想像できない。<code>SvUVX()</code>や<code>SvPOK_only_UTF8()</code>などなどの数百の名前が何を意味するのか理解するまではソースコードを把握できないような気がする。</p></li>
+</ul>
+<a id="page_246"/>
+<p class="in">もちろん、このソースコードを書いたLarry Wallは一流のハッカーで、上記の点にはそれなりの理由があるのです。たとえば、ソースコードファイルが機能別になっていない点は「Perl開発当時の古いマシンではオブジェクトファイルの配置によって関数呼び出し速度が異なっていたため、少しでも速度を稼ぐ意味で、頻繁に呼び出される関数を目的によらず1つのファイルに集めた」という理由がありますし、マクロの多用も「コードの繰り返しを避け、ソースコードをコンパクトにまとめる」という理由があります。わからないでもないのですが、ソースコードを読み解くという観点からは、やはりつらいものがあります。</p>
+<p class="in">このことから、良いソースコード、読みやすいコードの書き方を学ぶことができます。Perlのソースコードのちょうど反対をすればよいのです。Rubyを開発する際、Perlのソースコードも参考にしましたが、この悪い点は真似しないようにと決めていました。これによって、RubyのソースコードはPerlのものよりはずいぶんマシになっていると思います。例によって自画自賛ですが。</p>
+</section>
+<section id="chap5705" class="level2">
+<h3>誰かのために、自分のために</h3>
+<hr class="hr-gray" />
+<p class="in">ソースコードを読むことがハッカーの能力を高める。このことは最近になって次第に知られてきました。ここではもう一歩踏み込んで、ソースを読むこととその読み方について考えてみました。</p>
+<p class="in">ソースコードを書く際は、読まれることを意識するのも重要です。あなたの書いたソースコードを読む必要があるのは、見知らぬ誰かだけではなく、半年後の自分自身なのかもしれませんから。</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">『Code Reading』</span></p>
+<p>Diomidis Spinellis著、まつもとゆきひろ/平林俊一/鵜飼文敏監訳、トップスタジオ訳、『Code Reading — オープンソースから学ぶソフトウェア開発技法』、毎日コミュニケーションズ発行、ISBN4-8399-1265-3<br />
+<span class="link">http://book.mycom.co.jp/book/4-8399-1265-3/4-8399-1265-3.shtml</span>
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">たとえば</span></p>
+<p>「たとえば」と書いているが、どれも私が実際に目的としたものばかりである。すぐに思い付く範囲内で読んだソースコードが言語処理系ばかりというのも、さすが「言語おたく」というか何というか。
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">エポック以前の日付にも対応したpom</span></p>
+<p>ソースコードは以下のURL。<br />
+<code>http://www.rubyist.net/~matz/20041028.html</code>
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">何をするのも完全に自由なもの</span></p>
+<p>著作権が存在しない、いわゆるパブリックドメインに該当するものはまさに「何をするのも完全に自由」。メジャーなソフトウェアで明示的にパブリックドメインなものは、SQLiteくらいではないだろうか。
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn5">
+<p><span class="k">いくつかの制約</span></p>
+<p>自由のために制約が導入されるというのも皮肉なものであるが、そのような制約がなければソフトウェアの自由が奪われてしまうというのがFSFの考えであり、それには一理あると私も思う。
+<a href="#fnref5" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn6">
+<p><span class="k">ctags</span></p>
+<p>ソースコードに対する識別子をインデックス化するツール。基本的にctagsはvi用だが、Emacs用のetagsもある。もっともこの2つのプログラムが作るインデックスは互換なので、どちらでも使える。現在では、両方ともRubyをサポートしている。
+<a href="#fnref6" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn7">
+<p><span class="k">GLOBAL</span></p>
+<p>エディタから独立したソースコード索引システム。C, C++, Yacc, Java, PHP4に対応。<br />
+<span class="link">http://tamacom.com/global-j.html</span>
+<a href="#fnref7" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn8">
+<p><span class="k">Gonzui</span></p>
+<p>検索エンジンNamazuの開発者と知られる高林哲さんが未踏プロジェクトで開発したソースコード検索エンジン。<br />
+<span class="link">http://gonzui.sourceforge.net/</span>
+<a href="#fnref8" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-045.xhtml">&lt;&lt; 前ページ</a>　<a href="p-047.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

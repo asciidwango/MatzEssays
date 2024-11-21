@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第26章 XMLとYAML（その2）</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第26章</p>
+<!-- Body -->
+<section id="chap26" class="level1">
+<a id="page_355"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">26</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+XMLとYAML（その2）
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年7月号]</p>
+<div class="newlead">
+<p class="in">先月に引き続き「XMLとYAML」です。というか、YAMLの宣伝ですね、これは。当時はYAMLの知名度が圧倒的に低かったので、このように宣伝する必要があったわけですね。その甲斐あったか、YAMLは各方面に使われるようになりましたが、柔軟性が高すぎたのか、結局はJSONのほうがよく使われるようになりましたね。やはり、インデントに意味をもたせる文法が良くなかったか。</p>
+<p class="ih">「Ruby開発日記」は、「Matzにっき」についてです。2003年5月から書いていたんですねえ。だいぶ長いこと更新してきたのですが、X（旧Twitter）などのより簡単な情報発信に流れてしまい、結局、中断しています（最後のエントリは2020年8月）。資料的価値もあるので、継続したほうが良いと思うんですがねえ。</p>
+</div>
+<div class="lead">
+<p class="ni">今月は先月に引き続きXMLとYAMLについて学びます。まず、似て異なるXMLとYAMLについて、その共通点と違いのそれぞれについて考えてみましょう。それからXML, YAML双方の実際の活用方法について紹介します。</p>
+</div>
+<section id="chap2601" class="level2">
+<h3>XMLとYAMLの違い</h3>
+<hr class="hr-gray" />
+<p class="in"><a href="p-055.xhtml#chap25">先月号</a>が発売されて「XMLとYAML」の記事を読まれた方の中に、「なぜXMLとYAMLを比較するのか。XMLとYAMLは本質的に違うものだ」という声があったと聞いています。確かにそのとおりです。XMLとYAMLは違うものです。</p>
+<p class="in">XMLは枠組みを提供し、その応用によって、文章のマークアップもできれば、データの表現もできれば、アルゴリズムの記述もできます。具体的にはDTDやスキーマというものと組み合わせることで、いくらでも意味を与えることができます。そういう意味で、XMLは言語の言語、あえてたとえればアルファベットのようなものです。アルファベットに文法が追加されて英語やフランス語、ドイツ語になるように、XMLに意味が追加されて、XHTML, SVG, Docbookなどになるのです。</p>
+<a id="page_356"/>
+<p class="in">一方、YAMLにはそんな汎用性はありません。YAMLは最初から「データ表現」を目的としてデザインされた言語です。シーケンス、マッピングなどの意味は固定されていて変えられません。ですから、用途的に同じレベルなのはXMLではなく、その応用であるSOAPとかになると思います。</p>
+<p class="in">XMLの表現できる広い広い世界が一部YAMLがカバーする世界と重複していると表現してもよいでしょう。</p>
+<p class="in">それなのになぜ、先月といい今月といい「XMLとYAML」などと2つを対等に並べるタイトルを付け、比較するような記事を書いたのでしょうか。もちろん、これにはわけがあります。</p>
+<p class="in">まず第1の理由はXMLの流行により、XMLが最適でない分野にまで乱用されている事実をなんとかしたいという思いです。XMLはeXtensible Markup Languageの略であり、もともとはSGMLというドキュメントに構造を付加するマークアップ言語をコンピュータで処理しやすいように単純化したものです。しかし、今や世の中のXMLデータのうち、人間が読むことが期待されているものがどれだけあるでしょう。あまりにも複雑で読むことができない（より正確には、たとえ読めても理解できない）データに、人間が読むためにデザインされた冗長なタグ情報を付けることにどれだけ意味があるのか疑問です。</p>
+<p class="in">諸般の事情があるのでしょうが、最近ますます「適材適所」の原則がないがしろにされているように思います。</p>
+<p class="in">私が勤務しているネットワーク応用通信研究所でもXMLは広く使われています。そして、私が見る限りその使用例のほとんどはXMLである必然性のないものです。そのほとんどはデータファイルや設定ファイルのフォーマットとしてXMLを使っています。さらに悪いことにはその半分くらいまでにはDTDやスキーマは明確には定義されておらず、DOMやSAXを使ったプログラムによって暗黙に定義されています。</p>
+<p class="in">XMLを選択すればDOMやSAXなどが構文解析してくれるのでプログラマーは手が抜けてありがたいという気持ちは私にも理解できます。しかし、そろそろ私たちは、そういう単なる設定ファイルやデータファイルにはXMLはあまり向いていないという事実を直視すべきではないでしょうか。</p>
+<p class="in">とはいうものの、他の選択肢も示さずにそんなことを主張するのは無責任です。そこでYAMLの登場です。YAMLなら、</p>
+<ul>
+<li><p>XMLよりはコンパクトな表記</p></li>
+<li><p>（スキーマを含んでいるので）単なるwell formed XMLよりは明確な意味</p></li>
+<li><p>ドキュメントの読み書きを行う標準的なAPI</p></li>
+</ul>
+<p class="ni">など、XMLを使うのはあんまり向いていないんじゃないかという分野で、XMLと同等のうれしさを実現できます。足りないのは知名度ですね。</p>
+<p class="in">これがもう1つの理由になります。つまり、YAMLはまだまだ知られていないので、この機会に宣伝したいということです。すでに述べてきたようにYAMLはXMLより後から登場していますし、データ表現という目的に合わせて最適化されていますから、そういう分野ではXMLよりもずっと優れています。それなのに知られていないのはもったいないでしょう?</p>
+</section>
+<section id="chap2602" class="level2">
+<a id="page_357"/>
+<h3>XMLとYAMLの共通点</h3>
+<hr class="hr-gray" />
+<p class="in">これだけ違う違うと言いながら、この2つには重要な共通点があります。それは「人間が読む（読める）ことを前提にしている」点です。ひと昔前ならば、計算機のCPUパワーやディスク容量、ネットワークの大域幅は重要な資源なので、これを浪費しないことが重要でした。よって、なるたけこれらを無駄にしないために、データ表現はコンパクトなものが求められていました。</p>
+<p class="in">ところがどうでしょう。現代においては少々浪費したほうがよいのではないかというくらい潤沢にこれらの資源が手に入ります。こんな時代にあって昔のようなケチケチした態度は無用です。それがXMLやYAMLのようなテキスト指向のデータフォーマットが誕生した背景でしょう。</p>
+<p class="in">このような思想は実は昔からありました。たとえばメール転送プロトコルSMTPやネットニュースのプロトコルNNTPなどを始めとするインターネットを支えるプロトコルのほとんどは相当古いものからテキスト指向でした。それが時代の背景によって後押しされたと考えることができるでしょう。</p>
+<p class="in">このようなテキスト指向のフォーマットには非常によいところがあります。つまり、バイナリフォーマットと違い、人間の目で見てわかる（ことが多い）ということは、そのフォーマットを扱う専用のプログラムがなくても処理できるということです。</p>
+<p class="in">たとえば、私が本棚から発掘したフロッピーディスクに昔々父親が残したMultiplan（マイクロソフト製スプレッドシートプログラム、Excelの先祖と思えばよい）のファイルが入っていたとしましょう。現在、ちゃんと動作するMultiplanを入手することは困難ですから、このファイルの内容を読むためには大変な苦労が必要でしょう。</p>
+<p class="in">このファイルの内容がプレーンテキストあるいはそれに近い形式（たとえばCSV）で書いてあれば、もっと簡単に救済できたでしょう。</p>
+<p class="in">このようにバイナリフォーマット、特に商用ソフトウェアのフォーマットは内容がいつまで読めるか保証されないという不安があります。XMLやYAMLのようなテキスト指向のフォーマットならばそのような心配はありません。</p>
+</section>
+<section id="chap2603" class="level2">
+<h3>YAMLの欠点</h3>
+<hr class="hr-gray" />
+<p class="in">YAMLも完璧ではありません。正直いうとYAMLにもいくつかの欠点があります。それが許容できるかどうかは状況によって異なると思います。欠点と制約を知り、自分の状況でそれがどれだけ影響するかを判断するのが、プログラマーの正しい態度でしょう。</p>
+<p class="in">日本人にとってYAMLの最大の欠点は文字コードです。YAMLの仕様では文字コードはUnicode（UTF-8）しか許容しません。日本人としてはEUC-JPやらシフトJISやらで記述したいところでしょう。これを「英語圏の横暴だ」と見るか、あるいは「これからはUnicodeでしょ」と見るかで感じ方が変わってくるでしょう。</p>
+<p class="in">一方、XMLは先頭のXML宣言の中で明示的に文字コード（エンコーディング）を指定することができます（デフォルトはUnicode）。将来的にはYAMLも何らかの方法でエンコーディング指定ができるようになるといいなあ。ならないかなあ。</p>
+<a id="page_358"/>
+<p class="in">もう1つの欠点は、YAMLのインデントベースの文法は構造そのものの変化に弱いことです。たとえばXMLならアトリビュートを加えるだけで済む変化（<a href="#list2601">リスト26.1</a>(a)）が、YAMLだと少々大げさになります（<a href="#list2601">リスト26.1</a>(b)）。また、終端ノードを非終端ノードに変更するときもXMLよりもYAMLのほうが変化が大きいのがわかるでしょう（<a href="#list2601">リスト26.1</a>(c)および(d)）。</p>
+<p class="in">数行程度の簡単なものならば、どちらも大差ないと考えることができますが、より構造が複雑なデータについてはコストが高くなります。</p>
+<div class="plistc" id="list2601">
+<p class="lst-caption">リスト26.1●XMLとYAMLの構造変化の対応</p>
+<pre>#シリアライズフォーマットの変更
+(a) XML
+    &lt;foo&gt;bar&lt;/foo&gt;
+      ↓
+    &lt;foo targetId=&quot;foo_3&quot;&gt;bar&lt;/foo&gt;
+
+(b) YAML
+    foo: bar
+      ↓
+    foo:
+      targetId: foo_3
+      content: bar
+
+# グラフ上で終端ノード→非終端ノードへの変更
+(c) XML
+    &lt;foo&gt;&lt;bar/&gt;&lt;baz/&gt;&lt;/foo&gt;
+      ↓
+    &lt;foo&gt;&lt;bar&gt;1&lt;/bar&gt;&lt;baz/&gt;&lt;/foo&gt;
+
+(d) YAML
+    foo: [ bar, baz ]
+      ↓
+    foo:
+      - bar: 1
+      - baz</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">もっとも、私自身はこの問題についてあまり重要視していません。というのは、私はデータ構造の変換というものは、同じ構造の範囲内でちょいちょいといじるのと違って、かなり大げさなものであると考えていて、そのような大げさな変更を不確かな人間に頼るより、ツールで行うべきだと考えています。いったんデータを読み込んで、プログラムで構造を変化させたうえでもう一度吐き出せば、問題なしです。しかも、YAMLはインデントに意味があり、機械出力したものでもさほど読みにくくならないといううれしさがあります。これはプログラムが出力するXMLファイルが、適切にインデントや改行を入れてくれないため実質読めないものが多いのと対照的です。</p>
+<a id="page_359"/>
+<p class="in">なお、このYAMLの欠点の項については、私のWeb日記に対してのmakiさんこと高橋征義さんと、なひさんことなかむらひろしさんのツッコミを参考にさせていただきました。</p>
+</section>
+<section id="chap2604" class="level2">
+<h3>YAMLの応用</h3>
+<hr class="hr-gray" />
+<p class="in">YAMLの実際の使用例としては以下のようなものがあります。</p>
+<ul>
+<li><p>設定ファイル</p></li>
+<li><p><code>pstore</code>の代用（<code>YAML::Store</code>）</p></li>
+</ul>
+<p class="in">それに加えて、メタデータとしての使い方を紹介しましょう。これは最近私の同僚によるプロジェクトで使われた例です。そのプロジェクトでは、システムはセンサーの付いたコントローラとそれらを管理するサーバーからなっています。私たちはサーバーのソフトウェアの開発を請け負ったのですが（ご存じない方のために。私の会社はLinuxをベースにしたシステムインテグレーションを行っています）、そのコントローラとサーバー間の通信にはかなり複雑なプロトコルが用いられていました。しかも、そのプロトコルは今後コントローラのバージョンアップによって追加・拡張される可能性がありました。</p>
+<p class="in">これを全部こつこつプログラムするのは大変です。そこで、同僚はまずプロトコルをYAMLで記述し、そこからプロトコルハンドラのプログラムを自動生成することにしました。プロトコルを表現したデータは以下のような感じです（前田修吾）。</p>
+<div class="plistc" id="list2602">
+<p class="lst-caption">リスト26.2●プロトコルのメタデータ</p>
+<pre>- name: DateRecord    <span class="cmt"># 定義するデータ型の名前 (Rubyのクラス名としてvalidなもの)</span>
+  type: record        <span class="cmt"># データ型のタイプ (record|request|response)</span>
+  entries:            <span class="cmt"># データ型の項目</span>
+    - name: year      <span class="cmt"># 項目名 (Rubyのメソッド名としてvalidなもの)</span>
+      type: bcd       <span class="cmt"># 項目の型 (integer|bcd|binary(string)|ユーザー定義データ型)</span>
+      length: 2       <span class="cmt"># 数値桁数</span>
+    - name: month
+      type: bcd
+      length: 2
+    - name: day
+      type: bcd
+      length: 2
+- name: TimeRecord8
+  type: record
+  entries:
+    - name: hour
+      type: bcd
+      length: 6
+    - name: min
+      type: bcd
+      length: 2
+- name: DailyReportRequest
+  type: request
+  code: 0x00                  <span class="cmt"># 種別コード (sub-codeもいるかも)</span>
+  entries:
+    - name: num_records
+      type: integer
+      length: 2
+    - name: start_date
+      type: DateRecord
+- name: DailyReportResponse
+  type: response
+  code: 0x01
+  entries:
+    - name: num_records
+      type: integer
+      length: 2
+    - name: reports
+      type: string</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_360"/>
+<p class="in">YAMLの応用としては、この他にもXML-RPCならぬYAML-PPCなどいろいろ考えられると思います。</p>
+<p class="in">ちょうどこの原稿を書いている最中に、Ruby 1.8.0の正式リリースにはYAML処理ライブラリが（高速版パーサー<code>Syck</code>も含めて）含まれることが決まりました。これでますますYAMLの取り扱いが簡単になりますね。</p>
+</section>
+<section id="chap2605" class="level2">
+<h3>XMLによる設定ファイル</h3>
+<hr class="hr-gray" />
+<p class="in">しかし、いろいろYAMLついて紹介してきましたが、今現在でのYAMLの最大の欠点といえば、やはり知名度のなさでしょう。上記のプロトコルのメタデータのような一種の開発ツールとして使うならともかく、ビジネス目的のプロトコルに使う場合には「YAML?　なにそれ?」と顧客に一蹴されそうです。</p>
+<p class="in">また、YAMLをサポートしているのは、現時点ではRuby, Perl, Pythonだけですから、たとえばJavaなどとやりとりしたい場合には使えません。そんな場合には、変な苦労をするよりもXMLを使ったほうが現実的というケースはいくらでもあるでしょう。世の中は技術論だけでは済まないのです。</p>
+<p class="in">そこで、そんな場合にもXMLを簡単に扱うためのライブラリ<code>xml-configfile</code>を紹介します。</p>
+<p class="in">XMLを扱うライブラリとしては<code>REXML</code>が定番なのですが、これはXMLのほぼフル機能をカバーするために少々複雑なライブラリになっています（そういえば、<code>REXML</code>も1.8.0での標準添付が決まりました）。<code>xml-configfile</code>は<code>REXML</code>を利用して、設定ファイルのような簡単なXMLファイルからデータを取り出すライブラリです。<code>xml-configfile</code>は書き出しはサポートしていません。</p>
+<a id="page_361"/>
+<p class="in"><code>xml-configfile</code>をインストールするためには、まず<code>REXML</code>をインストールします。原稿執筆時点での最新版は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.germane-software.com/archives/rexml_2.5.8.tgz</span></p></li>
+</ul>
+<p class="ni">でした。これを展開したディレクトリで、</p>
+<div class="borderterminal">
+<pre># ruby bin/install.rb</pre>
+</div>
+<p class="ni">とすれば（root権限が必要です）、<code>REXML</code>のインストールは完了です。<code>REXML</code>については『Ruby de XML』（オーム社、ISBN4-274-06500-6）に解説されています。</p>
+<p class="in">次に、本命の<code>xml-configfile</code>をインストールします。最新版は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.maik-schmidt.de/projects/xmlconfigfile/dist/xmlconfigfile_0.9.0.zip</span></p></li>
+</ul>
+<p class="ni">をダウンロードします。それから、ダウンロードしてきたファイルを展開します。zipファイルは<code>unzip</code>プログラムで展開できます。</p>
+<div class="borderterminal">
+<pre># zip xmlconfigfile_0.9.0.zip
+# cd xmlconfigfile_0.9.0
+# ruby install.rb config
+# ruby install.rb setup
+# ruby install.rb install</pre>
+</div>
+<p class="ni">でインストールは完了です。実際のインストールする部分にはルート権限が必要です。</p>
+<p class="in">では、実際にXMLファイルを読み込んできましょう。たとえば、<a href="#list2603">リスト26.3</a>のようなXMLデータを読み込むとしましょう。</p>
+<div class="plistc" id="list2603">
+<p class="lst-caption">リスト26.3●サンプルXMLデータ</p>
+<pre>&lt;!<span class="cmt">-- Sample XML file. --</span>&gt;
+&lt;?<span class="kwd">xml</span> <span class="kwd">version</span>=<span class="str">&quot;1.0&quot;</span> encoding=<span class="str">&quot;iso-8859-1&quot;</span>?&gt;
+&lt;config&gt;
+ &lt;<span class="kwd">version</span>&gt;1.7&lt;/<span class="kwd">version</span>&gt;
+ &lt;splash-screen enabled=<span class="str">&#39;yes&#39;</span> delay=<span class="str">&#39;5000&#39;</span>/&gt;
+ &lt;greeting lang=<span class="str">&quot;en&quot;</span>&gt;Hello, world!&lt;/greeting&gt;
+ &lt;greeting lang=<span class="str">&quot;de&quot;</span>&gt;Hallo, Welt!&lt;/greeting&gt;
+ &lt;db env=<span class="str">&quot;test&quot;&gt;</span>
+   Standard connection.
+   &lt;pwd&gt;tiger&lt;/pwd&gt;
+   &lt;driver&gt;
+     &lt;vendor&gt;MySql&lt;/vendor&gt;
+     &lt;<span class="kwd">version</span>&gt;3.23&lt;/<span class="kwd">version</span>&gt;
+   &lt;/driver&gt;
+ &lt;/db&gt;
+ &lt;db env=<span class="str">&quot;prod&quot;</span>&gt;
+   &lt;pwd&gt;secret&lt;/pwd&gt;
+   &lt;driver&gt;
+     &lt;vendor&gt;Oracle&lt;/vendor&gt;
+     &lt;<span class="kwd">version</span>&gt;8.1&lt;/<span class="kwd">version</span>&gt;
+   &lt;/driver&gt;
+ &lt;/db&gt;
+&lt;/config&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_362"/>
+<p class="in">このデータが<code>config.xml</code>というファイルに入っていたとすると、読み込みのためには、まず、</p>
+<div class="plist">
+<pre>require <span class="str">&#39;xmlconfigfile&#39;</span>
+conf = XmlConfigFile.new(<span class="str">&#39;config.xml&#39;</span>)</pre>
+</div>
+<p class="ni">これで<code>conf</code>オブジェクトを通じて、XMLファイルの中身を読むことができます。たとえばバージョン情報は、</p>
+<div class="plist">
+<pre>conf.get_string(<span class="str">&quot;/config/version&quot;</span>)</pre>
+</div>
+<p class="ni">で、<code>"1.7"</code> という文字列が得られます。引数に与えるのはXPATHという形式で、XMLの「ノード」を指定する記法です。XPATHにおいて、</p>
+<div class="plist">
+<pre>/conf/version</pre>
+</div>
+<p class="ni">は <code>&lt;config&gt;</code> ノード中の <code>&lt;version&gt;</code> ノードを意味します。<code>get_string</code>は<code>[]</code>で代用することができますから、</p>
+<div class="plist">
+<pre>conf[<span class="str">&quot;/config/version&quot;</span>]</pre>
+</div>
+<p class="ni">でも<code>"1.7"</code>を取り出せます。</p>
+<p class="in">XMLには型情報がないので、読み込み側でほしい型を指定する必要があります。ですから、同じ情報を文字列でなく、実数でほしい場合には、</p>
+<div class="plist">
+<pre>conf.get_float(<span class="str">&quot;/config/version&quot;</span>)</pre>
+</div>
+<p class="ni">と指定します。型を指定して取り出すメソッドを<a href="#table2601">表26.1</a>に示します。</p>
+<div class="table" id="table2601">
+<p class="tbl-caption">表26.1●XmlConfigFileの型指定メソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>get_string(path)</code></td>
+<td>文字列</td>
+</tr>
+<tr>
+<td><code>get_int(path)</code></td>
+<td>整数</td>
+</tr>
+<tr>
+<td><code>get_float(path)</code></td>
+<td>実数（浮動小数点数）</td>
+</tr>
+<tr>
+<td><code>get_boolean(path)</code></td>
+<td>真偽値</td>
+</tr>
+</table>
+</div>
+<p class="in">整数や実数を指定した場合、実際のXML値が変換できない形式であった場合には<code>ArgumentError</code>例外が発生します。</p>
+<p class="in">真偽値が要求された場合、<code>"yes"</code> や <code>"on"</code>, <code>"true"</code>, <code>"1"</code> などは真に、<code>"no"</code>, <code>"off"</code>, <code>"false"</code>, <code>"0"</code> などは偽と見なされます。</p>
+<p class="in">XPATHでは属性は <code>"@"</code> を付けて指定します。ですから、<code>/config/splash-screen</code>ノードの<code>delay</code>という属性値を指定するXPATH表現は、</p>
+<a id="page_363"/>
+<div class="plist">
+<pre>/config/splash-screen/@delay</pre>
+</div>
+<p class="ni">になります。</p>
+<p class="in">複数のレコードを属性値で選択することもできます。</p>
+<div class="plist">
+<pre>/config/greeting[@lang=<span class="str">&#39;de&#39;</span>]</pre>
+</div>
+<p class="ni">は「複数ある<code>greeting</code>ノードのうち属性値が <code>'de'</code> のもの」を意味します。ですから、このXPATHはドイツ語のあいさつ <code>'Hallo, Welt!'</code> を含むノードを指定していることになります。</p>
+<p class="in">最後に、XML設定ファイルから複数の値を一気に取り出すためには<code>get_parameters</code>メソッドを使います。</p>
+<div class="plist">
+<pre>conf.get_parameters(<span class="str">&quot;/config/db[@env=&#39;test&#39;]&quot;</span>)</pre>
+</div>
+<p class="ni">のように指定すると、<code>get_parameters</code>メソッドは属性<code>env</code>の値が<code>test</code>である<code>db</code>ノードの内容をハッシュとして返します。</p>
+<div class="plist">
+<pre>{
+  <span class="str">&quot;db.driver.vendor&quot;</span>=&gt;<span class="str">&quot;MySql&quot;</span>,
+  <span class="str">&quot;db.driver.version&quot;</span>=&gt;<span class="str">&quot;3.23&quot;</span>,
+  <span class="str">&quot;db.pwd&quot;</span>=&gt;<span class="str">&quot;tiger&quot;</span>
+}</pre>
+</div>
+<p class="in"><code>xml-configfile</code>にはその他にも省略時のデフォルト値、環境変数の読み込み、相対パス指定など便利な機能があるのですが、ここではすべては解説できません。詳しい使い方は、ホームページ、</p>
+<ul class="none">
+<li><p><span class="link">http://www.maik-schmidt.de/projects/xmlconfigfile/index.html</span></p></li>
+</ul>
+<p class="ni">に紹介されています、英文ですが。まあ、作者はドイツの方ですので、英語であるだけありがたいと考えるしかないですね。</p>
+</section>
+<section id="chap2606" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回は先月に引き続きXMLとYAMLについて学びました。XMLもYAMLもRubyのライブラリを用意すれば簡単に操作することができます。試しに使ってみてはいかがでしょう。そのときには、ちょっと考えて適材適所を心がけていただければ幸いです。それでは、また来月。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-056.xhtml">&lt;&lt; 前ページ</a>　<a href="p-058.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

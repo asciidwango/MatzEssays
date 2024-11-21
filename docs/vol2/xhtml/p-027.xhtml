@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第43章 Webアプリケーションフレームワーク</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　<a href="p-026.xhtml">第43章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap4309" class="level2">
+<a id="page_154"/>
+<h3>◆ Ruby開発日記 ◆ （行ってないのに）Ruby Conference 2004レポート</h3>
+<hr class="hr-green" />
+<p class="in">10月1日から3日まで、バージニア州ワシントンDCエリアにてRuby Confernce 2004が開催されました。今年は4番目の子供の出産と重なったので残念ながら出席できませんでしたが、今年の会場は無線LANが使えたので、会場からのレポートが数多く提供されました。</p>
+<p class="in">今回は、それらのレポートを元にして「行ってないのに勝手にカンファレンスレポート」をお送りします。</p>
+<section id="chap430901" class="level3">
+<h4>10月1日(金)</h4>
+<p class="ni"><span class="k">Teaching Ruby in a Corporate Environment（Jim Freeze）</span></p>
+<p class="in">ISO9000企業でRubyのような「新参ソフト」を活用するというのがテーマ。Jimは毎年似たようなテーマで努力と成果を報告してくれています。</p>
+<p><br /></p>
+<p class="ni"><span class="k">Using and Extending Ruwiki（Austin Ziegler）</span></p>
+<p class="in">JavaプログラムとそれをコントロールするRubyプログラムの例。RubyをDSLとしても利用しているとそうです。</p>
+<p class="in">Ruwikiについて。Ruwikiは海外では結構人気のあるWikiクローンです。カスタマイズ（マークアップのカスタマイズ、マークアップエンジンの変更、ストレージバックエンドの変更など）が簡単だそうです。</p>
+<p><br /></p>
+<p class="ni"><span class="k">Tycho: A Proposed Ruby-based PIM（Hal Fulton）</span></p>
+<p class="in">RubyによるPIM（Personal Information Manager）の実装。</p>
+<p><br /></p>
+<p class="ni"><span class="k">Hacking Ruby（Paul Brannon）</span></p>
+<p class="in">Rubyをハックする。いろいろやってくれてるようですが、オブジェクトをすり替える<code>become</code>だけは邪悪すぎるので勘弁してください。</p>
+<p><br /></p>
+<p class="ni"><span class="k">Alph（Rich Kilmer）</span></p>
+<p class="in">AlphはMacromedia Flashをフロントエンドとするユーザーインターフェイス。Flashならではの美しい画面をRubyからコントロールできます。</p>
+</section>
+<section id="chap430902" class="level3">
+<h4>10月2日(土)</h4>
+<p class="ni"><span class="k">Narf: revisiting a 2 year old（Patrick May）</span></p>
+<p class="in">NarfはRuby標準添付の<code>cgi.rb</code>の置き換えを狙うもの。興味深いのは彼が紹介したWikiへのいたずらを防止する仕組みで、悪質なIPアドレスからのアクセスは「コピー」にリダイレクトされ、いたずらやスパムなどの変更は他には見えない、というものです。これでもうスパムもいたずらも恐くない?</p>
+<p><br /></p>
+<a id="page_155"/>
+<p class="ni"><span class="k">ruby-doc.org: Now and the Future（James Britt）</span></p>
+<p class="in">Rubyのドキュメントを集めた<span class="link">ruby-doc.org</span>について。特に集められたドキュメントのカテゴリ分けなどについて。Jamesはこの後、ヨーロッパのRubyカンファレンス（Euroko）にも参加するそうです。</p>
+<p><br /></p>
+<p class="ni"><span class="k">Ruby on Rails（David Heinemeier Hansson）</span></p>
+<p class="in">最近売り出し中のWebアプリケーションフレームワークRuby on Railsについて。Rubyのすばらしさを発見したDavid（元PHPプログラマー）は、それを大衆に広めるためのツールとしてRailsを開発したそうです。</p>
+<p><br /></p>
+<p class="ni"><span class="k">The Many Facets of RubyGems（Jim Weirich）</span></p>
+<p class="in">Ruby向けパッケージングシステムRubyGemsについて紹介。RubyGemsはそのうち標準になる、かもしれません。</p>
+<p><br /></p>
+<p class="ni"><span class="k">YARV: Yet Another Ruby VM（SASADA Koichi）</span></p>
+<p class="in">Rubyの高速化の試み。「言葉の壁」にもかかわらずかなり高い評価を得たようです。よく頑張りました。ベンチマークも紹介され、それなりに速くなってる（というか、今のRubyが遅いんだけど）ことが示されました。</p>
+<p><br /></p>
+<p class="ni"><span class="k">"Test::Unit".downcase.sub(/::/,"/")（Nathaniel Talbott）</span></p>
+<p class="in"><code>Test::Unit</code>の作者であるNathaniel Talbottが「よりRubyっぽい」テストスイートについて語る。現在「<code>test/unit2</code>」として開発中だとか。</p>
+<p><br /></p>
+<p class="ni"><span class="k">RubyZine（Shashank Date）</span></p>
+<p class="in">飛び入り。Rubyに関するWebzineの発行が決定した、というお知らせ。</p>
+<p><br /></p>
+<p class="ni"><span class="k">Objective-C: A Retrospective（Brad Cox）</span></p>
+<p class="in">Objective-Cの設計者であるBrad Coxによるプレゼンテーション。聞きたかった。ところで、彼の話の後半は、彼の最近の活動であるDRM（Digital Rights Management）関係の話だったようです。ちょっと意外。</p>
+</section>
+<section id="chap430903" class="level3">
+<h4>10月3日(日)</h4>
+<p class="ni"><span class="k">RubyX（John Knight）</span></p>
+<p class="in">RubyXはあらゆるスクリプトがRubyで書かれたLinuxディストリビューション。興味深い試みです。そこまで徹底するのがすごい。</p>
+<p><br /></p>
+<p class="ni"><span class="k">Ruby on Windows（Dan Berger）</span></p>
+<p class="in">RubyはWindowsにおいて弱い（私のせいだ）。その点を改善するためのwin32utilプロジェクトについて。</p>
+<p><br /></p>
+<a id="page_156"/>
+<p class="ni"><span class="k">How Dynamic Can You Get?（Jamis Buck）</span></p>
+<p class="in">Dependency Injection（またはInvesion of Control）の紹介。Ruby用CコンテナCoplandが題材になっていたそうです。</p>
+<p><br /></p>
+<p class="ni"><span class="k">Code generation with Ruby in a heterogenous network application（Gorden James Miller）</span></p>
+<p class="ih">「Rubyはコード生成ツールとして非常に有効だ」という話。目には見えなくてもRubyはあちこちで活躍しています。</p>
+</section>
+<section id="chap430904" class="level3">
+<h4>まとめ</h4>
+<p class="in">レポートからの印象からは、今年のカンファレンスも成功だったようです。来年は行きたいなあ。10月の前半は外してくれるといいんだがなあ。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-026.xhtml">&lt;&lt; 前ページ</a>　<a href="p-028.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

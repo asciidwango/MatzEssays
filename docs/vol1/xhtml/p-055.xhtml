@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第25章 XMLとYAML</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第25章</p>
+<!-- Body -->
+<section id="chap25" class="level1">
+<a id="page_343"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">25</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+XMLとYAML
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年6月号]</p>
+<div class="newlead">
+<p class="in">S式とXMLとYAMLについて解説しています。時代背景を説明すると、この頃はJavaの普及に伴ってXML全盛期で、データ表現形式や設定ファイルなどの目的に（必要以上に）XMLが多用されていました。一方、データ表現に特化したYAMLは登場したばかりで、日本ではまだほとんど誰も知らない状況です。現在では、データ表現形式としては、JSONが一般的になり、XMLもYAMLも「負の遺産」と見なされることが増えたのが時代を感じさせます。特にあの読みにくく解析しにくいXMLに悩まされることがほとんどなくなったのはありがたいですね。</p>
+<p class="ih">「Ruby開発日記」は、スパムフィルターについてです。現代ではほとんどの人はGMailなどのWebメールサービスに移行していて、自前でスパムフィルターを設定する人などほとんどいないのではないでしょうか。私はといえば、今でもBogofilterを愛用しているのです。</p>
+</div>
+<div class="lead">
+<p class="ni">先月に引き続きRubyによるデータ保存について、特にデータ保存のフォーマットについて学びます。</p>
+</div>
+<section id="chap2501" class="level2">
+<h3>データの表現</h3>
+<hr class="hr-gray" />
+<p class="in">データをファイルに格納する場合、それが単純なテキストデータ（文字列）であればそのまま記録するだけで十分です。しかし、保存したいデータがそのようなテキストデータだけで済むわけではありません。実際には保存したいデータは何らかの「構造」を持っています。</p>
+<p class="in">構造とは、単なる1つの値ではなく、複数の値の集まりやそれらの間の関連を意味します。配列やハッシュは構造です。構造のあるデータをファイルに格納する方法としては先月説明した<code>Marshal</code>がありますが、それにはちょっとだけ問題があります。</p>
+<a id="page_344"/>
+<ul>
+<li><p><span class="k">フォーマットがバイナリで人間には読めない</span><br />
+いや、無理すれば読めますが、楽ではないですよね。</p></li>
+<li><p><span class="k">フォーマットバージョンの変化に弱い</span><br />
+<code>Marshal</code>のフォーマットは上位互換ですが、双方向に交換するとき（dRubyとか）には双方のバージョンを完全にそろえる必要があります。</p></li>
+</ul>
+<p class="in">そこで、もうちょっと人間に読みやすいデータフォーマットがほしいと思うときがあります。たとえば、設定ファイルやちょっとしたデータファイルには<code>Marshal</code>よりも人間が読んで意味がわかり、編集もできるようなフォーマットのほうがよいでしょう。</p>
+<p class="in">これも先月紹介した<code>AMarshal</code>は「構造のあるデータをそれを生成するRubyのプログラムで表現する」というユニークなアプローチでした。これなら確かに人間にも読めますし、編集もできますが、<code>AMarshal</code>の出力したRubyプログラムは正直言ってあまり読みやすくはありませんし、また入力はデータをそのまま実行してしまうので、悪意のある書き換えが行われたらかなり危険です。<code>AMarshal</code>で読み込むファイルに、</p>
+<div class="plist">
+<pre>system <span class="str">&quot;rm -rf .&quot;</span></pre>
+</div>
+<p class="ni">なんて行が含まれていたらかなり悲惨でしょう。</p>
+<p class="in">そこで、構造が表現できて、人間にも簡単に読み書きできるような安全なフォーマットに対するニーズが生まれるわけですが、そのようなフォーマットをプログラムごとに毎回設計するのも大変です。</p>
+<p class="in">そこで登場する考えがメタ・データフォーマットです。「メタ」というのは「一段高い」というような意味を表す接頭語で、たとえば「メタクラス」は「クラスのクラス」を意味します。ですから、メタ・データフォーマットとは「データフォーマットのフォーマット」のことです。要するに「データフォーマットの枠組み」、あるいは「データフォーマットの文法」というようなもののことです。ここで「メタ」と「データ」の間に「・」を入れているのは「データのデータ」である「メタデータ」という言葉もあるので、「メタデータのフォーマット」と解釈されないためです。あくまでも「メタなデータフォーマット」なのですから。余談ですが、「メタ」という単語を多用する人物には注意したほうが賢明です。いつも、話を抽象化して一段高いレベルから話したがるからです。抽象度が高くなると、とたんに話が難しそうに聞こえるからです。そういえば、私もそういうタイプですねえ。</p>
+<p class="in">話をメタ・データフォーマットに戻しましょう。設定ファイルに必要な項目はプログラムごとに違うでしょうが、その「フォーマットのフォーマット」つまり、設定ファイルの文法は共通にすることができます。そうすれば、共通のAPIでファイルを読み書きすることもできます。</p>
+<p class="in">メタ・データフォーマットには以下のような性質が求められます。</p>
+<ol>
+<li><p>構造を表現することができる</p></li>
+<li><p>人間にも読み書きできる</p></li>
+<li><p>統一的なAPIで読み書きできる</p></li>
+</ol>
+<p class="in">このようなメタ・データフォーマットの例としては、LispのS式、XML、そして今月新たに紹介しようとしているYAMLがあります。</p>
+</section>
+<section id="chap2502" class="level2">
+<a id="page_345"/>
+<h3>S式</h3>
+<hr class="hr-gray" />
+<p class="in">S式（S-Expression）というのは、私の好きなプログラミング言語であるLispで使われるメタ・データフォーマットです。LispではあらゆるデータをS式で表現します。Lispではプログラムもデータですから当然のようにS式で記述されます。Lispを少しでもご存じの方は、あのかっこだらけの表記を思い出されることでしょう。あれがS式です。</p>
+<div class="plist">
+<pre>(define (fact (n)) (* n (fact (- n 1))))</pre>
+</div>
+<p class="in">上記のS式は階乗を求めるプログラムですが、同時に、階乗の計算法というデータをS式というメタ・データフォーマットで記述したものでもあります。S式では当然普通のデータも表現できます。</p>
+<div class="plist">
+<pre>(address-entry
+  (name <span class="str">"まつもとゆきひろ"</span>)
+  (addr <span class="str">"島根県八束郡"</span>))</pre>
+</div>
+<p class="in">S式のSはSymbolのSです。つまり、数値ではなく記号で表現できるという意味のようです。LispはFORTRAN, COBOLと並んで最古のプログラミング言語の1つですから、S式は最も古いメタ・データフォーマットです。</p>
+<p class="in">S式はLispとあまりにも強く結び付いているので、Rubyではあまり用いられません。S式を解釈する独立したライブラリはないのではないかと思います。ただ、Rubyで書いたLisp処理系はrougeとかruchemeとかいくつかありますので、それらにはS式を解釈するルーチンが当然含まれていると思います。また、RAAを探ると<code>npreader.rb</code>というS式に似た形式を読み出すライブラリがあるようです。S式のかっこに抵抗がなければ、いろいろ面白い応用が考えられると思います。</p>
+</section>
+<section id="chap2503" class="level2">
+<h3>XML</h3>
+<hr class="hr-gray" />
+<p class="in">XMLはもう流行語ですから聞いたことがない人はいないかもしれません。XMLはeXtensible Markup Languageの略で、SGMLの流れをくんだマークアップ言語です。XMLのすごいところは単なるマークアップ（テキストに対する意味付け）を超えて、メタ・データフォーマットとしての機能を確立した点です。XMLを使えば、構造を持つデータを、人間が読める形式で表現できます。しかも、1つのフォーマットでいろいろな種類データを表現できます。</p>
+<p class="in">もっとも、これは何十年も前からLispとS式が実現してきたことなのですが、XMLによって大衆もその便利さを再発見したということなのでしょう。Javaによって大衆がガベージコレクションや例外処理のありがたさに初めて気が付いたのと似ているといえるかもしれません。</p>
+<p class="in">紹介された経緯からか、XMLとJavaがひとまとめに語られることが多いのですが、実はXMLはスクリプト言語に向いています。XMLの処理は本質的にはテキスト処理ですし、XMLの属性や中身（CDATA）には型の情報がありませんから、型を厳密に考えなくてもよい動的言語のほうが都合がよい場合が多いのです。</p>
+<p class="in">-30zw RubyでXML処理を行おうという人も多く、RAAをXMLというキーワードで検索するとなんと55個のプロジェクトが見つかります（2003年4月5日現在）。そのうち、XMLを読み書きするものに限定すると<a href="#table2501">表25.1</a>のようになります。</p>
+<a id="page_346"/>
+<div class="table" id="table2501">
+<p class="tbl-caption">表25.1●Ruby用XMLパーサー</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">XMLパーサー</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>libxml</code></td>
+<td><code>libxml</code>の拡張ライブラリ</td>
+</tr>
+<tr>
+<td><code>nqxml</code></td>
+<td>pure Ruby XMLパーサー</td>
+</tr>
+<tr>
+<td><code>rexml</code></td>
+<td>定番XMLライブラリ（1.8で標準添付予定）</td>
+</tr>
+<tr>
+<td><code>xml-simple</code></td>
+<td>Perlの<code>XML::Simple</code>のRuby版</td>
+</tr>
+<tr>
+<td><code>xmlparser</code></td>
+<td><code>expat</code>の拡張ライブラリ</td>
+</tr>
+<tr>
+<td><code>xmlscan</code></td>
+<td>高速pure Ruby XMLパーサー</td>
+</tr>
+<tr>
+<td><code>libgdome-ruby</code></td>
+<td>DOMレベル2 Core API（拡張ライブラリ）</td>
+</tr>
+<tr>
+<td><code>mwdom</code></td>
+<td>DOMレベル2パーサー + ライタ</td>
+</tr>
+<tr>
+<td><code>xampl-pp</code></td>
+<td>XML pullパーサー</td>
+</tr>
+</table>
+</div>
+<p class="in">なんでこんなにあるのって感じですが、これはおそらくは発展の過程の1つで、次第に収束していくのではないかと思います。現在は<code>REXML</code>がかなり広く使われているようです。また、<code>REXML</code>をベースにしてより使いやすいAPIを提供するライブラリ（<code>xml-simple</code>や<code>xml-configfile</code>）も登場してきています。</p>
+<p class="in">RubyとXMLについては『Ruby de XML』（オーム社、ISBN4-274-06500-6）というローマ字読みするとそのまんまなタイトル（フランス語だとdeは英語のofですから「XMLのRuby」って意味でちょっとおかしいですけど）の書籍が出ていますので、そちらも参照してみてください。</p>
+</section>
+<section id="chap2504" class="level2">
+<h3>YAML</h3>
+<hr class="hr-gray" />
+<p class="in">XMLの次はYAMLです。YAMLについて最初に聞いたのがいつだったのかはっきり覚えていませんが、たぶん去年の夏頃だったのではないかと思います。そのとき感じたのは「ああ、またXMLの亜流か」という正直あまり期待しない気持ちでした。</p>
+<p class="in">XMLというのはSGML流の（HTML流と言ったほうが通じるかも）、</p>
+<div class="plist">
+<pre>&lt;TAG attr=&quot;attribute&quot;&gt;.....&lt;/TAG&gt;</pre>
+</div>
+<p class="ni">という形式で、とにかく冗長で見にくいので、それを改善するXMLの別記法がたくさん考え出されていたからです。そのような記法には行ベースのPYXやS式ベースのSXMLがあります。ですから、YAMLもそのような別記法だと早とちりしてしまったわけです。</p>
+<p class="in">というわけで、最初はあまり興味を持っていなかったYAMLだったのですが、去年のRubyConf（2002）でYAMLの話を聞いてそれがまるっきりの誤解だったことが明らかになりました。</p>
+<p class="in">YAMLはYAML Ain’t Markup Language（YAMLはマークアップ言語じゃない）の略です。ありがちな「Yet Another」ではないんですね。発音は「やむる」、アメリカ人っぽく発音すると「やむぅ」でしょうか。名前が示すようにYAMLはマークアップ言語ではありません。もともと、Perlの<code>Inline.pm</code>を開発していたBrian Ingarsonがデータのシリアライズに使えるフォーマットとして考えついたものなのだそうです。YAMLはプラットフォーム非依存のデータシリアライズフォーマットで、表現はテキスト形式を使っているのでプラットフォームのアーキテクチャに依存せず、人間にも読みやすく、編集しやすくなっていますし、また、Perl, Ruby, PythonでAPIが提供されていますから、プログラミング言語を超えてデータの受け渡しが可能です。</p>
+<a id="page_347"/>
+<p class="in"><a href="#list2501">リスト25.1</a>はYAMLのサンプルです。YAMLの文法はあとで紹介しますので、ここでは雰囲気を感じてください。</p>
+<div class="plistc" id="list2501">
+<p class="lst-caption">リスト25.1●YAMLサンプル</p>
+<pre>title: Escape of the Unicorn
+animations:
+  - title: background sky
+    author: Justyna
+    frames:
+      - file: bg_sky_1.png
+        ms:   500
+      - file: bg_sky_2.png
+        ms:   500
+  - title: background water
+    author: Jacek
+    frames:
+      - file: bg_water.png
+        ms:   300
+      - file: bg_water1.png
+        ms:   200
+      - file: bg_water2.png
+        ms:   200
+      - file: bg_water3.png
+        ms:   300
+      - file: bg_water2.png
+        ms:   200
+      - file: bg_water1.png
+        ms:   200</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">文法が説明されなくても、データとしてすんなり読めますよね。比較のため、これをXMLで表現すると<a href="#list2502">リスト25.2</a>のようになります。</p>
+<div class="plistc" id="list2502">
+<p class="lst-caption">リスト25.2●YAMLサンプルと等価なXML</p>
+<pre>&lt;title&gt;Escape of the Unicorn&lt;/title&gt;
+&lt;animations&gt;
+  &lt;animation&gt;
+    &lt;title&gt;0 background sky&lt;/title&gt;
+    &lt;author&gt;Justyna&lt;/author&gt;
+    &lt;frames&gt;
+      &lt;frame&gt;&lt;file&gt;bg_sky_1.png&lt;/file&gt;&lt;ms&gt;500&lt;/ms&gt;&lt;/frame&gt;
+      &lt;frame&gt;&lt;file&gt;bg_sky_2.png&lt;/file&gt;&lt;ms&gt;500&lt;/ms&gt;&lt;/frame&gt;
+    &lt;/frames&gt;
+  &lt;/animation&gt;
+  &lt;animation&gt;
+    &lt;title&gt;1 background water&lt;/title&gt;
+    &lt;author&gt;Jacek&lt;/author&gt;
+    &lt;frames&gt;
+      &lt;frame&gt;&lt;file&gt;bg_water.png&lt;/file&gt;&lt;ms&gt;300&lt;/ms&gt;&lt;/frame&gt;
+      &lt;frame&gt;&lt;file&gt;bg_water1.png&lt;/file&gt;&lt;ms&gt;200&lt;/ms&gt;&lt;/frame&gt;
+      &lt;frame&gt;&lt;file&gt;bg_water2.png&lt;/file&gt;&lt;ms&gt;200&lt;/ms&gt;&lt;/frame&gt;
+      &lt;frame&gt;&lt;file&gt;bg_water3.png&lt;/file&gt;&lt;ms&gt;300&lt;/ms&gt;&lt;/frame&gt;
+      &lt;frame&gt;&lt;file&gt;bg_water2.png&lt;/file&gt;&lt;ms&gt;200&lt;/ms&gt;&lt;/frame&gt;
+      &lt;frame&gt;&lt;file&gt;bg_water1.png&lt;/file&gt;&lt;ms&gt;200&lt;/ms&gt;&lt;/frame&gt;
+    &lt;/frames&gt;
+  &lt;/animation&gt;
+&lt;/animations&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_348"/>
+<p class="in">わからないことはないけど（<code>Marshal</code>の生バイナリデータに比べれば）、ごちゃごちゃしてますよね。YAMLのほうがずっといい。</p>
+<p class="in">YAMLの利点はすっきりしているだけではありません。YAMLはXMLをメタ・データフォーマットとして使うときの欠点の多くを克服しているのです。</p>
+<p class="in">すでに述べたようにもともとXMLはテキストのマークアップ言語であるSGMLから派生しているので、データ表現として考えるといくつも欠点があります。</p>
+<div class="description">
+<p class="ditem">冗長</p>
+<p class="dni">XMLは開始タグと終了タグの両方を持ち、表現がかなり冗長です。個人的には人間にもあまり読みやすくないと思うのですが、それはともかく、XMLをデータフォーマットに使ってデータ表現の分量が増えるっていうのは、通信量や記憶容量の増加につながるうれしくない性質です。</p>
+<p class="din">一方、YAMLは「<code>-</code>」「<code>:</code>」「<code>|</code>」などの記号とインデントを使って、すっきり見やすいだけでなく、データ量の削減も実現しています。</p>
+<p class="ditem">解析が難しい</p>
+<p class="dni">行単位で解析できない上、任意にネストするXMLはプログラム的にかなり処理しにくいフォーマットです。また、マークアップという性質が残っているので、データ表現として考えるとやや不自然なところがあります。</p>
+<p class="din">一方、YAMLは基本は行単位ですし、もともとデータ表現に特化していますから、APIも自然です。</p>
+<p class="ditem">型情報がない</p>
+<p class="dni">XMLの起源はテキストマークアップですから、データ型の情報は外部から与えてやる必要があります。たとえばある属性の値は整数であるとかは、プログラムのほうで解釈してやる必要があります。</p>
+<a id="page_349"/>
+<p class="din">一方、YAMLでは型情報はデータフォーマットの一部として最初から含まれていますから、外部から型を教えてやったり、明示的に変換したりする必要はありません。</p>
+</div>
+<p class="in">データ表現にも使えるマークアップ言語のXMLとデータ表現専用のYAMLとを同列に比較してはいけない部分はあるのですが、データ表現という用途に限定した場合にはYAMLの圧勝といえるでしょう。忘れてはいけないのはXMLの現在の用途の多くがYAMLでカバーできるデータ表現だということです。</p>
+</section>
+<section id="chap2505" class="level2">
+<h3>YAMLの文法</h3>
+<hr class="hr-gray" />
+<p class="in">YAMLはデータ表現のための比較的シンプルな文法のデータフォーマットですが、それでも全部解説すると限られた誌面には収まりません。ここではYAMLの文法の概要を簡単に紹介しておきましょう。</p>
+<p class="in">まず、データの繰り返し（配列）は先頭に「<code>-</code>」を置いたものの並びです。ですから、</p>
+<div class="plist">
+<pre>- foo
+- bar
+- baz</pre>
+</div>
+<p class="ni">は配列<code>["foo", "bar", "baz"]</code>になります。ネストはインデントで表現します。</p>
+<div class="plist">
+<pre>- foo
+-
+  - bar
+  - baz</pre>
+</div>
+<p class="ni">は<code>["foo", ["bar", "baz"]]</code>になります。それからマッピング（ハッシュ）は「<code>:</code>」で表現します。</p>
+<div class="plist">
+<pre>foo: 1
+bar: 2
+baz: 3</pre>
+</div>
+<p class="ni">は<code>{"foo"=&gt;1, "bar"=&gt;2, "baz"=&gt;3}</code>というハッシュを表現します。複数行に渡るテキストは「<code>|</code>」か「<code>&gt;</code>」を使います。</p>
+<div class="plist">
+<pre>- |
+  これは複数行テキストです。
+  改行もそのままです。
+- &gt;
+  これも複数行テキストです。
+  こちらは改行が空白に置き換わります。</pre>
+</div>
+<p class="in">そうそう、YAMLデータはUnicode（UTF-8）で記述することになっています。日本語を含むテキストを用意するときは注意してください。</p>
+<p class="in">あと、いくつかの基本的データ型があります。</p>
+<a id="page_350"/>
+<ul class="none">
+<li><pre class="tabbing"><code>nil    </code>　<code>~</code>, <code>nil</code></pre>
+</li>
+<li><pre class="tabbing"><code>boolean</code>　<code>true</code>, <code>false</code>, <code>+</code>, <code>-</code></pre></li>
+<li><pre class="tabbing"><code>integer</code>　0, 1, 2, 100,000（コンマは整数の一部）</pre></li>
+<li><pre class="tabbing"><code>float  </code>　1.0, 1.23e23</pre></li>
+<li><pre class="tabbing"><code>time   </code>　2003-05-08 00:49:38.634752 +09:00</pre></li>
+<li><pre class="tabbing"><code>date   </code>　1965-04-14</pre></li>
+</ul>
+<p class="in">これらのパターンにマッチしないデータは文字列として扱われます。逆にこれらのパターンにマッチするデータを文字列として扱うためにはデータの前に“<code>!str</code>”と書きます。つまり、</p>
+<div class="plist">
+<pre>- 2003-04-14</pre>
+</div>
+<p class="ni">は<code>Date</code>オブジェクトを1つ含む配列と解釈されますが、</p>
+<div class="plist">
+<pre>- !str 2003-04-14</pre>
+</div>
+<p class="ni">は <code>"2003-04-14"</code> という文字列を要素とする配列になります。</p>
+</section>
+<section id="chap2506" class="level2">
+<h3>yaml.rb</h3>
+<hr class="hr-gray" />
+<p class="in">このYAMLフォーマットを読み書きするのが<code>yaml.rb</code>です。Debianには<code>yaml.rb</code>のパッケージ（<code>libyaml-ruby</code>）があるのでそれをインストールするだけです。それ以外では、</p>
+<ul class="none">
+<li><p><span class="link">http://yaml4r.sourceforge.net/</span></p></li>
+</ul>
+<p class="ni">からリンクをたどって<code>tar.gz</code>ファイルをダウンロードして、適当なディレクトリで展開した後、root権限で、</p>
+<div class="borderterminal">
+<pre># ruby install.rb</pre>
+</div>
+<p class="ni">を実行するとインストールできます。</p>
+<p class="in"><code>yaml.rb</code>にはたくさんの機能があるのですが、基本的なものは以下の2つです。</p>
+<div class="description">
+<p class="ditem"><code>Kernel#to_yaml</code></p>
+<p class="dni">すべてのオブジェクトに追加されるメソッドで、そのオブジェクト（と、そこから参照されるオブジェクト）をYAMLで表現した文字列を返します。</p>
+<p class="ditem"><code>YAML::load(yaml)</code></p>
+<p class="dni">YAML入力（文字列または<code>IO</code>）をオブジェクトに戻します。</p>
+</div>
+<p class="in">たとえば、<a href="#list2501">リスト25.1</a>のYAMLデータをオブジェクトに変換するには以下のようにします。</p>
+<div class="plist">
+<pre>require <span class="str">&quot;yaml&quot;</span>
+data = YAML::load(open(<span class="str">&quot;unicorn.yaml&quot;</span>))</pre>
+</div>
+<p class="in">なんと簡単な。これで取り出せるデータは<a href="#list2503">リスト25.3</a>のようになります。</p>
+<a id="page_351"/>
+<div class="plistc" id="list2503">
+<p class="lst-caption">リスト25.3●yaml.rbで読み込んだデータ</p>
+<pre>{&quot;title&quot;=&gt;&quot;Escape of the Unicorn&quot;,
+&quot;animations&quot;=&gt;
+  [{&quot;title&quot;=&gt;&quot;background sky&quot;,
+    &quot;author&quot;=&gt;&quot;Justyna&quot;,
+    &quot;frames&quot;=&gt;
+     [{&quot;ms&quot;=&gt;500, &quot;file&quot;=&gt;&quot;bg_sky_1.png&quot;},
+      {&quot;ms&quot;=&gt;500, &quot;file&quot;=&gt;&quot;bg_sky_2.png&quot;}]},
+   {&quot;title&quot;=&gt;&quot;background water&quot;,
+    &quot;author&quot;=&gt;&quot;Jacek&quot;,
+    &quot;frames&quot;=&gt;
+     [{&quot;ms&quot;=&gt;300, &quot;file&quot;=&gt;&quot;bg_water.png&quot;},
+      {&quot;ms&quot;=&gt;200, &quot;file&quot;=&gt;&quot;bg_water1.png&quot;},
+      {&quot;ms&quot;=&gt;200, &quot;file&quot;=&gt;&quot;bg_water2.png&quot;},
+      {&quot;ms&quot;=&gt;300, &quot;file&quot;=&gt;&quot;bg_water3.png&quot;},
+      {&quot;ms&quot;=&gt;200, &quot;file&quot;=&gt;&quot;bg_water2.png&quot;},
+      {&quot;ms&quot;=&gt;200, &quot;file&quot;=&gt;&quot;bg_water1.png&quot;}]}]}</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">YAMLデータとロードされたオブジェクトを見比べると、配列、ハッシュ、文字列、数値などが「見かけどおり」にロードされているのがわかるでしょう。こうやって配列やハッシュの形で取り込んでしまえば、あとは自由に操作・加工できますよね。</p>
+<p class="in">また、YAMLはプラットフォーム非依存ですから、YAMLデータをRubyからPerlへ、PerlからPythonへ、というような移動も自由自在です。</p>
+</section>
+<section id="chap2507" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">ここまでで誌面が尽きてしまいました。<code>Marshal</code>の代わりにYAMLを使った<code>PStore</code>互換の<code>YAML::Store</code>とか、<code>yaml.rb</code>より100倍高速とうわさされる新ライブラリ<code>Syck</code>とかYAML周りにはまだまだホットな話題がたくさんです。</p>
+<p class="in">XMLとYAMLについては実際の応用についても触れたいので、できれば来月も続けて解説しようと思います。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-054.xhtml">&lt;&lt; 前ページ</a>　<a href="p-056.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

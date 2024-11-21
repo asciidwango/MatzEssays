@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第39章 DBM</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第39章</p>
+<!-- Body -->
+<section id="chap39" class="level1">
+<a id="page_097"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">39</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+DBM
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年8月号]</p>
+<div class="newlead">
+<p class="in">DBMについて解説しています。DBMは完全に廃れた技術というわけではありませんが、最近は直接見かけることは少なくなりました。一部の検索エンジンのバックエンドや、アプリケーション組み込みのデータベース（今風の表現だとKey Value Store（KVS）ですね）として今でも使われていますが、そういう局面でも今はSQLiteのほうが人気があるかもしれませんね。SQLiteも当時から存在していましたが、現代のようにあらゆる局面で使われるほどではなかったですね。</p>
+<p class="ih">「Ruby開発日記」は「メールリーダーの新アプローチ」です。当時使っていたcmailに見切りをつけて新しいものを自作しようという宣言なのですが、これがどうなったかというと、1年以上の構想期間を経て、3週間で基本部分を実装し、実は今でもそれを使っているのです。当時はmorgという名前にしようと思いましたが、名前の重複があったのでmorq（mail organizer using qdbm）という名前になりました。ちょうど本文で解説したQDBMを利用しているので、この記事に触発された完成されたと言っても過言ではありません。morqはオープンソースにしておらず、ユーザーは私一人です。</p>
+</div>
+<div class="lead">
+<p class="ni">私はデータベースに関するプログラミングの経験があまりないので、リレーショナルデータベースなど使いこなせないのですが、今月はそんな私でも使える簡易データベースのDBMとその仲間を紹介します。</p>
+</div>
+<section id="chap3901" class="level2">
+<h3>DBM</h3>
+<hr class="hr-gray" />
+<p class="in">データベースといえば主流はリレーショナルデータベースです。オープンソースのものではPostgreSQLやMySQLが有名ですね。これらはテーブルに格納されたデータをSQL（Structured Query Language – 構造化問い合わせ言語）を使って操作するものです。RubyにもPostgreSQL, MySQL, それにInterbaseやOracleなどなど各種のリレーショナルデータベースを操作するライブラリが提供されています。</p>
+<a id="page_098"/>
+<p class="in">しかし、Rubyが得意とする日常的プログラミングでは、わざわざPostgreSQLのようなサーバー/クライアント方式のリレーショナルデータベースを用意するのは大げさと思われることもしばしばあります。そういう場合はテキストデータを使ってデータの処理を行うことが多いのですが、今度はデータ量が増えたときに毎回ファイルを開いて先頭から読み込んでいくのが耐えられなくなることもあります。</p>
+<p class="in">そういうケースでは、プレーンテキストよりも高速で、サーバー/クライアント方式のリレーショナルデータベースよりも手軽なデータの保存手段が求められているのです。</p>
+<p class="in">そのような手段はいろいろ考えられますが、1つの解としては、SQLiteのようなサーバー/クライアント方式でないリレーショナルデータベースを導入することがあります。SQLiteはライブラリ形式のリレーショナルデータベースで、直接ファイルに読み書きを行います。名前にもあるようにSQLも使えますし、性能もそれなりに出るようです。これはこれで面白い方法なので、また別の機会に解説したいと思っています。</p>
+<p class="in">もう1つの解が今月紹介するDBMです。DBMは昔からUNIXで提供されているデータベースで、その名前はDataBase Managerの略のようです。そのまんまですね。DBMはリレーショナルなんて高度な演算は行いませんし、SQLもありません。データはハッシュの形で管理します。キーに対応する値を取り出す、それだけです。</p>
+<p class="in">RubyのDBMインターフェイスでは、<code>DBM</code>クラスのオブジェクトは<code>Hash</code>とほぼ同じメソッドを持ち、ほとんど同じように使えます。違いは?　というと、DBMはファイルに関連付けられていて、格納したデータはプログラムが終了してもファイルに保存される（だからこそ「データベース」である）ことと、DBMではキーも対応する値も文字列でなければならないという点です。</p>
+<p class="in">リレーショナルデータベースのようにSQLによる問い合わせもできず、ハッシュのような任意のオブジェクトの格納もできない制限の強いDBMですが、使いにならないかというとそうでもありません。DBMの構造はリレーショナルデータベースのテーブルよりも単純ですが、簡単なインデクシング（1対1の関連）の扱いはむしろ簡単です。複数の値を対応させたい場合にも、値を文字列にパックすることで実現できます。Rubyには<code>pack</code>メソッドや<code>unpack</code>メソッドがありますから、このような目的には便利です。</p>
+</section>
+<section id="chap3902" class="level2">
+<h3>RubyのDBMインターフェイス</h3>
+<hr class="hr-gray" />
+<p class="in">RubyのDBMインターフェイスが提供するクラスは<code>Hash</code>クラスとほぼ同じです。簡単な使用例を<a href="#list3901">リスト39.1</a>に示します。</p>
+<div class="plistc" id="list3901">
+<p class="lst-caption">リスト39.1●DBM使用例</p>
+<pre>require <span class="str">&#39;dbm&#39;</span>
+
+d = DBM.open(<span class="str">&quot;/tmp/bark&quot;</span>)
+d[<span class="str">&quot;dog&quot;</span>] = <span class="str">&quot;bow&quot;</span>
+d[<span class="str">&quot;cat&quot;</span>] = <span class="str">&quot;mew&quot;</span>
+puts d[<span class="str">&quot;cow&quot;</span>]
+d.close</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">前後に<code>open</code>と<code>close</code>がある以外は、ハッシュと同じように使えることがわかるでしょう。</p>
+<p class="in">Rubyには3つのDBMインターフェイスが標準添付されています。</p>
+<a id="page_099"/>
+<div class="description">
+<p class="ditem">dbm</p>
+<p class="dni">そのプラットフォームで使えるDBMライブラリ（<code>ndbm</code>または<code>gdbm</code>）を使った標準的な<code>dbm</code>ライブラリです。ほとんどのプラットフォームで使えますが、利用しているライブラリが異なる可能性があるので、プラットフォーム間のデータ互換性はありません。</p>
+<p class="ditem">gdbm</p>
+<p class="dni">GNU dbmライブラリのインターフェイスです。<code>gdbm</code>がインストールされているプラットフォームで有効です。<code>gdbm</code>は多くの<code>ndbm</code>ライブラリよりも高性能ですし、<code>ndbm</code>ライブラリに対していくつかの機能が追加されています。</p>
+<p class="ditem">sdbm</p>
+<p class="dni"><code>dbm</code>や<code>gdbm</code>はプラットフォームに何らかの<code>dbm</code>ライブラリがインストールされていなければ利用できませんが、<code>sdbm</code>はパブリックドメインのDBMライブラリが添付されていますので、事実上すべてのプラットフォームで利用できます。しかし、欠点もあって、<code>sdbm</code>はあまり性能に恵まれず、そのうえデータベース中の各要素のサイズ（キーと値のサイズ合計）がわずか1Kバイトに制限されます。</p>
+</div>
+<p class="in">日常的な使用には<code>gdbm</code>を使うのがよいと思われます。<code>DBM</code>クラスの仕様を<a href="#table3901">表39.1</a>に示します。</p>
+<a id="page_100"/>
+<div class="table" id="table3901">
+<p class="tbl-caption">表39.1●DBMクラス</p>
+<table class="tbl01">
+<tr>
+<th colspan="2"><span class="k">クラスメソッド</span></th>
+</tr>
+<tr>
+<td><code>DBM::open(path[,mode])</code></td>
+<td>DBをオープン（<code>mode</code>は権限値）</td>
+</tr>
+<tr>
+<th colspan="2"><span class="k">DBM類に共通のインスタンスメソッド</span></th>
+</tr>
+<tr>
+<td><code>dbm[key]</code></td>
+<td><code>key</code>に対応する値</td>
+</tr>
+<tr>
+<td><code>dbm[key]=value</code></td>
+<td><code>key</code>に対応する値をセット</td>
+</tr>
+<tr>
+<td><code>dbm.clear</code></td>
+<td>DBを空にする</td>
+</tr>
+<tr>
+<td><code>dbm.close</code></td>
+<td>DBをクローズ</td>
+</tr>
+<tr>
+<td><code>dbm.delete(key)</code></td>
+<td><code>key</code>に対応する要素を削除</td>
+</tr>
+<tr>
+<td><code>dbm.each_key{|key,val|}</code></td>
+<td>各<code>key</code>に対する繰り返し</td>
+</tr>
+<tr>
+<td><code>dbm.each_pair{|key,val|}</code></td>
+<td>DB要素に対する繰り返し</td>
+</tr>
+<tr>
+<td><code>dbm.each_value{|key,val|}</code></td>
+<td>各<code>value</code>に対する繰り返し</td>
+</tr>
+<tr>
+<td><code>dbm.each{|key,val|}</code></td>
+<td>DB要素に対する繰り返し</td>
+</tr>
+<tr>
+<td><code>dbm.empty?</code></td>
+<td>DBが空のとき、真</td>
+</tr>
+<tr>
+<td><code>dbm.fetch(key)</code></td>
+<td><code>key</code>に対応する値（不存在で例外）</td>
+</tr>
+<tr>
+<td><code>dbm.has_key?(key)</code></td>
+<td>DBが<code>key</code>を含むか</td>
+</tr>
+<tr>
+<td><code>dbm.has_value?(val)</code></td>
+<td>DBが<code>val</code>を含むか</td>
+</tr>
+<tr>
+<td><code>dbm.include?(key)</code></td>
+<td>DBが<code>key</code>を含むか</td>
+</tr>
+<tr>
+<td><code>dbm.index(val)</code></td>
+<td><code>val</code>に対応するキー</td>
+</tr>
+<tr>
+<td><code>dbm.invert</code></td>
+<td>値から<code>key</code>へのハッシュ</td>
+</tr>
+<tr>
+<td><code>dbm.key?(key)</code></td>
+<td>DBが<code>key</code>を含むか</td>
+</tr>
+<tr>
+<td><code>dbm.keys</code></td>
+<td>DB中のキーの配列</td>
+</tr>
+<tr>
+<td><code>dbm.length</code></td>
+<td>DB中の要素数</td>
+</tr>
+<tr>
+<td><code>dbm.reject!{|key,val|}</code></td>
+<td>条件が真の要素を削除</td>
+</tr>
+<tr>
+<td><code>dbm.replace(hash)</code></td>
+<td>DBを<code>hash</code>の内容で置換</td>
+</tr>
+<tr>
+<td><code>dbm.shift</code></td>
+<td>DBから任意のキーと値を取る</td>
+</tr>
+<tr>
+<td><code>dbm.size</code></td>
+<td>DB中の要素数</td>
+</tr>
+<tr>
+<td><code>dbm.store(key,val)</code></td>
+<td><code>key</code>に対応する値をセット</td>
+</tr>
+<tr>
+<td><code>dbm.to_a</code></td>
+<td>DBを配列化</td>
+</tr>
+<tr>
+<td><code>dbm.to_hash</code></td>
+<td>DBをハッシュ化</td>
+</tr>
+<tr>
+<td><code>dbm.update(hash)</code></td>
+<td>DBを<code>hash</code>の内容で更新</td>
+</tr>
+<tr>
+<td><code>dbm.value?(val)</code></td>
+<td>DBが<code>val</code>を含むか</td>
+</tr>
+<tr>
+<td><code>dbm.values</code></td>
+<td>DB中の値の配列</td>
+</tr>
+<tr>
+<td><code>dbm.values_at(key, ...)</code></td>
+<td><code>key, ...</code>に対応する値の配列</td>
+</tr>
+<tr>
+<th colspan="2"><span class="k">gdbm固有のインスタンスメソッド</span></th>
+</tr>
+<tr>
+<td><code>dbm.cachesize=n</code></td>
+<td>キャッシュサイズの設定</td>
+</tr>
+<tr>
+<td><code>dbm.fastmode=bool</code></td>
+<td><code>fastmode</code>の設定</td>
+</tr>
+<tr>
+<td><code>dbm.reorganize</code></td>
+<td>DBをハッシュ化</td>
+</tr>
+<tr>
+<td><code>dbm.sync</code></td>
+<td>同期</td>
+</tr>
+<tr>
+<td><code>dbm.syncmode=bool</code></td>
+<td>同期モードの設定</td>
+</tr>
+</table>
+</div>
+<p class="ih">「<code>DBM</code>」の部分を「<code>GDBM</code>」「<code>SDBM</code>」に変えることで、それぞれ<code>gdbm</code>と<code>sdbm</code>に対応できます。</p>
+</section>
+<section id="chap3903" class="level2">
+<h3>DBMの制限の回避</h3>
+<hr class="hr-gray" />
+<p class="in">すでに述べたように、DBMの最大の制限は「キーも値も文字列しか取れない」ことです。キーのほうは文字列限定でもさほど困ることはありませんが、1つのキーにレコードを対応させたいケースはたびたびあります。</p>
+<p class="in">このような場合の回避方法はいくつかあります。1つはデータを文字列に<code>pack</code>する方法です。<code>Array</code>メソッドには<code>pack</code>というメソッドがあって、配列の要素をテンプレートに従い文字列化することができます。同じテンプレートを<code>String</code>クラスの<code>unpack</code>メソッドに渡すことで逆に配列に戻すことができます。たとえば、8ビット整数4つを<code>pack</code>するにはこのようにします。</p>
+<div class="plist">
+<pre>packed = [192,168,0,1].pack(<span class="str">&quot;CCCC&quot;</span>)</pre>
+</div>
+<p class="in">逆に<code>unpack</code>はこうです。</p>
+<div class="plist">
+<pre>p packed.unpack(<span class="str">&quot;CCCC&quot;</span>)  <span class="cmt"># =&gt; [192,168,0,1]</span></pre>
+</div>
+<p class="ih">“<code>C</code>”はchar（文字）の意味で、符号付き8ビット整数を意味します。テンプレート文字の後ろに数字を置くと繰り返し、または長さ指定になります。ですから、“<code>C4</code>”は“<code>CCCC</code>”と同じ意味です。<code>pack</code>, <code>unpack</code>のテンプレート文字を<a href="#table3902">表39.2</a>に示します。</p>
+<div class="table" id="table3902">
+<p class="tbl-caption">表39.2●packテンプレート</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">文字</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">文字</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>@</code></td>
+<td>絶対位置への移動</td>
+<td><code>l</code></td>
+<td><code>long</code></td>
+</tr>
+<tr>
+<td><code>A</code></td>
+<td>ASCII文字列（スペースを詰める, 長さ指定）</td>
+<td><code>M</code></td>
+<td>Q-encodingされた文字列（RFC2045）</td>
+</tr>
+<tr>
+<td><code>a</code></td>
+<td>ASCII文字列（<code>nul</code>を詰める、長さ指定）</td>
+<td><code>m</code></td>
+<td><code>base64</code>された文字列</td>
+</tr>
+<tr>
+<td><code>B</code></td>
+<td>ビットストリング（上位ビットから下位ビット）</td>
+<td><code>N</code></td>
+<td>ビッグエンディアンの<code>long</code></td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td>ビットストリング（下位ビットから上位ビット）</td>
+<td><code>n</code></td>
+<td>ビッグエンディアンの<code>short</code></td>
+</tr>
+<tr>
+<td><code>C</code></td>
+<td><code>unsigned char</code></td>
+<td><code>P</code></td>
+<td>構造体（固定長文字列）へのポインタ</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td><code>char</code></td>
+<td><code>p</code></td>
+<td>ナル終端の文字列へのポインタ</td>
+</tr>
+<tr>
+<td><code>D</code>, <code>d</code></td>
+<td><code>double</code>（機種依存）</td>
+<td><code>Q</code>, <code>q</code></td>
+<td>64-bit number</td>
+</tr>
+<tr>
+<td><code>E</code></td>
+<td>リトルエンディアンの<code>double</code>（機種依存）</td>
+<td><code>S</code></td>
+<td><code>unsigned short</code></td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>リトルエンディアンの<code>float</code>（機種依存）</td>
+<td><code>s</code></td>
+<td><code>short</code></td>
+</tr>
+<tr>
+<td><code>F</code>, <code>f</code></td>
+<td><code>float</code>（機種依存）</td>
+<td><code>U</code></td>
+<td>UTF-8文字列</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>ビッグエンディアンの<code>double</code>（機種依存）</td>
+<td><code>u</code></td>
+<td><code>uuencoded</code>された文字列</td>
+</tr>
+<tr>
+<td><code>g</code></td>
+<td>ビッグエンディアンの<code>float</code>（機種依存）</td>
+<td><code>V</code></td>
+<td>リトルエンディアンの<code>long</code></td>
+</tr>
+<tr>
+<td><code>H</code></td>
+<td>16進文字列（下位ニブルが先）</td>
+<td><code>v</code></td>
+<td>リトルエンディアンの<code>short</code></td>
+</tr>
+<tr>
+<td><code>h</code></td>
+<td>16進文字列（上位ニブルが先）</td>
+<td><code>w</code></td>
+<td>BER圧縮された整数</td>
+</tr>
+<tr>
+<td><code>I</code></td>
+<td><code>unsigned int</code></td>
+<td><code>X</code></td>
+<td>1バイト後退</td>
+</tr>
+<tr>
+<td><code>i</code></td>
+<td><code>int</code></td>
+<td><code>x</code></td>
+<td><code>null</code>バイト</td>
+</tr>
+<tr>
+<td><code>L</code></td>
+<td><code>unsigned long</code></td>
+<td><code>Z</code></td>
+<td>ASCII文字列（<code>null</code>を詰める）</td>
+</tr>
+</table>
+</div>
+<a id="page_101"/>
+<p class="in">パックテンプレートを見るとわかるように<code>pack</code>で扱えるデータタイプは整数や文字列のような基本的なデータタイプだけです。より複雑なデータを文字列化するためには<code>Marshal</code>を用います。<code>Marshal</code>はオブジェクトを文字列化します。</p>
+<div class="plist">
+<pre>pack = Marshal.dump(obj)</pre>
+</div>
+<p class="ni">たったこれだけで、オブジェクトを文字列化することができます。文字列からオブジェクトを取り出すのも同じくらい簡単です。</p>
+<div class="plist">
+<pre>unpack = Marshal.load(pack)</pre>
+</div>
+<p class="ni">とても簡単な<code>Marshal</code>ですが、注意すべき点がいくつかあります。</p>
+<ul>
+<li><p><span class="k">効率が悪い</span><br />
+ほとんどのケースではあまり問題にならないと思いますが、複雑な構造のオブジェクトを文字列化すると文字列化したデータが意外に大きくなりますし、<code>Marshal</code>するコストも高くなります。</p></li>
+<li><p><span class="k">Marshalできないオブジェクトがある</span><br />
+<code>IO</code>や<code>Socket</code>などそもそも文字列化することが不可能なオブジェクトも存在します。そのようなオブジェクトを<code>Marshal</code>しようとするとエラーになります。</p></li>
+<li><a id="page_102"/><p><span class="k">バージョン依存</span><br />
+<code>Marshal</code>のデータフォーマットはときどきバージョンが変化します。フォーマットの上位互換性は保たれていますが、Ruby 1.8と1.6が混在しているような環境ではRuby 1.8で作ったデータが1.6では読み取れないというような問題が発生します。</p></li>
+</ul>
+<p class="in">最後に<code>YAML</code>を紹介しておきます。これは<code>Marshal</code>が用いているバイナリフォーマットの代わりにYAMLというデータ記述言語を用いるものです。使い方は以下のとおりです。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;yaml&#39;</span>
+pack = obj.to_yaml   <span class="cmt"># =&gt; YAML化した文字列</span>
+
+unpack = YAML::load(pack)</pre>
+</div>
+<p class="in">たとえば配列<code>[1,2,3]</code>をYAML化すると以下のようになります。</p>
+<div class="plist">
+<pre>--- 
+- 1
+- 2
+- 3</pre>
+</div>
+<p class="ni">先頭の“<code>—</code>”がYAMLの始まりを、“<code>- </code>”が配列の各要素を意味します。</p>
+<p class="in"><code>YAML</code>は<code>Marshal</code>とほぼ同じ制限がありますが、<code>Marshal</code>と違ってプレーンテキストを用いたフォーマットですから、（少々効率は落ちるものの）バージョン依存性が低く、また出力されたデータを人間が見て理解することができます。</p>
+</section>
+<section id="chap3904" class="level2">
+<h3>Berkley DB</h3>
+<hr class="hr-gray" />
+<p class="in">標準添付のDBMよりも高機能のDBMライブラリとして、Sleepycat（<span class="link">http://www.sleepycat.com/</span>）からBerkeley DBというライブラリが提供されています。BDBはDBMの後継に当たるライブラリで、DBMに対して以下の機能が追加されています。</p>
+<ul>
+<li><p><span class="k">複数のデータベースタイプ</span><br />
+BDBは従来のDBMと同様の<code>Hash</code>以外にも<code>Btree</code>（B+木）、<code>Recno</code>（数でインデックスされる、一種の配列）、<code>Queue</code>（キュー）などが用意されています。</p></li>
+<li><p><span class="k">1ファイルに複数データベースを格納</span><br />
+複数のファイルを「環境」としてディレクトリにまとめる機能もあります。後述のトランザクションやロック、ロギングは「環境」を単位にします。</p></li>
+<li><p><span class="k">カーソル</span><br />
+データベースの要素を1つずつ取り出すためのオブジェクト。カーソルを使った<code>join</code>（データベースの結合）もできます。</p></li>
+<li><p><span class="k">トランザクション</span><br />
+データの不整合を避けるため、トランザクションの範囲内での更新は、完全に成功してデータベースに書き込まれるか（コミット）、失敗してトランザクション開始前の状態が維持されるか（アボート）のいずれかになります。</p></li>
+<li><a id="page_103"/><p><span class="k">ロック</span><br />
+DBMでは提供されないロック機能を持ちます（ただし、<code>gdbm</code>にはロック機能があります）。</p></li>
+<li><p><span class="k">ロギング</span><br />
+データベースアクセスのログ。このログはデータベース障害時の復旧に用いられます。</p></li>
+</ul>
+<p class="in">また、BDBのほうが各種DBMよりも性能が上回ることが多いようです。BDBはスパムフィルタのBogofilterやバージョン管理システムのSubversionなど多くのアプリケーションで利用されています。</p>
+<p class="in">RubyのDBDインターフェイス（<code>bdb</code>）は、フランス人RubyハッカーであるGuy Decouxによって開発されています。原稿執筆時点での最新バージョンは0.5.0です。<code>bdb</code>についての情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://moulon.inra.fr/ruby/bdb.html</span></p></li>
+</ul>
+<p class="ni">から入手できます。Guy Decouxはruby-talkメーリングリストに古くから参加しているのですが、</p>
+<ul>
+<li><p>すごく革新的なプログラムを次々開発する</p></li>
+<li><p>Rubyの内部にすごく詳しい。下手すると私より詳しい</p></li>
+<li><p>あんまり英語が得意でない</p></li>
+<li><p>誰も彼に直接会ったことがない</p></li>
+</ul>
+<p class="ni">と謎の多い人物です。彼によって開発されたプログラムには、RAAに登録されているものだけでも、</p>
+<ul>
+<li><p><code>bdb</code></p></li>
+<li><p><code>bdb1</code>（Berkeley DB version 1.8用）</p></li>
+<li><p><code>bz2</code>（ファイル圧縮ライブラリ<code>libbz</code>インターフェイス）</p></li>
+<li><p><code>mmap</code>（<code>mmap</code>ファイルをアクセスする）</p></li>
+<li><p><code>pl-ruby</code>（PostqreSQLでサーバーサイドRuby）</p></li>
+</ul>
+<p class="ni">があります。それ以外にも、</p>
+<ul>
+<li><p><code>ii</code>（Rubyの構文木を出力）</p></li>
+<li><p>未公開のマルチメソッド実装（同じ名前で引数の型が異なる複数メソッドを実現する改造版Ruby）</p></li>
+</ul>
+<p class="ni">があり、最後のものは何度お願いしてもコードを見せてもらえませんでした。やっぱり謎だ。</p>
+</section>
+<section id="chap3905" class="level2">
+<h3>QDBM</h3>
+<hr class="hr-gray" />
+<p class="in">BDBとは別の方向で強化されたデータベースライブラリがQDBMです。QDBMの作者は平林幹雄さんで、原稿執筆時点での最新バージョンは1.8.12です。</p>
+<p class="in">QDBMの特徴は高性能と高機能です。QDBMのホームページ（<span class="link">http://qdbm.sourceforge.net/</span>）によると、QDBMは<code>gdbm</code>などよりも数倍高速なのだそうです。またQDBMは移植性も高く、LinuxやWindowsを始めとして多くのプラットフォームで動作します。</p>
+<a id="page_104"/>
+<p class="in">QDBMは機能としては、</p>
+<ul>
+<li><p>基本API（Depot）</p></li>
+<li><p>大容量向けAPI（Curia）</p></li>
+<li><p>ndbm互換API（Relic）</p></li>
+<li><p>gdbm互換API（Hovel）</p></li>
+<li><p>ユーティリティAPI（Cabin）</p></li>
+<li><p>B+木API（Villa, Vista）</p></li>
+<li><p>転置インデックスAPI（Odeum）</p></li>
+</ul>
+<p class="ni">が提供されます。これらのライブラリの名前は5文字の英単語から適当に選んだので意味はないそうです。</p>
+<p class="in">基本APIのDepotは最も高速に動作します。Depotはハッシュのインデックス部分を<code>mmap</code>システムコールを用いてRAM上に置くため、高速に動作します。Curiaは大量データに対応するため、データベースをディレクトリ中の複数のファイルで構成します。32ビットOSでは2Gバイト以上のサイズのファイルを取り扱うことができませんが、Curiaを用いることで64ビットOSに移行することなく2Gバイトを超えるデータを扱うことができます。</p>
+<p class="in">互換APIのRelicやHovelを利用すると既存のDBMを用いたアプリケーションを簡単にQDBM対応に変更することはできます（データベースファイルの互換性はありません）。</p>
+<p class="in">Cabinはデータベースとは直接関係ないユーティリティを集めたAPIです。QDBMの上位API（VillaやOdeumなど）はこのユーティリティを活用して実装されています。</p>
+<p class="in">VillaはB+木を提供するAPIです。B+木は順序のあるデータベースで、範囲を指定した検索や部分一致検索を行うことができます。また、Villaはトランザクション機能を持ちます。</p>
+<p class="in">Odeumが提供する転置インデックス（Inverted Index）は、全文検索で用いられる技術です。Odeumは全文検索エンジンの基本的機能を提供しますから、アプリケーション側ではテキスト解析やユーザーインターフェイスなどを実装するだけで、比較的簡単に全文検索エンジンを作ることができます。Odeumは平林さん自身が作られたパーソナル検索エンジンEstraierで用いられています。</p>
+</section>
+<section id="chap3906" class="level2">
+<h3>QDBMのRubyインターフェイス</h3>
+<hr class="hr-gray" />
+<p class="in">QDBMには作者自身の手によるC, C++, Java, Perl, RubyのAPIが用意されています。残念なことにC以外の言語では提供されるのは、Depot, Curia, VillaだけでOdeumなどの興味深いAPIは直接使うことができません。</p>
+<p class="in">しかし、単に高速でスケーラブルなDBMとして使っても十分に有効だと思います。QDBMインターフェイスを使ったサンプルを<a href="#list3902">リスト39.2</a>に示します。</p>
+<a id="page_105"/>
+<div class="plistc" id="list3902">
+<p class="lst-caption">リスト39.2●QDBMサンプル</p>
+<pre>require <span class="str">&#39;depot&#39;</span>  <span class="cmt"># depotを使う</span>
+
+name = ARGV[0]
+<span class="kwd">begin</span>
+  <span class="cmt"># optionは「書き込み可能、データベースがなければ作成」</span>
+  Depot.open(<span class="str">&quot;addr&quot;</span>, Depot::OWRITER|Depot::OCREAT){|depot|
+    puts name
+    puts depot[name]
+  }
+<span class="cmt"># Depotの例外はDepot::EANYのサブクラス</span>
+<span class="kwd">rescue</span> Depot::EANY =&gt; e
+  puts e.message
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">QDBMのRubyインターフェイスはスレッドを考慮していますから、複数のスレッドから同時にアクセスしても平気です。</p>
+</section>
+<section id="chap3907" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">さて、今月はSQLなどを使わない簡易データベースDBMとその仲間を紹介しました。DBMは複雑な条件検索はできませんが、アクセスパターンが1種類しかないようなデータベースに最適です。そしてそのようなデータベースはそれなりに多いものです。</p>
+<p class="in">実際、今月DBMを紹介しようと思ったのは、私が今作ろうとしているアプリケーションでQDBMを使うことにしたのがきっかけです。そのアプリケーションについては「Ruby開発日記」のほうで。</p>
+<p class="in">簡単、便利なデータベース、DBMを使ってみませんか。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-017.xhtml">&lt;&lt; 前ページ</a>　<a href="p-019.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

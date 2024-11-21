@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第12章 パターンマッチ</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-025.xhtml">第12章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<section id="chap1226" class="level2">
+<a id="page_177"/>
+<h3>◆ 知られざるRuby ◆ 文字コード</h3>
+<hr class="hr-blue" />
+<p class="in">今月はページ数の関係で「知られざるRuby」はコンパクト版でお届けします。</p>
+<p class="in">誰でも使えるASCIIの範囲内だけで表現できる英語はともかく、他の言語、特に日本語を使う場合には文字コードについてなかなか難しい問題があります。</p>
+<p class="in">文字コードというのは、おおざっぱにいうと文字に対応する数値（の集合）と、それをデータとしてどのように表現するかという決まりです。コンピュータ上ではすべてのデータは数値の羅列で表現されますから、この「決まり」がわからないと正しく文字を扱うことはできません。ときどき見かける「文字化け」という現象は、送り手と受け手で想定している文字コードが違っていることから発生します。</p>
+<p class="in">日本で広く使われている文字コードは以下の4つです。</p>
+<ul>
+<li><p><span class="k">シフトJIS（SJIS）</span><br />
+Windows, Macintosh, Palmなど。</p></li>
+<li><p><span class="k">EUC-JP</span><br />
+UNIXで広く用いられている。</p></li>
+<li><p><span class="k">JIS（ISO-2022-JP）</span><br />
+電子メール、ネットニューズなど。</p></li>
+<li><p><span class="k">UTF-8</span><br />
+XMLなど。</p></li>
+</ul>
+<p class="ih">「文字コード」は俗称で、正確には、どの文字がどの整数（コードポイント）に対応するかというマッピングである「文字集合」とその数値をバイト列に変換する「符号化方式」の組み合わせになります。</p>
+<p class="in">ですから、厳密な話をすればシフトJIS, EUC-JP, JISの3つは文字集合はJIS（JIS x0208）で、それぞれ別の符号化方式を採用しているということです。また、UTF-8は符号化方式の名前で文字集合はUnicodeという規格になります。</p>
+<p class="in">文字集合と符号化方式は独立した概念ではありますが、ばらばらに組み合わせることはないので、あまり厳密な話をしないときにはほとんどの場合、両方を一緒にして文字コードと呼ぶようです。</p>
+<section id="chap122601" class="level3">
+<h4>Rubyでの文字コードの扱い</h4>
+<p class="in">さて、Rubyの話に戻りましょう。Rubyは上記の文字コードのうち、SJIS, EUC-JP, UTF-8を扱うことができます。Rubyの各種文字コードの扱いは正規表現がそれらの文字コードにおけるマルチバイト文字を文字として扱うということを意味します。</p>
+<p class="in">文字コードの指定は以下の4つの方法で行います。</p>
+<div class="description">
+<p class="ditem"><code>-K</code>オプション</p>
+<p class="dni">インタプリタに<code>-K</code>オプションを指定することで、使う文字コードを指定します。<code>-Ks</code>でSJIS, <code>-Ke</code>でEUC-JP, <code>-Ku</code>でUTF-8になります。</p>
+<a id="page_178"/>
+<p class="ditem"><code>#!</code>行に<code>-K</code>オプション</p>
+<p class="dni">プログラム先頭の<code>#!</code>行に<code>-K</code>オプションを指定しておくとそれが有効になります。</p>
+<p class="ditem"><code>$KCODE</code>の設定</p>
+<p class="dni">プログラム中で特殊変数<code>$KCODE</code>に文字コードの名前を設定すると、その文字コードを扱うようになります。</p>
+<p class="ditem">正規表現の文字コードオプション</p>
+<p class="dni">正規表現リテラルの後ろのオプションでその正規表現が対応する文字コードを指定します。</p>
+</div>
+</section>
+<section id="chap122602" class="level3">
+<h4>未来の文字コードの扱い</h4>
+<p class="in">Rubyの文字コードの扱いには以下の制限があります。</p>
+<ul>
+<li><p>プログラム全体で1つの文字コードしか扱えない</p></li>
+<li><p>決められた文字コードしか扱えない</p></li>
+</ul>
+<p class="in">そこで現在Ruby M17Nという複数文字コードを自由に扱うプロジェクトが進行中です。M17Nはmultilingualization（多言語化）のMとNの間に17文字あることから作られた省略形です。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-025.xhtml">&lt;&lt; 前ページ</a>　<a href="p-027.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

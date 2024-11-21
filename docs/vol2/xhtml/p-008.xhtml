@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第34章 Blogの世界</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第34章</p>
+<!-- Body -->
+<section id="chap34" class="level1">
+<a id="page_037"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">34</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+Blogの世界
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年3月号]</p>
+<div class="newlead">
+<p class="in">Blogもだいぶ廃れましたね。はてなブログは健在ですが。個人が情報発信したいという欲求は変わらないようですが、日々のつぶやきのようなものはX（旧Twitter）やBlueskyに、ちょっと長めの記事はQiitaやZenn、海外だとMediumに、読み物はNoteなどに分散してしまったようです。結果的に記事で紹介されているブログソフトウェアもほとんどが廃れていますね。時代の流れを感じます。</p>
+<p class="ih">「Ruby開発日記」は「Rubyの未来」について。これはちょっと背景を説明しておく必要があります。2000年代初頭、さまざまな言語で過去からのお荷物を捨てて、「次世代言語」に生まれ変わろうという動きが流行したことがありました。PerlではPerl 6, PythonではPython 3000, RubyではRuby 2（コードネームRite）です。これは後に登場するRuby 2.0とは別物です。開発日記ではこの新世代のRuby 2設計の2004年時点での取り組みを解説しています。この時点ではRubyを完全に作り変えようと考えていたことがわかります。</p>
+<p class="in">各言語の「次世代」はそれぞれ違う運命をたどりました。Perl 6は結局一般化せず、Perlの本流はPerl 5のまま継続しました。今ではPerl 6はRakuという名前に改名され、別の言語となっています。Python 3000はPython 3.xになりました。しかし、その非互換性のためPython 2.xを使い続ける人も多く、Pythonコミュニティは15年以上分断されました。Rubyでは結局作り直すという試みは（主に互換性の維持を理由に）断念されました。当時としては冒険ができず残念に思っていましたが、言語の発展のためにはむしろよい判断でした。その後、RubyはRuby 1.9, Ruby 2.0, Ruby 3.0と漸近的な進化を続けることになったのです。また、このとき実験していたRiteの残骸は後にmrubyにつながりました。</p>
+</div>
+<div class="lead">
+<p class="ni">先月のWikiに続いて、今月は何かと話題の個人Webサイト、Blogについて探検してみましょう。</p>
+</div>
+<section id="chap3401" class="level2">
+<a id="page_038"/>
+<h3>Blogとは何か?</h3>
+<hr class="hr-gray" />
+<p class="in">Blog とはWeblog の略です。Webはいうまでもありませんが、Logのほうは、辞書でいう「航海日誌、旅行日記」などの意味で、日々の記録といったニュアンスでしょう。</p>
+<p class="in">この原稿の執筆に当たってBlogの定義についていろいろ調べてみましたが、これが決定的という定義は見当たりませんでした。基本的にこういう雰囲気だけで使われている言葉に勝手に定義を与えるのは危険です。私はかつて「オブジェクト指向」や「オープンソース」などの定義についていろいろ議論してきた経歴を持つ「前科者」ではありますが、これらについては確固たる自分の意見を持っているからこそできたことで、Blogについて同じような議論を貫く自信もやる気もありません。</p>
+<p class="in">そこで、多くの人々がBlogであると呼んでいるものに共通すると思われる特徴だけを列記しておきます。</p>
+<ul>
+<li><p><span class="k">毎日あるいはそれに近いペースで更新されている</span><br />
+私はこれが最も重要な特徴だと思います。きちんと運営されているBlogは毎日のように更新されます。もっとも、アメリカでのBlogホスティングサービスを対象にしたある調査によると実はBlogサイトの7割は過去2カ月更新されず、平均更新頻度は2週間に一度なのだそうですが。ほとんどのホスティングサービスは利用は無料なので、単にお試しという人が多いのが影響していると思われます。この調査によると1度だけしか更新していない三日坊主以下のBlogが4分の1を超えるそうです。日本でのデータも見てみたいものです。</p></li>
+<li><p><span class="k">新しいものが先頭にくる</span><br />
+頻繁に更新されるといえば、先月紹介したWikiのようなものがあります。活発なWikiでは毎日どころか毎時間、毎分の単位で更新が行われます。ですが、Wikiと比較するとBlogには「時系列順」という特徴があります。更新された項目は時間順に並び、トップページでは新しいものほど前に並びます。一方、Wikiそのものには時系列という概念がなく、それが特徴でもあり短所でもあります。中には、ページの構成を工夫してWikiでBlogを運営している人もいます。こういうものはBlikiとかWikilogとか呼ばれることがあるようです。</p></li>
+<li><p><span class="k">個人が運営している</span><br />
+Blogは基本的に個人サイトです。Blogは基本的に個人サイトです。たとえば「スラッシュドット」のような一種のニュースサイトも、毎日更新され、新しいものが先に来ますし、実際Blogにも使えるソフトウェアを使って運用されていますから、形式としては上記のBlogの特徴を持ちますが、よっぽど広い定義を持った人以外はこれをBlogと呼ぶ人はいません。やはり、個人が運営しているというのが多くの人が持つBlogに対するイメージだと思います。企業や組織で運営するBlogが存在できないとまでは言いませんが。</p></li>
+</ul>
+<p class="in">以上が、私の考えるBlogの特徴です。中には、BloggerやMovableTypeなどの定番Blogソフトウェアを使ったもの（だけ）がBlogだと断定する人もいますが、これはいくら何でも狭すぎると思います。</p>
+<a id="page_039"/>
+<p class="in">あと、すべてのBlogに共通な特徴とまではいえませんが、Blogにはインターネット上のほかのページにリンクして、そのページについて自分の意見を付け加えるスタイルのものが多く見られます。人によってはこれこそがBlogの本質だと呼ぶ人もいます。確かに歴史的に見ればBlog（あるいはWeblog）と呼ばれたものは、もともとはそのようなフィルタ型のサイトが発祥であったようですが。</p>
+<p class="in">このような「日々更新」「時系列順」「個人サイト」という特徴を持つサイトとして、日本では古くから「Web日記」とか「テキストサイト」とか呼ばれるものが存在していました。これらはBlogなのでしょうか?　そうではないのでしょうか?</p>
+<p class="in">最初に言ったように、なにがBlogでなにがBlogでないかについて深入りしたくはないのですが、「Web日記」も上記の特徴を備えているので、この記事ではこれらもBlogであるとすることにします。</p>
+<p class="in">日本で昔からあった日記がアメリカで最近になってBlogとして注目を浴びた背景には、アメリカと日本のインターネット文化の違いがあるのではないかと思います。インターネット発祥の地であるアメリカですが、意外と個人サイトの存在感は薄く、目立っているのは企業や有名人によるサイトばかりでした。そういう状況で決して有名人ではない、個人による「情報発信」のムーブメントとしてBlogという言葉が注目されたのだと思います。</p>
+<p class="in">一方の日本では、企業サイトと同じくらい個人サイトも存在感を持っていて、その進化の過程で欧米のBlogと同じようなフォーマットを持つ「日記」がより早く誕生したのだと考えています。この違いの理由はいろいろあるでしょうが、一番怪しいのは、日本で一時流布した「インターネットで世界に情報発信」というキャッチフレーズでしょう。このキャッチフレーズに乗せられて開設してしまった個人サイトは数限りなくあったと思います。その中で生き残ってきたものが日本の個人サイトの源だったのではないでしょうか。</p>
+<p class="in">当時は「日本語で書いててなにが世界に情報発信だ」と思ったものでしたが、こんな効用があるとは予想もできませんでした。</p>
+</section>
+<section id="chap3402" class="level2">
+<h3>Blogコミュニケーション</h3>
+<hr class="hr-gray" />
+<p class="in">Blogの面白さの本質はコミュニケーションです。たとえば、Blogのスタイルで、毎日自分がどんな食事を食べたかメニューを記録したとして、それを読んでも面白くもなんともありません。100年経ったら歴史的資料として価値が出るかもしれませんが。Blogを通じて外の世界とコミュニケーションをとることで世界がどんどん広がっていきます。</p>
+<p class="in">ですから、Blogでは外の世界との情報のやりとりが重視されます。多くのBlogツールでは以下のような手段でやりとりを行います。</p>
+<ul>
+<li><p>リンク</p></li>
+<li><p>コメント</p></li>
+<li><p>トラックバック</p></li>
+<li><p>RSS</p></li>
+</ul>
+</section>
+<section id="chap3403" class="level2">
+<a id="page_040"/>
+<h3>リンク</h3>
+<hr class="hr-gray" />
+<p class="in">多くのBlog記事は自分の興味のある情報を示し、それをリストしたり、コメントを付けて自分の考えを示しています。先ほども述べたようにこれがBlogの最も初期の形態です。BlogはWebページですから情報元のURLがあればリンクするのは当然のことです。</p>
+<p class="in">そのような背景があるので、Blogでは情報を提供するとき、その元ネタのURLを（あれば）明示することが推奨されます。また、どこかのページでその情報を入手した場合には、その経由先のURLを示すのが礼儀正しいやり方でしょう。それに経由先を示すことで、自分と興味の方向が近いサイトとの間にリンクを張ることができます。</p>
+<p class="in">このようにBlog同士でリンクを張り合うことにより、似た興味を持つ人によるBlogがつながり、次第にコミュニティが形成されていく、これがBlogの楽しさの1つです。</p>
+</section>
+<section id="chap3404" class="level2">
+<h3>コメント</h3>
+<hr class="hr-gray" />
+<p class="in">しかし、Blogの読者が全員自分のBlogを持っているわけではありません。また、たとえ自分のBlogを持っていたとしても、ほんの一言二言コメントしたいためだけに自分のBlogにエントリを用意するのも大げさに感じられる場合もあります。</p>
+<p class="in">そういう場合に対応するために、多くのBlogツールにはコメント機能が装備されています。コメントにより、元の記事の見落としが指摘されたり、欠けていた情報が補足されたりします。あるいはコメントをきっかけに有益な議論に発展することもあります。</p>
+<p class="in">ただ、コメントというのは基本的に匿名の書き込みですから、無責任なもの、攻撃的なもの、悪意のあるものが書き込まれる可能性があります。また、かつて宣伝目的で利用されたこともあります。読者からの自由なフィードバックを重視するか、コメントによる「荒らし」を避けることを重視するか、難しい判断ですが、一般的にはコメント機能を停止しなければならないほど問題が発生することは少ないようです。</p>
+</section>
+<section id="chap3405" class="level2">
+<h3>トラックバック</h3>
+<hr class="hr-gray" />
+<p class="in">リンクやコメントはBlogが存在する前からあった古くからの手法ですが、トラックバックはBlogによって誕生した新しいコミュニケーション手段です。</p>
+<p class="in">あるBlog（A）が別のBlog（B）の記事を話題にした場合、AからBへはリンクを張ることによってつながりを示すことができます。しかし、読者にとって知りたい情報は、このページがどのページを話題にしているかということはだけでなく、このページについて語っているページがどこにあるのかということも知りたいでしょう。</p>
+<p class="in">そこで、Bに対してAで話題になっていることを伝えるための方法ですが、リンクとコメントだけしかなければ、Bのコメント欄にAのURLを書き込むくらいしか方法がありません。正直なところちょっと面倒です。人間は面倒なことはやらないで済ませてしまうことが多いので、これでは面倒さが壁になって知りたい情報が集まらないことになってしまいます。</p>
+<a id="page_041"/>
+<p class="in">サーバーの管理者であれば、ログを見ることでReferer（参照元）の情報を得ることができますが、単なるBlogツールのユーザーには難しいことです（tDiaryには「リンク元」を表示する機能があります）。</p>
+<p class="in">そこで、登場したのがトラックバックです。トラックバックは相手のエントリを話題にしたことを通知するためのHTTPを使ってBlogツール同士がやりとりするプロトコル（取り決め）です。トラックバックに対応しているBlogツールには各記事ごとにtrackback URLと呼ばれるURLが用意され、記事の一部として表示されます。一方、参照する記事を書いた人は、記事を自分のBlogにアップロードするときに、参照した記事のtrackback URLを指定します。そうすると、アップロードを受けたBlogツールがtrackback URLに対してHTTPで参照情報（URLや要約など）を送ります。これで参照元のBlogは自分がそのページから参照されていることがわかりますから、コメントと同じように参照されているBlogの一覧を表示することができます。</p>
+<p class="in">トラックバックはMovableTypeというBlogツールで初めて導入されましたが、今ではMovableType以外の多くのBlogツールがトラックバックに対応し、ツール間を超えてやりとりができるようになりました。</p>
+</section>
+<section id="chap3406" class="level2">
+<h3>RSS</h3>
+<hr class="hr-gray" />
+<p class="in">RSSはRDF Site Summary（RDFによるサイト要約）の略で、機械にもわかる形式でWebサイトの概要を示す手段です。ここまで紹介してきたリンク、コメント、トラックバックはいずれも人間が読み、コミュニケーションするための機能でしたが、RSSはコンピュータが読み込んで処理するための機能です。</p>
+<p class="in">RSSはXML形式でWebサイトの見出し、概要、更新日付などを記録しています。このファイルを読み込むことで、人間向けに出力されたHTMLファイルを解析するようなことをしなくても、そのBlogに対する情報を収集することができます。各種Blogツールが用意するRSSファイルを読み込んで、Blogの更新と見出しをチェックするRSSリーダーと呼ばれるツールも登場してきています。</p>
+</section>
+<section id="chap3407" class="level2">
+<h3>さまざまなBlogツール</h3>
+<hr class="hr-gray" />
+<p class="in">MovableTypeなどの初期のBlogツールはPerlで記述されていましたが、Blogツールは単なるWebプログラムですから、実装するのにどの言語でなければならないという理由はありません。実際、Python, PHPなど数多くの言語で実装されたBlogツールがあり、もちろんRubyで実装されたものもたくさんあります。RAAなどを調べてみると、実に9つものBlogツールが登録されていました。眺めてみるとそれぞれの思想の違いなどもあって面白いです。</p>
+<p class="in">では、これら9つのBlogツール をひととおり紹介してみましょう。</p>
+<div class="description">
+<p class="ditem">Blogtari!（<span class="link">http://www.jamesbritt.com/articles/blogatari.html</span>）</p>
+<p class="dni">Blogtari! はrubyxml.orgなどXML関係の業績が多いJames BrittさんによるBlogツールです。PerlによるBlogツールBlosxomに触発されて開発されたとのことです。</p>
+<p class="ditem">clWiki（<span class="link">http://clabs.org/ruby.htm</span>）</p>
+<p class="dni">先月も紹介したChris MorrisさんによるclwikiにはBlogkiというBlogツールが同梱されています。</p>
+<a id="page_042"/>
+<p class="ditem">Diaria（<span class="link">http://rubyforge.org/projects/diaria/</span>）</p>
+<p class="dni">oztenさんによるBlogツールDiariaはBlog用の静的なHTMLを生成するコマンドラインツールです。生成されたHTMLファイルをサーバーにアップロードすることで簡単にBlogを運用できます（が、コメントやトラックバックは無理ですね）。</p>
+<p class="ditem">Gurgle（<span class="link">http://ca.compsec.net/arfer/gurgle</span>）</p>
+<p class="dni">GurgleはarferさんによるミニマルなBlogツールです。特別なライブラリをインストールすることなく動作します。原稿執筆時点ではWebページにアクセスできませんでした。</p>
+<p class="ditem">rb.log（<span class="link">http://www.zweknu.org/src/rb.log/</span>）</p>
+<p class="dni">TRrevor Schroederさんによるrb.logはフル機能を備えたBlogツールです。ファイルアップロード後静的ページを生成する機能も備えています。</p>
+<p class="ditem">RubyJournal（<span class="link">http://www.thedailychannel.com/rubyjournal/</span>）</p>
+<p class="dni">George GirtonさんによるRubyJournalは、Diaria同様クライアント側のBlogツールです。ホストへのFTPアクセスがあればいつでもBlogが始められます。開発はMac OS Xで行われているようです。</p>
+<p class="ditem">sakura（<span class="link">http://sakura.sourceforge.jp/cgi-bin/sakura.cgi</span>）</p>
+<p class="dni">MoleskinさんによるBlosxom likeなBlogツールです。「私もblosxomを使用する予定でしたが、いまからPerlを覚えるのが面倒なので同じようなものを作ることにしました」だそうです。非常にナイスな開発理由です。</p>
+<p class="ditem">tDiary</p>
+<p class="dni">「Rubyのキラーアプリ」として名高い、ただただしさんによる日記ツールです。もともとtDiaryはコメントやトラックバックなどBlogツールの諸機能を備えているのですが、BlogkitというよりBlog的に運用するためのツールも用意されています。Rubyホームページ（<span class="link">www.ruby-lang.org</span>）もこのtDiary+Blogkitで運用されています。</p>
+<p class="ditem">xlog（<span class="link">http://sourceforge.jp/projects/xlog/</span>）</p>
+<p class="dni">立石孝彰さんによるxlogはXTemplateのサンプルとしてのBlogツールだそうです。ソースコードはCVS経由でのみ入手可能です。</p>
+</div>
+</section>
+<section id="chap3408" class="level2">
+<h3>tDiary</h3>
+<hr class="hr-gray" />
+<p class="in">2003年5月以来、「Matzにっき」というBlogのようなWeb日記のようなものを書き続けています。URLは、</p>
+<ul class="none">
+<li><p><span class="link">http://www.rubyist.net/~matz/</span></p></li>
+</ul>
+<p class="ni">です。現時点で一日も休んでいない（遅れても毎日分ちゃんと書いている）ことを内心自慢に思っています。この「Matzにっき」を運用しているのがtDiaryです。なかなか便利なツールでこれがなければとても毎日の運用はできなかったことでしょう。</p>
+<p class="in">tDiaryの特徴は、</p>
+<a id="page_043"/>
+<ul>
+<li><p>ツッコミ</p></li>
+<li><p>トラックバック</p></li>
+<li><p>テーマ</p></li>
+<li><p>スタイル</p></li>
+<li><p>プラグイン</p></li>
+</ul>
+<p class="ni">などがあります。</p>
+<p class="ih">「ツッコミ」とは要するにコメントでtDiaryの「t」はツッコミのtというくらいtDiaryの基本的な機能です。tDiaryでのツッコミは短く愛を込めたものが推奨されています。</p>
+<p class="ih">「トラックバック」は上記で説明したものです。これによりtDiaryは他のBlogとコミュニケートできます。</p>
+<p class="ih">「テーマ」はCSS（Cascading Style Sheet）を使ってサイトの外観を変更できる機能です。tDiaryには数多くのテーマが同梱されているので、自分のBlogの外見をいろいろ選ぶことができます。季節や気分に合わせて変更するのも簡単です。また、テーマギャラリーがありますので、その中から「次はどんなテーマにしようか」と考えるのも楽しいです。</p>
+<ul class="none">
+<li><p><span class="k">テーマギャラリー</span><br />
+<span class="link">http://www.tdiary.org/20021001.html</span></p></li>
+</ul>
+<p class="ih">「スタイル」はBlog記事の入力スタイルです。tDiaryのデフォルトは簡易化されたHTMLですが、その他にもWikiの記法を使うWikiスタイル、Ruby界では人気の高いRDを使うRDスタイルなどが用意されています。RDスタイルがなければ私が「Matzにっき」を始めることもなかったでしょう。</p>
+<p class="ih">「プラグイン」はtDiaryにさまざまな機能を追加するものです。上記のトラックバックもプラグインで実現されています。他にも以下のようないろいろな機能がプラグインで提供されています。</p>
+<ul>
+<li><p><span class="k">Amazonアフィリエートプラグイン</span><br />
+ISBNに対応するAmazon.co.jpの購入ページへのリンクを生成します。</p></li>
+<li><p><span class="k">脚注プラグイン</span><br />
+脚注を付けます。脚注はその日のエントリの下にまとめて表示されます。</p></li>
+<li><p><span class="k">リンク生成プラグイン</span><br />
+自分の日記のエントリへのリンクを簡単に生成します。</p></li>
+<li><p><span class="k">カレンダープラグイン</span><br />
+カレンダーを表示します。表示形式・機能によっていくつかのカレンダープラグインが存在します。</p></li>
+<li><p><span class="k">ToDoプラグイン</span><br />
+ToDoリストを管理します。</p></li>
+<li><p><span class="k">RDF出力プラグイン</span><br />
+最新のエントリのRDFを出力します。</p></li>
+</ul>
+<p class="in">その他数多くのプラグインが開発されています。</p>
+<a id="page_044"/>
+<ul class="none">
+<li><p><span class="k">プラグインリスト</span><br />
+<span class="link">http://tdiary-users.sourceforge.jp/cgi-bin/wiki.cgi?PluginList</span></p></li>
+</ul>
+<p class="ni">このリストもWikiで管理されていますね。</p>
+<p class="in">さて、この後tDiaryのインストールについて説明しようと思ったのですが、どうやらそれを始めると、誌面が足りなくなりそうですから、tDiary.orgのサイトを参考にしてください。原稿執筆時点での最新のバージョンは1.5.6です。</p>
+<ul class="none">
+<li><p><span class="k">tDiaryのインストール</span><br />
+<span class="link">http://www.tdiary.org/20021112.html</span></p></li>
+<li><p><span class="k">tDiaryのインストール</span><br />
+<span class="link">http://tdiary-users.sourceforge.jp/cgi-bin/wiki.cgi?FAQ#i1</span></p></li>
+</ul>
+<p class="in">Webアプリケーションのインストールの経験があれば、インストール手順に従えば難しいことはまったくありません。気を付けるのは <code>.htaccess</code>ファイルの記述だけです。私のサイトの場合は<a href="#list3401">リスト34.1</a>のようにしています。</p>
+<div class="plistc" id="list3401">
+<p class="lst-caption">リスト34.1●.htaccessの例</p>
+<pre>Options +ExecCGI
+
+AddHandler cgi-script .rb
+DirectoryIndex index.rb
+RewriteEngine on
+RewriteBase /~matz
+RewriteRule ^([0-9]+)\.html$ /home/matz/public_html/index.rb?date=$1
+
+&lt;Files &quot;*.rhtml&quot;&gt;
+        deny from all
+&lt;/Files&gt;
+
+&lt;Files &quot;tdiary.*&quot;&gt;
+        deny from all
+&lt;/Files&gt;
+
+&lt;Files update.rb&gt;
+        AuthName      tDiary
+        AuthType      Basic
+        AuthUserFile  /home/matz/.htpasswd
+        Require user  matz
+&lt;/Files&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_045"/>
+<p class="ih">「<code>Rewrite</code>」から始まる3行はApacheの<code>mod_rewrite</code>の設定です。これにより、各日のエントリを<code>20040218.html</code>のような静的HTML風のURLに見せることができます。</p>
+</section>
+<section id="chap3409" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回はBlogについて探検してみました。今回紹介したtDiaryはとても奥が深いので、また別の機会を探して探検してみたいです。Emacs上での入力支援ツールtdiary-mode.elや、簡易検索ツールtdiarygrepなど紹介したいことはたくさん残っています。では、またの機会に。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-007.xhtml">&lt;&lt; 前ページ</a>　<a href="p-009.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

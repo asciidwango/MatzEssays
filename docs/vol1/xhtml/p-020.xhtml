@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第10章 ハッシュ（または連想配列）</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-019.xhtml">第10章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<section id="chap1017" class="level2">
+<a id="page_139"/>
+<h3>◆ 知られざるRuby ◆ ハッシュアルゴリズム</h3>
+<hr class="hr-blue" />
+<p class="in">ハッシュのような対応関係の検索を一番簡単に行うことができるのは線形検索です。配列には線形検索を行うメソッド<code>assoc</code>があります。<code>assoc</code>は、</p>
+<div class="plist">
+<pre>[[<span class="str">&quot;matz&quot;</span>, 50],[<span class="str">&quot;shugo&quot;</span>,80],[<span class="str">&quot;gotoken&quot;</span>,100]]</pre>
+</div>
+<p class="ni">というような配列から対応関係を検索します。</p>
+<div class="plist">
+<pre>ary.assoc(<span class="str">&quot;matz&quot;</span>)  <span class="cmt"># =&gt; [&quot;matz&quot;,50]</span></pre>
+</div>
+<p class="in">しかし、線形検索ではエントリ数が増えたときに最大でそのエントリ数に等しい回数だけ比較を行う必要があります。これはあまりにも非効率です。このような処理はエントリ数<span class="f">n</span>に比例するので<span class="f">O</span>(<span class="f">n</span>)と呼ばれます。配列がソートされていれば、二分検索を用いることができますから、<span class="f">O</span>(<span class="r">log</span> <span class="f">n</span>) になりますが、連想検索のようなケースではソートされていることは期待できません。</p>
+<p class="in">そこでハッシュも用いていて、名前の由来にまでなっているハッシュ法が登場します。ハッシュ法は実に<span class="f">O</span>(1)、つまり要素数が増えても原理的には効率が変化しないアルゴリズムです。</p>
+<p class="in">ハッシュ法では、まず格納するキーに対してハッシュ値という整数を計算します。ハッシュ値はオブジェクトの状態に応じた整数で、等しいオブジェクトに対してハッシュ値を計算するとは同じ値にならなければなりません。また、なるたけバラツキがあるのが望ましいといわれています。</p>
+<p class="in">そして、登録用のテーブル（配列）にハッシュ値をインデックスとしてアクセスします（<a href="#fig1001">図10.1</a>）。</p>
+<div class="fig" id="fig1001">
+  <!-- <div class="image40"> -->
+  <div class="image350">
+      <img src="../image/ch10/10-1.jpg" alt="fig1001" />
+  </div>
+  <p class="fig-caption">図10.1●ハッシュ法</p>
+</div>
+<a id="page_140"/>
+<p class="in">仮に文字列に対してハッシュ値を計算する関数が<code>hash</code>だったとします。そのうえで、文字列 <code>"matz"</code> をキーとする値を取り出すには、まずハッシュ値を計算します。この例では<code>hash("matz")</code>は<code>1</code>です。そこでテーブルのインデックス1の位置を見ると値は<code>50</code>であるとわかります。</p>
+<p class="in">存在しないキーに対しては、ハッシュ値インデックスの位置を検査することで、存在しないということがわかります。<a href="#fig1001">図10.1</a>の例では <code>"keiju"</code> のハッシュ値<code>4</code>に対する値は存在しませんから、登録されたキーではないと判定できます。</p>
+<p class="in">ハッシュ値の計算も配列のインデックスによるアクセスも要素数には関係ありませんから、ハッシュ法では原理的には<span class="f">O</span>(1) が達成できるというわけです。</p>
+<p class="in">ただし、これは相当単純化された説明です。現実の実装はそう簡単ではありません。</p>
+<p class="in">ハッシュ法では同じオブジェクトは同じハッシュ値を持つことが保証される必要がありますが、違うオブジェクトが同じハッシュ値を持ってはいけないわけではありません。ですから、ときには異なるオブジェクトに対して同じハッシュ値が得られ、インデックスが衝突する可能性があります。ハッシュテーブルの実装では衝突した場合の処理についてそれぞれに工夫をしています。Rubyのハッシュテーブルはチェーン法と呼ばれる手法を使って実装されています。</p>
+<p class="in">ハッシュ法についての詳細はアルゴリズムについて解説した書籍を参考にしてください。書名に「アルゴリズム」とあればハッシュ法が載っていないことはないでしょう。それほど有名なアルゴリズムです。Rubyではハッシュ法は組み込みライブラリとして提供されているので、実際にこのアルゴリズムを自分で作ることはまずないでしょうが、知っておいて損はないと思います。</p>
+<section id="chap101701" class="level3">
+<h4>eql?とhash</h4>
+<p class="in">Rubyではハッシュの値の計算は<code>hash</code>メソッド、キーとして等しいかどうかの判定は<code>eql?</code> メソッドで行われます。</p>
+<div class="plist">
+<pre><span class="str">&quot;foo&quot;</span>.hash         <span class="cmt"># =&gt; 876516207</span>
+<span class="str">&quot;bar&quot;</span>.hash         <span class="cmt"># =&gt; 841490416</span>
+
+<span class="str">&quot;foo&quot;</span>.eql?(<span class="str">&quot;foo&quot;</span>)  <span class="cmt"># =&gt; true</span>
+<span class="str">&quot;foo&quot;</span>.eql?(<span class="str">&quot;bar&quot;</span>)  <span class="cmt"># =&gt; false</span></pre>
+</div>
+<p class="in">ですから、自分で定義したオブジェクトをハッシュのキーとして適切に振る舞わせたいと思えば、この2つのメソッドを定義すればよいわけです。再定義しなければまったく同じオブジェクトだけが等しいとみなされます。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Point
+  <span class="kwd">def</span> initialize(x,y)
+    @x = x
+    @y = y
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> x; @x; <span class="kwd">end</span>
+  <span class="kwd">def</span> y; @y; <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+h={}               <span class="cmt"># hはハッシュ</span>
+p1 = Point.new(1,1)
+h[p1] = 5
+p2 = Point.new(1,1)
+p h[p2]  <span class="cmt"># =&gt; nil</span>
+         <span class="cmt"># 構造や内容は同じでも</span>
+         <span class="cmt"># 等しいとはみなされない</span>
+
+<span class="cmt"># eql?とhashの定義を追加する</span>
+<span class="kwd">class</span> Point
+  <span class="kwd">def</span> eql?(other)
+    @x == other.x <span class="kwd">and</span> @y == other.y
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> hash
+    @x ^ @y
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+h[p1] = 5
+p h[p2]  <span class="cmt"># =&gt; 5</span>
+         <span class="cmt"># 等しくみなされるように</span></pre>
+</div>
+<a id="page_141"/>
+<p class="in">キーのハッシュ値は格納するときに計算されます。しかし、配列やハッシュなどは要素が変化すればそのハッシュ値も変化してしまいます。そうなれば、ハッシュ法が正常に動作しませんから、ハッシュ値が変化してしまったオブジェクトはハッシュから取り出せなくなります。</p>
+<p class="in">そうなった場合には<code>rehash</code>メソッドで全キーのハッシュ値を再計算するとまた取り出せるようになります。</p>
+<p class="in">文字列もハッシュ値が内容によって変化するのですが、文字列はハッシュのキーとしてたびたび用いられるので特別扱いされています。ハッシュは文字列がキーとして与えられると、その文字列を内部的にコピーし、更新不可に設定してからキーとして登録します。ですから、キーとなっている文字列を<code>keys</code>メソッドなどで取り出して、それを変更しようとするとエラーになります。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-019.xhtml">&lt;&lt; 前ページ</a>　<a href="p-021.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

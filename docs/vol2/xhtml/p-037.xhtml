@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第50章 Emacs 対 vi</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第50章</p>
+<!-- Body -->
+<section id="chap50" class="level1">
+<a id="page_203"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">50</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+Emacs 対 vi
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">UNIX USER</span>, 2005年7月号]</p>
+<div class="newlead">
+<p class="in">有名なエディタ対立であるEmacs対Viを、MITのLisp文化とAT&amp;Tベル研のUNIX文化の違いであるとまとめたのは、個人的にはすばらしい考察だと自画自賛しているのですが、ほとんどの人にとってはどうでもいいことのようで、当時でもあまり話題になることはありませんでした。そうこうしているうちに、IDE（統合開発環境）が台頭し、特にVSCodeの登場以降は、EmacsもViも「ロートルが使うエディタ」という印象が強くなってしまいました。</p>
+<p class="in">まあ、実際、若い人でEmacsを使う人はもうほとんどいませんし、Vi（この場合はVimかNeoVim）を使う人もそれほどは多くありません。ただ、EmacsもVimも進歩を続けていて、たとえばLSP（Language Server Protocol）を話して、VSCodeっぽいリッチなコード補完ができたりするんですけどねえ。</p>
+</div>
+<section id="chap5001" class="level2">
+<h3>論争のタネ</h3>
+<hr class="hr-gray" />
+<p class="in">ハッカーといっても一枚板ではありません。いろんな種類のハッカーがいます。悪ぶっているだけの「自称ハッカー」は論外としても、いろんな趣味、いろんな文化のハッカーが存在します。そして彼らは、しばしば自分の意見や文化について論争を起こします。そのような論争のテーマはたくさんありますが、典型的なものは「どのプログラミング言語が一番優れているか」「どのOSが最もよいか?」、または「サイコーのエディタはEmacsかviか?」などです。今回は最後にあげた「Emacsかviか?」を例に、ハッカー文化圏について眺めてみましょう。</p>
+</section>
+<section id="chap5002" class="level2">
+<h3>TECOから進化したEmacs</h3>
+<hr class="hr-gray" />
+<p class="in">オリジナルのEmacsは、Richard StallmanがTECOエディタ用に開発したマクロです。Richard StallmanといえばGNU活動で有名になりましたが、もとは超一流のハッカーで、ばりばりプログラムを書く人物であることを忘れてはいけません。TECOはマクロ機能を備えたラインエディタで、Stallmanはそのマクロ機能を駆使して、スクリーンエディタである最初のEmacsを書き上げたわけです。</p>
+<a id="page_204"/>
+<p class="in">TECOによるEmacsが実装されたのは1976年だといわれています。その後、Javaの設計者となるJames Goslingが1981年にUNIX版Emacsの開発を行います。GoslingによるEmacs（通称Gosling EmacsまたはGosmacs）は、MockLispと呼ばれるLispもどきの言語を使った拡張機能を持っていました。しかし、GoslingはGosmacsの権利をUnipressという企業に売却してしまい、StallmanはGosmacsをベースにした新しいEmacsの開発を行えなくなってしまうのです。</p>
+<p class="in">いずれにしても、Unipress Emacsをベースに作業することができなかったStallmanは、再びゼロからEmacsを開発しました。これが現在広く使われているGNU Emacsです。GNU EmacsはGosmacsの拡張性を参考にしていますが、MockLispのようなカスタマイズ用のまがいものの言語ではなく、より「ちゃんとした」LispであるEmacs Lispを内蔵しています。Emacsの本体は基本的な編集機能とEmacs Lispを内蔵しているだけで、Emacsの便利な機能のほとんどはEmacs Lispを使って後付けで実装されています。ということは、一般のユーザーもEmacsの基本機能をベースにしてさまざまな機能を実装することができるということです。事実、Emacsではプログラミング言語を支援する各言語モードなど、さまざまな編集支援機能がユーザーからの寄贈によって追加されています。また、エディタの機能を超えて、メールリーダー、ニュースリーダー、Webブラウザ、ゲームなどなど、あらゆる領域での拡張機能が提供されています。Emacsはもはや単なるエディタではなく、1つの環境、あるいは一種のOSと呼べるくらいにまで発展しているわけです。</p>
+</section>
+<section id="chap5003" class="level2">
+<h3>edから進化したvi</h3>
+<hr class="hr-gray" />
+<p class="in">viはVisual Editorの略だといわれています。BSDの立役者で、長らくサン・マイクロシステムズの副社長だったBill Joyによって1976年頃に開発されたviは、UNIXの標準ラインエディタであったedおよびexをベースにスクリーンエディット機能を追加したものです。edマクロを使った非対話モードの作業が簡単に行える点がメリットであり、いつでもラインエディットに戻れる安心感があります。最近では、どちらも必要になることは珍しくなりましたが、私が学生のころは端末がおかしくなってviをラインモードで使う<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> こともときどきありました。</p>
+<p class="in">そういえば、学生時代の友人で普段からラインエディタexを愛用していたEくんは、ある日「lessのように画面を直接見ながらedコマンドで編集できるエディタがあれば完璧だ。lessedと名付けよう<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a>」と言いながら、lessのソースコードをハックしていました。見かねて「それはviというものなんだよ」と教えてあげると彼は感動していました。1988年のことです。毎日UNIXを使いながらviを知らなかった彼は大物なんだか、変人なんだか。</p>
+</section>
+<section id="chap5004" class="level2">
+<a id="page_205"/>
+<h3>ニュージャージー対マサチューセッツ</h3>
+<hr class="hr-gray" />
+<p class="in">viはUNIX哲学の体現だといえます。ニュージャージー州にあるAT&amp;Tベル研究所で始まったUNIXの哲学は、「単機能のツールを組み合わせた柔軟性」です。UNIXツールのことをよく知る人なら、各種フィルタを組み合わせた「パイプライン処理」のことを思い起こすはずです。cat, grep, awk, sed, nroff, pic, tblなどの単機能のツールをパイプラインでつなげて加工するのは職人芸と言ってもよいでしょう。UNIX哲学では、もちろんエディタもそのようなツールの一種として見なされます。2つのファイルの差分を取るツールdiffは、「<code>-e</code>」オプションを指定するとed形式で出力します。この出力結果の最後に「<code>w</code>」を付加してedに渡すと、自動的に書き換えて保存してくれます。もっともこのやり方では、ファイルが少しでも変更されていると悲惨な結果になるので、最近はedよりも少し賢いpatchコマンドを使うことがほとんどでしょうけど。</p>
+<p class="in">このようにviは、「小さいことはいいことだ」あるいは「よけいなことはしない」という思想を反映したツールなのです。</p>
+<p class="in">一方のEmacsはまた違う思想を反映しています。今ではUNIXで使われることが多く、UNIX系エディタとみなされやすいEmacsですが、オリジナルが開発されたのはUNIX上ではありません。Emacsが反映している（と思われる）のは、MIT（米マサチューセッツ工科大学）のLisp文化です。Lispは1958年頃にMITで誕生<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a> しました。もうすぐ50年になるんですね。ほとんどのLisp処理系は対話的に処理を行い、必要となる関数を次々定義していくことで環境を整備するという開発スタイルを取ります。このような環境で育ったLispハッカーにとって、Lisp処理系に編集機能を追加し、エディタにまで育て上げるというアプローチはごく自然なものだったのだろうと想像します。1970年代、Stallmanが名うてのLispハッカーであったことを考えると、「彼をして、このエディタあり」ということだったのでしょう。</p>
+<p class="in">Emacsの魅力はその拡張性、さらにいえばその「プログラム可能性」です。Emacsを開発のベースに使えば、画面操作などの標準で備わっている基本的な機能を利用して効率よくプログラムを開発できます。私自身、日常的な編集を支援するEmacs用の小さなツールをたくさん書いていますし、さらにRubyの変数とインデントを支援する<code>ruby-mode</code>、Emacs上のメールリーダーを2つ（cmailとmorq<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a>）開発しています。</p>
+<p class="in">しかし、一方ではEmacsはもともとはエディタでありながら、あらゆる機能を飲み込んでいってしまい、どんどん複雑化、肥大化しています。これを称して「キッチンシンク」と呼ぶ人もいます。洗い物を何でも雑多に突っ込んだ台所の流しのようだと<ruby>揶揄<rt>やゆ</rt></ruby>しているのです。</p>
+<p class="in">小さいツールを組み合わせることによって柔軟性を提供するUNIX思想、プログラム可能なツールによる柔軟性を提供するLisp思想。2つのエディタの対立は2つの思想の対立でもあったのです。</p>
+</section>
+<section id="chap5005" class="level2">
+<a id="page_206"/>
+<h3>NASAの乱入</h3>
+<hr class="hr-gray" />
+<p class="in">しかし、後にEmacsがUNIX上の代表的なエディタとみなされるようになって、戦況はやや混乱します。どちらもUNIXの仲間と思われてしまって、UNIX対Lispというわかりやすい対立軸が見えにくくなったからです。そして、別の「キッチンシンク」であるPerlの参戦によって、この対立軸は完全に見えなくなります。</p>
+<p class="in">Perlは、UNIX系文化がもともと個別のツールで提供していた機能をすべて1つの言語で提供しようというアプローチのものです。開発者のLarry Wall（当時NASAのジェット推進研究所所属）がLisp系文化の影響を受けていたかどうかは定かではありませんが、「キッチンシンク」アプローチの有効性を広く示したことには変わりありません。結果的にPerlはUNIX文化とLisp文化の掛け橋になったといえるでしょう。</p>
+<p class="in">皆さんも今度「Emacs対vi」の論争を見たら、それは遠い昔のUNIX対Lispの思想の対立の名残なのだと思ってください。思想は形を変えながら今もハッカー文化の中に息づいているのです。</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">viをラインモードで使う</span></p>
+<p>スクリーンエディットに必要な端末の制御コードがわからないとき、viはラインモードで起動する。これは要するにedとして動作するということ。
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">lessedと名付けよう</span></p>
+<p>ここでviのことを黙っていたら、もしかしたらEmacs, viに並ぶ第三のハッカー用エディタができていたかもしれない。惜しいことをした。
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">Lispは1958年頃にMITで誕生</span></p>
+<p>Lispの父はJohn McCarthy。実際にプログラミング言語として開発したのはSteve Russellだといわれている。
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">morq</span></p>
+<p>morqは全文検索ベースのメールリーダー。現在のユーザーは私一人。2005年夏一般公開予定である。
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-036.xhtml">&lt;&lt; 前ページ</a>　<a href="p-038.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

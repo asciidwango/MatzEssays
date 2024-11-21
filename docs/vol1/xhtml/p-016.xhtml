@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第9章 配列</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第9章</p>
+<!-- Body -->
+<section id="chap09" class="level1">
+<a id="page_111"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">9</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+配列
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年2月号]</p>
+<div class="newlead">
+<p class="in">配列とソートについて解説しています。この辺の基本的な部分は何年経っても変わりませんね。</p>
+<p class="ih">「開発日記」はRuby 1.8リリース直前の様子を紹介しています。当時開発中だったRuby 1.7というバージョンは、開発版として結局正式にリリースされることはありませんでした。この頃はバージョン番号の2桁目が奇数は開発版、偶数は安定版というルールを採用していました。ですから、1.3, 1,5, 1,7は開発のみでリリースされず、1.4, 1.6, 1.8は安定版としてリリースされました。同じ時期にはPerlもLinuxも同様のルールでしたから、一種の流行だったんでしょうね。このルールはRuby 1.9で見直され、1.9.0を開発版、1.9.1以降を安定版とするルールに変更されました。モチベーションは限りあるバージョン番号という「リソース」を節約するためです。Rubyのバージョン番号は各桁数字1つと決めているので余裕が少ないんですよね。</p>
+<p class="in">さて、本文中、「2002年初頭までには1.8がリリースされていることでしょう」とありましたが、実際にRuby 1.8がリリースされたのは2003年8月4日でした。実に1年半以上遅れましたね。この頃はまだ定期リリースという概念がなく、ずるずると遅くなりがちだったのを覚えています。</p>
+</div>
+<div class="lead">
+<p class="ni">先月まではRubyの本当の基本である文法などについて見てきましたが、今回からRubyの胴体であるクラスライブラリについて紹介します。今回は配列について学びます。</p>
+</div>
+<section id="chap0901" class="level2">
+<h3>配列とは</h3>
+<hr class="hr-gray" />
+<p class="in">皆さんは単数と複数について悩まれたことはおありですか?　職業柄（というか海外にユーザーがたくさんいるソフトウェアの開発者という立場上）、大量の英語のメールを受け取って、それらに返事をしなければならない私は、モノの単数と複数についてときどき間違えてしまいます。日本語には単語の複数形という概念も、主語が単数形か複数形かで動詞が変化するというルールもないので、ついうっかりしちゃうんですよね。最初は単数だった主語を複数にしたのに動詞はそのままだったとかしょっちゅうです。ああ、英語をしゃべる国に生まれたらラクだったのになあ。いや、日本語が世界言語というのもよいな。</p>
+<a id="page_112"/>
+<p class="in">まあ、愚痴はここまでにして、Rubyの話に戻りましょう。Rubyも言語には違いありません。Rubyには単数形や複数形があるのでしょうか。</p>
+<p class="in">人間の使う自然言語よりもずっと単純なRubyには、実は複数形はありません。単数形だけです。では、複数のものを取り扱うときにはどうするのでしょう。</p>
+<p class="in">魚屋に行ってイワシを3匹買った場合をRubyで取り扱おうと思えば、イワシ個別に名前を付ける（鰯一郎、鰯次郎、鰯花子とかでしょうか）というのが一番簡単な解法です。でも、これでは融通がききませんし、あらかじめ決まっていない数の魚を取り扱えません。そういうときには複数の魚を載せるトレーのようなオブジェクトを使います。このようなオブジェクトのことを、「コンテナ」「コレクション」などと呼びます。</p>
+<p class="in">今回説明する配列（<code>Array</code>）もこのコレクションの一種です。</p>
+<p class="in"><code>Array</code>とはもともとは「整然と並んだもの」という意味ですが、実体も似たようなものです。たとえば、整数1, 2, 3を含む配列を図で表現すると<a href="#fig0901">図9.1</a>のようになります。</p>
+<div class="fig" id="fig0901">
+  <!-- <div class="image30"> -->
+  <div class="image200">
+      <img src="../image/ch09/09-1.jpg" alt="fig0901" />
+  </div>
+  <p class="fig-caption">図9.1●配列（イメージ図）</p>
+</div>
+<p class="in">整数が配列の格子の中にないことに注目してください。先月学んだ「Rubyの考え方（変数は参照）」の原則は、配列にも適用されます。ですから、今月は「配列はオブジェクトを『指す』もので、オブジェクトの容器ではない」と覚えてください。</p>
+<p class="in">配列を作る方法はたくさんありますが、一番簡単で一般的な方法は「配列式」を用いることです。配列式は<code>[ ]</code>で囲まれてコンマで区切られた式の並びです。たとえば、<a href="#fig0901">図9.1</a>で示した配列であれば、</p>
+<div class="plist">
+<pre>[1, 2, 3]</pre>
+</div>
+<p class="ni">という表現になります。文字列の配列であれば、</p>
+<div class="plist">
+<pre>[<span class="str">&quot;鰯一郎&quot;</span>, <span class="str">&quot;鰯次郎&quot;</span>, <span class="str">&quot;鰯花子&quot;</span>]</pre>
+</div>
+<p class="ni">ですね（鰯はイワシです、念のため）。文字列の配列については省略形が用意されていて、同じ配列を、</p>
+<div class="plist">
+<pre>%w(鰯一郎 鰯次郎 鰯花子)</pre>
+</div>
+<p class="ni">と記述することもできます。</p>
+</section>
+<section id="chap0902" class="level2">
+<h3>配列要素の参照</h3>
+<hr class="hr-gray" />
+<p class="in">配列は0個以上の要素をまとめるオブジェクトで、その要素はそれぞれ順番付けられています。ですから、先頭の要素、次の要素、そのまた次の要素とそれぞれ取り出すことができます。</p>
+<div class="plist">
+<pre>a = [1, 2, 3]
+a[0]       <span class="cmt"># =&gt; 1</span>
+
+b = %w(鰯一郎 鰯次郎 鰯花子)
+puts b[1]  <span class="cmt"># =&gt; 「鰯次郎」を出力</span></pre>
+</div>
+<a id="page_113"/>
+<p class="in">忘れてはいけない重要な点は先頭の要素を表す番号は1ではなく、ゼロだということです。先頭の要素のことは普段「1番目の要素」と呼びますから、うっかり間違えないようにしてください。また、要素番号（インデックス）は負の数も指定できます。この場合は一番最後の要素が−1番目になります（<a href="#fig0902">図9.2</a>）。</p>
+<div class="fig" id="fig0902">
+  <!-- <div class="image40"> -->
+  <div class="image350">
+      <img src="../image/ch09/09-2.jpg" alt="fig0902" />
+  </div>
+  <p class="fig-caption">図9.2●配列のインデックス</p>
+</div>
+<p class="in">1つの要素を取り出すだけでなく、配列の一部分を範囲を指定して別の配列として取り出すこともできます。範囲の指定は、</p>
+<div class="plist">
+<pre>[n,m]    先頭の位置と長さ
+[n..m]   先頭の位置と末尾の位置（末尾を含む）
+[n...m]  先頭の位置と末尾の位置（末尾を含まない）</pre>
+</div>
+<p class="ni">の3種類があります。「<code>..</code>」と「<code>...</code>」の意味の違いに注意してください。</p>
+<div class="plist">
+<pre>a = [1, 2, 3]
+a[1,2]    <span class="cmt"># =&gt; [2,3] 1番の要素から2要素</span>
+a[1..2]   <span class="cmt"># =&gt; [2,3] 1番の要素から2番の要素まで</span>
+a[1...2]  <span class="cmt"># =&gt; [2]   1番の要素から2番の要素の前まで</span></pre>
+</div>
+</section>
+<section id="chap0903" class="level2">
+<h3>配列要素の変更</h3>
+<hr class="hr-gray" />
+<p class="in">配列はその要素の一部を変更することができます。要素の変更には、配列要素の参照を左辺（代入先）にした代入によって行います。</p>
+<div class="plist">
+<pre>b = %w(鰯一郎 鰯次郎 鰯花子)
+b[0] = <span class="str">&quot;鮒太郎&quot;</span>
+<span class="cmt"># [&quot;鮒太郎&quot;, &quot;鰯次郎&quot;, &quot;鰯花子&quot;] になる</span></pre>
+</div>
+<p class="in">もちろん左辺は範囲を指定した要素参照も指定することができます。この場合、右辺には配列を指定します。</p>
+<div class="plist">
+<pre># 1番の要素の位置から長さゼロを置き換える
+<span class="cmt"># つまり、1番の要素の前に挿入する</span>
+b[1,0] = [<span class="str">&quot;鯉之助&quot;</span>, <span class="str">&quot;鯰三郎&quot;</span>]
+<span class="cmt"># [&quot;鮒太郎&quot;, &quot;鰯次郎&quot;, &quot;鯉之助&quot;, &quot;鰯次郎&quot;, &quot;鰯花子&quot;]</span>
+<span class="cmt"># 長さは自動的に調整される</span>
+
+<span class="cmt"># 4番の要素から4番の要素までを置き換える</span>
+<span class="cmt"># 結局4番の要素を置き換える</span>
+b[4..4] = [<span class="str">&quot;鯨之進&quot;</span>]
+<span class="cmt"># [&quot;鮒太郎&quot;, &quot;鰯次郎&quot;, &quot;鯉之助&quot;, &quot;鰯次郎&quot;, &quot;鯨之進&quot;]</span>
+
+<span class="cmt"># 3番の要素から4番の要素の直前までを置き換える</span>
+<span class="cmt"># 結局3番だけが置き換わる</span>
+b[3...4] = [<span class="str">&quot;鮭造&quot;</span>]
+<span class="cmt"># [&quot;鮒太郎&quot;, &quot;鰯次郎&quot;, &quot;鯉之助&quot;, &quot;鯨之進&quot;, &quot;鮭造&quot;]</span></pre>
+</div>
+<a id="page_114"/>
+<p class="in">しかし魚偏の漢字ってたくさんありますね。</p>
+<p class="in">先ほど右辺には配列を指定すると解説しましたが、もし配列でない右辺を指定したらどうなるのでしょう?　これはエラーにはならず、その範囲全体がその値に置き換わります。</p>
+<div class="plist">
+<pre><span class="cmt"># 0番から5要素分を置き換える</span>
+<span class="cmt"># もとの配列が5要素しかないのでこの場合全部置き換え</span>
+b[0,5] = <span class="str">&quot;鯱助&quot;</span>
+<span class="cmt"># [&quot;鯱助&quot;]</span></pre>
+</div>
+</section>
+<section id="chap0904" class="level2">
+<h3>配列の入手法</h3>
+<hr class="hr-gray" />
+<p class="in">配列は非常に基本的なデータですから、さまざま局面で登場します。すでに紹介した配列式で明示的に作る以外にも、たとえば、</p>
+<ul>
+<li><p><code>IO.readlines(path)</code>は<code>path</code>で指定したファイルの内容を1行1文字列を要素とする配列として返します。</p></li>
+<li><p><code>Dir.glob(pat)</code>は<code>pat</code>で指定したワイルドカードにマッチするファイル名を要素とする配列を返します。</p></li>
+<li><p><code>local_variables</code>メソッドはローカル変数の名前を文字列の配列として返します。</p></li>
+</ul>
+<p class="in">これらはごくごく一部の例です。配列はほんとうにあちこちで登場します。見えにくいところでは、</p>
+<div class="plist">
+<pre>a, b = b, a</pre>
+</div>
+<p class="ni">のような代入（<code>a</code>と<code>b</code>の値を交換します）でも中で、</p>
+<div class="plist">
+<pre>tmp = [b, a]
+a = tmp[0]
+b = tmp[1]</pre>
+</div>
+<p class="ni">のような配列を用いた処理を行っています。</p>
+</section>
+<section id="chap0905" class="level2">
+<a id="page_115"/>
+<h3>メソッドリスト</h3>
+<hr class="hr-gray" />
+<p class="in">配列がどのようなことができるかを示すために配列オブジェクトの持つメソッド<a href="#table0901">表9.1</a>に示します。たくさんありますね。それぞれのメソッドの具体的な機能や使い方についてはマニュアルを参照してください。</p>
+<div class="table" id="table0901">
+<p class="tbl-caption">表9.1●配列オブジェクトのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td>配列の共通要素</td>
+<td><code>index</code></td>
+<td>要素検出</td>
+</tr>
+<tr>
+<td><code>|</code></td>
+<td>いずれかに含まれる要素</td>
+<td><code>indexes</code></td>
+<td><code>index</code>取得</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>配列の繰り返し</td>
+<td><code>indices</code></td>
+<td><code>index</code>取得</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>配列の結合</td>
+<td><code>join</code></td>
+<td>文字列に結合</td>
+</tr>
+<tr>
+<td><code>-</code></td>
+<td>配列の差</td>
+<td><code>last</code></td>
+<td>最後の要素</td>
+</tr>
+<tr>
+<td><code>&lt;&lt;</code></td>
+<td>配列への追加</td>
+<td><code>length</code></td>
+<td>配列サイズ</td>
+</tr>
+<tr>
+<td><code>&lt;=&gt;</code></td>
+<td>大小比較</td>
+<td><code>map</code></td>
+<td><code>collect</code>と同じ</td>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td>要素の取得</td>
+<td><code>map!</code></td>
+<td><code>collect!</code>と同じ</td>
+</tr>
+<tr>
+<td><code>[]=</code></td>
+<td>要素の設定</td>
+<td><code>max</code></td>
+<td>最大要素</td>
+</tr>
+<tr>
+<td><code>assoc</code></td>
+<td>簡易連想配列</td>
+<td><code>member?</code></td>
+<td><code>include?</code>と同じ</td>
+</tr>
+<tr>
+<td><code>at</code></td>
+<td>要素の取得</td>
+<td><code>min</code></td>
+<td>最小要素</td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td>要素のクリア</td>
+<td><code>nitems</code></td>
+<td><code>nil</code>でない要素数</td>
+</tr>
+<tr>
+<td><code>collect</code></td>
+<td>処理結果の収集</td>
+<td><code>pack</code></td>
+<td>バイナリ文字列化</td>
+</tr>
+<tr>
+<td><code>collect!</code></td>
+<td>処理結果の収集</td>
+<td><code>pop</code></td>
+<td>末尾要素を取り出す</td>
+</tr>
+<tr>
+<td><code>compact</code></td>
+<td><code>nil</code>を取り除く</td>
+<td><code>push</code></td>
+<td>末尾に追加</td>
+</tr>
+<tr>
+<td><code>compact!</code></td>
+<td><code>nil</code>を取り除く</td>
+<td><code>rassoc</code></td>
+<td>簡易連想配列</td>
+</tr>
+<tr>
+<td><code>concat</code></td>
+<td>配列の追加</td>
+<td><code>reject</code></td>
+<td>条件による削除</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>要素の削除</td>
+<td><code>reject!</code></td>
+<td>条件による削除</td>
+</tr>
+<tr>
+<td><code>delete_at</code></td>
+<td>位置による削除</td>
+<td><code>replace</code></td>
+<td>配列内容の置換</td>
+</tr>
+<tr>
+<td><code>delete_if</code></td>
+<td>条件による削除</td>
+<td><code>reverse</code></td>
+<td>逆順化</td>
+</tr>
+<tr>
+<td><code>detect</code></td>
+<td>要素の検出</td>
+<td><code>reverse!</code></td>
+<td>逆順化</td>
+</tr>
+<tr>
+<td><code>each</code></td>
+<td>繰り返し</td>
+<td><code>reverse_each</code></td>
+<td>逆順繰り返し</td>
+</tr>
+<tr>
+<td><code>each_index</code></td>
+<td><code>index</code>による繰り返し</td>
+<td><code>rindex</code></td>
+<td>逆順の要素検出</td>
+</tr>
+<tr>
+<td><code>each_with_index</code></td>
+<td><code>index付き繰り返し</code></td>
+<td><code>select</code></td>
+<td>条件に合う全要素検出</td>
+</tr>
+<tr>
+<td><code>empty?</code></td>
+<td>空配列チェック</td>
+<td><code>shift</code></td>
+<td>先頭要素を取り出す</td>
+</tr>
+<tr>
+<td><code>fill</code></td>
+<td>要素セット</td>
+<td><code>size</code></td>
+<td>配列サイズ</td>
+</tr>
+<tr>
+<td><code>find</code></td>
+<td><code>detect</code>と同じ</td>
+<td><code>slice</code></td>
+<td>部分配列</td>
+</tr>
+<tr>
+<td><code>find_all</code></td>
+<td><code>select</code>と同じ</td>
+<td><code>slice!</code></td>
+<td>部分配列の切り出し</td>
+</tr>
+<tr>
+<td><code>first</code></td>
+<td>最初の要素</td>
+<td><code>sort</code></td>
+<td>ソート</td>
+</tr>
+<tr>
+<td><code>flatten</code></td>
+<td>平滑化</td>
+<td><code>sort!</code></td>
+<td>ソート</td>
+</tr>
+<tr>
+<td><code>flatten!</code></td>
+<td>平滑化</td>
+<td><code>uniq</code></td>
+<td>重複の削除</td>
+</tr>
+<tr>
+<td><code>grep</code></td>
+<td>要素の選択</td>
+<td><code>uniq!</code></td>
+<td>重複の削除</td>
+</tr>
+<tr>
+<td><code>include?</code></td>
+<td>メンバーチェック</td>
+<td><code>unshift</code></td>
+<td>先頭に追加</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap0906" class="level2">
+<a id="page_116"/>
+<h3>Bangメソッド</h3>
+<hr class="hr-gray" />
+<p class="in"><a href="#table0901">表9.1</a>のメソッド一覧を見ると、名前の最後に「<code>!</code>」の付いたメソッドがいくつかあります。これは「Bangメソッド」と呼ばれます（「ばんめそっど」と発音してください）。Bangメソッドは、レシーバを変更します。逆順に並べ替える<code>reverse</code>メソッドについて「<code>!</code>」が付いているものと、付いていないものを比較してみましょう。</p>
+<div class="plist">
+<pre>ary = [0,1,2,3,4,5]
+ary.reverse     <span class="cmt"># [5,4,3,2,1]を返す</span>
+                <span class="cmt"># aryは元のまま</span>
+ary.reverse!    <span class="cmt"># これも[5,4,3,2,1]を返すが、</span>
+                <span class="cmt"># aryも[5,4,3,2,1]になる</span></pre>
+</div>
+<p class="ih">「<code>!</code>」の付いていない<code>reverse</code>メソッドでは要素を逆順にしたコピーを作るのに対して、<code>reverse!</code>では配列の要素を直接逆順に並べ替えていることがわかるでしょう。Bangメソッドはコピーを行わないため、特に要素数が大きくなったり、呼び出し回数が頻繁になると実行性能を向上させることができます。</p>
+<p class="in">その一方、レシーバを直接書き換えてしまうために1つの配列が複数の変数などから参照されていると、思いがけない変更が発生することになりかねません。注意する必要があります。</p>
+<p class="in">もう1つ注意するべき点があります。それはメソッド名の「<code>!</code>」は「付いているものはレシーバを書き換える、付いていないものは書き換えない」という意味では「ない」ということです。</p>
+<p class="in">配列の場合「<code>!</code>」の付いているメソッドはすべてレシーバを書き換えますが、逆に「<code>!</code>」が付いていなくてもレシーバを変更するメソッドはいくつもあります。たとえば、<code>delete</code>メソッドはメソッド名に「<code>!</code>」が付いていませんが、引数として指定した配列の要素を取り除きます。</p>
+<p class="in">ですから、メソッド名の「<code>!</code>」は、付いているものと付いていないものの両方が提供されていて、「<code>!</code>」が付いているもののほうが使用上より注意が必要という程度の意味にとらえてください。</p>
+</section>
+<section id="chap0907" class="level2">
+<h3>繰り返し</h3>
+<hr class="hr-gray" />
+<p class="in">配列に典型的な処理といえば、各要素に対して順に処理を行うことでしょう。C的に表現すると、</p>
+<div class="plist">
+<pre><span class="kwd">for</span> (i=0; i&lt;len; i++) {
+  ... a[i] を参照する ..
+}
+</pre>
+</div>
+<p class="ni">という感じでしょうか。しかし、Rubyではもうちょっとマシな方法で各要素に対する処理が行えます。</p>
+<p class="in">一番典型的なのが<code>for</code>文です。<code>for</code>文は以下のような文法を持ちます。</p>
+<div class="plist">
+<pre><span class="kwd">for</span> 変数 <span class="kwd">in</span> 式
+  文
+<span class="kwd">end</span></pre>
+</div>
+<a id="page_117"/>
+<p class="ni">式の部分に配列（を返す式）を指定すると、その配列の要素が順番に変数に代入され<code>for</code>文の本体が順に実行されます。配列の長さチェックや要素の取り出しなどは<code>for</code>文が面倒を見てくれます。</p>
+<p class="in">その他にも繰り返しを行ってくれるメソッドがたくさんあります。</p>
+<div class="description">
+<p class="ditem"><code>配列.each{|変数| 文}</code></p>
+<p class="dni">変数に要素が順に代入され、文が実行されます。<code>each</code>は<code>for</code>文と同じ働きをするメソッドです。実際には<code>for</code>文の処理はこの<code>each</code>メソッドを使って実現されています。</p>
+<p class="ditem"><code>配列.reverse_each{|変数| 文}</code></p>
+<p class="dni"><code>reverse_each</code>は<code>each</code>を逆順に実行します。</p>
+</div>
+<p class="in">それから「<code>-ect</code>兄弟」と通称されるメソッド群があります。これらはみな「<code>ect</code>」で終わる名前を持ち、配列の各要素に対して繰り返して処理を行います。</p>
+<div class="description">
+<p class="ditem"><code>配列.collect{|変数| 式}</code></p>
+<p class="dni">式の結果を集めた配列を返します。<code>map</code>という別名があります。</p>
+<p class="ditem"><code>配列.select{|変数| 式}</code></p>
+<p class="dni">配列の要素のうち、式が成立する（真になる）要素を集めて配列として返します。<code>find_all</code>という別名があります。</p>
+<p class="ditem"><code>配列.detect{|変数| 式}</code></p>
+<p class="dni">配列の要素を先頭から順番にチェックし、式が成立する（真になる）最初の要素を返します。<code>find</code>という別名があります。</p>
+</div>
+</section>
+<section id="chap0908" class="level2">
+<h3>ソート</h3>
+<hr class="hr-gray" />
+<p class="in">ソート（sort）とは配列の要素を順番に並べ替えることです。たとえば、</p>
+<div class="plist">
+<pre>[5,2,3,1,4]</pre>
+</div>
+<p class="ni">を</p>
+<div class="plist">
+<pre>[1,2,3,4,5]</pre>
+</div>
+<p class="ni">に並べ替えることをソートといいます。配列の要素をソートするには<code>sort</code>メソッドを使います。</p>
+<div class="plist">
+<pre>ary = [5,2,3,1,4]
+ary.sort    <span class="cmt"># [1,2,3,4,5]を返す</span></pre>
+</div>
+<p class="in"><code>sort</code>メソッドは元の配列と要素がソートされた同じ大きさの配列を返します。配列が大きくなると、この配列のコピー処理が負担になる場合があります。その場合には配列の中身を直接ソートする<code>sort!</code>メソッドがあります。</p>
+<p class="in"><code>sort!</code>メソッドのほうがコピーが避けられるぶん<code>sort</code>メソッドよりも高速なのですが、破壊的なメソッドなので、配列そのものを書き換えるときのリスクがあることに注意してください。</p>
+</section>
+<section id="chap0909" class="level2">
+<a id="page_118"/>
+<h3>Ruby 1.7の追加機能</h3>
+<hr class="hr-gray" />
+<p class="in">Ruby 1.7では配列も機能強化されていて、<a href="#table0901">表9.1</a>に示したメソッド以外にも、下の6つのメソッド追加されています。</p>
+<div class="description">
+<p class="ditem"><code>配列.all?{|変数| 式}</code></p>
+<p class="dni">各要素に対して評価した式がすべて成立したときに真を返します。どれか1つでも式が成立しない要素があればそこで繰り返しを止めてしまいます。</p>
+<p class="ditem"><code>配列.any?{|変数| 式}</code></p>
+<p class="dni">各要素に対して評価した式のいずれかが成立したときに真を返します。式が成立する要素に出合うとそこで繰り返しを止めてしまいます。</p>
+<p class="ditem"><code>配列.fetch(i,ifnone)</code></p>
+<p class="dni"><code>i</code>番の要素を返します。<code>i</code>が配列の範囲を超えるときには<code>ifnone</code>で指定した値を返します（<code>ifnone</code>を省略したときには<code>nil</code>）。</p>
+<p class="ditem"><code>配列.insert(i,v)</code></p>
+<p class="dni"><code>i</code>で指定した位置（<code>i</code>番の要素の直前）に引数で指定した値を挿入します。複数の値が指定されれば、それらをすべて挿入します。</p>
+<p class="ditem"><code>配列.inject(n){|変数1, 変数2| 式}</code></p>
+<p class="dni"><code>inject</code>も「<code>-ect</code>兄弟」の1つです。<code>inject</code>を実行すると、各要素ごとに式を評価します。変数1には前回の式の結果が入ります。最初の要素に対しては「前回の式の結果」はありませんから、<code>inject</code>の引数として渡した初期値を使います。変数2には配列の要素が代入されます。<code>inject</code>の値は最後に評価した式の値です。</p>
+<p class="din"><code>inject</code>の典型的な利用法は各要素の合計の計算です。以下に<code>inject</code>を用いた配列要素の合計を示します。</p>
+<div class="plistd">
+<pre>ary = [1,1,2,3,5,8,13]
+p ary.inject(0) {|n,i| n + i} <span class="cmt"># =&gt; 33</span></pre>
+</div>
+<p class="ditem"><code>配列.sort_by|変数| 式</code></p>
+<p class="dni">式の結果に基づいてソートします。<code>sort_by</code>については、のちほど詳しく説明します。</p>
+</div>
+</section>
+<section id="chap0910" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">ここまで駆け足で配列について見てきました。配列はRubyにおいてかなり重要なオブジェクトです。いろいろ試してみて、使いこなしてください。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-015.xhtml">&lt;&lt; 前ページ</a>　<a href="p-017.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第11章 文字列の操作</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-022.xhtml">第11章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<section id="chap1120" class="level2">
+<a id="page_157"/>
+<h3>◆ 知られざるRuby ◆ packとunpack</h3>
+<hr class="hr-blue" />
+<p class="ih">「文字列の分割」のときに使った<code>unpack</code>メソッドは、本来配列の<code>pack</code>メソッドと対になって使われるためのメソッドです。<code>pack</code>は配列に格納されている各要素を指定されたテンプレートに従って文字列（というかバイト列）に詰め込むメソッドで、<code>unpack</code>はその逆、つまりテンプレートに従ってバイト列の内容からデータを取り出し配列として返します。</p>
+<p class="in">今回はPerl譲りのこの<code>pack</code>と<code>unpack</code>について考えてみましょう。Perlエキスパートの人には退屈な話かもしれませんね。</p>
+<section id="chap112001" class="level3">
+<h4>Perlエキスパートのために</h4>
+<p class="in">Perlの<code>pack</code>と<code>unpack</code>についてよくご存じの方のために、PerlとRubyの<code>pack</code>と<code>unpack</code>の違いを紹介しておきます。</p>
+<div class="description">
+<p class="ditem">引数が違う</p>
+<p class="dni">Perlがそれぞれ<code>pack</code>, <code>unpack</code>関数であるのに対して、Rubyでは配列クラスの<code>pack</code>メソッドと文字列クラスの<code>unpack</code>メソッドです。呼び出し方もPerlでは、</p>
+<div class="plistd">
+<pre>pack(template, val, val, val);
+unpack(template, str);</pre>
+</div>
+<p class="dni">であるのに対して、Rubyでは、</p>
+<div class="plistd">
+<pre>[val, val, val].pack(template)
+str.unpack(template)</pre>
+</div>
+<p class="dni">になります。</p>
+<p class="ditem">64bit整数の<code>Q</code>, <code>q</code>テンプレートがない</p>
+<p class="dni">将来はできるかもしれませんが、当面は64bit整数は扱えません。もっともPerlでもすべてのプラットフォームで使えるわけではありませんから、さして問題にはならないと思います（※この原稿を書いている間に1.7に追加しちゃいました）。</p>
+<p class="ditem">Rubyの<code>pack</code>にはチェックサム機能がない</p>
+<p class="dni">文字列のチェックサムのためには文字列クラスの<code>sum</code>メソッドを使います。</p>
+</div>
+</section>
+<section id="chap112002" class="level3">
+<h4>packテンプレート</h4>
+<p class="in"><code>pack</code>と<code>unpack</code>に指定するテンプレート文字の一覧を<a href="#table1103">表11.3</a>に示します。テンプレート文字は後ろに「長さ」を表す数字を続けることができます。「長さ」の代わりに‘<code>*</code>’とすることで「残りすべて」を表すこともできます。</p>
+<a id="page_158"/>
+<div class="table" id="table1103">
+<p class="tbl-caption">表11.3●テンプレート文字の意味の違い</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">文字</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">文字</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>a</code></td>
+<td>ASCII文字列（<code>nul</code>文字を詰める）</td>
+<td><code>v</code></td>
+<td>リトルエンディアンの<code>unsigned short</code></td>
+</tr>
+<tr>
+<td><code>A</code></td>
+<td>ASCII文字列（スペースを詰める）</td>
+<td><code>V</code></td>
+<td>リトルエンディアンの<code>unsigned long</code></td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td>ビットストリング（下位ビットから上位ビット）</td>
+<td><code>f</code></td>
+<td>単精度浮動小数点数（機種依存）</td>
+</tr>
+<tr>
+<td><code>B</code></td>
+<td>ビットストリング（上位ビットから下位ビット）</td>
+<td><code>d</code></td>
+<td>倍精度浮動小数点数（機種依存）</td>
+</tr>
+<tr>
+<td><code>h</code></td>
+<td>16進文字列（下位ニブルが先）</td>
+<td><code>e</code></td>
+<td>リトルエンディアンの単精度浮動小数点数（機種依存）</td>
+</tr>
+<tr>
+<td><code>H</code></td>
+<td>16進文字列（上位ニブルが先）</td>
+<td><code>E</code></td>
+<td>リトルエンディアンの倍精度浮動小数点数（機種依存）</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td><code>char</code></td>
+<td><code>g</code></td>
+<td>ビッグエンディアンの単精度浮動小数点数（機種依存）</td>
+</tr>
+<tr>
+<td><code>C</code></td>
+<td><code>unsigned char</code></td>
+<td><code>G</code></td>
+<td>ビッグエンディアンの倍精度浮動小数点数（機種依存）</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td><code>short</code></td>
+<td><code>p</code></td>
+<td>ナル終端の文字列へのポインタ</td>
+</tr>
+<tr>
+<td><code>S</code></td>
+<td><code>unsigned short</code></td>
+<td><code>P</code></td>
+<td>構造体（固定長文字列）へのポインタ</td>
+</tr>
+<tr>
+<td><code>i</code></td>
+<td><code>int</code></td>
+<td><code>u</code></td>
+<td>uuencodeされた文字列</td>
+</tr>
+<tr>
+<td><code>I</code></td>
+<td><code>unsigned int</code></td>
+<td><code>U</code></td>
+<td>utf-8</td>
+</tr>
+<tr>
+<td><code>l</code></td>
+<td><code>long</code></td>
+<td><code>w</code></td>
+<td>BER圧縮整数</td>
+</tr>
+<tr>
+<td><code>L</code></td>
+<td><code>unsigned long</code></td>
+<td><code>x</code></td>
+<td>ナルバイト/1バイト読み飛ばす</td>
+</tr>
+<tr>
+<td><code>m</code></td>
+<td>base64された文字列</td>
+<td><code>X</code></td>
+<td>1バイト後退</td>
+</tr>
+<tr>
+<td><code>M</code></td>
+<td>quoted-printable encodingされた文字列</td>
+<td><code>Z</code></td>
+<td><code>null</code>終端文字列</td>
+</tr>
+<tr>
+<td><code>n</code></td>
+<td>ビッグエンディアンの<code>unsigned short</code></td>
+<td><code>@</code></td>
+<td>絶対位置への移動</td>
+</tr>
+<tr>
+<td><code>N</code></td>
+<td>ビッグエンディアンの<code>unsigned long</code></td>
+<td></td>
+<td></td>
+</tr>
+</table>
+</div>
+<p class="in">テンプレート文字の間には空白を入れて見やすくすることができます。</p>
+<p class="in">下記の説明の中で<code>short</code>や<code>long</code>のサイズはシステムによらずそれぞれ2, 4バイトとみなされます。<code>s</code>, <code>S</code>, <code>i</code>, <code>I</code>, <code>l</code>, <code>L</code>の各テンプレート文字は直後に「<code>_</code>」または「<code>!</code>」を続けた場合にはサイズはシステム依存の<code>short</code>, <code>long</code>のサイズになります。</p>
+<p class="in"><code>a</code>, <code>A</code>, <code>Z</code>の各テンプレート文字は<code>pack</code>と<code>unpack</code>で少しだけ意味が違います（<a href="#table1104">表11.4</a>）。</p>
+<div class="table" id="table1104">
+<p class="tbl-caption">表11.4●テンプレート文字の意味の違い</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">文字</span></th>
+<th><span class="k">pack</span></th>
+<th><span class="k">unpack</span></th>
+</tr>
+<tr>
+<td><code>a</code></td>
+<td><code>nul</code>文字を詰める</td>
+<td>後続する<code>null</code>文字やスペースを残す</td>
+</tr>
+<tr>
+<td><code>A</code></td>
+<td>スペースを詰める</td>
+<td>後続する<code>null</code>文字やスペースを削除</td>
+</tr>
+<tr>
+<td><code>Z</code></td>
+<td><code>nul</code>文字を詰める</td>
+<td>後続する<code>null</code>文字を削除</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap112003" class="level3">
+<h4>主な使い道</h4>
+<p class="in"><code>pack</code>と<code>unpack</code>の使い方として主なものは以下のとおりです。</p>
+<ul>
+<li><p>固定幅での文字列の分割（<code>unpack</code>）</p></li>
+<li><p>数値の配列を文字列化（<code>pack</code>）</p></li>
+<li><p>文字列を文字コードの配列に（<code>unpack</code>）</p></li>
+<li><a id="page_159"/><p>文字コードとUTF-8文字列との相互変換（<code>pack</code>/<code>unpack</code>）</p></li>
+<li><p>uuencode, base64のエンコード、デコード（<code>pack</code>/<code>unpack</code>）</p></li>
+<li><p>エンディアンの変換（<code>pack</code>/<code>unpack</code>）</p></li>
+<li><p>C構造体のバイナリ操作（<code>pack</code>/<code>unpack</code>）</p></li>
+<li><p>IPアドレスの展開</p></li>
+</ul>
+<p class="in">このうち、すでに説明した固定幅での文字列の分割以外の使い方について見てみましょう。</p>
+<section id="chap11200301" class="level4">
+<h5>数値の配列を文字列化</h5>
+<div class="plist">
+<pre>[82, 117, 98, 121].pack(<span class="str">&quot;cccc&quot;</span>) <span class="cmt"># =&gt; &quot;Ruby&quot;</span>
+[82, 117, 98, 121].pack(<span class="str">&quot;c4&quot;</span>)   <span class="cmt"># =&gt; &quot;Ruby&quot;</span>
+[82, 117, 98, 121].pack(<span class="str">&quot;c*&quot;</span>)   <span class="cmt"># =&gt; &quot;Ruby&quot;</span></pre>
+</div>
+</section>
+<section id="chap11200302" class="level4">
+<h5>文字列を文字コードの配列に</h5>
+<div class="plist">
+<pre><span class="str">&quot;Ruby&quot;</span>.unpack(<span class="str">&#39;C*&#39;</span>)             <span class="cmt"># =&gt; [82, 117, 98, 121]</span></pre>
+</div>
+</section>
+<section id="chap11200303" class="level4">
+<h5>文字コードとUTF-8文字列との相互変換</h5>
+<p class="in">Cでは結局ASCII文字列しか扱えませんが、<code>U</code>テンプレートを使うとUTF-8文字列を処理できます。入力がUTF-8の場合、</p>
+<div class="plist">
+<pre><span class="str">&quot;Ruby&quot;</span>.unpack(<span class="str">&#39;U*&#39;</span>)             <span class="cmt"># =&gt; [82, 117, 98, 121]</span>
+<span class="str">&quot;ああ&quot;</span>.unpack(<span class="str">&#39;U*&#39;</span>)             <span class="cmt"># =&gt; [12354, 12354]</span>
+[12354, 12354].pack(U2)         <span class="cmt"># =&gt; &quot;ああ&quot;</span></pre>
+</div>
+<p class="ni">となります。</p>
+</section>
+<section id="chap11200304" class="level4">
+<h5>uuencode, base64のエンコード、デコード</h5>
+<p class="in">uuencodeはかつてメールなどでバイナリデータを送るときに用いられたエンコーディング手法です。base64は同じ目的のために最近よく用いられるエンコーディング手法です。直接見ることは少ないかもしれませんが、メールの添付ファイルはたいていこの方法でエンコーディングされています（base64の他にquoted printable形式というものも使われることがあります）。</p>
+<p class="in"><code>str</code>というバイナリデータをエンコードするためには、</p>
+<div class="plist">
+<pre>[str].pack(<span class="str">&quot;u&quot;</span>)
+[str].pack(<span class="str">&quot;M&quot;</span>)</pre>
+</div>
+<p class="ni">デコードするためには、</p>
+<div class="plist">
+<pre>str.unpack(<span class="str">&quot;u&quot;</span>)
+str.unpack(<span class="str">&quot;M&quot;</span>)</pre>
+</div>
+<a id="page_160"/>
+<p class="ni">とします。なお、quoted printable形式には<code>m</code>テンプレート文字を用います。</p>
+</section>
+<section id="chap112004" class="level4">
+<h5>エンディアンの変換</h5>
+<p class="in">マシンによって整数のデータは位置が違うことを「エンディアン」といいます。Intel製のx86は小さい桁を先に置く「リトルエンディアン」で、SunのSparcやMotorolaの68000などは大きい桁を先に置く「ビッグエンディアン」です。<code>pack</code>と<code>unpack</code>を用いれば、ビッグエンディアンとリトルエンディアンの相互変換も簡単にできます。</p>
+<div class="plist">
+<pre>[1].pack(<span class="str">&quot;N&quot;</span>).unpack(<span class="str">&quot;V&quot;</span>)  <span class="cmt"># =&gt; [16777216]</span>
+[1].pack(<span class="str">&quot;n&quot;</span>).unpack(<span class="str">&quot;v&quot;</span>)  <span class="cmt"># =&gt; [256]</span></pre>
+</div>
+</section>
+<section id="chap112005" class="level4">
+<h5>C構造体のバイナリ操作</h5>
+<p class="in"><code>Socket</code>クラスはCのsocket APIを構造体を含めてそのまま受け取る非常に原始的なインターフェイスを提供しています。そのために<code>struct sockaddr</code>構造体を文字列に<code>pack</code>する必要があります。</p>
+<div class="plist">
+<pre>[2, 7, 127, 0, 0, 1].pack(<span class="str">&quot;snC4x8&quot;</span>)</pre>
+</div>
+<p class="ni">これは「<code>AF_INET, 'echo', 127.0.0.1</code>」を意味します。IPアドレスの取得も<code>unpack</code>を使います。</p>
+<div class="plist">
+<pre>Socket.gethostbyname(<span class="str">&quot;localhost&quot;</span>)[3].unpack(<span class="str">&quot;C4&quot;</span>).join(<span class="str">&quot;.&quot;</span>)
+<span class="cmt"># =&gt; &quot;127.0.0.1&quot;</span></pre>
+</div>
+</section>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-022.xhtml">&lt;&lt; 前ページ</a>　<a href="p-024.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

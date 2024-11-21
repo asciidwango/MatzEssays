@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第23章 スレッド（その2）</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第23章</p>
+<!-- Body -->
+<section id="chap23" class="level1">
+<a id="page_321"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">23</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+スレッド（その2）
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年4月号]</p>
+<div class="newlead">
+<p class="in">スレッドについての解説の続きです。今回はスレッドでの問題を避けるための仕組みであるロックとキューと条件変数について解説しています。当時はマルチコアコンピュータが一般的でなかったせいもあって、スレッドについてはさらっと解説していますね。記事執筆時からしばらく経つと、パフォーマンス改善のために複数コアを活用することが一般的になり、そのためのスレッドの重要性が増すことになるのですが。</p>
+<p class="in">が、コンカレントプログラミングの原則は同じです。ここに書いていない大原則として、「フレームワークやライブラリに任せて、一般ユーザーはそもそのコンカレントプログラミングするべきでない」というものがありますが。</p>
+<p class="ih">「Ruby開発日記」は、「プログラマーの幸せ」というテーマでプログラマーという「人種」の気質について解説しています。私自身は、プログラマーが特殊であるとはあまり考えたくないのですが、自分と周囲のズレを考えると否定しきれないものがあります。</p>
+</div>
+<div class="lead">
+<p class="ni">先月に引き続いてスレッドについて、特に複数のスレッド間で発生する問題の避け方について学びます。</p>
+</div>
+<section id="chap2301" class="level2">
+<h3>先月の復習</h3>
+<hr class="hr-gray" />
+<p class="in">まずは先月学んだことを復習してみましょう。</p>
+<p class="in">Rubyでは1つのプロセスの中で複数の処理を同時に行うことができ、その処理の流れ1つ1つをスレッドと呼びます。Rubyではスレッドもオブジェクトです。スレッドの生成は以下のように行います。</p>
+<div class="plist">
+<pre>th = Thread.start{...}</pre>
+</div>
+<a id="page_322"/>
+<p class="in">スレッドはブロックの中の処理を開始します。処理は<code>start</code>に続く処理と並列に行われます。これをコンカレントと呼ぶのでしたね。</p>
+<p class="in">スレッドの処理が終わったかどうかを知るためには<code>th</code>に対して<code>alive?</code> メソッドを呼びます。スレッドの処理が終了するまで待つためには<code>join</code>メソッドを呼びます。</p>
+<p class="in">こうやって生成された各スレッドは空間を共有します。つまり、同じプロセスの中なので同じオブジェクトを参照することが（更新することも）できるのです。これは空間が独立しているために情報共有が難しいプロセスとは異なるところです。</p>
+<p class="in">しかし、同じオブジェクトに同時にアクセスできるために発生する問題もあります。今月はこの問題を回避する方法を学びます。</p>
+</section>
+<section id="chap2302" class="level2">
+<h3>リソース問題</h3>
+<hr class="hr-gray" />
+<p class="in">スレッドを使ったプログラムで問題が発生するのは基本的に「同時にアクセスしてはいけないものにアクセスする」ことが原因です。この同時にアクセスしてはいけないものをリソースと呼ぶことがあります。リソースは別に特別なものではなくて、Rubyの場合には基本的にオブジェクトになります。複数のスレッドが利用を求める存在という意味でリソース（資源）と呼ぶわけです。</p>
+<p class="in">リソースの競合による問題は、大きく分けると、</p>
+<ul>
+<li><p>整合性の破綻（先月の銀行口座の例）</p></li>
+<li><p>デッドロック（先月の哲学者の例）</p></li>
+</ul>
+<p class="ni">があります。最も簡単にこの問題を避けるためには、自分が使っている間はリソースを独占してしまえばよいのです。そのためにリソースのロックという手段が提供されています。</p>
+<p class="in">しかし、何でも独占してしまえばよいというのでは子供と一緒です。すぐに独り占めしたがる子っていましたよね。独占以外にも協調する方法があるので、その手段も紹介しましょう。</p>
+</section>
+<section id="chap2303" class="level2">
+<h3>ロックによるリソースの独占</h3>
+<hr class="hr-gray" />
+<p class="in">要するに1つしかないものを同時に使おうとするのが間違いの元だ、ということで、誰かが使っている間は他の人は使わないように取り決めれば問題は解決するというものです。現実社会で一番よく目にするのはトイレの個室でしょう。トイレは一度には一人しか使えません。複数の人が入っているとかなり無気味です。そこで、誰かが入っている間は鍵をかけ、外からは赤い印が見えるようにしてあります。</p>
+<p class="in">スレッド処理の場合も同様に、1つしかないリソースを使う場合にはそれをロックして独占中という印を付けてしまえばよいのです。そのような目的に使われるクラスに<code>Mutex</code>があります。<code>Mutex</code>は相互排他ロック（Mutual Exclusive Lock）の略です。<code>Mutex</code>を使うためには<code>thread</code>ライブラリを<code>require</code>する必要があります。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;thread&#39;</span>
+
+m = Mutex.new
+
+....
+m.synchronize {
+  ...           <span class="cmt"># リソースを使った処理</span>
+}</pre>
+</div>
+<a id="page_323"/>
+<p class="in"><code>synchronize</code>メソッドを呼び出すと、そのブロック処理を行っている間、<code>Mutex</code>はロックされます。他のスレッドが同じ<code>Mutex</code>に対して<code>synchronize</code>を行おうとすると、現在実行中の<code>synchronize</code>が終了してロックが解除されるまで待たされます。この<code>synchronize</code>で囲まれたブロックを、他のスレッドが入り込まない領域という意味で「クリティカルセクション」と呼ぶことがあります。ちょうど一度に一人しか入れないトイレと同じですね。</p>
+<p class="in"><code>synchronize</code>の代わりに<code>lock</code>メソッドでロックして<code>unlock</code>メソッドでロックの解除を行うこともできますが、たとえばロック中に例外が発生することなども考えると以下のようにするべきです。</p>
+<div class="plist">
+<pre>m.lock
+<span class="kwd">begin</span>
+  ...     <span class="cmt"># ロック中の処理</span>
+<span class="kwd">ensure</span>
+  m.unlock
+<span class="kwd">end</span></pre>
+</div>
+<p class="in"><code>ensure</code>は<code>begin</code>の実行を抜けるときに必ず実行されるので、間違いなく<code>unlock</code>されることが保証されます。実はこれはまさに<code>synchronize</code>メソッドの定義そのものなので、<code>lock</code>と<code>unlock</code>を個別に使うよりは<code>synchronize</code>メソッドを使うことをお勧めしておきます。</p>
+<p class="in">ただ、忘れてはいけないことは、<code>Mutex</code>も、これから説明する他のロックもあくまでも紳士協定でロックのチェックを行わずにリソースを無理やり操作することは禁止されないということです。ロックでリソースを保護する場合には、すべてのアクセスでロックのチェックを行うことを忘れないでください。Ruby的にスマートな方法は、リソースのアクセスをすべてオブジェクト経由にして、そのオブジェクトのメソッドの内部でロックのチェックを行うことです。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Resource
+  <span class="kwd">def</span> initialize
+    @lock = Mutex.new
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> use
+    @lock.synchronize {
+       ...
+    }
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+r = Resource.new
+r.use</pre>
+</div>
+<a id="page_324"/>
+<p class="in">Javaだとメソッド定義に<code>synchronize</code>と宣言すれば、メソッド呼び出しによって自動的にロックを行ってくれるのですが、Rubyではそこまでは面倒を見てくれません。</p>
+</section>
+<section id="chap2304" class="level2">
+<h3>2レベル排他</h3>
+<hr class="hr-gray" />
+<p class="in">しかし、排他制御は単純な<code>Mutex</code>でカバーできるほど単純なケースばかりではありません。たとえばデータベースなどは、以下のような条件の制御が必要になります。</p>
+<ul>
+<li><p>データの参照は同時に行ってもよい</p></li>
+<li><p>データの更新は同時に行ってはいけない</p></li>
+<li><p>データの更新中は参照してはいけない</p></li>
+<li><p>データの参照中は更新してはいけない</p></li>
+</ul>
+<p class="in">このような参照と更新の2レベルがある排他制御は、他にもファイルの読み出しなどしばしば発生します。現実世界ではたとえばテレビを見ること（参照）とチャンネル変更（更新）などがこれに相当するでしょう。誰かがテレビを見ている間、他の人が同じチャンネルを見ることができないというのは行きすぎた独占ですが、だからといって排他制御なしに見ている最中にチャンネルを変えられるのはイヤでしょう。</p>
+<p class="in">このようなケースのためのロックは<code>sync.rb</code>で定義されている<code>Sync</code>クラスを使います。<code>Sync</code>クラスは<code>Mutex</code>と同じように使いますが、<code>synchronize</code>メソッドに排他モードを指定することができます。排他モードは、更新のように同時に1つしか実行できない<code>EX</code>モードと、<code>EX</code>モードとは同時に実行できないが、その他のモードとは排他しない<code>SH</code>モードがあり、それぞれシンボル「<code>:EX</code>」と「<code>:SH</code>」で指定します。</p>
+<p class="in">では、<code>Sync</code>クラスの使用例をテレビの例で見てみましょう（<a href="#list2301">リスト23.1</a>）。プログラミングとしてはやや不自然な例ですが我慢してください。<code>Mutex</code>で示したようにリソース（この場合はテレビ）のオブジェクトのメソッドに排他制御を埋め込んでおきましょう。そのほうがスマートですから。</p>
+<div class="plistc" id="list2301">
+<p class="lst-caption">リスト23.1●Syncクラスの使用例</p>
+<pre>require <span class="str">&#39;sync&#39;</span>
+
+<span class="kwd">class</span> TV
+  <span class="kwd">def</span> initialize
+    @ch = 1
+    @sync = Sync.new
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> watch
+    @sync.synchronize(:SH) {
+       ....     <span class="cmt"># TVを見る</span>
+    }
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> set_ch(ch)
+    @sync.synchronize(:EX) {
+      @ch = ch  <span class="cmt"># チャンネルを変える</span>
+    }
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_325"/>
+<p class="in">このようにしておけば、誰かがテレビを独り占めしたり、誰かがテレビを見ている最中に勝手にチャンネルを変えたりして、けんかになる事態を避けることができます。家庭に平和が戻ってきますね。</p>
+<p class="in">さて、<code>sync</code>ライブラリにはクラスそのものに<code>Sync</code>機能を追加する<code>Mix-in</code>も用意されています。これを使って先ほどのテレビの例を修正すると<a href="#list2302">リスト23.2</a>のようになります。</p>
+<div class="plistc" id="list2302">
+<p class="lst-caption">リスト23.2●Mix-inを使ってリスト23.1を書き換えた場合</p>
+<pre>require <span class="str">&#39;sync&#39;</span>
+
+<span class="kwd">class</span> TV
+  include Sync_m <span class="cmt"># Mix-in</span>
+  <span class="kwd">def</span> initialize
+    super        <span class="cmt"># Sync_mの初期化</span>
+    @ch = 1
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> watch
+    synchronize(:SH) {
+       ....      <span class="cmt"># TVを見る</span>
+    }
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> set_ch（ch）
+    synchronize(:EX) {
+      @ch = ch   <span class="cmt"># チャンネルを変える</span>
+    }
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">このように<code>Sync_m</code>を使うとわざわざ<code>Sync</code>オブジェクトを作らなくても、そのオブジェクト自身に2レベル同期機能を追加することができます。どちらが便利かは一概にはいえませんが、好きなほうを使ってください。<code>Sync_m</code>を使ったほうが無駄なロック用のオブジェクトを使わずに済むわけですが、1オブジェクト使うかどうかでは性能上の差は現れないでしょう。</p>
+</section>
+<section id="chap2305" class="level2">
+<a id="page_326"/>
+<h3>キュー</h3>
+<hr class="hr-gray" />
+<p class="in">リソースの排他制御はスレッド間の協調の典型的な例ですが、協調のスタイルは他にもあります。もう1つの典型例はスレッドの流れ作業的な関係です。つまり、あるスレッドがデータを作り、別のスレッドがそのデータを受け取り、次の処理を行います。このような関係は「生産者・消費者モデル」と呼ばれ、データを作るスレッドを「生産者」、データを受け取るスレッドを「消費者」と呼びます（<a href="#fig2301">図23.1</a>）。「消費者」は加工したデータを他の消費者に渡して、生産者の役割を果たすこともあります。</p>
+<div class="fig" id="fig2301">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch23/23-1.jpg" alt="fig2301" />
+  </div>
+  <p class="fig-caption">図23.1●生産者・消費者モデル</p>
+</div>
+<p class="in">生産者と消費者とをつなぐ「ベルトコンベア」の役割を果たすクラスが「<code>Queue</code>」クラスです。QueueはFIFO（First-In First-Out）とも呼ばれるデータの入れ物で、その名のとおり、先に入れたものが先に出るという性質があります。では、実際に<code>Queue</code>を使ったプログラムを見てみましょう（<a href="#list2303">リスト23.3</a>）。</p>
+<div class="plistc" id="list2303">
+<p class="lst-caption">リスト23.3●Queueを使ったプログラムの例</p>
+<pre>require <span class="str">&#39;thread&#39;</span>
+
+q = Queue.new
+
+producer = Thread.new {
+  10.times {|i|
+    q.push(i)
+    sleep(1)
+  }
+  q.push(nil)
+}
+consumer = Thread.new {
+  loop {
+    i = q.pop
+    <span class="kwd">break</span> <span class="kwd">if</span> i == <span class="kwd">nil</span>
+    puts i
+  }
+}
+consumer.join</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_327"/>
+<p class="ih">「生産者（<code>producer</code>）」は1秒ごとに整数を<code>Queue</code>に追加し、「消費者（<code>consumer</code>）」は<code>Queue</code>から取り出した数字を受け取り出力しています。消費者のスピードが速くて<code>Queue</code>が空になってしまうと消費者は生産者が<code>Queue</code>にデータを追加するまでストップします。生産者は一定数の整数を送り出した後、終了のマークとして<code>nil</code>を送ります。消費者は<code>nil</code>を受け取ったら<code>break</code>でループを中断します。メインスレッドは<code>join</code>で消費者スレッドの実行を待っています。実際に実行されると以下のようになります。</p>
+<div class="borderconsole">
+<pre>% ruby q.rb
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+%</pre>
+</div>
+<p class="in">では、仮に生産者のほうが消費者よりもスピードが速かったとしたらどうでしょう。消費しきれなかったデータは<code>Queue</code>にたまり、<code>Queue</code>の長さはどんどん長くなります。消費しきれないのに全力でデータを生産する必要はないかもしれません。そんな場合に便利なのが<code>SizedQueue</code>です。これは長さに制限のある<code>Queue</code>で、データが一定以上たまったら、データの<code>push</code>でストップがかかります。<code>SizedQueue</code>の使い方は簡単で、先ほどのプログラム例だと、</p>
+<div class="plist">
+<pre>q = Queue.new</pre>
+</div>
+<p class="ni">の部分を、</p>
+<pre><code>q = SizedQueue.new(size)</code></pre>
+<div class="plist">
+<pre>q = SizedQueue.new(size)</pre>
+</div>
+<p class="ni">に置き換えるだけです。<code>size</code>の部分には<code>Queue</code>の最大長が入ります。これだけで生産が速すぎても、消費が速すぎても調整を行うことができます。</p>
+<p class="in"><code>Queue</code>はリソースの競合の解決にも使うことができます。リソースを管理するスレッドを1つ用意して、リクエストは<code>Queue</code>を介してそのスレッドに送るようにします（<a href="#fig2302">図23.2</a>）。リソースを直接操作するのは管理スレッドだけですから、競合は発生しません。</p>
+<div class="fig" id="fig2302">
+  <!-- <div class="image50"> -->
+  <div class="image450">
+      <img src="../image/ch23/23-2.jpg" alt="fig2302" />
+  </div>
+  <p class="fig-caption">図23.2●Queueによるリソース制御</p>
+</div>
+<p class="in">実際の例としてはRuby/Tkがこの手法を使っています。Tkを介したGUI操作は複数のスレッドが同時にアクセスできないので、各スレッドは管理スレッドにGUI命令を転送します。送られたGUI命令は管理スレッドがTkライブラリを呼び出し処理します。</p>
+</section>
+<section id="chap2306" class="level2">
+<a id="page_328"/>
+<h3>条件変数</h3>
+<hr class="hr-gray" />
+<p class="in">今までロックによるリソースの独占とキューによるスレッド間の流れ作業について解説しましたが、スレッド間の協調はもっと複雑な場合があります。</p>
+<p class="in">たとえば、クリティカルセクションの中で他のスレッドにリソースを準備を要求したいといったケースでは、ただ単に<code>Mutex</code>のロックを解除するだけでは、そのリソースの準備ができたかどうか保証することができません。スレッド同士は独立して動作するので、きちんとした同期を行わなければどんなタイミングで動作するかわかりません。一度<code>Mutex</code>を解放して、再度ロックするまでに別のスレッドの処理が終わっているかどうかわからないのです。ですから、確実に処理を行うために必要なのは、</p>
+<div class="listnum">
+<p class="hangindent">①クリティカルセクションの中で</p>
+<p class="hangindent">②ロックを別のスレッドに一時的に手渡し</p>
+<p class="hangindent">③そのスレッドの処理が完了したときにロックを取り戻す</p>
+</div>
+<p class="ni">手段です。このような待ち合わせには「条件変数（<code>ConditionVariable</code>）」というオブジェクトを使います。慣習的に「変数」と呼びますが、Rubyの変数（ローカル変数など）とは直接は関係がありません。</p>
+<p class="in">条件変数の使用例が<a href="#list2304">リスト23.4</a>です。<code>ConditionVariable</code>は、<code>Mutex</code>によるクリティカルセクションの中で使います。「<code>th1.join</code>」と「<code>th2.join</code>」は各スレッドの終了を待つためです。メインスレッドの実行が終了するとプログラム全体が終了してしまいますから、これがないと処理が途中で中断させられてしまいます。</p>
+<div class="plistc" id="list2304">
+<p class="lst-caption">リスト23.4●ConditionVariableを使ってスレッドの同期を行う</p>
+<pre>require <span class="str">&#39;thread&#39;</span>
+
+m = Mutex.new
+c = ConditionVariable.new
+
+th1 = Thread.start {
+  m.synchronize {
+    puts <span class="str">&quot;1: c.waitによって待ちに入る&quot;</span>
+    c.wait(m)
+    puts <span class="str">&quot;1: 通知を受けc.waitから戻る&quot;</span>
+  }
+}
+
+th2 = Thread.start {
+  m.synchronize {
+    puts <span class="str">&quot;\t2: c.waitを受けて処理開始&quot;</span>
+    puts <span class="str">&quot;\t2: c.signalで処理完了通知&quot;</span>
+    c.signal
+    puts <span class="str">&quot;\t2: まだクリティカルセクション&quot;</span>
+  }
+}
+th1.join
+th2.join</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_329"/>
+<p class="in">このプログラムの実行結果は以下のようになります。</p>
+<div class="borderconsole">
+<pre>1: c.waitによって待ちに入る
+        2: c.waitを受けて処理開始
+        2: c.signalで処理完了通知
+        2: まだクリティカルセクション
+1: 通知を受けc.waitから戻る</pre>
+</div>
+<p class="in">条件変数はキューに比べて、スレッドの関係がやや複雑になります。ですから可能であれば、スレッドの関係を生産者・消費者モデルで構築して、構造を単純化するのがよいのではないでしょうか。</p>
+</section>
+<section id="chap2307" class="level2">
+<h3>スレッドトラブルの回避</h3>
+<hr class="hr-gray" />
+<p class="in">先にも述べましたが、スレッドプログラミングでトラブルが起きるとデバッグが大変です。スレッド関係のバグはタイミングによって発生したりしなかったりすることが多く、同じように実行しても再現しないとか、10回のうち1回だけうまくいかないとかイヤなバグになることが多いのです。</p>
+<p class="in">それを避けるためには以下のようなルールが役に立ちます。もちろん完全ではありませんが。</p>
+<ul>
+<li><p>できるだけ各スレッドの処理が独立になるように心がける。複数のスレッドが同じオブジェクトをアクセスしないように。たとえば、HTTPサーバーでリクエスト単位でスレッド処理を行うなどはいい例でしょう</p></li>
+<li><p>複数のスレッドが協調する必要がある場合には、できるだけ「生産者・消費者」の関係になるように心がける</p></li>
+<li><p>どうしても1つのリソースに同時にアクセスする必要がある場合には、必ず<code>Mutex</code>などで保護する</p></li>
+<li><p>リソースの準備などの関係で待ち合わせが必要な場合には条件変数で同期する</p></li>
+</ul>
+<p class="in">はっきり言ってスレッドプログラミングは難しいです。<code>Mutex</code>や<code>ConditionVariable</code>を使う必要が出てきたら、それはプログラムのやり方が間違ってるかもしれないと考えたほうがよいかもしれません。あなたがクラスライブラリをどんどん作るような上級者であれば話は別ですが。</p>
+</section>
+<section id="chap2308" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">ということで、今月は先月に引き続きスレッドプログラミングについて、特にトラブルの回避方法について学びました。正直なところ、私自身もスレッドプログラミングの経験値は低いので（Rubyのスレッドシステムを自分で作ったのに）、えらそうな解説はできないのですが、今回紹介したような「ルール」は他の人の経験も踏まえたモノなので、トラブルを避けるために役立つのではないでしょうか。</p>
+<p class="in">Rubyのスレッドには、どこでも同じように使える、という性質があります。気軽にスレッドを使ってみて慣れてください。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-050.xhtml">&lt;&lt; 前ページ</a>　<a href="p-052.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

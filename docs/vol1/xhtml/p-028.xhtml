@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第13章 入出力</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第13章</p>
+<!-- Body -->
+<section id="chap13" class="level1">
+<a id="page_181"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">13</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+入出力
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年6月号]</p>
+<div class="newlead">
+<p class="in">今回は入出力についてです。Rubyが主にスクリプト言語として使われていた頃は超重要な機能でしたが、Webアプリケーション開発が中心になった現在では、昔ほどは使われませんね。</p>
+<p class="in">後半は、その超重要な入出力機能を「ちゃんと」実装しようとすると移植性が問題になるという話です。当時は今よりもずっとOSのバリエーションが多く、POSIX規格も充実していなかったので、OSごとの細かな挙動の差が大きかったのです。移植性のある処理系を実装しようとすると、いろいろなところを自前で実装せざるをえません。Rubyは挙動が統一されていない標準ライブラリ関数の一部は再実装しています。現代では、OSの種別はLinuxなどのUNIX系と、かなりUNIXふうのmacOSと、Windowsくらいでほとんどカバーできてしまうので、だいぶ楽になりました。もっとも、macOSはUNIXふうなのに妙なところで独自性を出してくれるし、Windowsは根本的なところでOSの作りが違うので、バリエーションの少なさの割に楽になっていないとも言えます。</p>
+</div>
+<div class="lead">
+<p class="ni">普通のプログラムは入力を受け取り、出力を行って初めて意味のある処理を行います。いわば入出力はプログラムの本質に非常に近い部分だといえるでしょう。今月はそのプログラムの重要な要素である入出力について学びます。</p>
+</div>
+<section id="chap1301" class="level2">
+<h3>入力と出力</h3>
+<hr class="hr-gray" />
+<p class="in">ほとんどのプログラムは入力を受け付けます。入力のないプログラムはごくわずかでしょう。たとえば、乱数によって占いを表示するプログラムなどには入力はないでしょうが、そういうのはごく少数でしょう。</p>
+<p class="in">プログラムの入力元には以下のようなものがあります。</p>
+<a id="page_182"/>
+<ul>
+<li><p>コンソール入力（キーボード）</p></li>
+<li><p>ファイル入力</p></li>
+<li><p>ネットワーク（ソケット）</p></li>
+<li><p>GUI（ボタン、テキストフィールド、メニュー、etc.）</p></li>
+</ul>
+<p class="ni">このうちGUIからの入力を除けば、UNIXおよびその影響を受けたOSでは、入力は「ストリーム」として統一的に操作されます。ストリームとはバイト列（文字列と言い換えてもよいです）を次々読み込むことのできるものです。</p>
+<p class="in">一方、プログラムの出力先といえば、以下のようなものでしょう。</p>
+<ul>
+<li><p>コンソール出力</p></li>
+<li><p>ファイル出力</p></li>
+<li><p>ネットワーク（ソケット）</p></li>
+<li><p>GUI</p></li>
+</ul>
+<p class="ni">これらも（GUIを除けば）同じストリームで表現できます。出力ストリームは入力ストリームのちょうど逆で、文字列を次々書き出すことができるものです。</p>
+</section>
+<section id="chap1302" class="level2">
+<h3>ストリーム</h3>
+<hr class="hr-gray" />
+<p class="in">ストリーム（stream）は「流れ」という意味です。文字が次々と送り出されていく様子を表現しているわけです。たとえば、キーボードからの入力を受け、コンソールに出力するということは<a href="#fig1301">図13.1</a>のようなイメージになるわけです。</p>
+<div class="fig" id="fig1301">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch13/13-1.jpg" alt="fig1301" />
+  </div>
+  <p class="fig-caption">図13.1●コンソール入出力</p>
+</div>
+<p class="in">ストリームは単なる文字の流れですから、ストリームから入力を受け、ストリームに出力するプログラムならいくらでもつなげることができます（<a href="#fig1302">図13.2</a>）。</p>
+<div class="fig" id="fig1302">
+  <!-- <div class="image90"> -->
+  <div class="image800">
+      <img src="../image/ch13/13-2.jpg" alt="fig1302" />
+  </div>
+  <p class="fig-caption">図13.2●ストリームの連鎖</p>
+</div>
+<a id="page_183"/>
+<p class="in">このようなストリームに対して入出力を行うプログラムをフィルタと呼びます。流れを加工するイメージですね。また、フィルタプログラムの連鎖を「パイプライン」あるいは省略して「パイプ」と呼びます。</p>
+<p class="in">ストリームはUNIX系OSでの入出力の基本になります。ストリームのすごいところは、入力元や出力先の種別にかかわらず同じインターフェイスが使えることです。入力しているのが人間であるのか、ファイルであるのか、あるいはネットワークの先のプログラムであるのか、そのようなことにはまったく関係なしにバイトの流れという形式でデータを取り扱えます。なんとなくオブジェクト指向をほうふつとさせます。</p>
+</section>
+<section id="chap1303" class="level2">
+<h3>標準入出力</h3>
+<hr class="hr-gray" />
+<p class="in">さて、このようなプログラム間でのストリームのつなぎ換えを行うためには、それぞれのプログラムがある種の決まりごとに従う必要があります。その決まりごととは「入出力を標準入出力に対して行う」というものです。</p>
+<p class="in">標準入出力とはOSが各プログラムのために用意している入出力先です。すべてのプログラムには以下の3つのストリームが用意されています。</p>
+<div class="description">
+<p class="ditem">stdin</p>
+<p class="dni">標準の入力元です。通常はキーボードからの入力を受け付けるようになっています。Rubyでは定数<code>STDIN</code>で参照することができます。</p>
+<p class="ditem">stdout</p>
+<p class="dni">標準の出力先です。通常はコンソール画面に向けられています。Rubyでは定数<code>STDOUT</code>で参照することができます。</p>
+<p class="ditem">stderr</p>
+<p class="dni">標準のエラーメッセージの出力先です。標準出力同様、通常はコンソール画面に向けられています。Rubyでは定数<code>STDERR</code>で参照することができます。</p>
+</div>
+<p class="in">標準入力からデータを受け取り、標準出力にデータを出力するプログラムはフィルタになることができます。フィルタの詳しい作り方についてはのちほど説明します。</p>
+</section>
+<section id="chap1304" class="level2">
+<h3>IOクラス</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyでストリームを表現するクラスが<code>IO</code>です。まず、<code>IO</code>クラスのオブジェクトが持つメソッドの一覧を<a href="#table1301">表13.1</a>に示します。そのサブクラスとしてファイルとのIOを表現する<code>File</code>クラスもあります。<code>File</code>クラスのオブジェクトが持つメソッドの一覧を<a href="#table1302">表3.2</a>に示します。</p>
+<a id="page_184"/>
+<div class="table" id="table1301">
+<p class="tbl-caption">表13.1●IOオブジェクトのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>&lt;&lt;</code></td>
+<td><code>write</code></td>
+<td><code>pos=</code></td>
+<td>ファイルポインタの設定</td>
+</tr>
+<tr>
+<td><code>binmode</code></td>
+<td>バイナリモード</td>
+<td><code>print</code></td>
+<td>出力</td>
+</tr>
+<tr>
+<td><code>close</code></td>
+<td>クローズ</td>
+<td><code>printf</code></td>
+<td>フォーマット付き出力</td>
+</tr>
+<tr>
+<td><code>close_read</code></td>
+<td>読み込みのクローズ</td>
+<td><code>putc</code></td>
+<td>1文字出力</td>
+</tr>
+<tr>
+<td><code>close_write</code></td>
+<td>書き込みのクローズ</td>
+<td><code>puts</code></td>
+<td>1行出力</td>
+</tr>
+<tr>
+<td><code>closed?</code></td>
+<td>クローズされているか</td>
+<td><code>read</code></td>
+<td>固定長入力/全読み込み</td>
+</tr>
+<tr>
+<td><code>each</code></td>
+<td><code>each_line</code></td>
+<td><code>readchar</code></td>
+<td>1文字入力</td>
+</tr>
+<tr>
+<td><code>each_byte</code></td>
+<td>各バイトに対する繰り返し</td>
+<td><code>readline</code></td>
+<td>1行入力</td>
+</tr>
+<tr>
+<td><code>each_line</code></td>
+<td>各行に対する繰り返し</td>
+<td><code>readlines</code></td>
+<td>全ファイルを配列として読み込み</td>
+</tr>
+<tr>
+<td><code>eof?</code></td>
+<td>ファイルの終端に達したか</td>
+<td><code>reopen</code></td>
+<td>再オープン</td>
+</tr>
+<tr>
+<td><code>fcntl</code></td>
+<td><code>fcntl(2)</code></td>
+<td><code>rewind</code></td>
+<td>ファイルポインタを先頭に移動</td>
+</tr>
+<tr>
+<td><code>fileno</code></td>
+<td>ファイルディスクリプタ番号</td>
+<td><code>seek</code></td>
+<td>ファイルポインタの移動</td>
+</tr>
+<tr>
+<td><code>flush</code></td>
+<td>出力のフラッシュ</td>
+<td><code>stat</code></td>
+<td>ファイル情報の取得</td>
+</tr>
+<tr>
+<td><code>getc</code></td>
+<td>1文字入力</td>
+<td><code>sync</code></td>
+<td>自動フラッシュモードの状態</td>
+</tr>
+<tr>
+<td><code>gets</code></td>
+<td>1行入力</td>
+<td><code>sync=</code></td>
+<td>自動フラッシュモードの設定</td>
+</tr>
+<tr>
+<td><code>ioctl</code></td>
+<td><code>ioctl(2)</code></td>
+<td><code>sysread</code></td>
+<td><code>read(2)</code></td>
+</tr>
+<tr>
+<td><code>lineno</code></td>
+<td>行番号</td>
+<td><code>syswrite</code></td>
+<td><code>write(2)</code></td>
+</tr>
+<tr>
+<td><code>lineno=</code></td>
+<td>行番号の設定</td>
+<td><code>tell</code></td>
+<td>ファイルポインタの位置</td>
+</tr>
+<tr>
+<td><code>pid</code></td>
+<td>プロセスID</td>
+<td><code>tty?</code></td>
+<td>接続先がttyか</td>
+</tr>
+<tr>
+<td><code>pos</code></td>
+<td>ファイルポインタの位置</td>
+<td><code>write</code></td>
+<td>文字列出力</td>
+</tr>
+</table>
+</div>
+<div class="table" id="table1302">
+<p class="tbl-caption">表13.2●Fileオブジェクトのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>atime</code></td>
+<td>最終アクセス時間</td>
+</tr>
+<tr>
+<td><code>chmod</code></td>
+<td>モード変更</td>
+</tr>
+<tr>
+<td><code>chown</code></td>
+<td>オーナー変更</td>
+</tr>
+<tr>
+<td><code>ctime</code></td>
+<td>最終i-node更新時間</td>
+</tr>
+<tr>
+<td><code>flock</code></td>
+<td>ロック</td>
+</tr>
+<tr>
+<td><code>lstat</code></td>
+<td>シンボリックリンク情報</td>
+</tr>
+<tr>
+<td><code>mtime</code></td>
+<td>最終更新時間</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>ファイルのパス</td>
+</tr>
+<tr>
+<td><code>truncate</code></td>
+<td>ファイルの切り詰め</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>IO</code>にはその他にもネットワークとのアクセスを行うサブクラス（群）があります。<code>IO</code>とそのサブクラスを<a href="#fig1303">図13.3</a>に示します。</p>
+<div class="fig" id="fig1303">
+  <!-- <div class="image50"> -->
+  <div class="image500">
+      <img src="../image/ch13/13-3.jpg" alt="fig1303" />
+  </div>
+  <p class="fig-caption">図13.3●IO 関係クラス</p>
+</div>
+</section>
+<section id="chap1305" class="level2">
+<a id="page_185"/>
+<h3>ファイルのオープン</h3>
+<hr class="hr-gray" />
+<p class="in">標準入出力以外のストリームを使うには、ストリームをオープンして<code>IO</code>オブジェクトを入手する必要があります。ストリームをオープンする基本的なメソッドが<code>open</code>メソッドです。<code>open</code>メソッドについては、この連載の<a href="p-007.xhtml#chap06">第1回（2001年11月号）</a>で詳しく取り上げたので、ここでは簡単に説明します。</p>
+<p class="in"><code>open</code>メソッドは次のように呼び出します。</p>
+<div class="plist">
+<pre>open(path[, mode])</pre>
+</div>
+<p class="in"><code>open</code>は<code>path</code>に指定されたファイルをオープンして対応する<code>IO</code>オブジェクトを返します。より正確にはファイルのパスを指定した場合には<code>IO</code>クラスのサブクラスである<code>File</code>クラスのオブジェクトを返すのですが、実用的には<code>IO</code>オブジェクトだと思って扱ってかまいません。</p>
+<p class="in"><code>mode</code>には以下のうちのいずれかの文字列を指定します。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>"r"</code>　読み込み用</pre></li>
+<li><pre class="tabbing"><code>"w"</code>　書き込み用</pre></li>
+<li><pre class="tabbing"><code>"a"</code>　追加書き込み用</pre></li>
+</ul>
+<p class="in">モード文字列に <code>"b"</code> を追加するとバイナリモードになります。でも、UNIX系OSでは通常モードとバイナリモードの間に差はありません。Windowsとスクリプトを共有する場合の互換用と考えればよいでしょう。</p>
+<p class="in">モード文字列に <code>"+"</code> を追加すると、読み書きモードになります。ただし、読み書きモードでは、読み出しと書き出しの間に<code>flush</code>を入れないと正しく入出力されません。</p>
+<p class="in"><code>open</code>メソッドでは、<code>path</code>の先頭が <code>"|"</code> であった場合、ファイルではなくプログラムとの入出力になるのですが、そのような特殊な動きを避けたい場合には<code>File.open</code>メソッドを使ってください。こちらのメソッドでは<code>path</code>は必ずファイルへのパスと解釈されます。</p>
+</section>
+<section id="chap1306" class="level2">
+<a id="page_186"/>
+<h3>入力メソッド</h3>
+<hr class="hr-gray" />
+<p class="in">まず、一番基本的な入力メソッドは1行入力と1文字入力でしょう。1行入力を行うメソッドは<code>gets</code>と<code>readline</code>です。なぜ2つあるのかというと、これらはファイルの終端に達したときの動作が違うのです。<code>gets</code>はファイル終端で<code>nil</code>を返しますが、<code>readline</code>は例外を返します。ですから、使い方はそれぞれ、</p>
+<div class="plist">
+<pre><span class="cmt"># getsの場合</span>
+<span class="kwd">while</span> line = io.gets
+   ... line に対する処理 ...
+<span class="kwd">end</span>
+
+<span class="cmt"># readlineの場合</span>
+<span class="kwd">begin</span>
+  loop <span class="kwd">do</span>
+    line = io.readline
+    ... line に対する処理 ...
+  <span class="kwd">end</span>
+<span class="kwd">rescue</span> EOFError
+  ...終了処理、必要なければ空 ...
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">という形になります。多くのRubyユーザーは（短いので）<code>gets</code>を好むようです。</p>
+<p class="in">1文字入力メソッドにも<code>getc</code>と<code>getchar</code>の2つがあります。これらも違いはファイル終端で例外を発生するかどうかです。</p>
+<p class="in">場合によっては、ファイル全体を一度に読み込んできたほうが楽に処理できます。特にファイルのサイズがあまり大きくない場合にはかえって高速になることさえあります。その目的のメソッドが<code>readlines</code>です。<code>readlines</code>はファイルを行単位で読み込んできて、全体を配列に入れて返します。ですから、ファイルの5行目だけがほしければ、</p>
+<div class="plist">
+<pre>io.readlines[4]  <span class="cmt"># 0から始まるので4</span></pre>
+</div>
+<p class="ni">で得られるわけです。このやり方だとファイルの内容を全部読み込んできちゃうんで、ちょっともったいないですけどね。</p>
+<p class="in">同じファイルの内容を全部読むのでも、行単位ではなく1つの大きな文字列として読み込んできたい場合もあります。その場合には<code>read</code>メソッドがあります。</p>
+<div class="plist">
+<pre>io.read         <span class="cmt"># 全体を文字列として返す</span></pre>
+</div>
+<p class="in">また、<code>read</code>メソッドに引数を指定するとその長さだけ読み込んできます。</p>
+<div class="plist">
+<pre>io.read(10)     <span class="cmt"># 10バイトだけ読む</span></pre>
+</div>
+<a id="page_187"/>
+<p class="in">入力処理にはブロックを使う方法もあります。行単位、文字（バイト）単位の処理をメソッドが用意されています。</p>
+<div class="plist">
+<pre><span class="cmt"># each_lineは行単位で読み込む</span>
+io.each_line {|line|
+  ... line に対する処理 ...
+}
+
+<span class="cmt"># eachはeach_lineの別名</span>
+io.each {|line|
+  ... line に対する処理 ...
+}
+
+<span class="cmt"># each_byteはバイト単位で読み込む</span>
+io.each_byte {|byte|
+  ... byte に対する処理 ...
+}</pre>
+</div>
+<p class="in">最後に、<code>read</code>システムコールを直接呼ぶメソッド<code>sysread</code>を紹介しておきます。</p>
+<div class="plist">
+<pre>io.sysread(5)   <span class="cmt"># 5バイト読み込む</span></pre>
+</div>
+<p class="in"><code>sysread</code>メソッドは<code>IO</code>オブジェクトが内部で行っているバッファリングなどをいっさい経由しないで直接<code>read</code>システムコールを呼び出します。ですから、他の入力メソッドとは混在できません。他の入力メソッドを使ったストリームに対して<code>sysread</code>を行うとエラーになります。</p>
+</section>
+<section id="chap1307" class="level2">
+<h3>出力メソッド</h3>
+<hr class="hr-gray" />
+<p class="in">出力メソッドも豊富に用意されています。まず、最もよく使われるのが<code>print</code>メソッドです。<code>print</code>メソッドは引数に与えられたオブジェクトを順に出力します。文字列でないオブジェクトは、それぞれの<code>to_s</code>メソッドを使って文字列化されます。ただし、なぜか<code>nil</code>だけは特別扱いされて<code>nil</code>が出力されます（<code>nil.to_s</code>は <code>""</code> を返すのに）。</p>
+<div class="plist">
+<pre>io.print <span class="str">&quot;abc\n&quot;</span>    <span class="cmt"># =&gt; abc&lt;改行&gt;</span>
+io.print nil, <span class="str">&quot;\n&quot;</span>  <span class="cmt"># =&gt; nil&lt;改行&gt;</span></pre>
+</div>
+<p class="in">書式付き出力にはC言語同様<code>printf</code>を使います。イメージとしてはC言語の<code>fprintf</code>の第1引数がRubyの<code>printf</code>メソッドのレシーバになるという感じでしょうか。</p>
+<div class="plist">
+<pre><span class="cmt"># Cのfprintf</span>
+fprintf(stderr, <span class="str">&quot;%d\n&quot;</span>, 5);
+
+<span class="cmt"># Rubyのprintf</span>
+STDERR.printf(<span class="str">&quot;%d\n&quot;</span>, 5)</pre>
+</div>
+<a id="page_188"/>
+<p class="in">1文字出力には<code>putc</code>を使います。そういえば、Rubyのプログラムではあまり<code>putc</code>が使われているのを見ませんね。1行出力には<code>puts</code>を使います。<code>puts</code>メソッドは出力の末尾に改行を付けます。</p>
+<div class="plist">
+<pre>io.puts(<span class="str">&quot;abc&quot;</span>)
+<span class="cmt"># 出力:</span>
+<span class="cmt">#  abc</span>
+
+io.puts(<span class="str">&quot;abc&quot;</span>, <span class="str">&quot;def&quot;</span>)
+<span class="cmt"># 出力:</span>
+<span class="cmt">#  abc</span>
+<span class="cmt">#  def</span>
+
+io.puts(<span class="str">&quot;abc\n&quot;</span>)  <span class="cmt"># 改行は一度だけ</span>
+<span class="cmt"># 出力:</span>
+<span class="cmt">#  abc</span></pre>
+</div>
+<p class="in">出力の中で一番基本となるのが<code>write</code>メソッドです。<code>write</code>メソッドは引数の文字列をそのまま出力します。<code>write</code>にはC++ファンのために“<code>&lt;&lt;</code>”という別名が用意されています。</p>
+<div class="plist">
+<pre>io.write(<span class="str">&quot;abc&quot;</span>)
+io &lt;&lt; <span class="str">&quot;abc&quot;</span></pre>
+</div>
+<p class="in">最後に、入力に<code>sysread</code>があったように、出力にもシステムコールを直接呼び出す<code>syswrite</code>があります。<code>sysread</code>同様、<code>syswrite</code>も他の出力メソッドと混在してはいけません。他の出力メソッドを使ったストリームに対して<code>syswrite</code>を行うと警告を受けます。</p>
+</section>
+<section id="chap1308" class="level2">
+<h3>クローズ</h3>
+<hr class="hr-gray" />
+<p class="in">オープンしたファイルを使い終わったらクローズします。クローズするには<code>close</code>メソッドを使います。</p>
+<div class="plist">
+<pre>io.close</pre>
+</div>
+<p class="in">ただし、<code>IO</code>オブジェクトは、プログラムの終了時と、もうどこからも参照されなくなったときに自動的にクローズされます。</p>
+<p class="in">では、クローズする必要はないのでしょうか。残念ながらそうはいかない場合もあります。クローズしないとバッファの内容が実際に書き込まれていない可能性があります。フラッシュという操作（あとで説明します）で、バッファの内容を書き出す必要があります。もちろん、クローズしないでフラッシュだけするっていうのもありえますが、それもなんだか気持ち悪いですよね。わざわざフラッシュするくらいならクローズすればよいわけですし。</p>
+<p class="in">自動的にクローズする方法はもう1つあります。<code>open</code>メソッドはブロックを取ると、ブロックの実行が終了したときにクローズしてくれます。</p>
+<a id="page_189"/>
+<div class="plist">
+<pre>open(path) <span class="kwd">do</span> |f|
+  ...
+<span class="kwd">end</span></pre>
+</div>
+<p class="in"><code>IO</code>がクローズされているかどうかは<code>closed?</code> メソッドで判定できます。</p>
+</section>
+<section id="chap1309" class="level2">
+<h3>バッファリングとフラッシュ</h3>
+<hr class="hr-gray" />
+<p class="in">ストリームへの実際の書き込みは（UNIX系OSでは）<code>write</code>というシステムコールで行われます。また、読み込みは<code>read</code>というシステムコールで行われます。</p>
+<p class="in">これらのシステムコールは実はかなりコストの高い処理なのです。UNIXのようにカーネルとユーザープログラムで異なるメモリ空間で動作しているOSでは、カーネル空間とユーザー空間とでメモリ空間の切り替えが毎回発生しますし、引数となるデータを空間を超えてコピーする必要があります。</p>
+<p class="in">そこでこのコストのかかるシステムコールの呼び出しを削減する必要があります。それがバッファリングです。読み込みも書き込みも一度バッファを経由します。</p>
+<p class="in"><code>IO</code>からの読み込みが発生すると、まずバッファに一度に読み込みます。そして個々の読み込みに対して、バッファから少しずつ読み出します。バッファが空になるとまた一度に読み込みを行います。これによって<code>read</code>システムコールの削減を行うことができるわけです。</p>
+<p class="in">書き込みの場合には個々の書き込みをバッファに書き込みます。バッファからの実際の書き込みはある程度まとめて「適当な」タイミングで行われます。</p>
+<p class="in">読み込みは必要に応じて、OSから読んでくるのであまり問題が起きにくいのですが、書き込みのほうは「適当な」タイミングが予想と食い違う場合がありえます。書き出したはずのデータが届いてないということもありえるわけです。そこでバッファの内容を書き出す方法も提供されています。</p>
+<p class="in">バッファの内容を明示的に書き出すためには、2つの方法があります。1つは<code>IO</code>をクローズすることです。ただ、クローズしてしまうと（当然ですが）これ以上の書き込みはできません。もう1つの方法は<code>flush</code>メソッドを使うことです。</p>
+<div class="plist">
+<pre>io.print <span class="str">&quot;abc&quot;</span>  <span class="cmt"># バッファへの追加</span>
+io.flush        <span class="cmt"># バッファの内容を書き出し</span></pre>
+</div>
+</section>
+<section id="chap1310" class="level2">
+<h3>ランダムアクセス</h3>
+<hr class="hr-gray" />
+<p class="in">ストリームは順に読み込んでくるだけですから、シーケンシャル（順次）アクセスと呼ばれます。しかし、ときどきファイルの場所を指定して読みたいケースもあります。</p>
+<p class="in">各ストリームには現在読み込んでいる場所を示す「ファイルポインタ」があります。そのポインタを操作することで、読み込み位置を移動させてファイルをランダムアクセスすることができます。</p>
+<p class="in">現在のファイルポインタを取得するためには<code>tell</code>メソッド、または<code>pos</code>メソッドを使います。</p>
+<div class="plist">
+<pre>io.tell   <span class="cmt"># 現在のファイルポインタ</span>
+io.pos    <span class="cmt"># 同上</span></pre>
+</div>
+<a id="page_190"/>
+<p class="in">特定の位置にファイルポインタを移動させるためには、<code>pos=</code> メソッド、または<code>seek</code>メソッドを使います。</p>
+<div class="plist">
+<pre>p = io.pos    <span class="cmt"># ファイルポインタのセーブ</span>
+... ioに対する処理 ...
+io.pos = p    <span class="cmt"># pos=メソッドの呼び出し</span>
+              <span class="cmt"># 元の位置への復旧</span></pre>
+</div>
+<p class="in"><code>seek</code>メソッドは<code>pos=</code> メソッドと同じように使えますが、第2引数として、移動の基点を指定できます。移動の基点は定数で指定し、その意味は、</p>
+<div class="plist">
+<pre>IO::SEEK_SET  先頭から
+IO::SEEK_CUR  現在位置から
+IO::SEEK_END  ファイル末尾から</pre>
+</div>
+<p class="ni">になります。</p>
+<p class="in">ファイルポインタを先頭に移動させるためには<code>rewind</code>メソッドを使います。</p>
+<div class="plist">
+<pre>io.rewind                <span class="cmt"># 先頭へ巻き戻し</span>
+io.pos=0                 <span class="cmt"># 同じ意味</span>
+io.seek(0)               <span class="cmt"># 同じ意味</span>
+io.seek(0,IO::SEEK_SET)  <span class="cmt"># 同じ意味</span></pre>
+</div>
+<p class="in">ランダムアクセスの利用例はあまり見かけないので、実例を紹介しておきましょう。以下のプログラムは<span class="f">n</span>番目の固定長レコードの内容を変更します。レコードサイズは定数<code>RECORD_SIZE</code>に定義されているとします。</p>
+<div class="plist">
+<pre>io.fseek(n*RECORD_SIZE)
+rec = io.read(RECORD_SIZE)
+... recの内容を修正; サイズを変えないこと ...
+io.fseek(n*RECORD_SIZE)
+io.print rec    <span class="cmt"># recを出力</span>
+io.close        <span class="cmt"># ファイルをクローズ</span></pre>
+</div>
+</section>
+<section id="chap1311" class="level2">
+<h3>フィルタ</h3>
+<hr class="hr-gray" />
+<p class="in">さて、先に標準入力から読み込み、標準入力に書き出すプログラムはフィルタと呼ばれると書きました。フィルタというのはPerl以前AWKやシェルの頃からスクリプト言語の重要な適用分野でした。ここでフィルタについて少々詳しく説明しておきましょう。</p>
+<p class="in">UNIXにおいては、ほとんどのフィルタは以下の性質を持っています。</p>
+<ul>
+<li><p><code>"-"</code> で始まるオプションを受け付ける</p></li>
+<li><p>オプション以外の引数が与えられたときにはそれをファイル名とみなして、そのファイルから読み込む。複数の引数があるときにはそれらのファイルの内容を連続して処理する</p></li>
+<li><a id="page_191"/><p>オプション以外の引数がなければ標準入力から読み込む</p></li>
+<li><p>データを処理した結果は標準出力に対して出力する</p></li>
+<li><p>エラーがあった場合にはそのメッセージは標準エラー出力に出力する</p></li>
+</ul>
+<p class="in">たとえば、フィルタの代表格catは、</p>
+<div class="plist">
+<pre>cat</pre>
+</div>
+<p class="ni">では、標準入力から読み込み、標準出力に書き出します（だから、あまり意味がない）。複数の引数を指定すると、</p>
+<div class="plist">
+<pre>cat foo bar baz</pre>
+</div>
+<p class="ni">それらのファイルの内容を順番に標準出力に書き出します。オプションを付けると、ちょっとだけ動作が変化します。</p>
+<div class="plist">
+<pre>cat -n foo bar baz</pre>
+</div>
+<p class="ni">で行番号を付けて出力します。</p>
+<p class="in">Rubyではこのようなフィルタの性質を支援する機能が提供されています。それが<code>ARGF</code>です。<code>ARGF</code>は「引数で指定したファイルから構成される仮想的なファイル」です。引数が指定されなかったときは<code>ARGF</code>は標準入力から読み込みます。ほら、フィルタの性質をそのまま実現してくれてますよね。</p>
+<p class="in"><code>ARGF</code>は厳密には<code>IO</code>クラスのオブジェクトではありませんが、<code>IO</code>クラスのメソッドのほとんどを持っています。先ほどのcatの動作は、</p>
+<div class="plist">
+<pre>ARGF.each{|line| print line}</pre>
+</div>
+<p class="ni">で実現できます。行番号を付けたければ、</p>
+<div class="plist">
+<pre>ARGF.each{|line| printf <span class="str">&quot;%6d  %s&quot;</span>, ARGF.lineno, line}</pre>
+</div>
+<p class="ni">です。簡単でしょう?</p>
+</section>
+<section id="chap1312" class="level2">
+<h3>ファイルのロック</h3>
+<hr class="hr-gray" />
+<p class="in">複数のプロセスが同時に同じファイルにアクセスしようとする場合、トラブルが発生する場合があります。<a href="#fig1304">図13.4</a>に示したのは典型的なWebのカウンタの処理です。</p>
+<div class="fig" id="fig1304">
+  <!-- <div class="image100"> -->
+  <div class="image800">
+      <img src="../image/ch13/13-4.jpg" alt="fig1304" />
+  </div>
+  <p class="fig-caption">図13.4●Webカウンタの処理と競合</p>
+</div>
+<p class="in">カウンタプログラムはCGIとして起動されますから、複数同時に起動されることもありえます。さて、ここで仮にカウンタファイルには数値「<code>10</code>」が書き込まれているとしましょう。カウンタプログラムが起動され、(b) の処理で<code>10</code>が読み込まれます。さて、この瞬間に誰か別の人がこのページにアクセスしカウンタプログラムが起動されたとすると、最初のプログラムが (e) の処理で<code>11</code>を書き込む前に、こちらも<code>10</code>を読み込んでしまう可能性があります (h)。そうすると後のプログラムは前のプログラムが書き込んだ<code>11</code>を上書きしてしまい (k)、最初のアクセスはなかったことになってしまいます。</p>
+<p class="in">この問題を避けるためには、数値を読み込んでから新しい値を書き込む間は、他のプログラムに読み込みを待ってもらう必要があります。それを実現するのが<code>flock</code>メソッドです。</p>
+<a id="page_192"/>
+<p class="in"><code>File</code>クラスの<code>flock</code>メソッドを実行すると、そのファイルがロックされます。ロックされたファイルを別のプログラムがロックしようとすると、ロックが解放されるまでそのプログラムは停止します。</p>
+<div class="plist">
+<pre>f = open(<span class="str">&quot;/var/lib/www/count.dat&quot;</span>, <span class="str">&quot;r+&quot;</span>)
+f.flock(File::LOCK_EX)  <span class="cmt"># ロック</span>
+n = f.read.to_i + 1     <span class="cmt"># 読み込みと1増加</span>
+f.rewind                <span class="cmt"># 先頭に巻き戻し</span>
+f.print n               <span class="cmt"># 出力</span>
+f.flock(File::LOCK_UN)  <span class="cmt"># アンロック</span></pre>
+</div>
+<p class="in">これで上記の問題は解決です。</p>
+</section>
+<section id="chap1313" class="level2">
+<h3>アクセス権</h3>
+<hr class="hr-gray" />
+<p class="in">さて、ここまでで基本的な入出力操作は説明してきましたが、最後にファイルのもう1つの性質であるアクセス権について説明しておきましょう。</p>
+<p class="in">まず、各ファイルにはオーナー（所有者）とグループ（所属グループ）という属性があります。それから、誰がアクセスできるかというアクセス権という属性があります。</p>
+<p class="in">アクセス権は、ファイルにアクセスするユーザーを、そのファイルの所有者、そのファイルのグループに所属するユーザー、それ以外のユーザーの3種類に分類し、それぞれに対して、読める、書ける、実行できるの3種類の操作に対して許可したり、禁止したりできます。たとえば、あるファイルを読み出すためには、ファイルのアクセス権について以下の条件のいずれかが成立している必要があります。</p>
+<ul>
+<li><p>オーナーに対する読み出し権が設定されていて、自分がそのファイルのオーナーである</p></li>
+<li><p>グループに対する読み出し権が設定されていて、自分がそのファイルのグループに所属している</p></li>
+<li><p>その他のユーザーに対する読み出し権が設定されている</p></li>
+</ul>
+<a id="page_193"/>
+<p class="in">アクセス権を設定できるのは3種類のユーザーに対してそれぞれ3種類の操作なので3×3で9通りの許可があります。この許可状態を表現するために、</p>
+<div class="plist">
+<pre>rwxr-x---</pre>
+</div>
+<p class="ni">のように表現することがあります（たとえば<code>ls</code>の出力）。これは3文字ずつグループ化して、オーナーに対しては読み込み（<code>r</code>）、書き込み（<code>w</code>）、実行（<code>x</code>）のそれぞれを許可するが、グループのメンバーに対しては読み込みと実行だけ、それ以外のユーザーに対しては何も許可しないというふうに読みます。</p>
+<p class="in">よりコンパクトな表現として、8進数を使って同じ許可状態を、</p>
+<div class="plist">
+<pre>750</pre>
+</div>
+<p class="ni">とも表現します。これは8進数の数字1桁が3ビットであることを利用しています。1番目の数字はオーナーに対するアクセス権を意味します。7は2進数でいえば<code>111</code>でこれはすべての操作が許可されていることを示します。2番目の数字5は2進数で<code>101</code>で、これはグループのメンバーに対して読み込みと実行だけが許可されていることを示します。3番目の数字0は当然<code>000</code>ですからその他のユーザーに対してはすべての操作が禁止されていることを示します。</p>
+<p class="in">Rubyにおいてアクセス権を調べたり、変更したりするメソッドは以下のとおりです。</p>
+<div class="plist">
+<pre>stat = f.stat   <span class="cmt"># アクセス権を含む属性を得る</span>
+stat.mode       <span class="cmt"># アクセス権</span>
+stat.readable?  <span class="cmt"># 読み込めるか</span>
+stat.owned?     <span class="cmt"># 自分のファイルか</span>
+f.chmod(0750)   <span class="cmt"># アクセス権を変更</span></pre>
+</div>
+<p class="in">誰からでも書き込みできるファイルは信頼できないユーザーによって書き換えられているかもしれません。そこで、重要な情報を読み込むときにはそのファイルのアクセス権が安全かどうかをチェックするとよいでしょう。</p>
+<div class="plist">
+<pre><span class="cmt"># pathからファイル情報を得る</span>
+stat = File.stat(path)
+<span class="cmt"># 以下の条件のいずれかが成立するときには安全でない</span>
+<span class="kwd">if</span> !stat.owned? <span class="kwd">or</span>  <span class="cmt"># 自分のファイルでない、</span>
+   stat.mode &amp; 022  <span class="cmt"># 自分以外から書き込み可</span>
+
+   ... 安全でないのでエラーにする ...
+<span class="kwd">end</span></pre>
+</div>
+</section>
+<section id="chap1314" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月は入出力を司る<code>IO</code>クラスについて説明しました。だんだんRubyプログラミングの基礎部分についての解説が進んできました。そろそろ、応用的プログラミングについても説明できるかもしれません。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-027.xhtml">&lt;&lt; 前ページ</a>　<a href="p-029.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

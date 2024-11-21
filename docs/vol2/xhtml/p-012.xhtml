@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第36章 RubyとEmacs</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第36章</p>
+<!-- Body -->
+<section id="chap36" class="level1">
+<a id="page_061"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">36</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+RubyとEmacs
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年5月号]</p>
+<div class="newlead">
+<p class="in">EmacsとRuby開発について解説しています。20年後にどうなっているかというと、世の中のエディタがVSCodeが主流になり、Emacsはだいぶ下火になっているのが悲しい現実です。Viの方が（Vimという形で）利用者が多いのが意外というかなんというか。現代では開発はツール支援が重要になっています。もっとも、あまり知られていないだけでEmacsやVimでもコード補完など統合開発環境と同等のことはできるのですが。</p>
+<p class="ih">「Ruby開発日記」は「Emacsによる開発」というタイトルで、私の開発環境を紹介しています。Emacs、独自日本語入力配列、自作メールリーダーと並べると変態的な感じですね。20年経っても、私は変わらずEmacs、独自日本語入力配列、自作メールリーダーです。ただし、独自日本語入力の変換エンジンは当時利用していたCannaではなく、Mozcになっていますし、自作メールリーダーはcmailではなくmorqという全文検索ベースのもの（非公開）になっています。</p>
+</div>
+<div class="lead">
+<p class="ni">Emacsをご存じですか?　Emacsはviと並ぶUNIX上での定番エディタです。筆者は自他共に認めるEmacsファンで、Emacsに触らない日は1日もないほどです。今回は、RubyとEmacsの関係について語りましょう。</p>
+</div>
+<section id="chap3601" class="level2">
+<h3>Emacs入門</h3>
+<hr class="hr-gray" />
+<p class="in">Emacsは古くからあるテキストエディタです。Emacsの特徴はなんといってもその拡張性でしょう。EmacsにはEmacs LispというLisp処理系が内蔵されていて、カスタマイズや機能拡張を自由に行うことができます。</p>
+<p class="in">一番最初のEmacsはTECOというエディタマクロで記述されていたのだそうです。最初のEmacsをTECOで記述したのはフリーソフトウェア財団（FSF）のRMSことRichard Stallmanです。TECOによるEmacsが実装されたのは1976年だといわれています。それから、後にJavaの設計者となるJames Goslingが1981年にUNIXへの移植を行います。GoslingによるEmacs（通称Gosling EmacsまたはGosmacs）は、MockLispと呼ばれるLispもどきでの拡張機能を持っていました。</p>
+<a id="page_062"/>
+<p class="in">しかし、GoslingはGosmacsの権利をUnipressという企業に売却してしまい、StallmanはEmacsのソースコードを使った開発に不自由を感じるようになりました。StallmanがFree Software運動を始めたのはこのときの怒りが原因ではないかと聞いたことがあります。</p>
+<p class="in">いずれにしても、Unipress Emacsをベースに作業することができなかったStallmanは今度はCを使って再びゼロからEmacsを開発しました。これが現在広く使われているGNU Emacsです。GNU EmacsはGosmacsの拡張性を参考にしていますが、MockLispのようなカスタマイズ用のまがいものの言語ではなく、ちゃんとしたLispであるEmacs Lispを内蔵していました。</p>
+</section>
+<section id="chap3602" class="level2">
+<h3>環境としてのEmacs</h3>
+<hr class="hr-gray" />
+<p class="in">Emacsは起動時にユーザーのホームディレクトリにある<code>.emacs</code>という名前のファイルを読み込みます。<code>.emacs</code>の内容はEmacs Lispのプログラムとして解釈されます。Emacs LispからはEmacsの持つあらゆる機能にアクセスできますから、理論上はEmacsのすべてをカスタマイズすることが可能ということです。</p>
+<p class="in">しかも、Emacs Lispはフル機能を持つLisp言語ですから、ただ単にEmacsのカスタマイズのために使うだけでなく、それを使って任意のプログラムを書くこともできます。たとえば、各種プログラミング言語用のエディットモードもEmacs Lispで記述されています。</p>
+<p class="in">また、編集機能だけでなく、独立のアプリケーションも記述できます。例としてはネットニュースリーダーであるGnus, メールリーダーであるWanderlust, Mew, そしてcmail, それからIRCクライアントのLieceなどがあります。</p>
+</section>
+<section id="chap3603" class="level2">
+<h3>Rubyモード</h3>
+<hr class="hr-gray" />
+<p class="in">おっと、Rubyの話でしたね。もちろん、Emacs好きの開発した言語であるRubyはEmacsと関係があります。とはいえ、言語仕様上の関連は、文字を表現する「<code>?a</code>」のような記法がEmacs Lispと共通であるというだけですが。</p>
+<p class="in">私はRubyの開発を始める前には、cmailというメールリーダーを開発していました。cmailは最終的には数千行を超える規模のEmacs Lispプログラムで、LispとEmacsのよい勉強になりました。</p>
+<p class="in">このような私が、Rubyの開発を始めて言語文法をどうするか悩んでいた際に、一番気にしたのはオートインデントができるかどうかでした。当時、<code>end</code>でブロック構造を表現するプログラミング言語の編集モードはオートインデントをサポートしていないものがほとんどでした。ですから、オートインデントが実現できないようなら、CやJavaのようなブレース（<code>{}</code>）を使った仕様に変えようかと思っていたのです。しかし、数日Emacs Lispで戯れていると、<code>end</code>を使っていてもオートインデントできる編集モードのめどがつきました。それが現在Rubyに標準添付されている<code>ruby-mode.el</code>の起源です。もし、あの時点でオートインデントに成功していなければ、Rubyは現在のような<code>end</code>で終わる文法を持っていなかったことでしょう。</p>
+<a id="page_063"/>
+<p class="in"><code>ruby-mode.el</code>をインストールするためには、Emacsのロードパスが通ったディレクトリに<code>ruby-mode.el</code>を置きます。性能上の問題がある場合にはバイトコンパイルして<code>ruby-mode.elc</code>を作ったほうが有利かもしれません。以前はライブラリのバイトコンパイルは必須でしたが、最近はマシンの性能も向上しているのでバイトコンパイルなしでも十分な速度で動くことも多いようです。</p>
+<p class="in">バイトコンパイルして<code>ruby-mode.el</code>から<code>ruby-mode.elc</code>を作るためには、<code>ruby-mode.el</code>のあるディレクトリで、</p>
+<div class="borderterminal">
+<pre>% emacs -batch -f batch-byte-compile ruby-mode.el</pre>
+</div>
+<p class="in">と実行します。出来上がった<code>ruby-mode.elc</code>は <code>.el</code>ファイルの代わりにロードパス上のディレクトリに置きます。</p>
+<p class="in">インストールした<code>ruby-mode</code>を使うために、自分の <code>.emacs</code>ファイルに<a href="#list3601">リスト36.1</a>の内容を追加します。</p>
+<div class="plistc" id="list3601">
+<p class="lst-caption">リスト36.1●ruby-modeのための設定</p>
+<pre>(setq auto-mode-alist
+    (<span class="kwd">append</span> '((<span class="str">"\\.rb$"</span> . ruby-mode))
+           auto-mode-alist))
+
+(setq interpreter-mode-alist
+    (<span class="kwd">append</span> '((<span class="str">"ruby"</span> . ruby-mode))
+           interpreter-mode-alist))</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">これで拡張子 <code>.rb</code>を持つファイルか、ファイルの先頭に、</p>
+<div class="plist">
+<pre><span class="cmt">#! /usr/bin/ruby</span></pre>
+</div>
+<p class="ni">のような記述のあるファイルは自動的にRubyプログラムだと見なされます。<code>ruby-mode</code>では以下の機能が有効です。</p>
+<ul>
+<li><p>オートインデント</p></li>
+<li><p>予約語などの色付け</p></li>
+<li><p>プログラム構成要素単位のカーソル移動</p></li>
+</ul>
+</section>
+<section id="chap3604" class="level2">
+<h3>ハイライトとオートインデント</h3>
+<hr class="hr-gray" />
+<p class="in"><code>ruby-mode.el</code>の設定を行ってから、EmacsにRubyプログラムをロードするとプログラムに色が付きます。これをハイライトと呼びます。デフォルトでは<a href="#table3601">表36.1</a>のように色が指定されています。</p>
+<div class="table" id="table3601">
+<p class="tbl-caption">表36.1●ruby-modeの色</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">要素</span></th>
+<th><span class="k">色</span></th>
+</tr>
+<tr>
+<td>コメント</td>
+<td>赤</td>
+</tr>
+<tr>
+<td>予約語</td>
+<td>紫</td>
+</tr>
+<tr>
+<td>メソッド定義</td>
+<td>青</td>
+</tr>
+<tr>
+<td>変数</td>
+<td>オレンジ</td>
+</tr>
+<tr>
+<td>定数</td>
+<td>緑</td>
+</tr>
+<tr>
+<td>文字列</td>
+<td>ピンク</td>
+</tr>
+<tr>
+<td>正規表現</td>
+<td>ピンク</td>
+</tr>
+</table>
+</div>
+<a id="page_064"/>
+<p class="in"><code>ruby-mode</code>を使ってひと目でわかるのはハイライト機能ですが、作った本人は<code>ruby-mode</code>の目玉はオートインデント機能のほうだと思っています。</p>
+<p class="in"><code>ruby-mode</code>でプログラムを編集中に、<span class="r">TAB</span>キーを押すとコンテキストに応じてその行をインデントします。改行時には<span class="r">C-j</span>（<span class="r">Ctrl</span>キーを押しながら<span class="r">j</span>）を押すと現在の行をインデントし、改行してからインデントレベルにカーソルを移動してくれます。</p>
+<p class="in">Emacsを使ってRubyプログラムを入力する場合、プログラムの本文だけを入力すればオートインデント機能によって自動的に行ってくれます。</p>
+</section>
+<section id="chap3605" class="level2">
+<h3>Rubyプログラムの編集</h3>
+<hr class="hr-gray" />
+<p class="in"><code>ruby-mode</code>ではハイライトやオートインデントほどは目立ちませんが、他にもRubyプログラムの編集に役立つ機能が提供されています。<a href="#table3602">表36.2</a>に<code>ruby-mode</code>の編集機能を一覧しておきます。</p>
+<div class="table" id="table3602">
+<p class="tbl-caption">表36.2●ruby-modeの編集機能</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">編集コマンド</span></th>
+<th><span class="k"></span></th>
+<th><span class="k">編集コマンド</span></th>
+<th><span class="k"></span></th>
+</tr>
+<tr>
+<td><span class="r">C-j</span></td>
+<td>ruby-reindent-then-newline-and-indent</td>
+<td><span class="r">ESC C-n</span></td>
+<td>ruby-end-of-block</td>
+</tr>
+<tr>
+<td><span class="r">TAB</span></td>
+<td>ruby-indent-command</td>
+<td><span class="r">ESC C-p</span></td>
+<td>ruby-beginning-of-block</td>
+</tr>
+<tr>
+<td><span class="r">{</span></td>
+<td>ruby-electric-brace</td>
+<td><span class="r">ESC C-f</span></td>
+<td>ruby-forward-sexp</td>
+</tr>
+<tr>
+<td><span class="r">}</span></td>
+<td>ruby-electric-brace</td>
+<td><span class="r">ESC C-b</span></td>
+<td>ruby-backward-sexp</td>
+</tr>
+<tr>
+<td><span class="r">C-c C-e</span></td>
+<td>ruby-insert-end</td>
+<td><span class="r">ESC C-e</span></td>
+<td>ruby-end-of-defun</td>
+</tr>
+<tr>
+<td><span class="r">ESC C-q</span></td>
+<td>ruby-indent-exp</td>
+<td><span class="r">ESC C-a</span></td>
+<td>ruby-beginning-of-defun</td>
+</tr>
+<tr>
+<td><span class="r">ESC C-h</span></td>
+<td>ruby-mark-defun</td>
+<td></td>
+<td></td>
+</tr>
+</table>
+</div>
+<p class="in">各編集コマンドを解説します。</p>
+<div class="description">
+<p class="ditem">ruby-indent-command</p>
+<p class="dni">カレント行をインデントします。</p>
+<p class="ditem">ruby-reindent-then-newline-and-indent</p>
+<p class="dni">カレント行をインデントし、改行した後、次の行のインデントレベルにカーソルを移動させます。</p>
+<p class="ditem">ruby-electric-brace</p>
+<p class="dni">ブレースを挿入してからカレント行をインデントします。</p>
+<p class="ditem">ruby-insert-end</p>
+<p class="dni">「<code>end</code>」を挿入してからカレント行をインデントします。</p>
+<p class="ditem">ruby-indent-exp</p>
+<p class="dni">カレント行が<code>if</code>などの制御文やかっこなど複数行に渡る式を含むとき、式の末尾までの範囲内をインデントします。</p>
+<a id="page_065"/>
+<p class="ditem">ruby-beginning-of-block</p>
+<p class="dni">現在のブロックの先頭に移動します。ブロックとは<code>if</code>文など複数の行に渡る文（または式）の先頭のことです。</p>
+<p class="ditem">ruby-end-of-block</p>
+<p class="dni">現在のブロックの末尾に移動します。</p>
+<p class="ditem">ruby-beginning-of-defun</p>
+<p class="dni">現在の「<code>defun</code>」の先頭に移動します。「<code>defun</code>」とはEmacsの用語では行の先頭で始まるブロック構造です。Rubyの場合、行の先頭から始まる<code>class</code>文、<code>module</code>文、<code>def</code>文などが対象になります。</p>
+<p class="ditem">ruby-end-of-defun</p>
+<p class="dni">現在の「<code>defun</code>」の末尾に移動します。</p>
+<p class="ditem">ruby-mark-defun</p>
+<p class="dni">現在の「<code>defun</code>」の末尾にマークを置き、カーソルは「<code>defun</code>」の先頭に移動させます。</p>
+<p class="ditem">ruby-forward-sexp</p>
+<p class="dni">式1つだけ前方にカーソルを移動させます。式が複数の行に及ぶ場合も正しく解釈します。</p>
+<p class="ditem">ruby-backward-sexp</p>
+<p class="dni">現在の式の先頭までカーソルを移動させます。</p>
+</div>
+</section>
+<section id="chap3606" class="level2">
+<h3>ruby-modeのカスタマイズ</h3>
+<hr class="hr-gray" />
+<p class="in">Emacsで提供されている編集モードをカスタマイズするためにはフック（hook）を使います。各モードは開始時にhookを呼び出しますから、そのモードに対するhookを設定しておいて、その中でカスタマイズを行います。</p>
+<p class="in"><code>ruby-mode</code>をカスタマイズするには<code>ruby-mode-hook</code>を使います。たとえば私は<code>ruby-mode</code>で、</p>
+<ul>
+<li><p><code>abbrev</code>（予約語補完）を行う</p></li>
+<li><p>改行キー（<span class="r">C-m</span>）に<code>reindent-then-newline-and-indent</code>を、<span class="r">C-j</span>に<code>newline</code>を割り当て</p></li>
+</ul>
+<p class="ni">しています。そのための設定を<a href="#list3602">リスト36.2</a>に示します。</p>
+<div class="plistc" id="list3602">
+<p class="lst-caption">リスト36.2●ruby-modeのカスタマイズ例</p>
+<pre>(add-hook &#39;ruby-mode-hook
+         &#39;(lambda ()
+           (abbrev-mode 1)
+           (define-key ruby-mode-map <span class="str">&quot;\C-m&quot;</span>
+                      &#39;ruby-reindent-then-newline-and-indent)
+           (define-key ruby-mode-map <span class="str">&quot;\C-j&quot;</span> &#39;newline)))</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_066"/>
+<p class="in"><code>add-hook</code>は<code>ruby-mode-hook</code>に手続きを追加する関数です。複数の手続きをまとめるためには<code>lambda</code>でくくる必要があります。</p>
+</section>
+<section id="chap3607" class="level2">
+<h3>RRB</h3>
+<hr class="hr-gray" />
+<p class="in"><code>ruby-mode.el</code>はRubyプログラムを編集することを支援する編集モードでしたが、Rubyプログラムの開発をより積極的に支援するEmacsのパッケージがあります。それはRRB（Ruby Refectoring Browser）です。</p>
+<p class="in">リファクタリングとは「ソースコードの動作を変えずに、内部構造をよりよいものに修正すること」です。</p>
+<p class="in">RRBは各種リファクタリング手法のうち、以下のものを支援します。</p>
+<ul>
+<li><p>変数名の変更</p></li>
+<li><p>メソッド名の変更</p></li>
+<li><p>定数名（クラス/モジュール名を含む）の変更</p></li>
+<li><p>メソッドを親クラス/子クラスに移動する</p></li>
+<li><p>コードの一部分をメソッドとして切り出す</p></li>
+<li><p>共通のスーパークラスを持つクラス群に対し新しいスーパークラスを定義する</p></li>
+</ul>
+<p class="in">原稿執筆時点でRRBのバージョンは0.0.2ですから、将来新たなリファクタリング機能が追加されるかもしれません。また、現時点ではEmacs上でのみ動作していますが、Emacs以外にもFreeRIDEやEclipseなどのIDE上でも動作するようになるかもしれません。</p>
+<p class="in">RRBについての情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.kmc.gr.jp/proj/rrb/index.html</span></p></li>
+</ul>
+<p class="ni">からどうぞ。</p>
+</section>
+<section id="chap3608" class="level2">
+<h3>RRBのインストール</h3>
+<hr class="hr-gray" />
+<p class="in">RRBはまだバージョンが若いせいか、私が試したときにはインストールが少々面倒でした。ここではちょっと詳しくインストール手順を説明しておきましょう。RRBは基本的にRuby 1.8対応です。1.6をお使いの方は<code>shim</code>ライブラリを入手しておきましょう。</p>
+<p class="in">まず、ダウンロードします。0.0.2のダウンロードファイルは、</p>
+<ul class="none">
+<li><p><span class="link">http://www.kmc.gr.jp/proj/rrb/archive/rrb-0.0.2.tar.gz</span></p></li>
+</ul>
+<p class="ni">です。これを展開するとカレントディレクトリに<code>rrb-0.0.2</code>というディレクトリができます。普段ならこのディレクトリの<code>setup.rb</code>を実行することでインストール完了となることが多いのですが、現在のRRBは対応していません。ぜひ<code>setup.rb</code>（または<code>install.rb</code>）対応をお願いしたいものです。</p>
+<p class="in">RRBには2つ拡張ライブラリが付属していますので、それぞれコンパイルします。</p>
+<a id="page_067"/>
+<div class="borderterminal">
+<pre>% cd reflection
+% ruby extconf.rb
+% make
+% sudo make install
+% cd ../ripper
+% ruby extconf.rb
+% make
+% sudo make install
+% cd ..</pre>
+</div>
+<p class="in">Rubyで書かれたライブラリもインストールします。</p>
+<div class="borderterminal">
+<pre>% cd lib
+% sudo cp -r rrb &lt;Rubyライブラリのパス&gt;</pre>
+</div>
+<p class="in">インストールするディレクトリは</p>
+<div class="plist">
+<pre>ruby -e &#39;p $:&#39;</pre>
+</div>
+<p class="ni">の結果表示されるディレクトリから選んでください。私は <code>/usr/lib/ruby/site_ruby/1.8</code>にインストールしました。</p>
+<p class="in">忘れてはいけないことは<code>ripper</code>ディレクトリに置かれている<code>ripper.rb</code>を<code>rrb/ripper.rb</code>としてコピーする必要があることです。</p>
+<div class="borderterminal">
+<pre>% sudo cp -r ripper/ripper.rb &lt;ライブラリのパス&gt;/rrb</pre>
+</div>
+<p class="in">次に<code>rrb</code>の本体であるコマンドライン版<code>rrb</code>を実行パスの設定されているディレクトリにコピーします。私は <code>$HOME/bin</code>を選びました。実行モードの設定も必要です。</p>
+<div class="borderterminal">
+<pre>% chmod a+x bin/*
+% cp bin/* $HOME/bin</pre>
+</div>
+<p class="in">最後にEmacsからRRBを操作するためのEmacs Lispプログラム（<code>rrb.el</code>）をインストールします。これも<code>load-path</code>が設定されているディレクトリならどこでもかまわないのですが、私は <code>$HOME/lib/emacs</code>を普段から使っているのでそこにコピーします。</p>
+<div class="borderterminal">
+<pre>% cp elisp/rrb.el $HOME/lib/emacs</pre>
+</div>
+<p class="in">これでやっとインストール完了です。</p>
+</section>
+<section id="chap3609" class="level2">
+<a id="page_068"/>
+<h3>RRBを使ってみる</h3>
+<hr class="hr-gray" />
+<p class="in">苦労してインストールしたのですから、活用しないと損です。さっそく使ってみたいのですが、技術的な理由からRRBには以下の制限があることを覚えておいてください。</p>
+<ol>
+<li><p>複数のスクリプトからなるプログラムの場合、すべてのスクリプトをEmacs上に読み込んでおかなければならない</p></li>
+<li><p>また、Emacs上に読み込まれているすべての<code>*.rb</code>がリファクタリングの対象となる</p></li>
+<li><p>スクリプトは定義部と実行部に分かれていなければならない</p></li>
+</ol>
+<p class="in">最後の点だけは特に注意が必要ですので、詳しく説明しておきます。RRBはプログラムを解析するため、プログラムを構成するRubyファイルを<code>require</code>を使って読み込みます。そのときに、定義だけでなく実際の実行も行われてしまうといろいろとまずいわけです。基本的には「<code>require</code>しても副作用が起きない」ことが必要です。</p>
+<p class="in">具体的には、プログラムの実行部分を、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> $0==<span class="kwd">__FILE__</span>
+  ...
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">のように囲んでしまうのがよいでしょう。これで<code>require</code>されたときには副作用がなく、コマンドとして実行されたときには（<code>__FILE__</code>と <code>$0</code>が一致するので）実行部にも制御が渡ります。このテクニックはライブラリではテストコードを囲むために用いられます。</p>
+<p class="in">では、使ってみましょう。誌面の関係で簡単なコードしか使えませんが、<a href="#list3603">リスト36.3</a>のようなサンプルを使います。</p>
+<div class="plistc" id="list3603">
+<p class="lst-caption">リスト36.3●RRB例題コード</p>
+<pre><span class="kwd">class</span> Foo
+  <span class="kwd">def</span> power(n,p)
+    n * p
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> print_powertwo(n)
+    print <span class="str">&quot;n = &quot;</span>, n
+    print <span class="str">&quot;; &quot;</span>, n, <span class="str">&quot;*2 = &quot;</span>, power(n, 2), <span class="str">&quot;\n&quot;</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="kwd">class</span> Bar&lt;Foo
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_069"/>
+<p class="in">このサンプルに対して以下のような変更を行います。</p>
+<ul>
+<li><p><span class="k"><code>power</code>メソッドを<code>times</code>メソッドに名称変更</span><br />
+M-x <code>rrb-rename-method</code>を使います。対象となるクラス（今回は<code>Foo</code>、複数指定可）を指定し、新しい名前を入力します。古い名前でエラーを出すメソッドが自動的に用意されますので、必要に応じて削ります。</p></li>
+<li><p><span class="k"><code>times</code>の引数<code>(n, p)</code>を<code>(n1, n2)</code>に</span><br />
+M-x <code>rrb-rename-local-variable</code>を使います。対象となるメソッドと新旧の変数名を入力します。</p></li>
+<li><p><span class="k"><code>print_powertwo</code>を<code>print_twotimes</code>に名称変更</span><br />
+M-x <code>rrb-rename-method</code>を使います。</p></li>
+<li><p><span class="k"><code>print_twotimes</code>を<code>Bar</code>クラスに移動</span><br />
+M-x <code>rrb-pushdown-method</code>を使います。メソッドと移動先のクラスを指定します。</p></li>
+<li><p><span class="k"><code>Foo</code>クラスを<code>TwoTimes</code>クラスに名称変更</span><br />
+M-x <code>rrb-rename-constant</code>を使います。新旧の定数名（クラス名）を指定します。</p></li>
+</ul>
+<p class="in">最終的な結果は<a href="#list3604">リスト36.4</a>のようになります。この例では自動的に挿入された例外発生用のメソッドは取り除いてあります。</p>
+<div class="plistc" id="list3604">
+<p class="lst-caption">リスト36.4●リファクタリング結果</p>
+<pre><span class="kwd">class</span> TwoTimes
+  <span class="kwd">def</span> times(n1,n2)
+    n1 * n2
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="kwd">class</span> Bar&lt;TwoTimes
+  <span class="kwd">def</span> print_twotimes(n)
+    print <span class="str">&quot;n = &quot;</span>, n
+    print <span class="str">&quot;; &quot;</span>, n, <span class="str">&quot;*2 = &quot;</span>, times(n, 2), <span class="str">&quot;\n&quot;</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">RRBで行ったような変更は、もちろんエディタの置換機能を使っても実現することはできます。しかし、RRBはRubyプログラムを解析して、意味的に正しい変更を行ってくれますからずっと安心して変更を行うことができます。</p>
+<p class="in">なお、今回紹介した、<code>ruby-mode.el</code>（最新版）、<code>rrb-0.0.2</code>, <code>yacc.el</code>は付録CD-ROMに掲載しています。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-011.xhtml">&lt;&lt; 前ページ</a>　<a href="p-013.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

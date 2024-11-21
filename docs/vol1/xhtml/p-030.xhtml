@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第13章 入出力</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-028.xhtml">第13章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap1316" class="level2">
+<a id="page_194"/>
+<h3>◆ Ruby開発日記 ◆ stdioの<ruby>憂鬱<rt>ゆううつ</rt></ruby></h3>
+<hr class="hr-green" />
+<p class="in">今回取り上げた<code>IO</code>クラスは<code>stdio</code>をベースに実装されています。<code>stdio</code>はC言語の規格で定義された入出力ですから、これを使っていればC言語のフルセットが使えるところではどこでも動作するわけです。組み込み環境などでは<code>stdio</code>が提供されない場合もありますが、それはしょうがない話です。</p>
+<p class="in">ところが、なかなか世の中は甘くないんですよね。Rubyのような複雑なソフトウェアを実現しようとなると<code>stdio</code>にもいろいろな問題があるのです。</p>
+<p class="in">まず第一に問題になるのが機能が足りないという点です。Rubyではユーザーレベルスレッド機能を提供していますが、そのために<code>IO</code>のバッファに読み込まれたデータがあるかどうかを判定する必要があります。ところがこの機能は<code>stdio</code>には定義されていません。しかたがないので、Rubyではプラットフォームごとにバッファが空かどうかを判定するルーチンを用意しています。</p>
+<p class="in">次の問題が、OSごとに微妙に動作が異なる点です。たとえば、読み込みと書き込み両方のモード（<code>"r+"</code>など）でオープンされた<code>IO</code>に対して、読み込みと書き込みの間に<code>flush</code>を行わないと問題があるOS（HP-UXとか）と問題ないOS（Linuxとか）があるのです。どこでもできるだけ同じように動作してほしいスクリプト言語としてはできるだけ動作をそろえたいところです。</p>
+<p class="in">最後の問題が、これも動作の違いの一部ですが、ロケール（国際化）の対応がまちまちだということです。Ruby自身はロケールを使っていないので、実はロケール対応はないほうがよいのですが、なかなかそうもいきません。たとえばヨーロッパの一部では小数点に<code>","</code>を使い、数字の3桁ごとの区切りに<code>"."</code>を使います。日本やアメリカのちょうど反対ですね。</p>
+<div class="plist">
+<pre>printf <span class="str">&quot;%f\n&quot;</span>, 1000.5</pre>
+</div>
+<p class="ni">を実行して</p>
+<div class="plist">
+<pre>1.000,5</pre>
+</div>
+<p class="ni">などと書かれても、動揺してしまいます。</p>
+<section id="chap131601" class="level3">
+<a id="page_195"/>
+<h4>fnmatchの悪夢</h4>
+<p class="in">このような問題は<code>stdio</code>以外にもたくさんあります。その一例は<code>fnmatch</code>です。<code>fnmatch</code>というのはワイルドカードのマッチングを行うライブラリ関数ですが、実はこの関数の挙動はOSごとに微妙に違います。たとえばSolarisでは<code>[^T]</code>のような<code>T</code>でない文字を表現するパターンが使えません。</p>
+<p class="in">そこでとうとうRubyでは、わたなべひろふみさん（ebanさん）作の<code>fnmatch</code>を自分で持つことにしました。</p>
+<p class="in">これで、どのOSでも同じ挙動のワイルドカードマッチが使えてハッピーなのですが、なんとなくこのままほとんどの関数について独自に提供していくことになってしまうのではないだろうか、と考えると少々恐くなってしまうのです。</p>
+</section>
+<section id="chap131602" class="level3">
+<h4>移植性の実現</h4>
+<p class="in">UNIX系OSの宿命として、ソフトウェアの移植性というのは重要な課題でした。UNIXとひとくちにいってもベンダーが違えばCPUもまちまちでしたから、コンパイルしたバイナリを配布するというわけにはいきません。そこでソフトウェアの配布は当然のようにソースコードが中心になりました。個人的にはUNIXでフリーソフトウエアあるいはオープンソースソフトウェアが発展した理由の1つは、このソースコードでの配布ではないかと思っています。いや、それともフリーソフトウエアだからこそソースコードで配布できたと考えるべきかな。ニワトリが先か、タマゴが先か。</p>
+<p class="in">それはともかく、ソースコードで配れば後は解決というわけにはいかないのが悲しいところです。OSごとにライブラリ関数があったりなかったり、名前が違ったり、あるいは最悪のケースでは同じ名前でも動作が違ったりするのです。結局は個別対応するしかありません。BSDではこの関数はある、SunOSでは名前が違うとか。</p>
+</section>
+<section id="chap131603" class="level3">
+<h4>autoconfの光明</h4>
+<p class="in">そこにさっそうと登場したのはautoconfというツールです。autoconfというのは、OSごとの違いを検出するプログラムを自動生成してくれるツールです。今まではOSの名前を見てチェックする必要があった部分を、実際にチェックを行って、この関数があれば使い、なければ別の対応を行う、といった書き方ができるようになったのです。</p>
+<p class="in">これまでのやり方では新しいOSへの対応はゼロから始める必要がありましたが、autoconfを使えば、検出プログラム（シェルで書かれています）を走らせることさえできれば、まったく新しいOSでもそのままコンパイルできる可能性が格段に高くなったのです。ちょっと幸せ。</p>
+<p class="in">というわけで、autoconfのおかげで少しだけ幸せになった移植性プログラミングなのですが、チェックする項目が減ったわけではありません。autoconfの入力となる<code>configure.in</code>というファイルがあるのですが、Rubyの場合全部で1155行あります。テスト項目はLinuxにおいて216項目にのぼります。テストはOSのチェックからヘッダーファイル、関数の存在チェック、構造体のメンバーチェックなどさまざまです。</p>
+<p class="in">こんなにテストするのーって感じですが、Rubyのような言語の場合しかたがないのかもしれません。結局はOSのほとんどの機能を呼び出しているのですから。</p>
+</section>
+<section id="chap131604" class="level3">
+<a id="page_196"/>
+<h4>マルチプラットフォームの<ruby>茨<rt>いばら</rt></ruby>の道</h4>
+<p class="in">しかし、RubyはUNIX系OSだけで動作するわけではありません。WindowsやBeOS、OS/2でも動作します。また最近VMS対応が追加されました。X68000対応はずいぶん以前からあるのですが、まだ動くのでしょうか。このような私自身が使ったこともないOSにおいては、ユーザーからのフィードバックがすべてです。RubyがここまでいろいろなOSの上で動くのも皆さんのおかげなのです。みなさま、どうもありがとうございます。</p>
+<p class="in">みなさまのおかげで私はLinuxでの開発に専念できます。そうです。私はLinuxしか使っていません。私の持ってるPCはどれもLinuxしか走っていません。ときどきWordファイルを送りつけられて困っていたのですが、OpenOfficeのおかげでなんとかなりそうです。たまにはいいこともあるのね。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-029.xhtml">&lt;&lt; 前ページ</a>　<a href="p-031.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,717 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第11章 文字列の操作</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第11章</p>
+<!-- Body -->
+<section id="chap11" class="level1">
+<a id="page_145"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">11</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+文字列の操作
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年4月号]</p>
+<div class="newlead">
+<p class="in">前半はRubyの基本的データ構造の1つ、文字列についての解説です。また、あまり使われない<code>pack</code>/<code>unpack</code>機能についても解説しています。この辺も大きな変化はないですね。メソッドは増えていますが。</p>
+<p class="in">後半は国際感覚についてです。20年前には、海外で働く日本人といえば大企業の駐在員とかのイメージで、ソフトウェアエンジニアが海外のカンファレンスに出席したり、あるいは海外企業に就職するなどめったにないことだったように思います。それを思うとこの20年の間に（ソフトウェア業界にいる）日本人の国際感覚はずいぶん変化したように思います。私の知人にも海外企業で働く人たちがいっぱいいますし、中にはRubyのおかげで海外進出した人さえ数多くいます。時代は変わりましたが、良い方向の変化だと思います。</p>
+</div>
+<div class="lead">
+<p class="ni">Rubyは「スクリプト言語」と呼ばれることが多いのですが、その理由の1つは今月解説する文字列処理機能が充実していることにあります。今月は文字列クラス<code>String</code>の機能を学んで、文字列処理の基本を押さえましょう。</p>
+</div>
+<section id="chap1101" class="level2">
+<h3>はじめに</h3>
+<hr class="hr-gray" />
+<p class="in">文字列とは読んで字のごとく「文字の列」です。プログラミングにおいて文字列は頻繁に登場します。ファイルから読み込んできたデータも、CGIの入出力、データベースのやりとりなど、Rubyにやらせたいほとんどあらゆる処理は文字列を経由します。</p>
+</section>
+<section id="chap1102" class="level2">
+<a id="page_146"/>
+<h3>文字列の生成</h3>
+<hr class="hr-gray" />
+<p class="in">文字列を作る方法はいくつもありますが、一番基本的な方法はプログラムに直接書き込む方法です。プログラム中での文字列表現のことを「リテラル」と呼びます。文字列リテラルには以下の4つの形式があります。</p>
+<ul>
+<li><p><code>""</code>（ダブルクォート）</p></li>
+<li><p><code>''</code>（シングルクォート）</p></li>
+<li><p><code>%</code>形式</p></li>
+<li><p>ヒアドキュメント</p></li>
+</ul>
+<p class="in">それからフォーマットした文字列を得るためには<code>sprintf</code>メソッドを使います。</p>
+<ul>
+<li><p><code>sprintf</code></p></li>
+</ul>
+<p class="in">ここからは、それぞれの方法について少し詳しく説明しようと思います。</p>
+</section>
+<section id="chap1103" class="level2">
+<h3>ダブルクォート</h3>
+<hr class="hr-gray" />
+<p class="in">一番基本的な文字列表現は<code>""</code>（ダブルクォート）で囲むことです。たとえば以下は「まつもと」という内容の文字列です。</p>
+<div class="plist">
+<pre><span class="str">&quot;まつもと&quot;</span></pre>
+</div>
+<p class="in">ダブルクォートで囲んだ文字列の中では、<a href="#table1101">表11.1</a>のような <code>\</code>（バックスラッシュ、フォントによっては円マーク）による特殊表現が使えます。これを「バックスラッシュ表現」と呼びます。</p>
+<a id="page_147"/>
+<div class="table" id="table1101">
+<p class="tbl-caption">表11.1●バックスラッシュ表現</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">表記</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>\t</code></td>
+<td>タブ（<code>0x09</code>）</td>
+</tr>
+<tr>
+<td><code>\n</code></td>
+<td>改行（<code>0x0a</code>）</td>
+</tr>
+<tr>
+<td><code>\r</code></td>
+<td>キャリッジリターン（<code>0x0d</code>）</td>
+</tr>
+<tr>
+<td><code>\f</code></td>
+<td>改ページ（<code>0x0c</code>）</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>バックスペース（<code>0x80</code>）</td>
+</tr>
+<tr>
+<td><code>\a</code></td>
+<td>ベル（<code>0x07</code>）</td>
+</tr>
+<tr>
+<td><code>\e</code></td>
+<td>エスケープ（<code>0x1b</code>）</td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>空白</td>
+</tr>
+<tr>
+<td><code>\nnn</code></td>
+<td>8進数表記（<code>n</code>は0-7）</td>
+</tr>
+<tr>
+<td><code>\xnn</code></td>
+<td>16進数表記（<code>n</code>は0-9, a-f）</td>
+</tr>
+<tr>
+<td><code>\cx</code>, <code>\C-x</code></td>
+<td>コントロール文字（<code>x</code>はASCII文字）</td>
+</tr>
+<tr>
+<td><code>\M-x</code></td>
+<td>メタ<code>x</code>（<code>c | 0x80</code>）</td>
+</tr>
+<tr>
+<td><code>\M</code>-<code>\C-x</code></td>
+<td>メタ コントロール<code>x</code></td>
+</tr>
+<tr>
+<td><code>\&lt;ch&gt;</code></td>
+<td><code>&lt;ch&gt;</code>が上記の文字でないとき，文字<code>&lt;ch&gt;</code>そのもの</td>
+</tr>
+</table>
+</div>
+<p class="in">バックスラッシュ表現は、ダブルクォート文字列中以外にも、正規表現など他のところでも使えます。</p>
+<p class="in">ダブルクォートで囲んだ文字列の中では、それ以外に式展開というものが使えます。式展開は、文字列中にRubyの式を埋め込むことができるものです。</p>
+<div class="plist">
+<pre>a = 124
+b = 2
+<span class="str">&quot;a+b = #{a}+#{b} = #{a+b}&quot;</span>  <span class="cmt"># a+b = 124+2 = 126</span></pre>
+</div>
+<p class="ih">「<code>#{}</code>」の部分は式の結果を文字列に変換して置き換えられます。</p>
+<p class="in">ダブルクォートに限らず、文字列リテラルは登場するたびに新しいオブジェクトが作られます。ということは、文字列リテラルのオブジェクトの内容を変更しても、次の実行のときに文字列が変わってしまうことはありません。たとえば、</p>
+<div class="plist">
+<pre>2.times <span class="kwd">do</span>
+  a = <span class="str">&quot;foo&quot;</span>
+  puts a
+  a[0] = <span class="str">&quot;b&quot;</span>      <span class="cmt"># &quot;boo&quot; になる</span>
+  puts a
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">の実行結果は、</p>
+<div class="plist">
+<pre>foo
+boo
+foo
+boo</pre>
+</div>
+<p class="ni">です。</p>
+</section>
+<section id="chap1104" class="level2">
+<h3>シングルクォート</h3>
+<hr class="hr-gray" />
+<p class="in">もう1つの文字列リテラルはシングルクォートで囲んだものです。</p>
+<div class="plist">
+<pre><span class="str">&#39;まつもと&#39;</span></pre>
+</div>
+<p class="in">シングルクォートで囲んだ文字列の中では、ダブルクォート文字列のような式展開は行われません。バックスラッシュ表現もシングルクォートの中で使えるものは、<code>\'</code>（シングルクォートをエスケープ）と <code>\\</code>（バックスラッシュをエスケープ）だけです。</p>
+</section>
+<section id="chap1105" class="level2">
+<a id="page_148"/>
+<h3>%形式</h3>
+<hr class="hr-gray" />
+<p class="in">文字列の中に「<code>"</code>」や「<code>'</code>」がたくさん登場する場合には、バックスラッシュによるエスケープが増えて読みにくくなります。</p>
+<div class="plist">
+<pre><span class="str">&quot;He said \&quot;I&#39;m fine\&quot;. And I said \&quot;me too\&quot;.&quot;</span></pre>
+</div>
+<p class="in">そんなときに便利なのが「<code>%</code>形式」です。<code>%</code>形式は<code>%</code>で始まる文字列表現で、次の文字で種別が、続く文字で区切り文字が決まります。<code>%Q</code>で始まるものはダブルクォート相当、<code>%q</code>で始まるものはシングルクォート相当の扱いになります。区切り文字はもう一度同じ文字が登場するまでが文字列の範囲になりますが、「<code>(</code>」「<code>[</code>」「<code>{</code>」「<code>&lt;</code>」だけは相当する閉じかっこ（それぞれ「<code>)</code>」「<code>]</code>」「<code>}</code>」「<code>&gt;</code>」）が終わりの区切り文字になります。</p>
+<div class="plist">
+<pre><span class="str">%Q(He said &quot;I&#39;m fine&quot;. And I said &quot;me too&quot;.)</span></pre>
+</div>
+<p class="in"><code>%</code>形式は文字列「<code>Q</code>」「<code>q</code>」の他にも、正規表現「<code>r</code>」や文字列の配列「<code>w</code>」、それからコマンド入力「<code>x</code>」などにも使われます。</p>
+</section>
+<section id="chap1106" class="level2">
+<h3>ヒアドキュメント</h3>
+<hr class="hr-gray" />
+<p class="in">最後の文字列リテラルがヒアドキュメントです。ヒアドキュメントはシェル由来の記法で、プログラムの中に複数行にわたるテキストを埋め込む方法です。</p>
+<p class="in">ヒアドキュメントは「<code>&lt;&lt;</code> 識別子」または「<code>&lt;&lt;</code> 文字列」という形式で、その次の行から識別子、または文字列の内容に正確に一致する行までの内容がその内容になります。「<code>&lt;&lt;</code>」の直後には空白を置けません。</p>
+<p class="in">文字列によって引用終了を指定した場合にはその文字列の種別がヒアドキュメントの種別になります。ですから、たとえば終了記号が「<code>""</code>」でくくってある場合には、ヒアドキュメント中でバックスラッシュ記法および式展開が使えます。文字列の代わりに識別子を指定した場合は，その識別子を「<code>""</code>」でくくった場合と同じになります。</p>
+<div class="plist">
+<pre>print &lt;&lt;FOO            <span class="cmt"># ヒアドキュメント</span>
+this is a test
+FOO
+
+print &lt;&lt;<span class="str">&quot;FOO&quot;</span>          <span class="cmt"># 上とまったく同じ</span>
+this is a test
+FOO
+
+print &lt;&lt;<span class="str">&quot;FOO&quot;</span>          <span class="cmt"># 式展開も行われます</span>
+this is the test
+print #{10+5}
+FOO
+
+print &lt;&lt;<span class="str">&#39;FOO&#39;</span>          <span class="cmt"># こちらでは式展開は行われません</span>
+this is the test
+print #{10+5}
+FOO
+
+print &lt;&lt;`BAR`          <span class="cmt"># コマンド入力</span>
+ls -l
+BAR
+
+print &lt;&lt;<span class="str">&quot;FOO&quot;</span>, &lt;&lt;<span class="str">&quot;BAR&quot;</span> <span class="cmt"># 連ねられます</span>
+I said foo.
+FOO
+I said bar.
+BAR</pre>
+</div>
+<a id="page_149"/>
+<p class="ih">「<code>&lt;</code><code>&lt;</code>」の直後に「<code>-</code>」を置くことで、引用終了マークをインデントすることができます。これによってプログラム中にヒアドキュメントをより自然な形で置くことができます。</p>
+<div class="plist">
+<pre><span class="kwd">if</span> need_define_foo
+  eval &lt;&lt;-EOS          <span class="cmt"># 区切り文字列をインデントできます</span>
+    <span class="kwd">def</span> foo
+      print <span class="str">&quot;foo\n&quot;</span>
+    <span class="kwd">end</span>
+  EOS
+<span class="kwd">end</span></pre>
+</div>
+</section>
+<section id="chap1107" class="level2">
+<h3>sprintf</h3>
+<hr class="hr-gray" />
+<p class="ih">「文字列の生成」として結構便利なのがC由来の<code>sprintf</code>メソッドです。<code>sprintf</code>は数値を文字列化したり、表示幅を指定して文字列を整形したりするのに便利です。</p>
+<div class="plist">
+<pre>printf(<span class="str">&quot;%dは8進で%oです\n&quot;</span>, 16, 16)</pre>
+</div>
+<p class="ni">を実行すれば、</p>
+<div class="plist">
+<pre><span class="str">&quot;16は8進で20です\n&quot;</span></pre>
+</div>
+<p class="ni">という出力を得ます。<code>%d</code>が10進整数、<code>%o</code>が8進整数を意味します。<code>sprintf</code>のフォーマット指定は詳細はほぼCの<code>printf</code>の指定と同じですが、以下の違いがあります。</p>
+<ul>
+<li><p>「<code>%*s</code>」のような表示幅を引数で指定する方法が提供されない</p></li>
+<li><p>「<code>%b</code>」という2進表示の指定が追加されている</p></li>
+</ul>
+<p class="in">Rubyでは<code>sprintf</code>は<code>%</code>という文字列のメソッドにもなっていますので、上記の例は以下のように書くこともできます。</p>
+<a id="page_150"/>
+<div class="plist">
+<pre><span class="str">&quot;%dは8進で%oです\n&quot;</span> % [16, 16]</pre>
+</div>
+<p class="in">どっちがわかりやすいかというと微妙ですが。</p>
+</section>
+<section id="chap1108" class="level2">
+<h3>メソッド一覧</h3>
+<hr class="hr-gray" />
+<p class="in">文字列がどのようなことができるかを示すために文字列オブジェクトの持つメソッド<a href="#table1102">表11.2</a>に示します。それぞれのメソッドの具体的な機能や使い方についてはマニュアルを参照してください。</p>
+<a id="page_151"/>
+<div class="table" id="table1102">
+<p class="tbl-caption">表11.2●文字列オブジェクトのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>%</code></td>
+<td><code>sprintf</code></td>
+<td><code>next</code></td>
+<td>「次」の文字列</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>文字列の繰り返し</td>
+<td><code>next!</code></td>
+<td>「次」の文字列</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>文字列の結合</td>
+<td><code>oct</code></td>
+<td>8進整数化</td>
+</tr>
+<tr>
+<td><code>&lt;&lt;</code></td>
+<td>文字列の追加</td>
+<td><code>replace</code></td>
+<td>文字列内容の置換</td>
+</tr>
+<tr>
+<td><code>=</code></td>
+<td>マッチ</td>
+<td><code>reverse</code></td>
+<td>逆順化</td>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td>文字列一部の取得</td>
+<td><code>reverse!</code></td>
+<td>逆順化</td>
+</tr>
+<tr>
+<td><code>[]=</code></td>
+<td>文字列一部の更新</td>
+<td><code>rindex</code></td>
+<td>後からの<code>index</code></td>
+</tr>
+<tr>
+<td><code>capitalize</code></td>
+<td>先頭文字の大文字化</td>
+<td><code>rjust</code></td>
+<td>右揃え</td>
+</tr>
+<tr>
+<td><code>capitalize!</code></td>
+<td>先頭文字の大文字化</td>
+<td><code>scan</code></td>
+<td>繰り返しマッチ</td>
+</tr>
+<tr>
+<td><code>center</code></td>
+<td>中央揃え</td>
+<td><code>size</code></td>
+<td><code>length</code>と同じ</td>
+</tr>
+<tr>
+<td><code>chomp</code></td>
+<td>末尾改行削除</td>
+<td><code>slice</code></td>
+<td>部分文字列切り出し</td>
+</tr>
+<tr>
+<td><code>chomp!</code></td>
+<td>末尾改行削除</td>
+<td><code>slice!</code></td>
+<td>部分文字列切り出し</td>
+</tr>
+<tr>
+<td><code>chop</code></td>
+<td>末尾文字削除</td>
+<td><code>split</code></td>
+<td>文字列分割</td>
+</tr>
+<tr>
+<td><code>chop!</code></td>
+<td>末尾文字削除</td>
+<td><code>squeeze</code></td>
+<td>文字列圧縮</td>
+</tr>
+<tr>
+<td><code>concat</code></td>
+<td>文字結合</td>
+<td><code>squeeze!</code></td>
+<td>文字列圧縮</td>
+</tr>
+<tr>
+<td><code>count</code></td>
+<td>文字数カウント</td>
+<td><code>strip</code></td>
+<td>両端の空白文字削除</td>
+</tr>
+<tr>
+<td><code>crypt</code></td>
+<td>暗号化</td>
+<td><code>strip!</code></td>
+<td>両端の空白文字削除</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>文字削除</td>
+<td><code>sub</code></td>
+<td>文字列置換</td>
+</tr>
+<tr>
+<td><code>delete!</code></td>
+<td>文字削除</td>
+<td><code>sub!</code></td>
+<td>文字列置換</td>
+</tr>
+<tr>
+<td><code>downcase</code></td>
+<td>小文字化</td>
+<td><code>succ</code></td>
+<td><code>next</code></td>
+</tr>
+<tr>
+<td><code>downcase!</code></td>
+<td>小文字化</td>
+<td><code>succ!</code></td>
+<td><code>next!</code></td>
+</tr>
+<tr>
+<td><code>dump</code></td>
+<td>非表示文字のエスケープ</td>
+<td><code>sum</code></td>
+<td>チェックサム</td>
+</tr>
+<tr>
+<td><code>each</code></td>
+<td>各行繰り返し</td>
+<td><code>swapcase</code></td>
+<td>大文字小文字の交換</td>
+</tr>
+<tr>
+<td><code>each_byte</code></td>
+<td>バイト単位繰り返し</td>
+<td><code>swapcase!</code></td>
+<td>大文字小文字の交換</td>
+</tr>
+<tr>
+<td><code>each_line</code></td>
+<td><code>each</code>と同じ</td>
+<td><code>to_f</code></td>
+<td>浮動小数点数化</td>
+</tr>
+<tr>
+<td><code>empty?</code></td>
+<td>空文字列か</td>
+<td><code>to_i</code></td>
+<td>整数化</td>
+</tr>
+<tr>
+<td><code>hex</code></td>
+<td>16進整数化</td>
+<td><code>tr</code></td>
+<td>文字置換</td>
+</tr>
+<tr>
+<td><code>include?</code></td>
+<td>文字列包含チェック</td>
+<td><code>tr!</code></td>
+<td>文字置換</td>
+</tr>
+<tr>
+<td><code>index</code></td>
+<td>部分文字列検索</td>
+<td><code>tr_s</code></td>
+<td>文字置換と圧縮</td>
+</tr>
+<tr>
+<td><code>intern</code></td>
+<td>シンボル化</td>
+<td><code>tr_s!</code></td>
+<td>文字置換と圧縮</td>
+</tr>
+<tr>
+<td><code>gsub</code></td>
+<td>文字列置換</td>
+<td><code>unpack</code></td>
+<td>バイナリ展開</td>
+</tr>
+<tr>
+<td><code>gsub!</code></td>
+<td>文字列置換</td>
+<td><code>upcase</code></td>
+<td>大文字化</td>
+</tr>
+<tr>
+<td><code>length</code></td>
+<td>長さ</td>
+<td><code>upcase!</code></td>
+<td>大文字化</td>
+</tr>
+<tr>
+<td><code>ljust</code></td>
+<td>左揃え</td>
+<td><code>upto</code></td>
+<td>「次」の文字列の繰り返し</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap1109" class="level2">
+<h3>部分文字列</h3>
+<hr class="hr-gray" />
+<p class="in">文字列の一部を切り出すには<code>[]</code>メソッドを使います。<code>[]</code>メソッドには、配列と似た以下の4パターンの呼び出し方があります。文字列<code>s</code>から一部を切り出すには次のようにします。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>s[n]    </code>　<code>n</code>番目の文字（バイト）</pre></li>
+<li><pre class="tabbing"><code>s[n,len]</code>　<code>n</code>バイト目から<code>len</code>バイトの文字列</pre></li>
+<li><pre class="tabbing"><code>s[n..m] </code>　<code>n</code>バイト目から<code>m</code>バイト目まで（末尾含む）</pre></li>
+<li><pre class="tabbing"><code>s[n...m]</code>　<code>n</code>バイト目から<code>m</code>バイト目まで（末尾含まない）</pre></li>
+</ul>
+<p class="in">位置を表すインデックス（上の例では<code>n</code>や<code>m</code>）はCなどと同様に先頭が0バイト目になります。また、インデックスが負の数であった場合には、文字列の後ろから数えます（末尾が−1になる）。</p>
+<p class="ih">「<code>s[n]</code>」は文字コードを表す整数を返し、それ以外は文字列を返すことに注意してください。同じように<code>[]=</code> メソッドでその一部を変更することができます。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;foobarbaz&quot;</span>
+s[0]               <span class="cmt"># =&gt; fの文字コード(102)</span>
+s[0,3]             <span class="cmt"># =&gt; &quot;foo&quot;</span>
+s[4,2] = <span class="str">&quot;oo&quot;</span>      <span class="cmt"># &quot;fooboobaz&quot;になる</span>
+s[-3..-1] = <span class="str">&quot;hoo&quot;</span>  <span class="cmt"># &quot;fooboohoo&quot;になる</span></pre>
+</div>
+<p class="in">部分文字列の取り出しには、その他に<code>slice</code>メソッドがあります。<code>slice</code>メソッドは<code>[]</code>と同じような引数を取り、部分文字列を返します。<code>slice!</code>メソッドは元の文字列から指定された部分を取り除き、取り除かれた文字列を返します。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;foobarbaz&quot;</span>
+s.slice(0,3)       <span class="cmt"># =&gt; &quot;foo&quot;</span>
+s.slice!(3,3)      <span class="cmt"># =&gt; &quot;bar&quot;</span>
+                   <span class="cmt"># 文字列は&quot;foobaz&quot;になる</span></pre>
+</div>
+<p class="in">Rubyの文字列は、文字列とはいいながらその実体はバイト列であることに注意してください。つまり、上記のメソッドなどで「<code>n</code>文字目から<code>m</code>文字目」というふうに指定したつもりでも、実際には「<code>n</code>バイト目から<code>m</code>バイト目」までと解釈されます。また、漢字のようなマルチバイト文字列の途中でも遠慮なく切り取ってくれます。日本語を扱う場合には注意してください。</p>
+<a id="page_152"/>
+<p class="in">将来のRubyではこの部分が文字単位に変更される予定ですが、とりあえず現状では「<code>String</code>クラスの処理はバイト単位」と覚えておいてください。現状のRubyで文字単位の処理を行うためには、次回で説明する予定の「正規表現」を使います。</p>
+</section>
+<section id="chap1110" class="level2">
+<h3>文字列の長さを得る</h3>
+<hr class="hr-gray" />
+<p class="in">文字列の長さを知るメソッドは<code>length</code>メソッドです。この長さは文字列のバイト単位の長さで文字列に何文字含まれているかではありません。<code>length</code>メソッドには<code>size</code>という別名があります。また、文字列が空文字列（長さがゼロ）であることを判定するためには、</p>
+<div class="plist">
+<pre>s.length == 0</pre>
+</div>
+<p class="ni">とする代わりに、</p>
+<div class="plist">
+<pre>s.empty?</pre>
+</div>
+<p class="ni">と書くこともできます。</p>
+</section>
+<section id="chap1111" class="level2">
+<h3>文字列を逆順にする</h3>
+<hr class="hr-gray" />
+<p class="in">文字列を逆順にするメソッドも用意されています。それは<code>reverse</code>メソッドです。<code>reverse</code>メソッドは逆順にされた文字列を返します。また、<code>reverse!</code>は元の文字列を逆順に書き換えます。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;reverse&quot;</span>
+s.reverse  <span class="cmt"># =&gt; &quot;esrever&quot;</span>
+s          <span class="cmt"># &quot;reverse&quot;のまま</span>
+s.reverse! <span class="cmt"># =&gt; &quot;esrever&quot;</span>
+s          <span class="cmt"># &quot;esrever&quot;に変わっている</span></pre>
+</div>
+</section>
+<section id="chap1112" class="level2">
+<h3>文字単位に処理する</h3>
+<hr class="hr-gray" />
+<p class="in">上で紹介した<code>length</code>メソッドも<code>reverse</code>メソッドもバイト単位で処理を行いますから、日本語テキストの処理には向きません。実際のところ、ほとんどの場合、日本語テキストの処理はバイト単位で間に合うのですが、なかにはどうしても文字単位での処理が必要な場合もあります。そのような場合のために、以下のテクニックを覚えておいてください。</p>
+<p class="in"><code>split</code>メソッドに空の正規表現（<code>//</code>）を渡すと文字列を文字単位に分割してくれます。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;まつもと&quot;</span>
+s.split(//)      <span class="cmt"># =&gt; [&quot;ま&quot;,&quot;つ&quot;,&quot;も&quot;,&quot;と&quot;]</span></pre>
+</div>
+<p class="ni">これで文字単位の処理ができます。分割された文字の配列を文字列に戻すには配列の<code>join</code>メソッドを使います。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;まつもと&quot;</span>
+s2 = s.split(//)
+
+s2[1]            <span class="cmt"># =&gt; &quot;つ&quot; (1番の文字)</span>
+s2.length        <span class="cmt"># =&gt; 4 (文字単位)</span>
+s2.reverse.join  <span class="cmt"># =&gt; &quot;ともつま&quot;</span></pre>
+</div>
+<a id="page_153"/>
+<p class="in">ね、仕掛けがわかってしまえば簡単でしょう?　もちろん毎回文字列を配列に分割して、また元に戻すのはコストがかかる処理ですが、あまり頻繁に使わなければ問題になることはないでしょう。</p>
+</section>
+<section id="chap1113" class="level2">
+<h3>文字列を分割する</h3>
+<hr class="hr-gray" />
+<p class="in">文字単位の処理に登場した<code>split</code>のもともとの目的は文字列を分割することです。<code>split</code>は特定のパターンに合致する部分で文字列を分割します。たとえば、テストの成績データが、</p>
+<div class="plist">
+<pre>matz:国語:100
+matz:数学:40
+junko:国語:80
+junko:英語:100</pre>
+</div>
+<p class="ni">のように記録されているとします。この場合の区切り文字は「<code>:</code>」ですね。</p>
+<p class="in">この最初の行を<code>split</code>してみましょう。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;matz:国語:100&quot;</span>
+s.split(<span class="str">&quot;:&quot;</span>)</pre>
+</div>
+<p class="ni">そうすると、この文字列は、</p>
+<div class="plist">
+<pre>[<span class="str">&quot;matz&quot;</span>,<span class="str">&quot;国語&quot;</span>,<span class="str">&quot;100&quot;</span>]</pre>
+</div>
+<p class="ni">という配列に分割されます。</p>
+<p class="in">一方、固定幅で分割する場合には<code>unpack</code>メソッドを使います。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;国語100&quot;</span>
+s.unpack(<span class="str">&quot;a4a3&quot;</span>)  <span class="cmt">#=&gt; [&quot;国語&quot;, &quot;100&quot;]</span></pre>
+</div>
+<p class="in"><code>unpack</code>メソッドは他にもいろいろ使えるメソッドなのですが、詳しくはあとで説明します。</p>
+</section>
+<section id="chap1114" class="level2">
+<h3>整数化</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyはデータの種別に厳格な側面がありますから、文字列と整数は区別されます。</p>
+<div class="plist">
+<pre>1 + 1    <span class="cmt"># =&gt; 2</span>
+1 + <span class="str">&quot;2&quot;</span>  <span class="cmt"># error!</span></pre>
+</div>
+<p class="in">文字列から整数に変換したい場合に使われるのが、以下のメソッドです。</p>
+<a id="page_154"/>
+<ul class="none">
+<li><pre class="tabbing"><code>s.to_i    </code>　10進整数化</pre></li>
+<li><pre class="tabbing"><code>s.hex     </code>　16進整数化</pre></li>
+<li><pre class="tabbing"><code>s.oct     </code>　8進整数化</pre></li>
+<li><pre class="tabbing"><code>Integer(s)</code>　整数化</pre></li>
+</ul>
+<p class="in">注意すべき点は以下のとおりです。</p>
+<ul>
+<li><p><code>to_i</code>, <code>hex</code>, <code>oct</code>は数値として解釈できない文字列に対してゼロを返す</p></li>
+<li><p><code>oct</code>は <code>"0x"</code>, <code>"0b"</code> などのプレフックスがあるとそれぞれ文字列を16進、2進とみなして変換する（Perl由来）</p></li>
+<li><p>Ruby 1.7 では<code>to_i</code>に何進数で変換するか引数で指定できる（省略値は当然10進）。現時点では指定できるのは<code>2</code>, <code>8</code>, <code>10</code>, <code>16</code>だけ</p></li>
+<li><p>関数形式の<code>Integer()</code>は数値として解釈できない文字列はエラーになる</p></li>
+<li><p><code>Integer</code>も <code>"0x"</code>, <code>"0"</code>, <code>"0b"</code> などのプレフックスがあるとそれぞれ文字列を16進、8進、2進とみなして変換する</p></li>
+</ul>
+<p class="in">浮動小数点数に変換するときには以下のメソッドを使います。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>s.to_f  </code>　浮動小数点数化</pre></li>
+<li><pre class="tabbing"><code>Float(s)</code>　浮動小数点数化</pre></li>
+</ul>
+<p class="in"><code>Integer()</code>同様、<code>Float()</code>も数値として解釈できない文字列はエラーになります。</p>
+</section>
+<section id="chap1115" class="level2">
+<h3>大文字小文字の変換</h3>
+<hr class="hr-gray" />
+<p class="in">英語を扱う場合には大文字と小文字の変換が発生する場合があります。そのときに使うのは以下のメソッドです。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;FooBarBaz&quot;</span>
+s.capitalize    <span class="cmt"># =&gt; &quot;Foobarbaz&quot;</span>
+s.downcase      <span class="cmt"># =&gt; &quot;foobarbaz&quot;</span>
+s.swapcase      <span class="cmt"># =&gt; &quot;fOObARbAZ&quot;</span>
+s.upcase        <span class="cmt"># =&gt; &quot;FOOBARBAZ&quot;</span></pre>
+</div>
+<p class="in">これらのメソッドにはそれぞれ「<code>!</code>」の付いたバージョンがあります。その違いは、</p>
+<ul>
+<li><p>元の文字列を書き換える</p></li>
+<li><p>書き換えが起きなかった場合に<code>nil</code>を返す</p></li>
+</ul>
+<p class="in">の2点です。</p>
+<div class="plist">
+<pre>s = <span class="str">&quot;foo&quot;</span>
+s.downcase!     <span class="cmt"># =&gt; nil (変化がなかったので)</span></pre>
+</div>
+</section>
+<section id="chap1116" class="level2">
+<a id="page_155"/>
+<h3>比較する</h3>
+<hr class="hr-gray" />
+<p class="in">2つの文字列が同じかどうか判定するためには、ごく普通に「<code>==</code>」で比較します。</p>
+<p class="in">また、文字列は大小比較も行うことができます。</p>
+<div class="plist">
+<pre>s1 = <span class="str">&quot;abc&quot;</span>
+s2 = <span class="str">&quot;def&quot;</span>
+s1 &gt; s2     <span class="cmt"># =&gt; false</span>
+s1 &gt;= s2    <span class="cmt"># =&gt; false</span>
+s1 &lt; s2     <span class="cmt"># =&gt; true</span>
+s1 &lt;= s2    <span class="cmt"># =&gt; true</span>
+s1 &lt;=&gt; s2   <span class="cmt"># =&gt; -1</span></pre>
+</div>
+<p class="ih">「<code>&lt;=&gt;</code>」演算子は左辺が小さいとき負の整数、等しいときゼロ、大きいとき正の整数を返します。</p>
+<p class="in">文字列の大小判定は文字コード順に行われます。文字コードはアルファベットはABC順に、ひらがなやカタカナはあいうえお順になっていますから、辞書の順番に近い判定ができます。</p>
+<p class="in">ただし、以下の点に気を付けてください。</p>
+<ul>
+<li><p>アルファベットは大文字のABCに続いて小文字のabcがくる。すなわち、「Z」のほうが「a」よりも小さい</p></li>
+<li><p>仮名ではひらがなに続いてカタカナがくる。すなわち「ん」は「ア」よりも小さい</p></li>
+<li><p>辞書では濁点は無視されるが、文字コード順では濁点のある文字は「次の文字」とみなされる。つまり「が」は「か」の次である</p></li>
+</ul>
+<p class="in">また、Ruby 1.7にはアルファベットの範囲において大文字小文字を無視して比較する<code>casecmp</code>メソッドがあります。<code>casecmp</code>メソッドは、大文字小文字の差を無視して比較する点以外は「<code>&lt;=&gt;</code>」と同様に動作します。</p>
+<div class="plist">
+<pre><span class="str">&quot;a&quot;</span>.casecmp(<span class="str">&quot;A&quot;</span>)  <span class="cmt"># =&gt; 0</span></pre>
+</div>
+</section>
+<section id="chap1117" class="level2">
+<h3>繰り返し</h3>
+<hr class="hr-gray" />
+<p class="in">配列と同様に文字列に対しても繰り返しメソッドが定義されています。ただ、文字列の場合には配列ほど繰り返しが役に立ちません。</p>
+<p class="in"><code>each</code>メソッドは文字列の各行に対して繰り返します。</p>
+<div class="plist">
+<pre>s = &lt;&lt;END
+foo
+bar
+baz
+END
+s.each{|x| puts x}  <span class="cmt"># foo, bar, bazを出力する</span></pre>
+</div>
+<a id="page_156"/>
+<p class="in"><code>each</code>メソッドには<code>each_line</code>という別名があります。</p>
+<p class="in">各行ごとではなく、各文字より正確には各バイトごとに繰り返すのは<code>each_byte</code>メソッドです。</p>
+<p class="in">もうちょっと面白い繰り返しは<code>upto</code>メソッドです。これは「次」の文字列を順番に返します。</p>
+<div class="plist">
+<pre><span class="str">&quot;a&quot;</span>.upto(<span class="str">&quot;z&quot;</span>) {|x|
+  puts x    <span class="cmt"># a, b, c..zを出力</span>
+}
+<span class="str">&quot;aa&quot;</span>.upto(<span class="str">&quot;zz&quot;</span>) {|x|
+  puts x    <span class="cmt"># aa, ab, ac,..zy, zzを出力</span>
+}</pre>
+</div>
+<p class="ni">この「次」の文字列は<code>next</code>メソッドで得ることができます。</p>
+<div class="plist">
+<pre><span class="str">&quot;a&quot;</span>.next   <span class="cmt"># =&gt; &quot;b&quot;</span>
+<span class="str">&quot;az&quot;</span>.next  <span class="cmt"># =&gt; &quot;ba&quot;</span></pre>
+</div>
+</section>
+<section id="chap1118" class="level2">
+<h3>シンボル</h3>
+<hr class="hr-gray" />
+<p class="ih">「シンボル」というのは、識別子に対応する値です。「<code>foo</code>」とか「<code>$bar</code>」とか、Rubyプログラム中に現れる個々の「名前」には対応するシンボルが存在します。シンボルは「<code>:名前</code>」という形式のリテラルがあります。</p>
+<p class="in">シンボルはRubyのプログラムの中で「名前」を指定するためにたびたび用いられます。たとえば、</p>
+<div class="plist">
+<pre>attr_reader :foo, :bar</pre>
+</div>
+<p class="ni">によって、「<code>foo</code>」と「<code>bar</code>」という属性読み出し用メソッドを定義することができます。</p>
+<p class="in">文字列からシンボルを得るためのメソッドが<code>intern</code>です。<code>intern</code>メソッドを使えば、通常Rubyの識別子としては許されない、たとえばスペースを含むような名前を持つシンボルを得ることができます。</p>
+<div class="plist">
+<pre><span class="str">&quot;foo&quot;</span>.intern    <span class="cmt"># =&gt; :foo</span></pre>
+</div>
+<p class="in">シンボルからその文字列表現を取るためには、<code>to_s</code>メソッドを使います。</p>
+<div class="plist">
+<pre>:foo.to_s       <span class="cmt"># =&gt; &quot;foo&quot;</span></pre>
+</div>
+</section>
+<section id="chap1119" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月は文字列処理の基本ということで、文字列クラスについて学びました。文字列クラスはRubyの中でも最もメソッドの多いクラスです。それだけRubyは文字列処理に本気だということができるでしょう。来月は文字列処理のもう1つの主役である正規表現について学ぶ予定です。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-021.xhtml">&lt;&lt; 前ページ</a>　<a href="p-023.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

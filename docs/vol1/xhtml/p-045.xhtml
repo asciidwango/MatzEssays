@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第20章 番外編: Rubyカンファレンスレポート</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第20章</p>
+<!-- Body -->
+<section id="chap20" class="level1">
+<a id="page_291"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">20</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+番外編:<br />Rubyカンファレンスレポート
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年1月号]</p>
+<div class="newlead">
+<p class="in">第2回RubyConfの訪問記になります。このときは、RubyConf, OOPSLA, LL2の3つのカンファレンスに出席し、それぞれで発表するという強行軍でした。しかも、RubyConfとOOPSLAはワシントン州シアトル、LL2はボストンのMITで開催されるということで、途中にアメリカ大陸横断を含んで足掛け12日間という無茶なスケジュール。ちなみに私にとっては、このときが最長の海外旅行でした。一生、2週間以上日本を離れないで終わりそうな気がします。</p>
+<p class="in">RubyConfは2回目にしてずいぶん成長しているのがうかがえます。出席も初回よりは倍近くに増えています。それでも60人強ですが。</p>
+</div>
+<div class="lead">
+<p class="ni">2002年11月1日から2日まで、アメリカ、ワシントン州シアトルで開催された第2回Rubyカンファレンスに出席してきました。今回は「初等Ruby講座」番外編として、そのレポート（+α）を行いたいと思います。</p>
+</div>
+<section id="chap2001" class="level2">
+<h3>2002年10月31日（木）</h3>
+<hr class="hr-gray" />
+<p class="in">さて、いよいよ出発の日です。過去最長（12日間）の海外旅行で、しかもその間に3つのカンファレンスで3回「英語」で発表があるということで、そうとう緊張しています。</p>
+<p class="in">私は島根県という田舎に住んでいるので、海外に出るためにはまず国際線の出ている空港まで移動しなければなりません。そこで出雲空港から羽田空港、それから電車で成田まで移動です。遠い……。</p>
+<p class="in">成田空港ではゲートで無線LANが使えました。これは便利。出国前に最後のメールチェックです。16時55分のUA便で一路シアトルへ。所要時間は8時間15分です。機中観た映画は「ニューヨークの恋人」と「9デイズ」です。国際線は映画がたくさん観られるのがうれしいですね。</p>
+<p class="in">シアトルに到着したら同じ日の朝9時でした。もちろん時差のせいなんですが、時間が逆戻りして、なんだか変な気分です。シアトルと日本では17時間の時差があります。その後Ruby関係者+αで中華料理の昼食を。</p>
+<a id="page_292"/>
+<p class="in">夕方からはSeattle Perl Mongersのみなさまのミーティングに参加させていただきました。メインはDan Sugalski（Perl 6のVMであるところのParrotの開発者）によるParrotとPerl 6の話でした。Parrotについては興味深く聞きました。将来のRubyの実装にも参考にできそうな話がたくさんでした。Perl 6のほうは「Perl 6ってなんだか読みにくいRubyみたい」というのが正直な印象です。</p>
+<p class="in">ホテルに戻ったら、クレジットカードやら免許証やらが入ったカード入れをなくしていることに気が付いて真っ青になりました。がーん。</p>
+</section>
+<section id="chap2002" class="level2">
+<h3>2002年11月1日（金）</h3>
+<hr class="hr-gray" />
+<p class="in">気を取り直して、今日からRubyカンファレンスです。1日目のプログラムは以下のとおりです。</p>
+<section id="chap200201" class="level4">
+<h5>Using SWIG to Develop C/C++ Entensions for Ruby<br />By Lyle Johnson</h5>
+<p class="in">SWIGを使った拡張ライブラリの開発についての紹介です。SWIGはCやC++のヘッダーファイルといくらかの補足的な情報に基づいて、拡張ライブラリのソースコードを出力するツールです。LyleはSWIGを使ってFOX（GUIライブラリ）インターフェイスを開発しています。</p>
+</section>
+<section id="chap200202" class="level4">
+<h5>"Are We Done Yet?": thoughts on acceptance testing<br />By Nathaniel Talbott</h5>
+<p class="in"><code>Test::Unit</code>の開発者であるNathanielによってAcceptance Testについて紹介がありました。Acceptance Testとは最終的に顧客が仕様を満足しているかを確認するためのテストで、ある意味ユニットテストの対極にあります。しかし、ユニットテストと同様の自動化は（ある程度）可能だということでした。また、いくつかの顧客に対してAcceptance Testを実施した経験が紹介されました。</p>
+<p class="in"><code>Test::Unit</code>は彼の身辺が片付いたら本家にマージするとのことでした。彼は2週間前に結婚したばかりですから（奥さんを連れてきてました）、いろいろ忙しいのでしょう。</p>
+</section>
+<section id="chap200203" class="level4">
+<h5>TaksMaster: Distributing computing with Ruby<br />By Phil Thomson</h5>
+<p class="in"><code>TaskMaster</code>はタスクを複数のクライアントマシンで分散実行するためのフレームワークです。開発動機はテスト実行だけでも数日かかるようなプログラムの実行を分散することで時間を短縮しようというものです。<code>TaskMaster</code>はマスター・スレーブ構成になっていて、マスターサーバーがスレーブにタスクを分配して結果を集めるようになっています。</p>
+<p class="in">また、Philは類似の技術（DRb, MPIなど）との比較も行いました。</p>
+</section>
+<section id="chap200204" class="level4">
+<h5>Adapting and Extending Perl Idioms in Ruby<br />By Deniel Berger</h5>
+<p class="in">Perlのやり方をRubyで実現するには、というテーマの発表です。主に引数の渡し方、それもキーワード引数を中心にやり方をいろいろと紹介していました。まあ、Perlのやり方に引きずられすぎているという印象もありましたが、なかなか興味深い発表でした。</p>
+</section>
+<section id="chap200205" class="level4">
+<a id="page_293"/>
+<h5>Simplify your life with YAML for Ruby<br />By why the lucky stiff</h5>
+<p class="in">YAMLはYAML Ain’t Markup Languageの略で、一種のデータ表現言語です。話を聞く前はよくあるXMLの別表現だと思っていたのですが、よく聞くとむしろオブジェクトのシリアライズを目的としたデータフォーマットでした。YAMLにはPerl, Python, RubyなどのAPIが提供されており、Why（名前です）はRuby版の開発者です。YAMLはもともとPerlの<code>Inline.pm</code>のシリアライズ用のフォーマットとして開発されたもので、会場には原作者のBrian Ingarsonもいました。YAMLに関する情報は<span class="link">http://yaml.org/</span>から入手できます。</p>
+</section>
+<section id="chap200206" class="level4">
+<h5>ラウンドテーブル<br />By Matz</h5>
+<p class="in">夕食の後、Ruby作者を囲んで自由に質問をするという時間がありました。将来の予定などを含めていろいろな質問がありました。質問とその答えは、</p>
+<ul class="none">
+<li><p><span class="link">http://www.pablotron.org/rubyconf2002/matz_rountable-20021101.txt</span></p></li>
+</ul>
+<p class="ni">にまとめられています。</p>
+<p class="in">ラウンドテーブルの最後に、高橋征義さんが日本からはるばる持ってきた、日本で出版されたすべてのRuby関連書籍が紹介され、みなの注目を集めていました。22冊も運んでくださった高橋さん、ご苦労様でした。</p>
+<p class="in">1日目が終わってホテルに帰ったら、Seattle Perl Mongersの皆さんによってカード入れは発見され、フロントに届けられていました。感謝感激です。Seattle.pmの皆さん、ありがとう（聞こえないか）。</p>
+</section>
+</section>
+<section id="chap2003" class="level2">
+<h3>2002年11月2日（土）</h3>
+<hr class="hr-gray" />
+<section id="chap200301" class="level4">
+<h5>Better Web libraries for Ruby: NARF<br />By Patrick May and Tom Clarke</h5>
+<p class="in">Ruby標準の<code>cgi.rb</code>はよくできているが、実際にWebアプリケーションを開発する場合に少々不満が残るので、<code>cgi.rb</code>をベースに新しいCGIライブラリ（NARF）を開発した、という話です。</p>
+<p class="in">注目すべき点は、<code>Action</code>という形で個別のCGIページ出力よりも高レベルで（複数のページの集合体である）アプリケーションを記述できる点と、ユニットテスト用メソッドが組み込まれていて、見栄え（HTML）の出力をテンプレートとして分離することで、一般に難しいといわれているCGIプログラムのユニットテストをきれいな形で実現していたことです。これは一見の価値があります。NARFの情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://narf-lib.sf.net/</span></p></li>
+</ul>
+<p class="ni">からどうぞ。</p>
+<p class="in">なお、NARFの開発者の二人は<code>cgi.rb</code>の開発者、青山さんに非常に敬意を払っていて、ぜひ自分たちの成果を青山さんに還元したいということでした。和光ってのは英語では発音しにくいみたい（「わくー」みたいになっちゃう）。</p>
+</section>
+<section id="chap200302" class="level4">
+<a id="page_294"/>
+<h5>Rethinking Web Scripting<br />By Avi Bryant</h5>
+<p class="in">WebアプリケーションフレームワークIOWAの開発者でSmalltalkerでもあるAvi Bryantは今年は、継続（continuation）を使ったデモを行ってくれました。</p>
+<p class="in">Webアプリケーションは複数のページの集合になるため、ロジックが分散してしまうのが難点です。しかし、Aviは各ページの状態を継続として保存しておくことで、見かけは普通のプログラムのままWebアプリケーションを実現しました。</p>
+<p class="in">具体的には、</p>
+<div class="plist">
+<pre>from = ask(<span class="str">&quot;where are you traveling from?&quot;</span>)
+to = ask(<span class="str">&quot;where are you traveling to?&quot;</span>)
+say(<span class="str">&quot;you are traveling from %s to %s.&quot;</span>%[from,to])</pre>
+</div>
+<p class="ni">というような簡単なプログラムを、<code>ask</code>と<code>say</code>の定義を置き換えるだけで、Webアプリケーションとして実行されてみせたのです。さらに驚くべきことにはこのWebアプリケーションはブラウザの「戻る」ボタンにまで対応しているのです。</p>
+<p class="in">この手法は実験的なもので規模の大きなアプリケーションには対応できませんが（大量の継続オブジェクトを生成するため）、小規模なアプリケーションを手軽に開発するためには有効そうです。</p>
+</section>
+<section id="chap200303" class="level4">
+<h5>What I Learned about Ruby Web Applications or How I Spent My Summer Vacation<br />
+By Dave Thomas</h5>
+<p class="in">夏休みをバカンスで過ごすつもりが、急に仕事が入ってWebアプリケーションを開発するはめになった、というお話です。これだけなら笑い話なのですが、その仕事は非常に複雑なビジネスロジックを持つ業務用システムで、規模は大きく（画面数で400）、開発期間は短く（実質2カ月）、人員は自分一人というかなり厳しい条件でした。</p>
+<p class="in">しかし、優秀なソフトウェアコンサルタントであるDave Thomasは、Rubyを使い2万6千行のWebアプリケーションを2カ月で開発し、顧客を満足させ、無事支払いを受けたそうです。すばらしい。</p>
+<p class="in">その成功の秘密として、Rubyを使ったこと、ビジネスロジックとアプリケーションロジックの分離などがあげられていました。</p>
+<p class="in">昨年は、テスト用プログラムなど間接的に開発に利用し効率を上げるというプレゼンテーションが行われましたが、今年は直接業務アプリケーションをRubyで開発する話が登場し、Rubyの浸透を印象付けました。</p>
+</section>
+<section id="chap200304" class="level4">
+<h5>OpenPKSD (OpenPGP Public Keyserver)<br />By Hironobu Suzuki</h5>
+<p class="in">OpenPKSDは、すずきひろのぶさんによるOpenPGP公開鍵サーバーの実装です。<code>pksd</code>には<span class="link">pgp.ai.mit.edu</span>などで運用されているC言語で実装された版（Cで1万7千行）があるのですが、メンテナンス性やスケーラビリティに問題があるので、Rubyで実装したのだそうです。Ruby版はPostgreSQLをバックエンドに使い、3千行ほどで実現できたそうです。OpenPKSDは170万鍵を格納し、性能的にはC版と遜色ないということです。ひろのぶさんはデモ用マシンを持ち込んで実演するなど本気でした。OpenPKSDの情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.openpksd.org/</span></p></li>
+</ul>
+<p class="ni">にあります。</p>
+</section>
+<section id="chap200305" class="level4">
+<a id="page_295"/>
+<h5>Exceptional Ruby<br />By Paul Brannan</h5>
+<p class="in">Rubyにおける正しい例外の扱いについてと、特にC++で記述された拡張ライブラリにおいて、C++の例外とRubyの例外を共存させる方法について解説されました。</p>
+<p class="in">まず、「例外セーフ」という考え方が示されました。「例外セーフ」とは、実行中に例外が発生しても異常な事態が発生しないことです。たとえば、</p>
+<ul>
+<li><p>例外が発生したので不完全なデータ構造が残った</p></li>
+<li><p>例外が発生したのでデータベースにゴミが入った</p></li>
+<li><p>例外が発生したのでプログラムが異常終了した</p></li>
+</ul>
+<p class="ni">などの事態は「例外セーフ」ではありません。「例外セーフ」であるためには、<code>rescue</code>や<code>ensure</code>などを利用して後始末が必要になる場合もあります。</p>
+<p class="in">次に、Rubyの例外は内部的に<code>setjmp/longjmp</code>を使っているので、C++の例外と混ざるとクラッシュします。つまり、C++はRubyの例外を知らないので後始末ができませんし、逆も同様です。また、後始末されないC++の例外はクラッシュを引き起こすということです。ですから、C++の拡張ライブラリを開発する場合には、</p>
+<ul>
+<li><p>スタック上にC++オブジェクトを置かない</p></li>
+<li><p>どうしても置く場合にはすべてのRuby例外を捕捉する</p></li>
+<li><p>すべてのC++例外を捕捉する。必要ならRuby例外に変換する</p></li>
+</ul>
+<p class="ni">ことが必要になります。Rubyの開発を始めた頃にはC++には例外なんてなかったのですが、いろいろ面倒になったものですね。発表資料は、</p>
+<ul class="none">
+<li><p><span class="link">http://rm-f.net/~cout/code/ruby/ruby_exceptions/html/</span></p></li>
+</ul>
+<p class="ni">で参照できます。</p>
+</section>
+<section id="chap200306" class="level4">
+<h5>FreeRIDE<br />By Rich Kilmer</h5>
+<p class="in">FreeRIDEはRuby用のIDE（統合開発環境）です。GUIにはFOXを使い、WindowsでもLinux（や他のUNIX系OS）でも動作します。Ruby用IDEといえば、FreeRIDEの他にも古くはRubyWinや、Windows用のRDEなどがあるのですが、FreeRIDEの特徴は以下の2点です。</p>
+<ul>
+<li><p>青木さんのRipperライブラリを使った構文解析を利用している。ちなみにRipperは海外で結構人気でした</p></li>
+<li><p>FreeBUSという一種のアプリケーションフレームワークの上に構築されている。FreeBUSはFreeRIDEに依存しないフレームワークで、作者（Rich Kilmer）は他にもいくつかのアプリケーションを構築したそうです</p></li>
+</ul>
+<a id="page_296"/>
+<p class="in">FreeRIDEの詳しい情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.rubyide.org/</span></p></li>
+</ul>
+<p class="ni">から入手できます。</p>
+</section>
+<section id="chap200307" class="level4">
+<h5>Ruby and Parrot<br />By Dan Sugalski</h5>
+<p class="in">Danは次期PerlであるPerl 6の実行エンジンであるParrotの開発者です。しかし、ParrotはPerl 6専用というわけではなく、汎用の動的言語エンジンになる予定です。そして、Perl 6は現存する動的言語のあらゆる機能を持っているので、原理的にはParrotはあらゆるRubyを含むあらゆる動的言語を実行できるとのことでした。</p>
+<p class="in">また、実際にParrotはSchemeやRubyなどのフロントエンドを提供しているということでした。</p>
+<p class="in">Rubyの開発者としては、コアの部分を他のプロジェクトに依存するわけにはいかないので、将来とも公式エンジンとしてParrotを採用することはないと思いますが、選択可能なバックエンドとしては常に注目していきたいと感じました。</p>
+<p class="in">なお、Danとは土曜日のPerl Mongersのミーティング、Ruby Conference、月曜日のOOPSLAワークショップ、最後に次の土曜日にボストンでのLL2と、アメリカ滞在中に頻繁に遭遇しました。</p>
+</section>
+<section id="chap200308" class="level4">
+<h5>Be Minor, Be Cool<br />By Yukihiro Matsumoto</h5>
+<p class="in">私によるキーノートスピーチです。「マイナーであることを恐れるな、よいものはいつも最初はマイナーだ」というようなテーマで話しました。しかし、毎年英語でのプレゼンテーションには泣かされます。</p>
+<p class="in">プレゼンテーション資料は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.ruby-lang.org/en/</span></p></li>
+</ul>
+<p class="ni">から参照できるようにしておきます。</p>
+</section>
+</section>
+<section id="chap2004" class="level2">
+<h3>2002年11月3日（日）</h3>
+<hr class="hr-gray" />
+<section id="chap200401" class="level4">
+<h5>Packaging Ruby apps with setup.exe<br />By Andy Hunt</h5>
+<p class="in">Pragramic Programmersのもう一人、Andy HuntによるWindowsでRubyプログラムのインストールパッケージを作る手法についての紹介です。AndyはInstallShieldを使ったWindows版Rubyパッケージを配布していますが、Windows向けのフリーパッケージツールを利用することで、Rubyプログラム、ライブラリ、インタプリタを全部まとめてインストーラを作る方法を紹介しました。この場合、アプリケーションごとに別々のRubyインタプリタなどを持つことになりますが、今やディスクは安いし問題にはならない、むしろバージョン問題などを気にしなくてよいので望ましいくらいだ、ということでした。</p>
+<a id="page_297"/>
+<p class="in">Windowsに関心のない私は、残念なことにこのツールの名前を忘れてしまいました。たぶん、近いうちにAndyがリリースすると思います。<span class="link">http://www.pragprog.com/</span>から入手できるようになるでしょう。</p>
+</section>
+<section id="chap200402" class="level4">
+<h5>A Live Demo System (on CD) for Ruby on Linux<br />By Steven Gibson</h5>
+<p class="in">歯科医師を対象にしたシステムの紹介も兼ねて、Rubyを中心にしたワンCD Linuxを用意し、CD-ROMドライブからブートできるPCならどこでも簡単にデモができることが紹介されました。Rubyを知ってもらうには実際に動作しているところを見てもらうのが一番で、LinuxやRubyの宣伝に非常に効果的だったと報告されました。</p>
+</section>
+<section id="chap200403" class="level4">
+<h5>まとめ<br />By David Alan Black</h5>
+<p class="in">今年のコーディネータだったDavid Alan Blackからまとめが行われました。昨年、今年とOOPSLA直前に開かれていましたが、来年はどうしようかという発言がありました。アナハイム（来年のOOPSLA開催地）の他、ハワイ、バルセロナなど好き勝手なことをみんなが叫んでいましたが、結局来年のコーディネータに一任という結論になりました。来年もDavidがやるのかな。今年はほとんど一人で取り仕切っていたので、彼は大変そうでした。お疲れさま。</p>
+<p class="in">今年は昨年よりも多い60人以上の参加者がありました。来年はもっと多くなるかもしれません。また、ヨーロッパでも同様のカンファレンスを行おうという動きがあるようです。Rubyの発展が目に見えるようです。</p>
+</section>
+<section id="chap200404" class="level4">
+<h5>BOF</h5>
+<p class="in">カンファレンス終了後いろいろなテーマでBOFが開かれました。が、私はこの時点で時差ぼけやらですっかり疲れてしまって、ホテルで休んでいました。</p>
+</section>
+</section>
+<section id="chap2005" class="level2">
+<h3>2002年11月4日（月）</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyカンファレンスはこれで終わったのですが、私はそのまま同じ会場で開かれたOOPSLAというカンファレンスに参加しました。OOPSLAとはObject-Oriented System, Language and Applicationの略で、世界最大のコンピュータ関連学会ACM（Association for Computing Machinery、直訳すると計算機械学会）の開催する由緒あるオブジェクト指向関連カンファレンスです。</p>
+<p class="in">今年はOOPSLAの一部として、1st International Workshop on Runtime Kernel Support for Dynamic Language and Component Based Architecture（長い）というワークショップが開かれ、そこのスピーカーとして招待されていたのです。Smalltalkや .NETの偉い人にまじって拙い英語で発表しましたが、このワークショップに出席してわかったことは以下のとおりです。</p>
+<ul>
+<li><p>Rubyの実装レベルはまだまだだ</p></li>
+<li><p>スクリプト言語全般でもLispやSmalltalkには負けている</p></li>
+<li><p>.NETは頑張っている（頑張ろうとしている）</p></li>
+<li><p>でも、個人的にはまだ移行に決心はつかない</p></li>
+</ul>
+<a id="page_298"/>
+<p class="in">私の発表資料は他のと同様<span class="link">http://www.ruby-lang.org/</span>から見えるようにしておきます。</p>
+</section>
+<section id="chap2006" class="level2">
+<h3>2002年11月5日（火）から7日（木）まで</h3>
+<hr class="hr-gray" />
+<p class="in">この間はOOPSLAに参加していました。6日（水）に開かれたDave ThomasとAndy Huntによるチュートリアルでは『C#エッセンシャルズ』の著者のBrad Merrilや『アジャイルソフトウェア開発』の著者のAlistair Cockburnなどの有名人も参加していました。</p>
+</section>
+<section id="chap2007" class="level2">
+<h3>2002年11月8日（金）</h3>
+<hr class="hr-gray" />
+<p class="in">この日は移動日でした。RubyカンファレンスとOOPSLAが開催されたシアトルから、LL2の会場であるMITがあるボストンまで移動するのです。途中デンバーを経由して7時間半の旅でした。機中で観た映画は「オーシャンズ11」。しかし、アメリカってのは同じ国の中でも時差があるんですね。シアトルとデンバーの間で1時間、デンバーとボストンの間が2時間。おかげで何時間飛行機に乗っていたのかわからなくなりそうでした。</p>
+</section>
+<section id="chap2008" class="level2">
+<h3>2002年11月9日（土）</h3>
+<hr class="hr-gray" />
+<p class="in">LL2当日。LL2とは「第2回 Lightweigt Languageに関するワークショップ」の略です。Lightweight Languageとは何か、というと、うーん、誰もよくわからないんですよねえ。まあ、LispとかSmalltalkとかPythonとかRubyとか、インタプリタがベースでダイナミックな言語というのは共通理解のようです。</p>
+<p class="in">私はLightweight Languageの定義とは何か、から始めて、人間に優しい言語、人気の出る言語を作るための原理・原則についてRubyを例にして紹介しました。この発表資料も<span class="link">http://www.ruby-lang.org/</span>に置いておきます。</p>
+<p class="in">ボストンはなかなか素敵な街でしたが、見て回る時間がなかったのが残念です。今度はぜひ観光で訪れたいと思います。とかいって、海外旅行のときはいつもカンファレンスに出席してるんで、観光なんて余裕があったことはないんですよねえ。</p>
+</section>
+<section id="chap2009" class="level2">
+<h3>2002年11月10日（日）</h3>
+<hr class="hr-gray" />
+<p class="in">さて、長かったアメリカ滞在も終わり、とうとう帰国です。正直なところRubyカンファレンスが終わったあたりでもう帰りたくなっていたので「やっと」という印象があります。帰りの飛行機の中で観た映画は「K19:ウィドウメーカー」「K-PAX」「サイン」「スクービードゥ」でした。映画の見すぎで寝れなかったという（笑）。</p>
+<p class="in">日本に着いたら、もう11日（月）の夕方でした。1日損した気分ですね。日本はやっぱりいいなあ、と思いつつ、でも、あちこちでタバコの煙に苦しめられました。そういえばアメリカにいる間はタバコを見かけませんでした。これだけはアメリカのようになってほしいなあ。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-044.xhtml">&lt;&lt; 前ページ</a>　<a href="p-046.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

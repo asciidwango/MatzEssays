@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第55章 ハッカーとオープンソース</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第55章</p>
+<!-- Body -->
+<section id="chap55" class="level1">
+<a id="page_231"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">55</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+ハッカーとオープンソース
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">UNIX USER</span>, 2005年11月号]</p>
+<div class="newlead">
+<p class="in">フリーソフトウェアとオープンソースについて簡単に解説しています。フリーソフトウェアやオープンソースについては本書でも何度も解説していますから、あまり新しい内容はありませんが、これらが目指す「ソフトウェアの自由」はハッカー気質に取って欠かせないもので、だからこそ一流のハッカーであったStallmanが生涯をかけて啓蒙してきたのだと思います。人々がもう少しフリーソフトウェアについて柔軟に受けれ入れていれば、Stallmanがプログラミングに集中できたのではないかと残念に思う気持ちと、彼の努力がなければそもそも人類はフリーソフトウェアもオープンソースソフトウェアも手に入れることができなかったであろうから喜ばしい気持ちと両方があるのです。</p>
+</div>
+<section id="chap5501" class="level2">
+<h3>オープンソース貢献者賞</h3>
+<hr class="hr-gray" />
+<p class="in">先日、IPAとオープンソース推進フォーラムから「オープンソース貢献者賞」なる賞をいただきました。今回受賞したのはDebianプロジェクトの貢献者として知られる鵜飼さん（日本ヒューレット・パッカード）、Linuxカーネルハッカー高橋さん（VA Linux Systems Japan）、NamazuやGonzuiなどで知られる高林さん（グーグル）、そして、まつもと（ネットワーク応用通信研究所）の4人でした。第1回目ということで、オープンソース界隈でそれなりに名前が知られていて、かつ実際にコードを書く人を中心に選定したというところでしょうか。いずれにしても大変ありがたいことです。</p>
+<p class="in">本来、私は表に出たり、有名になったりするのはあまり好きではありません。しかし、最近ちょっと考えを変えることにしました。私自身が好むと好まざるとにかかわらず、「Rubyのまつもと」はこの業界では知れ渡ってしまったのですから、今さらこれをどうにかできるものではありません。それならば、むしろ精いっぱい「成功」して、あとに続くオープンソース開発者の模範あるいはロールモデルになろうと思うようになりました。「オープンソースをやっていても食べていけるんだ」とか、「オープンソースを仕事にして幸せそうだ」とかいうありさまを見せることも私の使命の1つなのでしょう。きっと。</p>
+<a id="page_232"/>
+<p class="in">さて、今回、オープンソースの貢献者の一人として認定された私ですが、私がいわゆるオープンソースと関わり出したのは、オープンソースという単語が生まれた1998年をはるかにさかのぼります。当時はフリーソフトウェア<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> と呼ばれていました。最初の出合いは1989年頃で、EmacsとGCCに触れたのが始まりだったと思います。それ以来、職業プログラマーが会社のために仕事として開発したものはともかく、そのようなしがらみのないものをフリーソフトウェアとして公開するのは当然だと考えていました。フリーソフトウェアにはお世話になりっぱなしなのですし、それくらいは当り前ではないでしょうか。</p>
+</section>
+<section id="chap5502" class="level2">
+<h3>フリーソフトウェア好きのハッカーたち</h3>
+<hr class="hr-gray" />
+<p class="in">私に限らず多くのハッカーたちはフリーソフトウェア（オープンソースソフトウェア）が大好きです。それはなぜでしょうか。</p>
+<p class="in">タダだから?　それもあるでしょう。数多くの優秀なソフトウェアが無償で利用できるのは大変ありがたいことです。私のノートPCには、OSとしてDebian GNU/Linux、そして数えきれないほどのソフトウェアがインストールされていますが、そのほとんどはフリーソフトウェアです。</p>
+<p class="in">しかし、ハッカーがフリーソフトウェアを愛する最も大きな理由は経済的なものではなく、自由です。ハッカーは自分が理不尽と感じる理由で行動が制限されることを大変嫌います。あるソフトウェアがどのように動いているか知りたくなったときには、ソースコードを読んでそれを確かめたい。ソフトウェアにバグがあったときには、自分でそれを直したい。自らの行動を制限するものがあれば、ソースコードを読み、プログラミングテクニックを駆使して、それを排除したい。それはもうハッカーの本能のようなものです。</p>
+<p class="in">世間的に「ハッカー」という言葉に悪い意味を与えてしまったクラッカー（システム侵入者）たちも、もともとは自分たちに対する制限への過剰反応が起源です。70年代にMITなどの大学に生息していたハッカーたちは、自分たちの問題を自由に解決するため、ときどきかなり過激なこと<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a> を行ったと聞いています。それだけ彼らは自由を切望し、自由を獲得するために闘争していたのです。いつもそれが正しかったとは言いませんが。</p>
+</section>
+<section id="chap5503" class="level2">
+<h3>フリーソフトウェアの起源</h3>
+<hr class="hr-gray" />
+<p class="in">そもそも、フリーソフトウェア自体も、自由の獲得が起源になっています。昔々、ソフトウェアはハードウェアの付属物であり、コンピュータを買うとソースコードごと付いてくることは決して珍しくなかったそうです。メーカーから買ってきたコンピュータはOSすら付いておらず、「あらゆるソフトウェアはユーザーが開発する」というケースもあったようで、同じコンピュータを購入したユーザー同士は自分たちが開発したソフトウェアを交換して、お互い助け合っていました。洗練されてはいませんが、今のオープンソースソフトウェアと少し似ていますね。</p>
+<a id="page_233"/>
+<p class="in">その後、ソフトウェアは商品となり、ソースコードは簡単には外に出せない「企業秘密」に変貌します。昔を知るものにとっては、だんだん自由が奪われていったわけです。それでも大学に所属している人々は相変わらずソフトウェア交換を行っていたわけですが、その自由も次第に商用ソフトウェアに侵食されていきます。</p>
+<p class="in">そして、とうとう大学で細々と行われていた自由なソフトウェア交換をゆるがすような「事件」が発生します。それは本連載の第4回「Emacs対vi」（2005年7月号）で説明したEmacsにまつわる事件です。</p>
+<p class="in">最初のEmacsは、Richard Stallmanという天才ハッカーがITS<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a> 上のマクロエディタTecoを使って記述したものです。使いやすいエディタと評判になったEmacsは数多くの派生版を生み、後にJavaの設計者となるJames Goslingによって1981年にはUNIX版のEmacsが開発されます。GoslingによるEmacs（通称Gosmacs）は、MockLispと呼ばれるLispもどきの言語を使った拡張機能を持っていました。Stallmanも、UNIX版Emacsがほしいと思い、Gosmacsをベースに変更作業を行おうとしました。MockLispではなく、本物のLispを組み込んだEmacsがほしくなったからです。しかし、GoslingはGosmacsの権利をUnipress<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a> という企業に売却してしまい、StallmanはGosmacsをベースにして新しいEmacsの開発できなくなりました。結局、Stallmanはゼロから開発した<a href="#fn5" class="footnote-ref" id="fnref5" epub:type="noteref" role="doc-noteref">5</a> のですが、まさにこのとき「ソフトウェアの自由は自分で守らなければいけない」ことが明らかになったのです。この時点で「ソースコードが公開されているだけでは十分ではない」という事実に気付いたStallmanは、世間を15年は先んじていたといえるでしょう。</p>
+<p class="in">この後、Stallmanはソフトウェアの自由を守るための団体であるFSF<a href="#fn6" class="footnote-ref" id="fnref6" epub:type="noteref" role="doc-noteref">6</a> を組織し、ソフトウェアの自由を保証するライセンスであるGPL（GNU General Public License）を定義し、また上から下まで完全に自由なOS環境であるGNU（GNU’s Not Unix）を作るべく積極的に活動し始めました。</p>
+<p class="in">いや、ソフトウェアの自由は確かに大変重要なものですが、だからといって「そこまでやるか?」と言いたくなります。この辺がStallmanの「ブレーキが壊れた」部分であり、それこそ彼が真のハッカーである証しなのでしょう。フリーソフトウェア運動を推し進める彼の情熱とパワーには、敬服するしかありません。驚くべきエネルギーです。でも、おかげでStallmanは、プログラミングに割く時間があまり取れないそうです。彼の膨大なエネルギーを純粋にプログラミングに向けることができたらどんな偉大なことが実現できていただろうかと考えると、すごくもったいないような気がします。</p>
+</section>
+<section id="chap5504" class="level2">
+<a id="page_234"/>
+<h3>フリーソフトウェアからオープンソースへ</h3>
+<hr class="hr-gray" />
+<p class="in">ある意味、現在は幸せな時代です。オープンソースは世間の注目を浴び、膨大なフリーソフトウェアの蓄積があって、ほとんどあらゆる種類のソフトウェアのソースコードを自由に閲覧したり、必要に応じて改造や再配布も自由に行うことができます。また、プログラミングに必要な情報のほとんどはインターネットを経由で瞬時に入手できます。UUCP<a href="#fn7" class="footnote-ref" id="fnref7" epub:type="noteref" role="doc-noteref">7</a> のバケツリレーでメールやニュースを受け渡し、ソフトウェアの配布は磁気テープの回覧で行っていたことが神話時代のことのように感じられます。</p>
+<p class="in">しかし、そのような幸せと自由は過去のハッカーたち（特にStallman）が<ruby>熾烈<rt>しれつ</rt></ruby>な闘争によって勝ち取ったことを忘れてはいけません。将来、再びソフトウェアの自由を奪い去ろうとする動きが発生しないとも限りません。実際にソフトウェア特許やDRM<a href="#fn8" class="footnote-ref" id="fnref8" epub:type="noteref" role="doc-noteref">8</a> の領域で、その傾向がうかがえます。私たちハッカーとその仲間たちは、いざというときに自由のために立ち上がる備えをしておきべきかもしれません。</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">当時はフリーソフトウェア</span></p>
+<p>もちろん現在でもフリーソフトウェアという呼び名は存在している。個人的な意見をいえば、フリーは自由を意味するので、用語としてはオープンソースよりも優れていると思う。しかし、マーケティング用語としてはオープンソースのほうが成功したのは間違いなく、また、私がご飯が食べられているのもそのマーケティングのおかげである。複雑な気持ちだ。
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">かなり過激なこと</span></p>
+<p>たとえば、ハッカーという言葉そのものを生んだMIT鉄道クラブ（TMRC: Tech Model Railroad Club）のメンバーが夜な夜なMITの建物に忍び込んでコンピュータを無断使用していたことは有名である。当時、その行為はあまり問題視されなかったようだ。大らかな時代である。
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">ITS</span></p>
+<p>ITS（Incompatible Timesharing System）はMIT人工知能研究所（のハッカーたち）が独自に開発したOSである。当初はDEC PDP-6、その後PDP-10で動作した。
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">Unipress</span></p>
+<p>UnipressはGosmacsをUnipress Emacsという商品として販売を始め、自分たちが権利を持つUnipress Emacsのソースコードを再配布しないようにStallmanに通告した。しかし、Goslingがこの事態を望んでいたとか、予想していたと考えるべきではないと思う。
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn5">
+<p><span class="k">ゼロから開発した</span></p>
+<p>これが現在も使われている（私も使っている）GNU Emacsの起源である。Unipress Emacsがもはや影も形もないことを考えると皮肉なことである。
+<a href="#fnref5" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn6">
+<p><span class="k">FSF</span></p>
+<p>Free Software Foundationの略。
+<a href="#fnref6" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn7">
+<p><span class="k">UUCP</span></p>
+<p>Unix to Unix CoPyの略。一定間隔、あるいは要求に応じて電話回線などを使ってリモートホストに接続し、メールやファイルを交換する接続形態。
+<a href="#fnref7" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn8">
+<p><span class="k">DRM</span></p>
+<p>Digital Rights Managementの略で、音楽や動画などのデジタルコンテンツに対して、暗号化などを施して不正コピーや流出を防ぎ、正規流通を促進させる枠組み、およびそれに利用されるテクノロジー。
+<a href="#fnref8" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-042.xhtml">&lt;&lt; 前ページ</a>　<a href="p-044.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

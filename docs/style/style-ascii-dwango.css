@@ -1,0 +1,1126 @@
+@charset "UTF-8";
+
+/*
+Ascii-Dwango customized e-pub style
+---------------------------------------------------------------- */
+@page { margin: 1em 2em; }
+body  { margin: 5%; text-align: justify; font-size: 100%; }
+
+/* 見出し
+---------------------------------------------------------------- */
+/* 部: part */
+h1{
+    font-size: 180%; margin-top: 15pt; margin-bottom: 12pt;
+    font-weight: bold; text-align: center;
+    page-break-after: avoid;
+    color: #06287e;
+}
+/* 章: section */
+h2{
+    font-size: 180%; margin-top: 15pt; margin-bottom: 25pt;
+    font-weight: bold; text-align: left;
+    break-after: avoid;
+    color: #06287e;
+}
+/* 節: subsection */
+h3{
+    font-size: 120%; margin-top: 20pt; margin-bottom: 0pt;
+    font-weight: bold; text-align: left;
+    break-after: avoid;
+    color: #06287e;
+    text-indent: -2em; margin-left: 2em;
+}
+/* 項: subsubsection */
+h4{
+    font-size: 100%; margin-top: 15pt; margin-bottom: 0pt;
+    font-weight: bold; text-align: left;
+    break-after: avoid;
+    color: #06287e;
+    text-indent: -2em; margin-left: 2em;
+}
+/* 小項 */
+h5{
+    font-size: 95%; margin-top: 12pt; margin-bottom: 0pt;
+    font-weight: bold; text-align: left;
+    break-after: avoid;
+    color: #06287e;
+    text-indent: -2em; margin-left: 2em;
+}
+/* 小小項 */
+h6{
+    font-size: 100%; margin-top: 9pt; margin-bottom: 0pt;
+    font-weight: bold; text-align: left;
+    break-after: avoid;
+    color: #06287e;
+    text-indent: -2em; margin-left: 2em;
+}
+/* section */
+section{ break-before: avoid; break-after: avoid; }
+/* 見出しの泣き別れを避ける */
+.heading{ break-before: avoid; break-after: avoid; }
+
+/* Info
+---------------------------------------------------------------- */
+.cover{
+    margin-top: 2pt; margin-bottom: 2pt; text-align: center;
+}
+.maintitle{
+    margin-top: 100pt; margin-bottom: 10pt; text-align: left;
+    font-size: 180%; font-weight: bold;
+    font-family: sans-serif-ja, sans-serif;
+    break-after: avoid;
+}
+.subtitle{
+    margin-top: 5pt; margin-bottom: 10pt; text-align: left;
+    font-size: 120%;
+    break-after: avoid;
+}
+.edition{
+    margin-top: 15pt; margin-bottom: 15pt; text-align: left;
+}
+.author{
+    margin-top: 150pt; margin-bottom: 15pt; text-align: right;
+    font-weight: bold;
+}
+.publisher{
+    margin-top: 200pt; margin-bottom: 2pt; text-align: right;
+}
+.address{
+    margin-top: 30pt; margin-bottom: 4pt; text-align: left;
+}
+.copy{
+    margin-top: 15pt; margin-bottom: 4pt;
+    font-size: 90%;
+}
+.ex-title{
+    margin-top: 9pt; margin-bottom: 8pt; text-align: left;
+    font-weight: bold;
+    font-family: sans-serif-ja, sans-serif;
+    break-after: avoid;
+}
+
+/* Table Of Contents
+---------------------------------------------------------------- */
+.toc-part{
+    margin-top: 14pt; margin-bottom: 5pt;
+    text-indent: 0.002pt;
+    text-align: left;
+}
+.toc-chapter{
+    margin-top: 10pt; margin-bottom: 5pt;
+    text-indent: 0.002pt;
+    text-align: left;
+}
+.toc-section{
+    margin-top: 5pt; margin-bottom: 4pt;
+    text-indent: 0.002pt;
+    text-align: left;
+}
+.toc-section1{
+    margin-top: 4pt; margin-bottom: 4pt; margin-left: 20pt;
+    text-align: left;
+}
+.toc-section11{
+    margin-top: 4pt; margin-bottom: 4pt; margin-left: 14pt;
+    text-align: left;
+}
+.toc-section2{
+    margin-top: 4pt; margin-bottom: 4pt; margin-left: 52pt;
+    text-align: left;
+}
+.toc-section21{
+    margin-top: 4pt; margin-bottom: 4pt; margin-left: 46pt;
+    text-align: left;
+}
+
+/* Footnote
+---------------------------------------------------------------- */
+.footnote{
+    margin-top: 4pt; margin-bottom: 8pt;
+    margin-left: 8em; text-indent: -1em;
+    font-size: 0.8em;
+}
+.footnotes{
+    margin-top: 4pt; margin-bottom: 4pt;
+    font-size: 0.88em;
+}
+
+/* Index
+---------------------------------------------------------------- */
+.index{
+    font-size: 0.8em;
+}
+.indexmain{
+    margin-top: 2pt; margin-bottom: 2pt;
+    text-align: left; text-indent: 0.024pt;
+    font-size: 0.88em;
+}
+.indexmain1{
+    margin-top: 14pt; margin-bottom: 2pt;
+    text-align: left; text-indent: 0.024pt;
+    font-size: 0.88em;
+}
+.indexsub{
+    margin-top: 2pt; margin-bottom: 2pt;
+    margin-left: 25pt;
+    text-align: left;
+    font-size: 0.88em;
+}
+
+/* 強調
+---------------------------------------------------------------- */
+span.k{/* ゴシック */
+    font-family: sans-serif-ja, sans-serif;
+    font-style: normal;
+}
+span.kb{/* 太ゴシック */
+    font-family: sans-serif-ja, sans-serif;
+    font-style: normal; font-weight: bold;
+}
+span.it{/* イタリック */
+    font-style: italic;
+}
+span.bl{/* イタリックボールド */
+    font-style: normal; font-weight: bold;
+}
+span.link{/* リンク */
+    color: #06287e;
+}
+a.footnote-ref{/* 脚注 */
+    vertical-align: super;
+}
+/* ml font */
+span.b    { font-style: normal; font-weight: bold; }
+span.tvr  { font-family: sans-serif-ja, sans-serif; font-style: italic; }
+span.cd   { font-family: sans-serif-ja, sans-serif; font-style: normal; }
+span.id   { font-family: sans-serif-ja, sans-serif; font-style: normal; }
+span.kw   { font-family: sans-serif-ja, sans-serif; font-style: normal; font-weight: bold; text-transform: lowercase; font-size: 90%;}
+span.sc   { font-family: sans-serif-ja, sans-serif; font-variant-caps: small-caps; }
+span.vr   { font-family: sans-serif-ja, sans-serif; font-style: italic; }
+span.con  { font-family: sans-serif-ja, sans-serif; font-variant-caps: small-caps; }
+span.tcon { font-family: sans-serif-ja, sans-serif; font-style: normal; font-variant-caps: small-caps; }
+span.modsc  { font-family: Courier; }
+span.errmsg { font-family: Courier; }
+
+/* フォントサイズ
+---------------------------------------------------------------- */
+span.fontsmall { font-size: 75%; }
+span.fonttiny  { font-size: 65%; }
+
+/* 数式
+---------------------------------------------------------------- */
+span.f{/* Italic */
+    font-family: Georgia;
+    font-style: italic;
+    margin-left: 1pt; margin-right: 1pt;
+}
+span.fb{/* Italic, bold */
+    font-family: Georgia;
+    font-style: italic; font-weight: bold;
+    margin-left: 1pt; margin-right: 1pt;
+}
+span.r{/* Regular */
+    font-family: Georgia;
+    font-style: normal;
+    margin-left: 1pt; margin-right: 1pt;
+}
+span.sum{/* Symbol, sum */
+    font-style: normal;
+    font-size: 160%;
+    vertical-align: middle;
+    margin-left: 0pt; margin-right: 0pt;
+}
+span.cup{/* Symbol, cup */
+    font-style: normal;
+    font-size: 190%;
+    vertical-align: middle;
+    margin-left: 0pt; margin-right: 0pt;
+}
+
+/* 2倍ダーシ <span class="emdash">――</span>
+---------------------------------------------------------------- */
+span.emdash { letter-spacing:-.2em; width:2em; margin-left:.5em; margin-right:.5em; }
+
+/* Text Indentation
+---------------------------------------------------------------- */
+/* Indent */
+.in   { text-indent: 1em; }
+.ih   { text-indent: 0.5em; }
+/* No-Indent */
+.ni   { text-indent: 0em; }
+
+/* Indent: words */
+.i1w  { margin-left: 1em; }
+.i2w  { margin-left: 2em; }
+.i3w  { margin-left: 3em; }
+.i4w  { margin-left: 4em; }
+/* Indent: index */
+.in2  { text-indent: 2em; }
+.in4  { text-indent: 4em; }
+/* Indent: hangindent */
+.hangindent { text-indent:  -1em; margin-left:  1em; }
+.hangindentl { text-indent:  -1em; margin-left:  2em; }
+.hangalpha  { text-indent:  -2em; margin-left:  4em; }
+.hangcase   { text-indent:  -3em; margin-left:  3em; }
+
+/* chapter title */
+span.chap-title{
+    font-size: 120%; font-weight: bold; font-style: italic;
+    font-family: Georgia; color: #979393;
+}
+span.chap-num{
+    font-size: 200%; font-weight: bold; font-style: italic;
+    font-family: Georgia; color: #979393;
+    margin-left: 4px;
+}
+
+/* description */
+div.description{
+    margin-top: 1.5em; margin-bottom: 1.5em; padding-left: 1em;
+}
+p.ditem{
+    text-indent: 0em;
+    font-family: sans-serif-ja, sans-serif; font-style: normal;
+}
+p.din{
+    margin-left: 2em;
+    text-indent: 1em;
+}
+p.dni{
+    margin-left: 2em;
+    text-indent: 0em;
+}
+
+/* horizontal line */
+hr.chap-hr{
+    border-top: 4px solid;
+    border-color: #979393;
+}
+hr.hr-gray{
+    border-top: 2px solid;
+    border-color: #979393;
+}
+hr.hr-blue{
+    border-top: 2px solid;
+    border-color: #0000BB;
+}
+hr.hr-green{
+    border-top: 2px solid;
+    border-color: #006600;
+}
+
+/* Interview */
+.hang-interview{
+    text-indent: -2em; margin-left: 2em;
+}
+p.iin{
+    margin-left: 2em;
+    text-indent: 1em;
+}
+
+/* Cover page
+---------------------------------------------------------------- */
+ul.cover {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  text-align: center;
+}
+ul.cover li {
+  width: 40%;
+}
+ul.cover img {
+  width: 80%;
+}
+
+/* Division
+---------------------------------------------------------------- */
+div.blockquote{/* 引用 */
+    margin-top: 1.0em; margin-bottom: 1.0em;
+    margin-left: 2em;
+}
+/* column */
+div.column{/* column, body */
+    margin-top: 1.5em; margin-bottom: 1.5em;
+    padding-left: 2em; padding-right: 2em; padding-top: 4pt; padding-bottom: 4pt;
+    border:solid 1px #000000;
+    -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; background-color: #F2F2F2;
+}
+p.column-title{/* column, title */
+    font-family: sans-serif-ja, sans-serif;
+    font-weight: bold;
+    padding-top: 4pt; padding-bottom: 4pt;
+}
+/* newlead */
+div.newlead{
+    margin-top: 1.5em; margin-bottom: 1.5em;
+    padding-left: 1em; padding-right: 1em; padding-top: 4pt; padding-bottom: 4pt;
+    border:solid 1px #000000;
+    -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; background-color: #F2F2F2;
+}
+/* lead */
+div.lead{
+    margin-top: 1.5em; margin-bottom: 1.5em;
+    padding-left: 1.5em; padding-right: 1.5em; padding-top: 4pt; padding-bottom: 4pt;
+    font-family: sans-serif-ja, sans-serif;
+    font-style: normal;
+    background-color: #F2F2F2;
+}
+
+/* Note */
+div.note { margin-top: 12pt; margin-bottom: 20pt; font-size: 85%; break-before: avoid; break-after: avoid; break-inside: avoid; }
+
+/* Enumerate */
+div.enum { margin-top: 10pt; margin-bottom: 10pt; }
+
+
+/* List
+---------------------------------------------------------------- */
+/* none */
+ul{
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+ul.none{
+  list-style: none;
+  padding-left: 2em;
+}
+/* parentheses */
+ol.list_parentheses{
+  padding:0 0 0 2em; margin:0;
+  margin-top: 0.5em; margin-bottom: 0.5em;
+}
+ol.list_parentheses li{
+  list-style-type:none; list-style-position:inside;
+  counter-increment: cnt;
+  text-indent:-1.5em; margin-left:1em;
+}
+ol.list_parentheses li:before{
+  display: marker;
+  content: "(" counter(cnt) ") ";
+}
+/* ul left 1em */
+ul.left{
+  margin-left: 2em;
+  padding-left: 0em;
+}
+/* minus */
+.minus{ padding-left: 2em; list-style-type: "− "; }
+/* circle */
+.circle{ padding-left: 2em; list-style-type: circle; }
+/* ref */
+.ref{ padding-left: 1em; }
+/* loweralpha */
+ol.liststyletype_loweralpha{
+  list-style-type: lower-alpha;
+  padding-left: 4em; padding-right: 1em;
+}
+/* num */
+div.listnum{
+    margin-top: 0.5em; margin-bottom: 0.5em;
+    margin-left: 2em;
+}
+
+/* Border
+---------------------------------------------------------------- */
+.bordersource{
+    margin-top: 4pt; margin-bottom: 4pt;
+    border-top: solid 1px #000000; border-bottom: solid 1px #000000;
+}
+.borderconsole{
+    margin-top: 0.5em; margin-bottom: 0.5em;
+    border:solid 1px #000000;
+    -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px;
+}
+.borderterminal{
+    margin-top: 0.5em; margin-bottom: 0.5em;
+    padding: 2px 0em;
+    border:solid 1px #000000;
+    -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px;
+}
+.bordergrammar{
+    margin-top: 10pt; margin-bottom: 10pt;
+    padding: 2px 0em;
+    border:solid 1px #000000;
+    background-color: #EEEEEE;
+}
+.borderfigure{
+    margin-top: 4pt; margin-bottom: 4pt;
+    border: solid 1px #000000;
+    padding-left: 1em;
+}
+.borderlist{
+    margin-top: 1.0em; margin-bottom: 1.0em;
+    border:solid 1px #000000;
+    padding-right: 1em;
+    background-color: #EEEEEE;
+    -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px;
+}
+
+/* Program list
+---------------------------------------------------------------- */
+code{
+    font-family: Courier;
+    font-size: 100%;
+}
+pre{
+    padding-left: 2em; padding-right: 2em;
+    padding-top: 0pt; padding-bottom: 0pt;
+    margin-top: 0.5em; margin-bottom: 0.5em;
+    font-family: Courier;
+    font-size: 95%; font-style: normal;
+    line-height: 150%;
+    white-space: pre-wrap;
+}
+pre.tabbing{
+    margin: 0 auto 0 0; 
+    line-height: 1.75; 
+    font-family: serif-ja, serif;
+    padding-left: 0em; padding-right: 0em;
+    font-size: 100%; font-style: normal;
+}
+pre span.kwd{
+    color: #3366CC;
+}
+pre span.cmt{
+    color: #993333;
+}
+pre span.str{
+    color: #006633;
+}
+pre span.mcm{
+    color: #9933CC;
+}
+div.plist{/* Program list */
+    margin-top: 0.5em; margin-bottom: 0.5em;
+    break-before: avoid; break-after: avoid;
+    padding-left: 0em;
+}
+div.plistc{/* Program list, caption */
+    margin-top: 1.5em; margin-bottom: 1.5em;
+    break-before: avoid; break-after: avoid;
+    padding-left: 0em;
+}
+div.plistd{/* Program list, description */
+    margin-top: 0.5em; margin-bottom: 0.5em;
+    break-before: avoid; break-after: avoid;
+    padding-left: 2em;
+}
+p.lst-caption{/* Program list caption */
+    margin-left: 0em; padding-left: 1em;
+    margin-top: 4pt; margin-bottom: 2pt;
+    font-family: sans-serif-ja, sans-serif; font-style: normal;
+    font-size: 85%; text-align: left;
+    break-before: avoid; break-after: avoid;
+    background-color: #545252; color: white;
+}
+
+
+/* Caption
+---------------------------------------------------------------- */
+/* other */
+.caption      { font-family: sans-serif-ja, sans-serif; font-style: normal; margin-top: 10pt; margin-bottom: 10pt; font-size: 85%; text-align: center; break-before: avoid; break-after: avoid; }
+.filename     { font-family: sans-serif-ja, sans-serif; font-style: italic; margin-top:  4pt; margin-bottom: 10pt; font-size: 85%; text-align: right;  break-before: avoid; break-after: avoid; }
+
+/* Text position
+---------------------------------------------------------------- */
+/* 下線 */
+.underline{ text-decoration: underline; }
+/* 中央 */
+.center   { text-align: center; }
+.center-border { text-align: center; border: thin solid #000000; }
+/* 右寄せ */
+.right    { text-align: right; }
+/* 左寄せ */
+.left     { text-align: left; margin-left: 4em; }
+/* 両端揃え */
+.lleft  { text-align: left; float: left; }
+.lright { text-align: right; }
+
+/* Navigation
+---------------------------------------------------------------- */
+/* パンくずリスト */
+.navigation-top    { font-family: sans-serif-ja, sans-serif; font-style: normal; font-size: 85%;}
+/* 右寄せ */
+.navigation-right    { text-align: right; font-family: sans-serif-ja, sans-serif; font-style: normal; font-size: 85%;}
+
+/* Text color
+---------------------------------------------------------------- */
+.gray     { color: #C0C0C0; }
+
+
+/* Equation
+---------------------------------------------------------------- */
+.eqnParent     { display: table; width: 100%; margin-top: 8pt; margin-bottom: 8pt; }
+.eqnEqn        { display: table-cell; text-align: center; }
+.eqnEqnl       { display: table-cell; text-align: left; }
+.eqnNum        { display: table-cell; text-align: right; vertical-align:middle; }
+.eqnCenter     { margin-top: 8pt; margin-bottom: 8pt;  text-align: center; }
+/* Equation: number */
+table.eqntbl    { width: 100%; max-width: 100%; border-collapse: collapse; border-spacing: 0; margin-top: 8pt; margin-bottom: 8pt;  border: none; }
+table.eqntbl td { padding: 0px 0px; font-size: 100%; vertical-align: middle; white-space: normal; }
+table.eqntbl tr td:first-child { width: 90%; text-align: center; }
+table.eqntbl tr td:last-child  { width: 10%; text-align: right; }
+
+/* Image and Figure
+---------------------------------------------------------------- */
+/* Figure */
+div.fig{
+    margin-top: 1.5em; margin-bottom: 1.5em;
+    text-align: center;
+    break-inside: avoid;
+}
+div.figconsole{
+    margin-top: 1.5em; margin-bottom: 1.5em;
+    text-align: left;
+    break-inside: avoid;
+}
+p.fig-caption{/* caption */
+    margin-top: 4pt; margin-bottom: 2pt;
+    margin-left: 0em; padding-left: 1em;
+    font-family: sans-serif-ja, sans-serif; font-style: normal;
+    font-size: 85%; text-align: left;
+    background-color: #545252; color: white;
+    break-before: avoid; break-after: avoid;
+}
+
+/* Image */
+div.image  img { max-width: 99%; max-height: 99%; }
+
+img { text-indent: 0pt; }
+img.icon { width: 1.4em; height: 1.6em; margin-top: 0.5em; margin-left: 0.8em; float: right; }
+img.middleicon { vertical-align: middle;  width: 1.4em; height: 1.4em; }
+
+.image     img { margin-top: 10pt; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; }
+.image10   img { width:  10%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image15   img { width:  15%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image20   img { width:  20%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image25   img { width:  25%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image30   img { width:  30%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image35   img { width:  35%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image40   img { width:  40%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image50   img { width:  50%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image60   img { width:  60%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image70   img { width:  70%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image80   img { width:  80%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image90   img { width:  90%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image100  img { width: 100%; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+
+.image200   img { width:  200px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image300   img { width:  300px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image350   img { width:  350px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image400   img { width:  400px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image450   img { width:  450px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image500   img { width:  500px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image600   img { width:  600px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image700   img { width:  700px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+.image800   img { width:  800px; height: auto; margin-left: 0em; margin-right: 0em; text-align: center; break-inside: avoid; object-fit: contain; }
+
+.middle    img { vertical-align: middle; }
+.middle10  img { height: 1.0em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle12  img { height: 1.2em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle14  img { height: 1.4em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle15  img { height: 1.5em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle16  img { height: 1.6em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle18  img { height: 1.8em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle20  img { height:   2em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle24  img { height: 2.4em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle25  img { height: 2.5em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle30  img { height:   3em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle35  img { height: 3.5em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle40  img { height:   4em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle45  img { height: 4.5em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle50  img { height:   5em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle55  img { height: 5.5em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle60  img { height:   6em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle70  img { height:   7em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle80  img { height:   8em; width: auto; vertical-align: middle; text-align: center; object-fit: contain;}
+.middle90  img { height:   9em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle100 img { height:  10em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle110 img { height:  11em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle120 img { height:  12em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle130 img { height:  13em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle140 img { height:  14em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle150 img { height:  15em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle160 img { height:  16em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle170 img { height:  17em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle180 img { height:  18em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle190 img { height:  19em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle200 img { height:  20em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle210 img { height:  21em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle220 img { height:  22em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle230 img { height:  23em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle240 img { height:  24em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle250 img { height:  25em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle260 img { height:  26em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle270 img { height:  27em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle280 img { height:  28em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle290 img { height:  29em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle300 img { height:  30em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle310 img { height:  31em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+.middle320 img { height:  32em; width: auto; vertical-align: middle; text-align: center; object-fit: contain; }
+
+/* Table
+---------------------------------------------------------------- */
+div.table {/* Table */
+    margin-top: 1.5em; margin-bottom: 1.5em;
+    break-before: avoid; break-after: avoid;
+}
+p.tbl-caption{/* table caption */
+    margin-left: 0em; padding-left: 1em;
+    font-family: sans-serif-ja, sans-serif; font-style: normal;
+    margin-top: 4pt; margin-bottom: -4pt;
+    font-size: 85%;
+    text-align: left;
+    background-color: #545252; color: white;
+    break-before: avoid; break-after: avoid;
+}
+table{/* table, common */
+    border-collapse: collapse; border-spacing: 0;
+    margin-top: 1em; margin-bottom: 1em;
+    font-family: sans-serif-ja, sans-serif; font-style: normal;
+    font-size: 85%;
+    break-inside: avoid;
+}
+
+/* tbl00 */
+table.tbl00 th{
+    white-space: nowrap;
+    padding-left: 4pt; padding-right: 4pt;
+    background-color: #000000; color: #ffffff;
+    font-weight: normal;
+    border-right: 1px #ffffff solid;
+}
+table.tbl00 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+}
+table.tbl00 tr:first-child{
+    white-space: nowrap;
+    border-top: 1px #000000 solid;
+}
+table.tbl00 tr:last-child{
+    border-bottom: 1px #000000 solid; border-right: none;
+    white-space: wrap;
+}
+
+/* tbl01 */
+table.tbl01 th{
+    white-space: nowrap;
+    padding-left: 4pt; padding-right: 4pt;
+    background-color: #000000; color: #ffffff;
+    font-weight: normal;
+    border-right: 1px #ffffff solid;
+}
+table.tbl01 td {
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl01 tr td:nth-child(odd){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+}
+table.tbl01 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl02 */
+table.tbl02 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: none;
+}
+table.tbl02 tr:first-child{
+    white-space: nowrap;
+    background-color: #C0C0C0;
+}
+table.tbl02 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl03 */
+table.tbl03 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: center; vertical-align: top;
+    border-left: none; border-right: none;
+}
+table.tbl03 tr:first-child{
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+}
+table.tbl03 tr:last-child{
+    white-space: wrap;
+    border-right: none; border-bottom: 1px #000000 solid;
+}
+
+/* tbl04 */
+table.tbl04 th{
+    white-space: nowrap;
+    background-color: #000000; color: #ffffff;
+    font-weight: normal;
+    border-right: 1px #ffffff solid;
+    padding-left: 4pt; padding-right: 4pt;
+}
+table.tbl04 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl04 tr td:nth-child(odd){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: center;
+}
+table.tbl04 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl05 */
+table.tbl05 th{
+    white-space: nowrap;
+    background-color: #000000; color: #ffffff;
+    font-weight: normal;
+    border-right: 1px #ffffff solid;
+    padding-left: 4pt; padding-right: 4pt;
+}
+table.tbl05 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: right; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl05 tr td:first-child{
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: center;
+}
+table.tbl05 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl06 */
+table.tbl06 th{
+    white-space: nowrap;
+    padding-left: 4pt; padding-right: 4pt;
+    background-color: #000000; color: #ffffff;
+    font-weight: normal;
+    border-right: 1px #ffffff solid;
+}
+table.tbl06 td{
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    white-space: normal;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl06 tr td:first-child{
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: center;
+}
+table.tbl06 tr td:nth-child(2){
+    white-space: nowrap;
+    background-color: #EEEEEE;
+    text-align: center;
+}
+table.tbl06 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl07 */
+table.tbl07 th{
+    white-space: nowrap;
+    padding-left: 4pt; padding-right: 4pt;
+    background-color: #000000; color: #ffffff;
+    font-weight: normal;
+    border-right: 1px #ffffff solid;
+}
+table.tbl07 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: center; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl07 tr td:first-child{
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: center;
+}
+table.tbl07 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl08 */
+table.tbl08 th{
+    white-space: nowrap;
+    padding-left: 4pt; padding-right: 4pt;
+    background-color: #000000; color: #ffffff;
+    font-weight: normal;
+    border-right: 1px #ffffff solid;
+}
+table.tbl08 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: center; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl08 tr td:nth-child(odd){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+}
+table.tbl08 tr td:first-child{
+    white-space: nowrap;
+    background-color: #444444; color: #ffffff;
+    text-align: center;
+}
+table.tbl08 tr td:nth-child(2){
+    white-space: nowrap;
+    background-color: #666666; color: #ffffff;
+    text-align: center;
+}
+table.tbl08 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl09 */
+table.tbl09 th{
+    white-space: nowrap;
+    padding-left: 4pt; padding-right: 4pt;
+    background-color: #000000; color: #ffffff;
+    text-align: center;
+    font-weight: normal;
+    border-right: 1px #ffffff solid; border-top: 1px #ffffff solid;
+}
+table.tbl09 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: center; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl09 tr td:first-child{
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: right;
+}
+table.tbl09 tr td:nth-child(3){
+    white-space: nowrap;
+    background-color: #EEEEEE;
+    text-align: center;
+}
+table.tbl09 tr td:nth-child(4){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: center;
+}
+table.tbl09 tr td:nth-child(6){
+    white-space: nowrap;
+    background-color: #EEEEEE;
+    text-align: center;
+}
+table.tbl09 tr td:nth-child(7){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: center;
+}
+table.tbl09 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl10 */
+table.tbl10 td {
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl10 tr td:nth-child(1){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    border-right: none;
+}
+table.tbl10 tr td:nth-child(2){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+}
+table.tbl10 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl11 */
+table.tbl11 th{
+    white-space: nowrap;
+    padding-left: 4pt; padding-right: 4pt;
+    background-color: #000000; color: #ffffff;
+    text-align: center;
+    font-weight: normal;
+    border-right: 1px #ffffff solid; border-top: 1px #ffffff solid;
+}
+table.tbl11 td {
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl11 th:nth-child(1){
+    white-space: nowrap;
+    background-color: #000000; color: #ffffff;
+    border-right: none;
+}
+table.tbl11 tr td:nth-child(1){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    border-right: none;
+}
+table.tbl11 tr td:nth-child(3){
+    white-space: wrap;
+    background-color: #C0C0C0;
+}
+table.tbl11 tr td:nth-child(4){
+    white-space: wrap;
+    background-color: #C0C0C0;
+}
+table.tbl11 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl12 */
+table.tbl12 td{
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl12 tr:first-child{
+    border-top: 1pt solid;
+}
+table.tbl12 tr:last-child{
+    border-bottom: 1pt solid;
+}
+table.tbl12 tr td:nth-child(1){
+    white-space: nowrap;
+    background-color: #444444; color: #ffffff;
+    text-align: left;
+    border-top: none; border-bottom: none;
+}
+table.tbl12 tr td:nth-child(2){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: center;
+}
+table.tbl12 tr td:nth-child(4){
+    white-space: nowrap;
+    background-color: #444444; color: #ffffff;
+    text-align: left;
+    border-top: none; border-bottom: none;
+}
+table.tbl12 tr td:nth-child(5){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    text-align: center;
+}
+table.tbl12 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl13 */
+table.tbl13 th{
+    white-space: nowrap;
+    padding-left: 4pt; padding-right: 4pt;
+    background-color: #000000; color: #ffffff;
+    font-weight: normal;
+    border-right: 1px #ffffff solid;
+}
+table.tbl13 td {
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    border-top: 1px #000000 solid; border-bottom: 1px #000000 solid;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl13 tr:nth-child(6){
+    white-space: nowrap;
+    border-top: 1px solid; border-bottom: none;
+}
+table.tbl13 tr:last-child{
+    white-space: nowrap;
+    border-bottom: 1px solid;
+}
+table.tbl13 tr td:nth-child(1){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    border-top: none; border-bottom: none;
+}
+table.tbl13 tr td:nth-child(3){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+}
+table.tbl13 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+}
+
+/* tbl14 */
+table.tbl14 td {
+    white-space: normal;
+    padding: 4px 8px; border-width: 0 0 2px 2px;
+    text-align: left; vertical-align: top;
+    border-left: none; border-right: 1px #000000 solid;
+}
+table.tbl14 tr:first-child{
+    white-space: nowrap;
+    border-top: 1px solid;
+}
+table.tbl14 tr:last-child{
+    white-space: nowrap;
+    border-bottom: 1px solid;
+}
+table.tbl14 tr:nth-child(odd){
+    border-bottom: none;
+}
+table.tbl14 tr:nth-child(even){
+    border-bottom: 1px solid;
+}
+table.tbl14 tr td:nth-child(1){
+    white-space: nowrap;
+    background-color: #C0C0C0;
+    border-top: none; border-bottom: none;
+    border-right: none;
+}
+table.tbl14 tr td:nth-child(2){
+    white-space: nowrap;
+    background-color: #EEEEEE;
+    border-bottom: 1px solid;
+}
+table.tbl14 tr td:last-child{
+    white-space: wrap;
+    border-right: none;
+    border-bottom: 1px solid;
+}

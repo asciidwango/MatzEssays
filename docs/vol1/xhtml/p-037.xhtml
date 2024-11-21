@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第16章 Rubyで作るCGI</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第16章</p>
+<!-- Body -->
+<section id="chap16" class="level1">
+<a id="page_231"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">16</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+Rubyで作るCGI
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年9月号]</p>
+<div class="newlead">
+<p class="in"><a href="p-034.xhtml#chap15">前章</a>に引き続き、CGIについて解説しています。今回はサンプルとしてFAQ管理システムを作っています。現代のWebアプリケーション開発に比べるとだいぶ原始的な印象がありますね。しかし、私は昔も今もほとんどWebアプリケーション開発の経験はないはずなんですが、意外と（?）ちゃんとしたCGIアプリケーションを開発してますね。</p>
+<p class="ih">「Ruby開発日記」では、フリーソフトウェアな生活について語っています。現代においてはオープンソースソフトウェアは一般的になり、知名度も高まりましたが、それぞれの開発者がどのように生活を成り立たせているかについてはあまり知られているとは言えません。20年前であればなおさらです。ここではそのうちのいくつかについて解説しています。具体的には「副業」「出版」「寄付」「パトロン」をあげています。本質的な部分は年月によっては変わらないようで、現代でも同じような収入モデルです。ただ、オープンソース開発者を支援しようという企業は昔よりははるかに増えています。ちょうどこの原稿を書いている頃に私はRubyの開発がほぼ専業になりましたが、あの頃、オープンソースソフトウェア開発だけで食べている人は（少なくとも国内には）ほとんどいませんでしたが、今ではRubyに限らずいろいろなオープンソース開発者が、それだけで食べれるようになってきています。GitHub SponsorsやPatreonの存在も大きいでしょう。</p>
+</div>
+<div class="lead">
+<p class="ni">前回はCGIプログラミングの基本を学びました。今回は実際に使えるFAQ管理CGIプログラムを作成します。CGIプログラムを作るうえで便利なRubyライブラリも紹介します。</p>
+</div>
+<section id="chap1601" class="level2">
+<h3>Do It Yourself</h3>
+<hr class="hr-gray" />
+<p class="in"><span class="link">www.ruby-lang.org</span>にはRAA（Ruby Application Archive）と呼ばれるページがあります（<span class="link">http://www.ruby-lang.org/en/raa.html</span>）。このページはRubyで書かれたプログラム、ライブラリ、ドキュメントなどなどを登録するページなのですが、現在登録プロジェクトが628エントリあって、今も増加中です。</p>
+<a id="page_232"/>
+<p class="in">このページは、</p>
+<ul>
+<li><p>一覧はない</p></li>
+<li><p>ダウンロード支援はない</p></li>
+<li><p>検証はない</p></li>
+<li><p>検索はない</p></li>
+</ul>
+<p class="ni">と、ないないずくしなのですが、それでも結構愛用されています。それは、メンテがほぼ不要で自動化されているという点にあると思います。</p>
+<p class="in">気軽にプロジェクトを登録できる点や、プロジェクトの個々のオーナーが自分で更新・管理できるので、管理者のチェック待ちなどのタイムラグがなく、情報が常に最新に保てることなどが「使いやすさ」の秘密ではないかと考えています。もちろん、PerlのCPAN（Comprehensive Perl Archivers Network）に比べると「おもちゃ」のようなものなのですが。</p>
+<p class="in">Ruby 1.6 のドキュメント（<span class="link">http://www.ruby-lang.org/ja/man-1.6/</span>）はRWikiで管理されているのですが、これも間違いや不十分な記述があれば、自分で修正できるのがなかなか便利です。</p>
+<p class="in">このように「自分でできる」ということは、主体的な参加を促したり、情報の更新が簡単だったり、管理のコストを下げたりといろいろ便利なことが多いのです。</p>
+<p class="in">そこで、今回（と次回）はCGIを利用して、このような自分でできるツールを開発してみたいと思います。</p>
+</section>
+<section id="chap1602" class="level2">
+<h3>これってFAQ?</h3>
+<hr class="hr-gray" />
+<p class="in">で、どのようなツールを作ろうか、と少し考えてみました。最初は使い勝手が悪いと評判のRAAを改善するかとも思いましたが、RAAなんてのはどこにでも必要なツールじゃありません。RAAのソースを見ても「これ使ってみよう」って人はそんなにいないでしょう。</p>
+<p class="in">そこで思い付いたのがFAQマネージャです。FAQなら、たいていの人がいろんなテーマで必要とすることもあるでしょう。ついでにRubyのFAQもこれで管理しようかなあ。</p>
+<p class="in">このFAQマネージャへの要求として以下のものをリストアップしてみました。</p>
+<ul>
+<li><p>簡単な実装（サンプルですから）</p></li>
+<li><p>利用が簡単</p></li>
+<li><p>インストールも簡単</p></li>
+<li><p>認証は行わない（誰でも書き換え可）</p></li>
+<li><p>同一サイトで複数FAQを管理できる</p></li>
+</ul>
+<p class="in">最終的にはこれだけの条件を満たすものを作るつもりです。</p>
+</section>
+<section id="chap1603" class="level2">
+<a id="page_233"/>
+<h3>基本設計</h3>
+<hr class="hr-gray" />
+<p class="in">このプログラム（AutoFAQ という名前にしました）の機能を<a href="#table1601">表16.1</a>に示します。</p>
+<div class="table" id="table1601">
+<p class="tbl-caption">表16.1●AutoFAQプログラムの機能一覧</p>
+<table class="tbl00">
+<tr>
+<td>FAQのインデックスを表示する</td>
+</tr>
+<tr>
+<td>FAQの各エントリを表示する</td>
+</tr>
+<tr>
+<td>FAQに質問を追加する</td>
+</tr>
+<tr>
+<td>FAQに答えを書く</td>
+</tr>
+<tr>
+<td>FAQを検索する</td>
+</tr>
+</table>
+</div>
+<p class="in">というわけで、使い勝手を決めるためにまず画面設計を行います。HTMLファイルをあれこれいじって、こういう感じはどうだろうかと用意したものが<a href="#fig1601">図16.1</a>です。</p>
+<div class="fig" id="fig1601">
+  <!-- <div class="image70"> -->
+  <div class="image700">
+      <img src="../image/ch16/16-1.jpg" alt="fig1601" />
+  </div>
+  <p class="fig-caption">図16.1●質問の入力画面</p>
+</div>
+<p class="in">最初の画面にはインデックス、検索、最近更新された項目、それから未回答項目の表示くらいがあればよさそうです。質問の入力画面は<a href="#fig1602">図16.2</a>、回答の表示画面は<a href="#fig1603">図16.3</a>です。表示をコンパクトにするために質問も回答も概要と詳細に分けてみました。</p>
+<div class="fig" id="fig1602">
+  <!-- <div class="image70"> -->
+  <div class="image700">
+      <img src="../image/ch16/16-2.jpg" alt="fig1602" />
+  </div>
+  <p class="fig-caption">図16.2●質問の入力画面</p>
+</div>
+<div class="fig" id="fig1603">
+  <!-- <div class="image70"> -->
+  <div class="image700">
+      <img src="../image/ch16/16-3.jpg" alt="fig1603" />
+  </div>
+  <p class="fig-caption">図16.3●回答の表示画面</p>
+</div>
+</section>
+<section id="chap1604" class="level2">
+<a id="page_234"/>
+<h3>下準備</h3>
+<hr class="hr-gray" />
+<p class="in">ここまで設計できれば、今度は実装に取り掛かろうと思います。</p>
+<p class="in">でも、その前に既存のライブラリを使って手抜きできるところがあるはずです。今回のプログラムで使おうと思っているライブラリには以下のものがあります。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>cgi   </code>　CGIインターフェイス</pre></li>
+<li><pre class="tabbing"><code>pstore</code>　オブジェクト指向データベース</pre></li>
+<li><pre class="tabbing"><code>kconv </code>　文字コード変換</pre></li>
+</ul>
+<p class="in">これらのライブラリを使えば、実装の詳細を知らなくても高度な機能を利用できます。これらライブラリについてひととおり説明しておきます。</p>
+</section>
+<section id="chap1605" class="level2">
+<h3>cgiライブラリ</h3>
+<hr class="hr-gray" />
+<p class="in"><code>cgi</code>については先月学びましたが、ここで復習と補足をしておきます。<code>cgi</code>ライブラリは<code>CGI</code>クラスを提供し、このクラスはCGIプロトコルを解釈し、クライアントからのリクエスト情報の取り出しを行ってくれます。</p>
+<div class="plist">
+<pre>cgi = CGI.new
+name, = cgi[<span class="str">&quot;name&quot;</span>]</pre>
+</div>
+<p class="in">また、先月は説明しませんでしたが、<code>CGI</code>クラスはクライアントへの出力と、HTML生成の機能もあります。たとえば、<code>cgi.print</code>メソッドは<code>cgi</code>出力先（通常は標準出力）への出力を行います。また、<code>cgi.header</code>メソッド はCGIの先頭に必要なヘッダー情報を生成してくれます。</p>
+<div class="plist">
+<pre>cgi = CGI.new
+cgi.print cgi.header(<span class="str">&quot;text/html&quot;</span>)</pre>
+</div>
+<p class="in">HTML生成機能はネストしたHTML構造をメソッドを使って表現するものです。たとえば、</p>
+<div class="plist">
+<pre>&lt;<span class="kwd">A</span> <span class="kwd">HREF</span>=<span class="str">&quot;http://www.ruby-lang.org/&quot;</span>&gt;Ruby&lt;/<span class="kwd">A</span>&gt;</pre>
+</div>
+<p class="ni">は、</p>
+<div class="plist">
+<pre>cgi.a(<span class="str">&quot;href&quot;=&gt;&quot;http://www.ruby-lang.org/&quot;</span>){<span class="str">&quot;Ruby&quot;</span>}</pre>
+</div>
+<p class="ni">となります。変換の仕組みは、</p>
+<ul>
+<li><p>属性はハッシュ引数</p></li>
+<li><p>ボディはブロック（で指定する文字列）</p></li>
+</ul>
+<p class="ni">になります。<a href="#list1601">リスト16.1</a>にAutoFAQの一部、テーブルの出力を行う部分を抜粋します。その出力結果は<a href="#fig1604">図16.4</a>のようになります。</p>
+<a id="page_235"/>
+<div class="plistc" id="list1601">
+<p class="lst-caption">リスト16.1●CGIクラスによるHTML出力</p>
+<pre>cgi = CGI.new(<span class="str">&quot;html4Tr&quot;</span>)
+.... 中略 ...
+cgi.print cgi.tr {
+  cgi.td(<span class="str">&quot;height&quot;</span>=&gt;<span class="str">&quot;100%&quot;</span>, <span class="str">&quot;valign&quot;</span>=&gt;<span class="str">&quot;top&quot;</span>){
+    q.a + cgi.div(<span class="str">&quot;align&quot;</span>=&gt;<span class="str">&quot;right&quot;</span>){
+      cgi.font(<span class="str">&quot;size&quot;</span>=&gt;<span class="str">&quot;-1&quot;</span>){<span class="str">&quot;回答更新: #{q.atime}&quot;</span>}+cgi.br+
+        cgi.a(<span class="str">&quot;href&quot;</span>=&gt;<span class="str">&quot;#{FAQ_PROG}?mode=Entry&amp;id=#{q.faq_id}&quot;</span>){<span class="str">&quot;詳細を見る&quot;</span>}
+    }
+  }
+}</pre>
+<hr class="hr-gray" />
+</div>
+<div class="figconsole" id="fig1604">
+<div class="borderconsole">
+<pre>&lt;TR&gt;&lt;TD height=&quot;100%&quot; valign=&quot;top&quot;&gt;これは答えの例です&lt;DIV align=&quot;right&quot;&gt;
+&lt;FONT size=&quot;-1&quot;&gt;回答更新: Wed Jul 10 02:54:48 JST 2002&lt;/FONT&gt;&lt;BR&gt;
+&lt;A href=&quot;autofaq?mode=Entry&amp;amp;id=2&quot;&gt;詳細を見る&lt;/A&gt;&lt;/DIV&gt;
+&lt;/TD&gt;&lt;/TR&gt;</pre>
+</div>
+<p class="fig-caption">図16.4●CGIクラスによるHTML出力結果（折り返してあります）</p>
+</div>
+<p class="in">HTML出力を行うためには、CGIクラスのオブジェクトを作るときに出力するHTMLタイプを<code>new</code>の引数として指定する必要があります。HTMLタイプは、<a href="#table1602">表16.2</a>に示すタイプのいずれかです。</p>
+<div class="table" id="table1602">
+<p class="tbl-caption">表16.2●inputタグのtype</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">引数</span></th>
+<th><span class="k">出力されるHTML</span></th>
+</tr>
+<tr>
+<td><code>html3</code></td>
+<td>HTML 3.2</td>
+</tr>
+<tr>
+<td><code>html4</code></td>
+<td>HTML 4.0（Strict）</td>
+</tr>
+<tr>
+<td><code>html4Tr</code></td>
+<td>HTML 4.0 Transitional</td>
+</tr>
+<tr>
+<td><code>html4Tr</code></td>
+<td>HTML 4.0 Frameset</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>cgi</code>ライブラリには他にもHTMLのエスケープを行うメソッド、クッキーを扱うメソッドなどがあります。</p>
+</section>
+<section id="chap1606" class="level2">
+<h3>pstoreライブラリ</h3>
+<hr class="hr-gray" />
+<p class="in"><code>pstore</code>（persistent store:（オブジェクトの）永続的保存）はRuby流オブジェクト指向データベースです。その特徴は以下のとおりです。</p>
+<ul>
+<li><p><code>marshal</code>を使って任意のRubyオブジェクトをそのまま格納できる</p></li>
+<li><p>使いやすいインターフェイス</p></li>
+<li><p>トランザクションがある</p></li>
+</ul>
+<p class="in"><code>pstore</code>にはデータを一度全部メモリに読み込むので大規模データベースには向かないという欠点もあります。しかし、今回のFAQマネージャのような小規模のデータベースならあまり問題になることはないでしょう。</p>
+<a id="page_236"/>
+<p class="in"><code>pstore</code>のデータ構造は<a href="#fig1605">図16.5</a>のようになっています。</p>
+<div class="fig" id="fig1605">
+  <!-- <div class="image60"> -->
+  <div class="image500">
+      <img src="../image/ch16/16-5.jpg" alt="1605" />
+  </div>
+  <p class="fig-caption">図16.5●pstoreのデータ構造</p>
+</div>
+<p class="in"><code>pstore</code>オブジェクトには<code>root</code>と呼ばれるテーブルがあって、オブジェクトに名前を付けて登録できます。登録されたオブジェクトと、そのオブジェクトから間接的に参照されているオブジェクトがデータベースに格納されます。</p>
+<p class="in"><code>pstore</code>は、ほとんどあらゆるRubyオブジェクトを格納できますが、いくつか扱えないオブジェクトがあります。</p>
+<div class="description">
+<p class="ditem">IO</p>
+<p class="dni">オープンしたIOオブジェクトはデータベースに入れられません。別のプロセスに持ち込めないからです。</p>
+<p class="ditem">拡張モジュールが定義した特殊オブジェクト</p>
+<p class="dni">これもデータベースへの保存方法がわからないので保存できません。</p>
+</div>
+<p class="in"><code>pstore</code>オブジェクトの使い方は次のとおりです。</p>
+<ol class="list_parentheses">
+<li><span class="k">オープンする</span><br />
+まずはデータベースをオープンして、<code>PStore</code>データベースオブジェクトを得ます。<br />
+<div class="plist">
+<pre>db = PStore.new(path)</pre>
+</div>
+<code>path</code>にはデータベースファイルのパスを指定します。</li>
+<li><span class="k">トランザクションを開始する</span><br />
+トランザクション とはデータベース処理の単位です。データベースに対する処理はトランザクション単位で書き込まれますので、トランザクションの途中で、例外が発生するなど処理が失敗したときにはデータベースの状態はトランザクション開始前の状態にとどまります。トランザクションは<code>transaction</code>メソッド にブロックを指定することで開始します。<br />
+<div class="plist">
+<pre>db.transaction {
+  ...
+}</pre>
+</div>
+ブロックを抜けるとトランザクションが終了します。</li>
+<li><span class="k">rootの登録、取得</span><br />
+<code>PStore</code>オブジェクトは一種のハッシュとして扱えます。<code>root</code>へのオブジェクト登録・取得は<code>[]</code>メソッドを使います。<br />
+<div class="plist">
+<pre>db[<span class="str">&quot;foo&quot;</span>] = object  <span class="cmt"># rootの設定</span>
+db[<span class="str">&quot;bar&quot;</span>]           <span class="cmt"># rootの取得</span></pre>
+</div>
+ただ、ハッシュと違って未登録の<code>root</code>の取得はエラーになりますから、データベースにrootが登録されているかどうか定かでない場合には、あらかじめ確認する必要があります。データベースに登録されているすべての<code>root</code>名の一覧を得るのは<br />
+<div class="plist">
+<pre>db.roots         <span class="cmt"># root名一覧</span>
+db.root?(<span class="str">&quot;foo&quot;</span>)  <span class="cmt"># root名fooがあれば真</span></pre>
+</div></li>
+<li><a id="page_237"/><span class="k">トランザクションの終了</span><br />
+<code>transaction</code>メソッドに指定したブロックの実行が終わればトランザクションは自動的に終了し、データベースから参照されている全オブジェクトの現在の状態がファイルに書き込まれます。<br />
+　トランザクションの途中で強制的にトランザクションを終了させるメソッドも用意されています。<code>commit</code>メソッドはトランザクションを正常終了させます。<code>transaction</code>メソッドの実行も終了します。<code>abort</code>メソッドはトランザクションを強制的に中断します。データベースへの変更はファイルに書き込まれず、トランザクション開始前の状態のまま残されます。<code>abort</code>メソッドも<code>transaction</code>メソッドの実行を中断します。<br />
+　CGIでは複数同時に起動された場合に対応するためデータファイルへのロックが必要になるのですが、<code>pstore</code>は内部で自動的にロックして排他処理してくれますので、その点でも心配せずに使えます（ただし、Ruby 1.4添付の<code>pstore</code>はロックを行いません。新しいものを使ってください）。</li>
+</ol>
+<p class="in"><code>pstore</code>の注意として、データベース内のオブジェクトへの参照と更新は必ずトランザクション内で行ってください。途中のオブジェクトを取り出してトランザクション外で状態を変更してもエラーにはなりませんが、その変更はデータベースには反映されません。</p>
+<div class="plist">
+<pre>db_data = <span class="kwd">nil</span>
+db.transaction {
+   db[<span class="str">&quot;foo&quot;</span>] = [1,2,3]
+   db_data = db[<span class="str">&quot;foo&quot;</span>]  <span class="cmt"># 持ち出し</span>
+}
+<span class="cmt"># トランザクション終了</span>
+
+<span class="cmt"># データへのアクセスは可能</span>
+p db_data[0]            <span class="cmt"># =&gt; 1</span>
+
+<span class="cmt"># データの更新も可能だがDBには反映されず</span>
+p db_data[0] = 42</pre>
+</div>
+<p class="in">手前みそながら、<code>pstore</code>はCGIに限らず非常に使い勝手がよいので、ぜひ活用してください。先にも述べたとおり、<code>pstore</code>は大規模なデータベースを扱えない（遅くて重くなる）という欠点がありますので、その場合には今度はPostgreSQLやMySQLなどのRDB（関係データベース）を使うとかする必要があります。</p>
+<p class="in">でも、<code>pstore</code>はあまりにも楽に使えるので、RDBへの移行が面倒になるんですよねえ。</p>
+<p class="in">RDBアクセスなら、Rubyには<code>DBI</code>ライブラリという各種関係データベースを統一的なAPIでアクセスできるライブラリがありますので、これを使うのもよいでしょう。</p>
+</section>
+<section id="chap1607" class="level2">
+<a id="page_238"/>
+<h3>kconvライブラリ</h3>
+<hr class="hr-gray" />
+<p class="in"><code>kconv</code>は文字コード変換用のライブラリです。歴史的な事情から日本語を表現する文字コードは複数あります。主要なものはWindows, Macなどで使われてきたシフトJIS（SJIS）、UNIXで用いられることの多いEUC（Extended UNIX Code）、メールなどで用いられるJIS（ISO-2022-JP）、それから最近いろいろ話題になっているUnicodeの表現形式の1つUTF-8があります。</p>
+<p class="in"><code>kconv</code>はこれらのうち、最初の3つ（SJIS, EUC, JIS）の相互変換を行います。Unicodeは変換のためにテーブルが必要ですし、まだそれほど広くは使われていないので今回は扱わないことにします。</p>
+<p class="in"><code>kconv</code>ライブラリの提供する<code>Kconv</code>モジュールには<a href="#table1603">表16.3</a>のメソッドがあります。また<a href="#table1604">表16.4</a>のメソッドを<code>String</code>クラスに追加します。</p>
+<div class="table" id="table1603">
+<p class="tbl-caption">表16.3●Kconvモジュールのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>guess(str)</code></td>
+<td>文字コードを判定</td>
+</tr>
+<tr>
+<td><code>kconv(str,o[,i])</code></td>
+<td>文字コード変換（<code>o</code>から<code>i</code>へ）</td>
+</tr>
+<tr>
+<td><code>toeuc(str)</code></td>
+<td>EUCに変換</td>
+</tr>
+<tr>
+<td><code>tojis(str)</code></td>
+<td>JISに変換</td>
+</tr>
+<tr>
+<td><code>tosjis(str)</code></td>
+<td>SJISに変換</td>
+</tr>
+</table>
+</div>
+<div class="table" id="table1604">
+<p class="tbl-caption">表16.4●Stringクラスに追加されるメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>kconv(o[,i])</code></td>
+<td>文字コード変換（<code>o</code>から<code>i</code>へ）</td>
+</tr>
+<tr>
+<td><code>toeuc</code></td>
+<td>EUCに変換</td>
+</tr>
+<tr>
+<td><code>tojis</code></td>
+<td>JISに変換</td>
+</tr>
+<tr>
+<td><code>tosjis</code></td>
+<td>SJISに変換</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>kconv</code>メソッドには変換先の文字コードと変更元の文字コードを指定します。文字コードの指定には<code>Kconv</code>モジュールで定義されている定数を使います（<a href="#table1605">表16.5</a>）。</p>
+<div class="table" id="table1605">
+<p class="tbl-caption">表16.5●文字コード指定の定数</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">定数</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>AUTO</code></td>
+<td>自動変換</td>
+</tr>
+<tr>
+<td><code>JIS</code></td>
+<td>JIS（ISO-2022-JP）</td>
+</tr>
+<tr>
+<td><code>EUC</code></td>
+<td>EUC-JP</td>
+</tr>
+<tr>
+<td><code>SJIS</code></td>
+<td>SHIFT_JIS</td>
+</tr>
+<tr>
+<td><code>BINARY</code></td>
+<td>バイナリ（<code>guess</code>メソッドが返す）</td>
+</tr>
+<tr>
+<td><code>NOCONV</code></td>
+<td>無変換（変換先として指定; 何もしない）</td>
+</tr>
+<tr>
+<td><code>UNKNOWN</code></td>
+<td>不明（<code>guess</code>メソッドが返す）</td>
+</tr>
+</table>
+</div>
+<p class="in">たとえばある文字列をJISに変換するためには、</p>
+<div class="plist">
+<pre>Kconv.kconv(str, Kconv::JIS)
+Kconv.tojis(str)</pre>
+</div>
+<p class="ni">のようにします。</p>
+</section>
+<section id="chap1608" class="level2">
+<a id="page_239"/>
+<h3>プログラムの構造</h3>
+<hr class="hr-gray" />
+<p class="in">さて、道具の説明はこれくらいにして、本題のプログラムに戻りましょう。まずAutoFAQの機能構成を図にしておきます（<a href="#fig1606">図16.6</a>）。</p>
+<div class="fig" id="fig1606">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch16/16-6.jpg" alt="1606" />
+  </div>
+  <p class="fig-caption">図16.6●AutoFAQ 機能構成</p>
+</div>
+<p class="in">使い勝手のため、「最新項目の表示」「新質問の登録」「検索結果の表示」にはどのページからもリンクを張っておきます。また、ページの一部に質問のインデックスを用意し、「個々の項目の表示」にもジャンプできるようにしておきます。</p>
+<p class="in">インストールを簡単にしたいという要求があるので、これらを全部1つのプログラムにまとめて、機能を引数で指定することにします。具体的には<code>mode</code>という<code>hidden field</code>を用意して、その値によって切り替えることにしましょう。</p>
+<p class="in">全体の処理を擬似コードにすると<a href="#fig1607">図16.7</a>のようになります。</p>
+<div class="fig" id="fig1607">
+  <!-- <div class="image50"> -->
+  <div class="image500">
+      <img src="../image/ch16/16-7.jpg" alt="1607" />
+  </div>
+  <p class="fig-caption">図16.7●AutoFAQの処理の流れ</p>
+</div>
+</section>
+<section id="chap1609" class="level2">
+<h3>初期化とカスタマイズ</h3>
+<hr class="hr-gray" />
+<p class="in">AutoFAQの初期化とカスタマイズファイルの読み込み部分を<a href="#list1602">リスト16.2</a>に示します。</p>
+<a id="page_240"/>
+<div class="plistc" id="list1602">
+<p class="lst-caption">リスト16.2●初期化とカスタマイズファイル読み込み</p>
+<pre><span class="cmt"># 必要とするライブラリのrequire</span>
+require <span class="str">&#39;cgi&#39;</span>
+require <span class="str">&#39;kconv&#39;</span>
+require <span class="str">&#39;pstore&#39;</span>
+
+<span class="cmt"># FAQプログラムの取り出し</span>
+FAQ_PROG = File.basename($0).untaint
+<span class="cmt"># FAQデータディレクトリ</span>
+FAQ_DIR = <span class="str">&quot;/var/lib/www-data/&quot;</span>
+
+faq_conf = FAQ_DIR+FAQ_PROG+<span class="str">&quot;.conf&quot;</span>
+<span class="kwd">if</span> File.exist?(faq_conf)
+  load faq_conf
+<span class="kwd">end</span>
+
+FAQ_DATA = FAQ_DIR+FAQ_PROG <span class="kwd">unless</span> defined? FAQ_DATA
+FAQ_TITLE = <span class="str">&quot;AutoFAQ&quot;</span>       <span class="kwd">unless</span> defined? FAQ_TITLE
+RECENT_N_ITEMS = 10         <span class="kwd">unless</span> defined? RECENT_N_ITEMS</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">まず先頭で必要とするライブラリを<code>require</code>しています。先に説明したとおり、このプログラムでは<code>cgi</code>, <code>kconv</code>, <code>pstore</code>を用います。</p>
+<p class="in">それからこのプログラム名を取り出します。このためにスクリプトのパス名が格納されている変数 <code>$0</code>からファイル名の部分を取り出します。</p>
+<p class="in">それから設定ファイルを読み込みます。<code>/var/lib/www</code>ディレクトリ以下にある、</p>
+<div class="plist">
+<pre>&lt;プログラム名&gt;.conf</pre>
+</div>
+<p class="ni">というファイルをロードします。たとえばプログラムが<code>autofaq</code>という名前であれば、設定ファイル名は<code>autofaq.conf</code>になります。このファイルは通常のRubyプログラムで、その中でプログラムが参照する定数を定義することで、プログラムの設定を行うことができます。設定に使われる定数を<a href="#table1606">表16.6</a>に示します。</p>
+<div class="table" id="table1606">
+<p class="tbl-caption">表16.6●AutoFAQ設定用定数</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">定数</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>FAQ_DATA</code></td>
+<td><code>pstore</code>データベースのファイル名</td>
+</tr>
+<tr>
+<td><code>FAQ_TITLE</code></td>
+<td>FAQのタイトル</td>
+</tr>
+<tr>
+<td><code>RECENT_N_ITEMS</code></td>
+<td>最新項目を最大いくつ表示するか</td>
+</tr>
+</table>
+</div>
+<p class="in">そして最後に設定ファイルの内部で定数が定義されなかった場合のためにデフォルト値を定義します。<code>defined?</code>はその定数が定義されていたときに真を返します。</p>
+</section>
+<section id="chap1610" class="level2">
+<a id="page_241"/>
+<h3>メイン処理部</h3>
+<hr class="hr-gray" />
+<p class="in">AutoFAQのメインの処理部を<a href="#list1603">リスト16.3</a>に示します。やっていることはCGIオブジェクトの生成と<code>pstore</code>のトランザクション開始、それから<code>mode</code>パラメータに従ってそれぞれの処理を呼び出しているだけです。<code>Commit</code>処理だけはデータベースの書き込みがあるので、最初に専用のトランザクションを開始して書き込みを行っています。</p>
+<div class="plistc" id="list1603">
+<p class="lst-caption">リスト16.3●AutoFAQメイン処理部</p>
+<pre><span class="kwd">def</span> faq_main
+  cgi = CGI.new(<span class="str">&quot;html4Tr&quot;</span>)
+  mode, = cgi[<span class="str">&quot;mode&quot;</span>]
+  <span class="kwd">unless</span> mode
+    mode = <span class="str">&quot;Recent&quot;</span>
+  <span class="kwd">else</span>
+    mode = mode.capitalize
+  <span class="kwd">end</span>
+  page_header(cgi)
+  db = PStore::new(FAQ_DATA)
+  db.transaction <span class="kwd">do</span>
+    <span class="kwd">if</span> mode == <span class="str">&quot;Commit&quot;</span>
+      do_commit(cgi, db)
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+  db.transaction <span class="kwd">do</span>
+    show_index(cgi, mode, db)
+    <span class="kwd">case</span> mode
+    <span class="kwd">when</span> <span class="str">&quot;Recent&quot;</span>
+      show_recent(cgi, db)
+    <span class="kwd">when</span> <span class="str">&quot;Entry&quot;</span>
+      show_entry(cgi, db)
+    <span class="kwd">when</span> <span class="str">&quot;Commit&quot;</span>
+      show_commit(cgi, db)
+    <span class="kwd">when</span> <span class="str">&quot;Submit&quot;</span>
+      show_submit(cgi, db)
+    <span class="kwd">when</span> <span class="str">&quot;Update&quot;</span>
+      show_update(cgi, db)
+    <span class="kwd">when</span> <span class="str">&quot;Search&quot;</span>
+      show_search(cgi, db)
+    <span class="kwd">else</span>
+      show_recent(cgi, db)
+    <span class="kwd">end</span>
+    show_unanswered(cgi, db)
+  <span class="kwd">end</span>
+  page_footer(cgi)
+<span class="kwd">end</span>
+
+<span class="kwd">if</span> <span class="kwd">__FILE__</span> == $0
+  faq_main
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_242"/>
+<p class="in">プログラム最後の</p>
+<div class="plist">
+<pre><span class="kwd">if</span> <span class="kwd">__FILE__</span> == $0
+  faq_main
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">は、プログラムとして起動したときだけ<code>faq_main</code>を実行するためにイディオムです。このイディオムを使うとスクリプトファイルをプログラムとしてもライブラリとしても使えるようになります。</p>
+</section>
+<section id="chap1611" class="level2">
+<h3>データベースの構造</h3>
+<hr class="hr-gray" />
+<p class="in">では、FAQのデータを格納するデータベースを設計しましょう。データベースに必要だと思われる項目を<a href="#table1607">表16.7</a>に示します。</p>
+<div class="table" id="table1607">
+<p class="tbl-caption">表16.7●データベースレコード</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">項目</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>@faq_id</code></td>
+<td>項目のユニークID</td>
+</tr>
+<tr>
+<td><code>@q</code></td>
+<td>質問の概要</td>
+</tr>
+<tr>
+<td><code>@q2</code></td>
+<td>質問の詳細</td>
+</tr>
+<tr>
+<td><code>@a</code></td>
+<td>回答の概要</td>
+</tr>
+<tr>
+<td><code>@a2</code></td>
+<td>回答の詳細</td>
+</tr>
+<tr>
+<td><code>@qtime</code></td>
+<td>質問時間</td>
+</tr>
+<tr>
+<td><code>@atime</code></td>
+<td>最終回答時間</td>
+</tr>
+</table>
+</div>
+<p class="in">これを配列にまとめてもよいのですが、将来データ構造の変更などに対処しやすくするためにクラスとして定義します。クラス名は<code>FAQ::Entry</code>とします。</p>
+</section>
+<section id="chap1612" class="level2">
+<a id="page_243"/>
+<h3>各機能の実装</h3>
+<hr class="hr-gray" />
+<p class="in">ここまでくれば後は各機能の実装です。機能を実現するメソッドを<a href="#table1608">表16.8</a>に示します。</p>
+<div class="table" id="table1608">
+<p class="tbl-caption">表16.8●機能実装メソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>page_header</code></td>
+<td>ヘッダーの表示</td>
+</tr>
+<tr>
+<td><code>do_commit</code></td>
+<td>データベースへの書き込み</td>
+</tr>
+<tr>
+<td><code>show_index</code></td>
+<td>インデックス表示（画面左側）</td>
+</tr>
+<tr>
+<td><code>show_recent</code></td>
+<td>最新の項目表示</td>
+</tr>
+<tr>
+<td><code>show_entry</code></td>
+<td>個別項目の詳細表示</td>
+</tr>
+<tr>
+<td><code>show_commit</code></td>
+<td>コミット結果表示</td>
+</tr>
+<tr>
+<td><code>show_submit</code></td>
+<td>質問入力フォーム表示</td>
+</tr>
+<tr>
+<td><code>show_update</code></td>
+<td>回答入力フォーム表示</td>
+</tr>
+<tr>
+<td><code>show_search</code></td>
+<td>検索結果の表示</td>
+</tr>
+<tr>
+<td><code>show_unanswered</code></td>
+<td>未回答項目の一覧（画面右側）</td>
+</tr>
+<tr>
+<td><code>page_footer</code></td>
+<td>フッターの表示</td>
+</tr>
+</table>
+</div>
+<p class="in">完成したプログラム<code>autofaq.rb</code>をCD-ROMに収録していただきました。各機能の実装についてはこちらを参照してください。私のプログラムらしくコメントもほとんどありませんが、割と素直に書いてあるので（短いし）読めないことはないでしょう。</p>
+</section>
+<section id="chap1613" class="level2">
+<h3>インストール</h3>
+<hr class="hr-gray" />
+<p class="in">AutoFAQのインストールと設定は以下のとおりです。root権限で行ってください。</p>
+<ol class="list_parentheses">
+<li><span class="k"><code>autofaq.rb</code>をCD-ROMからCGIの実行できる場所にコピーする</span><br />
+RedHat系ですと <code>/var/www/cgi-bin</code>とかになるでしょう。HTTPサーバーの設定ファイル（<code>httpd.conf</code>など）を参照してください。ファイル名はCGIコマンドとして使いたい名前がよいでしょう（ここでは<code>faq</code>とします）。お使いのマシンでRubyインタプリタのパスが <code>/usr/bin/ruby</code>でない場合には先頭の行を書き換えてください。
+<div class="borderconsole">
+<pre>% cp autofaq.rb /var/www/cgi-bin/faq</pre>
+</div>
+複数FAQを管理したい場合にはこの手順を複数回行います。</li>
+<li><span class="k">データを置くディレクトリを用意する</span><br />
+標準では <code>/var/lib/www-data</code>です。このディレクトリはCGIプログラムの実行権（ユーザー<code>apache</code>（RedHat系）とか<code>www-data</code>（Debian）とか）で書き込みができるようにしておいてください。
+<div class="borderconsole">
+<pre>% mkdir /var/lib/www-data
+% chown apache.apache /var/lib/www-data</pre>
+</div></li>
+<li><a id="page_244"/><span class="k">（必要ならば）設定ファイルを用意する</span><br />
+なければデフォルト値が使われます。
+<div class="borderconsole">
+<pre>% vi /var/lib/www-data/faq.conf</pre>
+</div></li>
+</ol>
+<p class="in">私はこのプログラムの著作権を行使しません。いかようにもお好きにお使いください。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-036.xhtml">&lt;&lt; 前ページ</a>　<a href="p-038.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

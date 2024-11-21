@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第8章 オブジェクトと変数</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-013.xhtml">第8章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap0810" class="level2">
+<a id="page_108"/>
+<h3>◆ Ruby開発日記 ◆ RubyConf.new (2001)</h3>
+<hr class="hr-green" />
+<p class="in">同時多発テロ以来キナくさいアメリカへ行くのはホンキかと、周囲の心配もよそに、行ってきました、フロリダへ。今回、フロリダ州タンパでRuby ConferenceとOOPSLAが開かれたのに参加してきたのです。</p>
+<p class="in">いやあ、<ruby>炭疸<rt>たんそ</rt></ruby>菌の騒ぎやアフガニスタン空爆まで始まって一時はどうなることかと思いましたが、厳重な警備体制を乗り越えて無事に行って帰ってきました。空港では毎回何度も何度もパスポートをチェックされたり、自動小銃を抱えた軍人さん（州兵でしょうね）を何人も見かけたりしました。</p>
+<p class="in">で、結局タンパに着いたのはカンファレンス当日の早朝（というか前日深夜というか）で、時差のせいかカンファレンスには遅刻しちゃいました。朝ご飯も食べ損ねたし。</p>
+<p class="in">さて、それはともかく記念すべき第1回Ruby Conferenceのプログラムは<a href="#table0802">表8.2</a>です。</p>
+<div class="table" id="table0802">
+<p class="tbl-caption">表8.2●Ruby Conferenceプログラム</p>
+<table class="tbl04">
+<tr>
+<th colspan="2">Friday October 12</th>
+</tr>
+<tr>
+<td style="text-align: center;">08:30</td>
+<td>Continental breakfast</td>
+</tr>
+<tr>
+<td style="text-align: center;">09:15</td>
+<td>Dave Thomas: Welcome address</td>
+</tr>
+<tr>
+<td style="text-align: center;">09:30</td>
+<td>Andy Hunt: Ruby Insurgency<br />Pete McBreen: Using Ruby to Teach OO programming</td>
+</tr>
+<tr>
+<td style="text-align: center;">12:00</td>
+<td>Lunch</td>
+</tr>
+<tr>
+<td style="text-align: center;">13:00</td>
+<td>Emil Ong: Parallel programming with MPI Ruby<br />Avi Bryant: Web Development with IOWA<br />Lyle Johnson: Developing GUIs with Fox and Ruby<br />Ken Rubotzky: Scouting Japanese Resources</td>
+</tr>
+<tr>
+<td style="text-align: center;">18:00</td>
+<td>Dinner, followed by<br />Matz: Keynote</td>
+</tr>
+<tr>
+<th colspan="2">Saturday October 13</th>
+</tr>
+<tr>
+<td style="text-align: center;">08:30</td>
+<td>Continental breakfast</td>
+</tr>
+<tr>
+<td style="text-align: center;">09:00</td>
+<td>Nathaniel Talbott: esreveR nI gnitseT<br />Ron Jeffries and Chet Hendrickson:<br />Pairing Fishbowl, or how Ruby works with XP</td>
+</tr>
+<tr>
+<td style="text-align: center;">12:00</td>
+<td>Lunch</td>
+</tr>
+<tr>
+<td style="text-align: center;">13:00</td>
+<td>David Alan Black: Ruby Behaviors<br />Ryan Leavengood: Ruby Gems</td>
+</tr>
+<tr>
+<td style="text-align: center;">14:30</td>
+<td>General brainstorming session:</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td>Let’s design RAA.succ</td>
+</tr>
+</table>
+</div>
+<p class="in">Ruby Conferenceには7カ国から参加があったそうです。私は6カ国（アメリカ、カナダ、日本、スウェーデン、ドイツ、ベネズエラ）までしか数えられなかったのですが、Dave Thomasは7カ国だと強く主張していました。もしかしたら、彼（イギリス出身、テキサス在住）は自分をイギリス人であると数えたのかもしれません。参加人数は70人くらいだったかなあ。</p>
+<p class="in">発表資料は<span class="link">www.rubyconf.org</span>から入手できますから、見ていただきたいのですが、皆なかなか真面目かつ真剣で、8年前気楽な気持ちで開発を始めたRubyがこんなことになるとは予想もできませんでしたし、なんだか不思議な気持ちでした。</p>
+<p class="in">印象的だったのは、日本以上にXP、それもTest First Programmingが注目されている点でした。13日にはXPに関するセッションも用意されていましたし、XP界からRon JefferiesとChet Hendricksonが参加してRuby開発環境を作るというテーマでペアプログラミングを実演してくれました。なんだか掛け合い漫才のように見えたというのは彼らには秘密にしておいてくださいね。あ、当然ながら開発環境はほんのサワリしか実現しませんでした、念のため。</p>
+<p class="in">私はもともとテストとかあんまり好きなほうじゃないんですが、これを機会にTest First Programmingに宗旨替えしようかなあなんて思いました。まだ、思っただけで実践してないんですが。</p>
+<p class="in">他にもホットな話題や議論はたくさんあったのですが、とても書ききれません。「次世代RAAを作ろう」というRAA.succのブレインストームなどやけどしそうな熱さでした。総括した印象としては、今回のカンファレンスはこじんまりとはしていますが、参加者は非常に熱意があり、参加していて気分のいいカンファレンスでした。参加者はみな一同に来年もやろうと話していました。</p>
+<a id="page_109"/>
+<p class="in">参加者には<a href="#fig0804">図8.4</a>のようなTシャツが配られました。日本では3人しかもってないレアものです。いいでしょう?</p>
+<div class="fig" id="fig0804">
+  <!-- <div class="image40"> -->
+  <div class="image400">
+      <img src="../image/ch08/08-4.jpg" alt="fig0804" />
+  </div>
+  <p class="fig-caption">図8.4●RubyConf Tシャツ（モデルはmatz）</p>
+</div>
+<p class="in">Ruby Conferenceの翌週には同じ町でOOPSLAが開かれました。OOPSLAとは「Object-oriented Programming, System, Language, and Applications」の略でACM（計算機械学会）の主催するオブジェクト指向に関する世界最大のカンファレンスです。OOPSLAが始まった80年代の後半は私も学生だったので論文集とかを一生懸命読んだ記憶がありますが、実際に参加するのは初めてです。</p>
+<p class="in">OOPSLAでは、9月にデンマークのJAOOで会ったWard Cunningham, Martin Fowlerに再会しましたし、他にもSmalltalkの実装で有名で、Ghostscriptの開発者でもあるPeter Deutcheなどにも会いました。尊敬する人たちに会ってかなり緊張しました。</p>
+<p class="in">しかし、しばらくOOPSLAについてはチェックしていなかったのですが、まるでJavaのカンファレンスのようにJavaばかりが話題になっていました。教育についても、開発手法についても、また処理系の実装についてもJava一色という感じでした。ちょっとだけSmalltalkの話をする人たちがいて、さらにわずかな人たちがRubyの話をしてました。</p>
+<a id="page_110"/>
+<p class="in">アメリカから帰国後、私は高熱を出して寝込んでしまい、ヤバい病気ではないか、やっぱり行かせるべきではなかったと周囲を当惑させましたが、大事には至らず今は元気です。ご心配なく。</p>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-014.xhtml">&lt;&lt; 前ページ</a>　<a href="p-016.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第46章 最終回・ネタのタネ</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　<a href="p-032.xhtml">第46章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap4611" class="level2">
+<a id="page_189"/>
+<h3>◆ Ruby開発日記 ◆ 型についての一考察</h3>
+<hr class="hr-green" />
+<p class="in">プログラミング言語の重要な要素として「データの型」があげられます。文字列データは<code>String</code>型とか、整数データは<code>int</code>型とかいうときのアレのことです。CやJavaのような言語は変数や式の型がプログラム中に明示されます。このような型を「静的な型」と呼びます。「静的」というのは「プログラムを見ただけで実行しなくてもわかる」という意味です。ところがプログラミング言語によっては変数や式の型をプログラムの中では指定しないので、実行してみるまでは型がわからないものもあります。Rubyはその典型的な例ですね。このような型を「動的な型」と呼びます。「動的」は読んで字のごとく「静的」の反対で、「実行して初めて決まる」という意味です。</p>
+<p class="in">静的な型はプログラムの字面を解析しただけで型の整合性が漏れなくチェックできるので、バグを早く見つけることができるというメリットがあります。</p>
+<p class="in">一方、動的な型には、変数や式の型を明示的に指定しなくて済むのでプログラムが簡潔になる、また、状況に応じていろいろな型のデータを統一的に扱うなど柔軟性が高いというメリットがあります。特に一連のメソッドを持っていれば、そのオブジェクトの型がなんであっても動作するのは大きな利点で、Duck Typingと呼ばれています。たとえば、ファイル入出力を行う<code>IO</code>の代わりに文字列に対して読み書きを行う<code>StringIO</code>を用いるようなことが簡単にできます。</p>
+<div class="plist">
+<pre>log = Logger.new(STDERR)
+....
+
+s = StringIO.new
+log = Logger.new(s)
+....
+puts s.string   <span class="cmt"># 文字列を取り出す</span></pre>
+</div>
+<p class="in">Javaなどであれば、<code>IO</code>と<code>StringIO</code>の双方が共通に<code>implement</code>する<code>interface</code>が必要になるところです。Duck Typingの由来は英語のことわざである「アヒルのように鳴き、アヒルのように歩くものはアヒルに違いない」から来ているようです。</p>
+<p class="in">Javaなどの静的型を持つ言語の経験が多い人にとっては、Rubyなどのような「実行してみないとわからない」型は不安に感じるもののようです。メーリングリストなどでも、「Rubyにも静的な型を」というリクエストがたびたび登場します。これはRubyに対してだけではなく、Pythonなどでも同様のようです。もちろん全面的に静的な型を採用してしまえば、もう違う言語になってしまうのですが、オプショナルであればかまわないだろうという主張のようです。</p>
+<p class="in">そのような要望を受けて、Pythonの開発者として名高いGuido van Rossumが、Pythonに将来（省略可能な）静的型システムの導入について自らのブログに書き込みました。</p>
+<ul class="none">
+<li><p><span class="k">Adding Optional Static Typing to Python</span><br />
+<span class="link">http://www.artima.com/weblogs/viewpost.jsp?thread=85551</span></p></li>
+<li><a id="page_190"/><p><span class="k">Adding Optional Static Typing to Python – Part II</span><br />
+<span class="link">http://www.artima.com/weblogs/viewpost.jsp?thread=86641</span></p></li>
+<li><p><span class="k">Optional Static Typing – Stop the Flames!</span><br />
+<span class="link">http://www.artima.com/weblogs/viewpost.jsp?thread=87182</span></p></li>
+</ul>
+<p class="in">これを読んでみると、最初の2つは、Javaでも導入されたばかりのGeneric Typeや、型のオーバーロード、<code>interface</code>の導入など、静的型言語の型システムとしても十分に通用する本格的なものをアイデアとして紹介しています。しかも、型の同一性の判定に、デフォルトではDuck Typing（必要とされるメソッドを持つかどうかで判定）を採用するなど、動的型の言語として長い歴史を持つPythonの伝統にも配慮したすばらしいものです。</p>
+<p class="in">しかし、これを読んでいろいろと考えたあとで、私が思ったことは「Rubyではこのような静的型システムの導入はやめよう」ということでした。主な理由は以下のようなものです。</p>
+<ul>
+<li><p>これだけ完備した型システムを用意しても、オプショナルでは効果は半減以下である。言語が複雑になる割には得られるものが少ない</p></li>
+<li><p>効率のよい実装が思い付かない。私の知識や能力の限界かもしれない</p></li>
+</ul>
+<p class="in">Guidoも同じように思ったのかどうかはわかりませんが、数日後に3番目の記事がポストされました。こちらでは新文法の導入は、</p>
+<ul>
+<li><p><code>def</code>文でのメソッド引数と戻り値の型の指定</p></li>
+<li><p><code>interface</code>文の導入</p></li>
+</ul>
+<p class="ni">に限定し、また、型のチェックは実行時に行うことにしたようです。いきなり現実的ですね。これならば実装もずいぶん簡単になりますし、それなりの効果もありそうです。もっともコンパイル時のチェックを希望する人々にとっては大きな後退かもしれませんね。</p>
+<p class="in">Rubyについては現時点では、将来的にも静的な型を導入するつもりはありません。型によるチェックは便利な点もありますが、すべてのバグを見つけてくれるわけではありませんし、むしろ網羅的なユニットテストを推奨するほうがバグの検出率も高く、実用的だと考えるからです。Lispなどの動的型言語の長い歴史も静的な型なしでもうまくやれるということを示しているように思います。とはいうものの、今後面白いアイデアが見つかれば、喜んで検討を行うつもりです。</p>
+<p class="in">型に関する話題はまだまだホットです。特にプログラムには型を記述せずに、その使われ方から変数や式の型を決定する型推論という手法にはさまざまな可能性が秘められているようです。Pythonに対しては、よく似た文法を採用し、静的な型と型推論を導入したBoo（<span class="link">http://boo.codehaus.org/Home</span>）という言語が開発中です。</p>
+<p class="in">Rubyに対しては、Rubyプログラムを解析して型推論を行い、可能な限り静的な型チェックを試みるTyping Ruby（<span class="link">http://truby.sourceforge.jp/index.j.html</span>）が登場しています。</p>
+<p class="in">Typing Rubyはまだまだ開発が始まったばかりですが、非常に興味深い可能性を示していると思います。</p>
+<p class="in">プログラミング言語と型、切っても切れないこの関係には今後も注目していこうと思っています。</p>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-032.xhtml">&lt;&lt; 前ページ</a>　<a href="p-034.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

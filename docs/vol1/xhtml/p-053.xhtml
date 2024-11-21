@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第24章 データの保存</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第24章</p>
+<!-- Body -->
+<section id="chap24" class="level1">
+<a id="page_333"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">24</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+データの保存
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年5月号]</p>
+<div class="newlead">
+<p class="in">データの保存というタイトルで、<code>Marshal</code>と<code>PStore</code>を取り上げています。通常であればSQLiteとか何らかのRDBMSを取り上げるべきなのかもしれませんが、私はRDBMSがあまり得意でないので、こういうアプローチになっています。ただ、<code>PStore</code>はあくまでもオモチャなので、データ容量的にもアクセス速度的にも、本気のアプリケーションでは使い物になりませんね。</p>
+<p class="ih">「Ruby開発日記」は、「プログラマーと数学」というテーマです。結局は自分が学生時代に数学が得意でなかったという告白になっているような気がします。学生時代は本当に数学で苦労しました。</p>
+</div>
+<div class="lead">
+<p class="ni">プログラムが作成したデータをファイルに保存しておきたいことはたびたびあります。今回はRubyでデータ保存を行う方法をいくつか紹介します。</p>
+</div>
+<section id="chap2401" class="level2">
+<h3>オブジェクトの保存</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyのオブジェクトは現実世界にある「もの」と違ってコンピュータのメモリの中に作られます。ですから、プログラムの実行が終わってしまえば、メモリは初期化されてしまい、オブジェクトは煙のように消えてしまいます。しかし、すべてのデータがプログラムの終了とともに消えてしまっては困るので、必要なデータはファイルに保存し、次回読み込んでくる必要があります。では、問題です。</p>
+<p class="in">第1問。ここに <code>"hello world\n"</code> という文字列データがあったとして、このデータをカレントディレクトリの<code>data</code>というファイルに保存し、再び読み込むためにはどうしたらよいでしょうか。</p>
+<p class="in">ファイルは文字列の読み込み、書き込みに対応しているので、これは簡単です。解答は以下のようになるでしょう。</p>
+<div class="plist">
+<pre>data = <span class="str">&quot;hello world\n&quot;</span>
+open(<span class="str">&quot;./data&quot;</span>, <span class="str">&quot;w&quot;</span>) {|f|
+  f.write data
+}
+open(<span class="str">&quot;./data&quot;</span>, <span class="str">&quot;r&quot;</span>) {|f|
+  data = f.gets
+}</pre>
+</div>
+<a id="page_334"/>
+<p class="in">それでは、第2問。書き込み・読み込みを行うデータが単なる文字列でなく、配列やオブジェクトだったら?　しかも、オブジェクトが参照している先の先まで入出力する必要があったら?</p>
+<p class="in">これは少々面倒です。文字列のような参照を含まないデータであれば、比較的簡単ですが、Rubyのオブジェクトには参照で複数のオブジェクトが連結していたり、場合によっては1つのオブジェクトを複数の場所から参照していることもあります（<a href="#fig2401">図24.1</a>）。</p>
+<div class="fig" id="fig2401">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch24/24-1.jpg" alt="fig2401" />
+  </div>
+  <p class="fig-caption">図24.1●Ruby のオブジェクト</p>
+</div>
+<p class="in">単純にオブジェクトの参照をたどって書き出すだけでは、複数回参照されているオブジェクトの情報が何度も書き出されてしまいますし、参照が循環していた場合には最悪無限ループに陥ります。これはまずいでしょう。</p>
+<p class="in">このような関係にあるかもしれないオブジェクトの情報を一度ファイルに書き出し、そしてもう一度読み込むにはどうしたらよいのでしょうか。</p>
+<p class="in">今月はこのようなオブジェクトデータの保存と読み込みについて学びます。</p>
+</section>
+<section id="chap2402" class="level2">
+<h3>Marshal</h3>
+<hr class="hr-gray" />
+<p class="in">ファイルには文字列（厳密にはバイト列）なら格納できるわけですから、オブジェクトを文字列に変換できれば問題は解決です。このようにオブジェクトをバイト列に変換することをシリアライズとかマーシャル（またはマーシャリング）とか呼びます。</p>
+<p class="in">辞書を調べるとシリアライズ（serialize）は「直列化」とか「順番に並べる」とかいう意味で、オブジェクトをバイトの並びに置き換えることを表現しています。一方、マーシャル（marshal）には「兵隊などを整列させる」という意味がありますので、こちらも同じような意味です。Javaではシリアライズという単語をよく使うようですが、Rubyではマーシャルと呼ぶことのほうが多いようです。いずれの単語で呼ぶにせよ、Rubyにはそのような機能が標準で組み込まれています。それが<code>Marshal</code>です。</p>
+<p class="in"><code>Marshal</code>モジュールには、ほぼ任意のRubyオブジェクトをバイト列に変換するメソッド<code>dump</code>と、逆に変換されたバイト列から元のオブジェクト（のコピー）を復元するメソッド<code>load</code>が提供されます（<a href="#table2401">表24.1</a>）。</p>
+<a id="page_335"/>
+<div class="table" id="table2401">
+<p class="tbl-caption">表24.1●Marshalモジュールのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>dump(object[,io][,limit])</code></td>
+<td><code>object</code>とそこから参照されるオブジェクトをバイト列に変換します。第2引数として<code>IO</code>オブジェクトが指定されたときにはその<code>IO</code>に対して変換結果を書き出します。そうでないときには変換されたバイト列を返します。整数<code>limit</code>が指定されたときには、<code>limit</code>段以上深くリンクしたオブジェクトを変換しようとすると例外が発生します</td>
+</tr>
+<tr>
+<td><code>load(from[, proc])</code></td>
+<td><code>dump</code>によって変換されたバイト列（文字列）、または変換されたバイト列を保存した<code>IO</code>オブジェクトを引数にとり、元のオブジェクトと同じ状態を持つオブジェクトを返します。第2引数として手続きオブジェクト<code>proc</code>が指定されたときには復元されたそれぞれのオブジェクトに対して<code>proc</code>が呼び出されます</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>Marshal</code>を使えば、複雑な構造を持つデータも簡単にファイルに書き出すことができます。もちろん、<a href="#fig2401">図24.1</a>に示した同じオブジェクトが複数回参照されるケースにも、参照が循環するケースにもちゃんと対応しています。</p>
+<p class="in"><code>Marshal</code>は基本的なオブジェクトの構造を知っていますから、普通のオブジェクトからバイト列への変換は<code>Marshal</code>モジュールの<code>dump</code>メソッドが自動的に行ってくれます。使い方は簡単です。</p>
+<div class="plist">
+<pre>data = Marshal.dump(obj)</pre>
+</div>
+<p class="in">これで<code>obj</code>とそこから参照されるすべてのオブジェクトをバイト列に変換したものが<code>data</code>に代入されます。ファイルに直接出力する場合には、</p>
+<div class="plist">
+<pre>f = open(<span class="str">&quot;/tmp/data&quot;, &quot;w&quot;</span>)
+Marshal.dump(obj, f)</pre>
+</div>
+<p class="ni">とします。<code>dump</code>したデータを読み戻すためには、</p>
+<div class="plist">
+<pre>obj2 = Marshal.load(data)</pre>
+</div>
+<p class="ni">とします。<code>obj2</code>には元のオブジェクトのコピーが代入されます。ファイルから読み出す場合はどうすればよいかもうわかりますよね。</p>
+<div class="plist">
+<pre>f = open(<span class="str">&quot;/tmp/data&quot;, &quot;r&quot;</span>)
+obj2 = Marshal.load(f)</pre>
+</div>
+<p class="in">このように<code>Marshal</code>を使えばオブジェクトをバイト列に簡単に変換できます。この機能を使えばオブジェクトデータを簡単にファイルにセーブすることができます。</p>
+<p class="in"><code>Marshal</code>を使えば、オブジェクトのディープコピーも行えます。普通に<code>clone</code>メソッドなどでオブジェクトのコピーを行っても、そのオブジェクトだけがコピーされ、参照先はコピーされません。こういうコピーをシャローコピー（shallow copy – 浅いコピー）と呼びます。しかし、ときとして参照先も含めて再帰的にコピーしたい場合があります。このようなコピーはディープコピー（deep copy – 深いコピー）と呼ばれます。<code>Marshal</code>を使えばディープコピーは以下のように実現できます。</p>
+<div class="plist">
+<pre>obj2 = Marshal.load(Marshal.dump(obj))</pre>
+</div>
+<p class="in">こんなに便利な<code>Marshal</code>ですが、以下のような欠点もあります。</p>
+<a id="page_336"/>
+<ul class="none">
+<li><p>(a) 変換結果がバイナリで人間に理解しにくい</p></li>
+<li><p>(b) 変換フォーマットのバージョンがそろっている必要がある</p></li>
+<li><p>(c) あらゆるオブジェクトがダンプできるわけではない</p></li>
+<li><p>(d) スレッドやマルチプロセスに対応していない</p></li>
+<li><p>(e) 単なるdeep copyの手段としては効率が悪い</p></li>
+</ul>
+<p class="in">また、<code>Marshal</code>は、</p>
+<ul>
+<li><p>特異メソッドを定義したオブジェクト</p></li>
+<li><p><code>IO</code>やソケットなど基本的にプロセスを超えて保存できないオブジェクト</p></li>
+<li><p>拡張ライブラリが定義したようなRubyが保存方法を知らないオブジェクト</p></li>
+</ul>
+<p class="ni">は保存できません。</p>
+<p class="in">これらのオブジェクトは<code>Marshal</code>が適切な保存方法を知らないから保存できないわけです。適切な保存方法を知らないというのは、</p>
+<ul>
+<li><p>適切な保存方法が（一般的には）存在しない</p></li>
+<li><p>そのオブジェクトに対する情報がない</p></li>
+</ul>
+<p class="ni">のいずれかです。いずれにせよ、一般的には保存できなくてもある特定のプログラムにおいて適切な方法があれば、それを<code>Marshal</code>に教えることができればよいわけです。このような<code>Marshal</code>をカスタマイズしたいというニーズを満たすために、ユーザーがクラスごとに独自の変換が行うための<code>_dump</code>, <code>_load</code>メソッドを定義することができます。</p>
+<p class="in"><code>Marshal.dump</code>はダンプしようとするオブジェクトに <code>_dump</code>メソッドが定義されているときには、そのメソッドを呼び出した結果（文字列である必要があります）を変換結果とします。<code>_dump</code>の引数としては現在の<code>limit</code>が渡されます。<code>Marshal.load</code>は復元しようとするクラスに <code>_load</code>メソッドが定義されていれば、そのメソッドを呼び出します。<code>_load</code>の引数には<code>_dump</code>が返した文字列がそのまま渡されます。<code>_dump</code>はインスタンスメソッドですが、<code>_load</code>はクラスメソッドであることに注意してください。<code>_dump</code>と <code>_load</code>の使い方の例を<a href="#list2401">リスト24.1</a>に示します。</p>
+<div class="plistc" id="list2401">
+<p class="lst-caption">リスト24.1●_dump, _loadの使い方</p>
+<pre><span class="cmt"># _dump, _loadの例</span>
+<span class="kwd">class</span> Foo
+  <span class="kwd">def</span> initialize(str=nil)
+    @foo = str
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> _dump
+    String(@foo || <span class="str">&quot;&quot;</span>)  <span class="cmt"># @fooの値をdump</span>
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> Foo._load(str)
+    <span class="kwd">self</span>.new(str)       <span class="cmt"># 保存された値で初期化</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_337"/>
+<p class="in">一度、<code>_dump</code>を定義したら<code>Marshal</code>は何も助けてくれません。<code>Marshal</code>が自動的にやってくれていたインスタンス変数の書き出しなども、必要であれば自分でやる必要があります。したがって、<code>_dump</code>の利用は慎重に行うべきでしょう。先に述べたような<code>Marshal</code>が対応できないオブジェクトをどうしてもダンプしたい場合にだけ用いるべきです。</p>
+<p class="in"><code>Marshal</code>の応用例としては、分散Rubyを実現するdRubyがあります。dRubyはオブジェクトを<code>Marshal</code>によって変換してネットワークを超えた分散プログラミングを可能にしています。dRubyについては詳しくは『dRubyによる分散オブジェクトプログラミング』（関将俊著、アスキー、ISBN4-7561-3961-2）を参照してください。</p>
+</section>
+<section id="chap2403" class="level2">
+<h3>AMarshal</h3>
+<hr class="hr-gray" />
+<p class="in"><code>Marshal</code>は変換結果はバイナリ列でひと目では内容がわかりません。効率は少々低くてももっと見やすい形で出力したいというニーズもあるかもしれません。</p>
+<p class="in">そのようなニーズに応えるのが田中哲（akr）さん作の<code>AMarshal</code>です。<code>AMarshal</code>は標準添付ではないので、まずインストールする必要があります。URLは、</p>
+<ul class="none">
+<li><p><span class="link">http://cvs.m17n.org/~akr/amarshal/</span></p></li>
+</ul>
+<p class="ni">です。ここから<code>AMarshal</code>のtarballを取ってきます。原稿執筆時点では<code>amarshal-0.4.tar.gz</code>でした。これをどこかで展開します。いろいろファイルが入っていますが、必要なのは<code>amarshal.rb</code>だけです。これを適当なRubyのライブラリディレクトリにコピーします。たとえば、私は、</p>
+<ul class="none">
+<li><p>/usr/local/lib/site_ruby/</p></li>
+</ul>
+<p class="ni">にコピーしました。<code>AMarshal</code>の機能は<code>Marshal</code>とほぼ同じです。ただし、<code>limit</code>の指定はありません。</p>
+<div class="plist">
+<pre>obj = [1, <span class="str">&quot;2&quot;</span>, 3.0]
+dump = AMarshal.dump(obj)
+AMarshal.load(dump)   <span class="cmt"># =&gt; [1, &quot;2&quot;, 3.0]</span></pre>
+</div>
+<p class="in"><code>AMarshal</code>の最大の特徴はその変換出力です。上記の例題での<code>dump</code>の結果は以下のようになります。</p>
+<div class="plist">
+<pre>v = []
+v[0] = Array.allocate()
+v[0] &lt;&lt; 1
+v[1] = &quot;2&quot;
+v[0] &lt;&lt; v[1]
+v[2] = 3.0
+v[0] &lt;&lt; v[2]
+v[0]</pre>
+</div>
+<a id="page_338"/>
+<p class="in">見ればわかるように、これはRubyプログラムです。つまり<code>AMarshal</code>は実行すると<code>dump</code>に指定したのと同じ構造のオブジェクト（群）を生成するようなプログラムを出力するのです。機械生成なのでやや非人間的ですが、<code>Marshal</code>のバイナリ出力を解析することを思えば、それよりはずっとわかりやすいでしょう。<code>AMarshal</code>の目的は「わかりやすさ」なので効率に関しては目をつむりましょう。データファイルサイズでも読み込み効率でも<code>Marshal</code>には勝てません。</p>
+<p class="in">あ、<code>AMarshal</code>には1つ重要な制限があります。<code>AMarshal</code>の実行にはRuby 1.7で導入された<code>Class#allocate</code>メソッドが必要です。というか、<code>AMarshal</code>のために<code>allocate</code>メソッドが追加されたようなものなんですが。ですから、まだ1.6系をお使いの方は、次の安定板である1.8が登場するまでしばらくはおあずけですね。すでに昨年のクリスマスには1.8のpreviewが出ていますから、1.8の正式リリースは遠くないと思います。</p>
+<p class="in">オブジェクトのマーシャルを行うライブラリには<code>AMarshal</code>の他にも、XMLを使う<code>clxmlserial</code>や<code>TMarshal</code>, <code>XMarshal</code>などなどがあります。みなRAAに登録されているので、興味のある人は調べてみてください。</p>
+</section>
+<section id="chap2404" class="level2">
+<h3>PStore</h3>
+<hr class="hr-gray" />
+<p class="in"><code>PStore</code>（persistent store,（オブジェクトの）永続的保存）は<code>Marshal</code>の応用例の1つです。<code>Marshal</code>は指定したデータをバイナリ列に変換するだけでしたが、<code>PStore</code>はそれを利用して簡単なオブジェクト指向データベースを実現しています。オブジェクトのマーシャリングという一番面倒な部分を<code>Marshal</code>モジュールが実現してくれるので、<code>PStore</code>はコメントや空行を含めてもわずか160行程度のプログラムです。</p>
+<p class="in"><code>PStore</code>の特徴は以下のとおりです。</p>
+<ul>
+<li><p><code>Marshal</code>を使って任意のRubyオブジェクトをそのまま格納できる</p></li>
+<li><p>使いやすいインターフェイス</p></li>
+<li><p>トランザクションがある</p></li>
+</ul>
+<p class="in">トランザクションとはデータベースの処理の単位です。トランザクション中の処理が問題なく終了すればその結果はデータベースに正式に書き込まれますが、もし途中で何らかの原因（例外など）で失敗すれば、データベースの状態はトランザクション開始前に戻ります。これにより、トランザクションによってデータベースが不整合な状態になることを防ぐことができます。</p>
+<p class="in"><code>PStore</code>にはデータを一度全部メモリに読み込むので大規模データベースには向かないという欠点もあります。しかし、数百Kバイト程度の小規模のデータベースならあまり問題にはなることはないでしょう。RubyのアプリケーションインデックスであるRAA（<span class="link">http://raa.ruby-lang.org/</span>）も長らく<code>PStore</code>を使っていました。</p>
+<p class="in"><code>PStore</code>オブジェクトの使い方は次のとおりです。</p>
+<ol class="list_parentheses">
+<li><span class="k">オープンする</span><br />
+まずはデータベースをオープンして、<code>PStore</code>データベースオブジェクトを得ます。
+<div class="plist">
+<pre>db = PStore.new(path)</pre>
+</div>
+<code>path</code>にはデータベースファイルのパスを指定します。</li>
+<li><a id="page_339"/><span class="k">トランザクションを開始する</span><br />
+先ほど説明したとおり、トランザクションはデータベース処理の単位です。データベースに対する処理はトランザクション単位で書き込まれますので、処理途中で例外が発生したときなどにはデータベースの状態はトランザクション開始前の状態にとどまります。トランザクションは<code>transaction</code>メソッドにブロックを指定することで開始します。
+<div class="plist">
+<pre>db.transaction {
+  ...
+}</pre>
+</div>
+ブロックを抜けるとトランザクションが終了します。</li>
+<li><span class="k">オブジェクトの登録、取得</span><br />
+<code>PStore</code>オブジェクトは一種のハッシュとして扱えます。オブジェクト登録・取得は<code>[]</code>メソッドを使います。
+<div class="plist">
+<pre>db[<span class="str">&quot;foo&quot;</span>] = object  <span class="cmt"># オブジェクトの設定</span>
+db[<span class="str">&quot;bar&quot;</span>]           <span class="cmt"># オブジェクトの取得</span></pre>
+</div>
+ただ、ハッシュと違って登録されていない名前に対するオブジェクトの取得はエラーになりますから、データベースに名前が登録されているかどうか定かでない場合には、あらかじめ確認する必要があります。データベースに登録されているすべてのオブジェクト名の一覧を得るのは<code>roots</code>メソッド、ある名前の<code>root</code>が登録されているかどうかをチェックするのは<code>root?</code>メソッドです。
+<div class="plist">
+<pre>db.roots          <span class="cmt"># root名一覧</span>
+db.root?(<span class="str">&quot;foo&quot;</span>)   <span class="cmt"># root名fooがあれば真</span></pre>
+</div>
+<code>root</code>という名前はトランザクションが成功したときのオブジェクトの書き出しが、名前を付けられたオブジェクトを根（root）にして行われることからきています。</li>
+<li><span class="k">トランザクションの終了</span><br />
+<code>transaction</code>メソッドに指定したブロックの実行が終わればトランザクションは自動的に終了し、データベースから参照されている全オブジェクトの現在の状態がファイルに書き込まれます。<br />
+　トランザクションの途中で強制的にトランザクションを終了させるメソッドも用意されています。<code>commit</code>メソッドはトランザクションを正常終了させます。<code>transaction</code>メソッドの実行も終了します。<code>abort</code>メソッドはトランザクションを強制的に中断します。データベースへの変更はファイルに書き込まれず、トランザクション開始前の状態のまま残されます。<code>abort</code>メソッドも<code>transaction</code>メソッドの実行を中断します。</li>
+</ol>
+<p class="in">CGIでは複数同時に起動された場合に対応するためデータファイルへのロックが必要になるのですが、<code>PStore</code>は内部で自動的に<code>flock</code>を使って排他処理してくれますので、その点でも心配せずに使えます。ただし、<code>PStore</code>は同じプロセスの中での複数のスレッドからの同時アクセスには対応していません。先月学んだような方法で排他制御する必要があります。</p>
+<p class="in">データベース内のオブジェクトへの参照と更新は必ずトランザクション内で行ってください。途中のオブジェクトを取り出してトランザクション外で状態を変更してもエラーにはなりませんが、その変更はデータベースには反映されません。</p>
+<a id="page_340"/>
+<div class="plist">
+<pre>db_data = <span class="kwd">nil</span>
+db.transaction {
+   db[<span class="str">&quot;foo&quot;</span>] = [1,2,3]
+   db_data = db[<span class="str">&quot;foo&quot;</span>]  <span class="cmt"># 持ち出し</span>
+}
+<span class="cmt"># トランザクション終了</span>
+
+<span class="cmt"># データへのアクセスは可能</span>
+p db_data[0]            <span class="cmt"># =&gt; 1</span>
+
+<span class="cmt"># データの更新も可能だがDBには反映されず</span>
+p db_data[0] = 42</pre>
+</div>
+<p class="in"><code>PStore</code>のトランザクション処理手順を簡単に説明しておきます。</p>
+<ol class="list_parentheses">
+<li>データファイルを<code>flock</code>でロック</li>
+<li>データファイルから<code>Marshal</code>を使ってデータを読み込む</li>
+<li>ブロックを実行</li>
+<li>ブロック実行が成功なら<code>Marshal</code>でデータを書き込む</li>
+<li>失敗していたら何もしない</li>
+</ol>
+<p class="in">実際にはここにバックアップファイルの作成やエラー処理を含むのでもうちょっとややこしいですが、基本的にはこんなものです。</p>
+<p class="in">手前みそながら、<code>PStore</code>はCGIに限らず非常に使い勝手がよいので、小規模なデータベースでしたら、ぜひ活用してください。</p>
+</section>
+<section id="chap2405" class="level2">
+<h3>まとめと次回予告</h3>
+<hr class="hr-gray" />
+<p class="in">複雑なデータをファイルに保存したり、再読み込みしたりする処理は面倒なものですが、<code>Marshal</code>や<code>AMarshal</code>を使えば、簡単に実現できます。また、これらの機能を使えば<code>PStore</code>のようなオブジェクト指向データベースも数百行で簡単に実現できます。</p>
+<p class="in">とはいえ、たとえば設定ファイルや簡単なデータの保存にはマーシャリングはオーバースペックでしょう。来月はそんなデータを簡単に扱えるファイルフォーマットであるXMLやより新しいフォーマットであるYAMLなどについて紹介します。「RubyでXML」についてはすでにそれをテーマにした書籍も出ていますから、新顔のYAMLを中心に解説しようと思います。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-052.xhtml">&lt;&lt; 前ページ</a>　<a href="p-054.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

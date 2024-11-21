@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第35章 アスペクト指向</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第35章</p>
+<!-- Body -->
+<section id="chap35" class="level1">
+<a id="page_049"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">35</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+アスペクト指向
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年4月号]</p>
+<div class="newlead">
+<p class="in">アスペクト指向も定着しませんでしたね。本文には「20年くらい前のオブジェクト指向のようなレベル」と書いていましたが、実際に20年後にはオブジェクト指向のように当たり前にはならずに終わりました。未来はわからないものですね。ただ、クラスなどを超えて横断的な関心事に対処するコンサーン（Concern）などのアスペクト指向の思想を受け継いだような機能をときどき見かけるので、まったく打ち捨てられたというわけでもないようです。</p>
+<p class="ih">「Ruby開発日記」は「ゴミ集め」です。ガベージコレクション（GC）とも呼びますね。当時はJavaによってゴミ集めが一般化していた時代です。C/C++のように手動でメモリ管理するのは間違いが多いので、GCに頼りましょうというのが最新の考えでした。現在では、ゴミ集めのないRustのような言語がもてはやされているのとは対象的ですね。Rustは所有権というゴミ集めとは違うアプローチで自動的にメモリ管理しているのが特徴です。</p>
+</div>
+<div class="lead">
+<p class="ni">Wiki, Blogと、ここのところアプリケーションの紹介が続きましたが、久しぶりにプログラミングの話題に戻ろうと思います。今月紹介するのは、「オブジェクト指向の次」とうわさされている「アスペクト指向」です。</p>
+</div>
+<section id="chap3501" class="level2">
+<h3>関心の分離</h3>
+<hr class="hr-gray" />
+<p class="in">プログラミングにおける重要な原則は「関心の分離（separation of concern）」です。関心の分離は分割統治戦略の一種です。人間は一度にたくさんのことを考えられませんから、関心のあることだけをひとまとめに扱い、関心のないことは見ないで済ませることで、プログラマーの精神的負担を軽減することは必要です。関心の分離によってプログラムの保守性や再利用性を高めることができます。</p>
+<p class="in">プログラミング言語はこの関心の分離を支援するために進歩してきました。たとえば関数（サブルーチン）は繰り返し使われる手続きの一部を切り出して、そこだけを考えるために発生しましたし、構造化プログラミングもアルゴリズムの制御の流れをgotoによるスパゲッティから、逐次実行、条件分岐、繰り返しという単純な制御構造の組み合わせに変えることで、アルゴリズムそのものに注目できるように支援しています。</p>
+<a id="page_050"/>
+<p class="in">オブジェクト指向言語も、プログラムにおいて最も関心の対象となるデータ構造とそれに対する手続きをクラスという形でひとまとめに記述することで、この関心の分離を支援しています。</p>
+</section>
+<section id="chap3502" class="level2">
+<h3>アスペクト指向とは</h3>
+<hr class="hr-gray" />
+<p class="in">オブジェクト指向言語はプログラムをオブジェクト単位に分割しますが、世の中のすべての関心がオブジェクト単位に分割できるとは限りません。複数のオブジェクトを横断するような処理は、関心事としては1つなのに複数のクラスにばらばらに分散してしまうことがありえます。</p>
+<p class="in">例をあげてみましょう。メソッド呼び出しの最初と最後にログを出力したいとすると、従来の方法で単純に実現すると<a href="#list3501">35.1</a>のようになります。</p>
+<div class="plistc" id="list3501">
+<p class="lst-caption">リスト35.1●Rubyロギング（従来の方法）</p>
+<pre><span class="kwd">def</span> log(m)
+  STDERR.print Time.now.to_s, <span class="str">&quot;: &quot;</span>, m, <span class="str">&quot;\n&quot;</span>
+<span class="kwd">end</span>
+
+<span class="kwd">class</span> Foo
+  <span class="kwd">def</span> m1
+     log(<span class="str">&quot;m1 begin&quot;</span>) <span class="cmt"># m1処理開始ログ</span>
+     puts <span class="str">&quot;this is m1&quot;</span>
+     log(&quot;m1 end&quot;)   <span class="cmt"># m1処理終了ログ</span>
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> m2
+     log(<span class="str">&quot;m2 begin&quot;</span>) <span class="cmt"># m2処理開始ログ</span>
+     puts <span class="str">&quot;this is m2&quot;</span>
+     log(<span class="str">&quot;m2 end&quot;</span>)   <span class="cmt"># m2処理終了ログ</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+foo = Foo.new
+foo.m1
+foo.m2</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">このプログラムを見るとわかるように、「ログを取りたい」という関心事に対する処理が、<code>m1</code>と<code>m2</code>のそれぞれのメソッドにばらばらに分散しています。これは関心の分離の原則からみるとかなりまずい事態です。この例は非常に単純な例で、追加された処理はわずか4行ですが、ログを取るメソッドが数十、数百に上り、クラスも1つではなく数十もある場合を考えると気が遠くなりそうです。</p>
+<a id="page_051"/>
+<p class="ih">「ログを取る」のは1つの例ですが、他にも認証、帯域制限、プロファイルなどなど分散しがちな関心事はたくさんあります。このような関心事をまとめて記述することができたら、生産性の向上ができそうじゃありませんか。</p>
+<p class="in">この関心事をまとめたものが「アスペクト（aspect）」です。辞書を引くとaspectは「外観、様相、局面、見方」だそうです。このような関心事を分離して記述し、組み合わせていくプログラミングをアスペクト指向プログラミングと呼びます。また、そのような記述を支援する言語はアスペクト指向言語です。</p>
+<p class="in">アスペクト指向はSmalltalkも生んだXerox PARC（パロアルト研究所）で生まれました。最も有名なアスペクト指向言語はJavaにアスペクト指向を追加したAspectJです。AspectJについての情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.aspectj.org/</span></p></li>
+</ul>
+<p class="ni">から入手できます（英語）。AspectJではアスペクトをその名もaspectという単位で定義し、処理をjoin pointと呼ばれる場所に挿入するという形を取ります。AspectJでのjoin pointとは、メソッド呼び出し、インスタンス変数の参照、例外の補足などがあります。詳しくは上記のAspectJのページを見ていただくか、以下のDeveloperWorksの記事を参照してください。</p>
+<ul class="none">
+<li><p><span class="link">http://www-6.ibm.com/jp/developerworks/java/020405/j_j-aspectj.html</span></p></li>
+</ul>
+</section>
+<section id="chap3503" class="level2">
+<h3>AspectR</h3>
+<hr class="hr-gray" />
+<p class="in">さて、われらがRubyの話に戻りましょう。</p>
+<p class="in">アスペクトを直接記述できる言語という意味ではRubyはアスペクト指向言語ではありません。しかし、Rubyは十分柔軟なので、Rubyの持つリフレクション機能（プログラムそのものを操作する機能）を使って、アスペクト指向プログラミングを実現するライブラリを実現できます。それがAspectRです。AspectRはAvi Bryantの作品です。</p>
+<p class="in">AspectRを使うと最初の例は<a href="#list3502">リスト35.2</a>のようになります。</p>
+<div class="plistc" id="list3502">
+<p class="lst-caption">リスト35.2●ロギング（AspectR）</p>
+<pre>require <span class="str">&#39;aspectr&#39;</span>
+
+<span class="kwd">class</span> Logger &lt; AspectR::Aspect
+  <span class="kwd">def</span> log(m)
+    STDERR.print Time.now.to_s, <span class="str">&quot;: &quot;</span>, m, <span class="str">&quot;\n&quot;</span>
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> log_enter(method, object, exitstatus, *args) 
+    log(<span class="str">&quot;#{method} begin&quot;</span>)
+  <span class="kwd">end </span>
+
+  <span class="kwd">def</span> log_exit(method, object, exitstatus, *args) 
+    log(<span class="str">&quot;#{method} end&quot;</span>)
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="kwd">class</span> Foo
+  <span class="kwd">def</span> m1
+     puts <span class="str">&quot;this is m1&quot;</span>
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> m2
+     puts <span class="str">&quot;this is m2&quot;</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+Logger.new.wrap(Foo, :log_enter, :log_exit, :m1, :m2) 
+
+foo = Foo.new
+foo.m1
+foo.m2</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_052"/>
+<p class="in"><a href="#list3501">リスト35.1</a>のプログラムと<a href="#list3502">リスト35.2</a>のプログラムはまったく同じように動作します。<a href="#list3501">リスト35.1</a>（20行）よりも<a href="#list3502">リスト35.2</a>（29行）のほうが少し長くなってしまっていますが、これは単純な例なのでしかたありません。注目すべきことは、<code>Foo</code>クラスの定義部分は<code>Foo</code>の処理そのものしか記述されておらず、「ログを取る」という関心事が<code>Logger</code>クラスに完全に分離されているということです。ある日、ログを取る必要がなくなった場合、どんなにたくさんのメソッドでログを取っていても<code>Foo</code>クラスにロギングを関連づけている行だけを削除すれば、ロギング機能を外すことができます。<a href="#list3501">リスト35.1</a>のようにロギング処理がすべてのメソッドに分散していたとしたらかなり面倒なことになるでしょう。</p>
+</section>
+<section id="chap3504" class="level2">
+<h3>AspectRのインストール</h3>
+<hr class="hr-gray" />
+<p class="in">AspectRのホームページは、</p>
+<ul class="none">
+<li><p><span class="link">http://aspectr.sourceforge.net/</span></p></li>
+</ul>
+<p class="ni">です。原稿執筆時点での最新バージョンは0.3.5です。最近はあまり更新されていないようですが、私が試してみた範囲内ではRuby 1.8.1でも動作するようです。ただし、添付のテストはうまく動きませんでした。<code>test/unit</code>の<code>RubyUnit</code>互換機能の不具合かもしれません。</p>
+<p class="in">インストールは、</p>
+<ul class="none">
+<li><p><span class="link">http://prdownloads.sf.net/aspectr/aspectr-0-3-5.tar.gz</span></p></li>
+</ul>
+<p class="ni">からtarボールをダウンロードし、適当な場所で展開してから、root権限で、</p>
+<a id="page_053"/>
+<div class="borderterminal">
+<pre># ruby install.rb</pre>
+</div>
+<p class="ni">を実行するだけです。なんて簡単。これでAspectRの全機能を使うことができます。実際にはAspectRは<code>aspectr.rb</code>という1つのファイルだけで実装されていますから、インストールは<code>site_ruby</code>ディレクトリに<code>aspectr.rb</code>をコピーしているだけです。</p>
+<p class="in">なお、<code>aspectr.rb</code>の147行目に、1.8では警告が出る<code>type</code>メソッドの呼び出しが残っていますから、ここを<code>class</code>メソッドに置き換えておくとよいでしょう。また、229行目の<code>id</code>メソッドの呼び出しも<code>object_id</code>に置き換えておくのもお勧めです。</p>
+</section>
+<section id="chap3505" class="level2">
+<h3>AspectRの使い方</h3>
+<hr class="hr-gray" />
+<p class="in">AspectRではjoin pointはメソッドの呼び出しだけです。AspectJではメソッド呼び出し以外にも、インスタンス変数の参照などもjoin pointにできることを考えると貧弱な気がしますが、インスタンス変数の参照はアクセサメソッドで代用できますし、実用上はこれで十分です。join pointに処理を挿入できるということはAspectRを使えば、任意のメソッド呼び出しの前後にあとからコードを追加できるということです。<a href="#list3502">リスト35.2</a>の例ではメソッド呼び出す前と後にログに出力するコードを追加していました。</p>
+<p class="in">では、再び<a href="#list3502">リスト35.2</a>のプログラムを例に、AspectRを使ったコード挿入の方法を解説しましょう。<a href="#list3502">リスト35.2</a>のプログラムを少しずつ見ていきましょう。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;aspectr&#39;</span></pre>
+</div>
+<p class="in">AspectRを使うときには先頭で<code>ascpctr</code>ライブラリを<code>require</code>する必要があります。よく見ると<code>aspectr.rb</code>はたった308行しかないんですね（コメント、空行を含む）。Rubyの記述力のすごさを見る思いです。自画自賛ですが。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Logger &lt; AspectR::Aspect</pre>
+</div>
+<p class="ni">アスペクトは<code>AspectR::Aspect</code>クラスのサブクラスとして定義します。このクラスにjoin pointに挿入する手続き（アスペクト指向の用語ではアドバイス（advice）と呼びます）をメソッドとして定義します。</p>
+<div class="plist">
+<pre><span class="kwd">def</span> log(m)
+  STDERR.print Time.now.to_s, <span class="str">&quot;: &quot;</span>, m, <span class="str">&quot;\n&quot;</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">この<code>log</code>メソッドは<code>advice</code>ではありません。<code>advice</code>メソッドから呼び出すためのユーティリティメソッドです。ここでは標準エラー出力に時刻とともにメッセージを出力しています。</p>
+<div class="plist">
+<pre><span class="kwd">def</span> log_enter(method, object, exitstatus, *args) 
+  log(<span class="str">&quot;#{method} begin&quot;</span>)
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni"><code>log_enter</code>は<code>advice</code>として使うメソッドです。AspectRの<code>advice</code>にはメソッドの実行前に呼び出される<code>before advice</code>と実行後に呼び出される<code>after advice</code>があります。AspectJには<code>before advice</code>と<code>after advice</code>の他にメソッドを包み込む形で置き換える<code>around advice</code>がありますが、AspectRでは提供されません。しかし、なくても実用上は十分です。AspectJの<code>advice</code>メソッドは以下の引数で呼び出されます。</p>
+<a id="page_054"/>
+<ul class="none">
+<li><pre class="tabbing">第1引数　　　メソッド名（文字列）</pre></li>
+<li><pre class="tabbing">第2引数　　　レシーバ</pre></li>
+<li><pre class="tabbing">第3引数　　　終了情報（戻り値、例外）</pre></li>
+<li><pre class="tabbing">第4引数以下　メソッドに与えられた引数</pre></li>
+</ul>
+<p class="ni">第3引数の終了情報には、正常終了した場合にはその値が配列に、例外終了した場合には<code>true</code>が渡されます。正直なところ<code>true</code>よりは例外オブジェクトが渡ってくれたほうがうれしいなあ。<code>before advice</code>はまだメソッドの実行が終了していませんから、終了情報に意味はありません。</p>
+<div class="plist">
+<pre><span class="kwd">def</span> log_exit(method, object, exitstatus, *args) </pre>
+</div>
+<p class="ni"><code>log_exit</code>は<code>after advice</code>です。引数の意味などは<code>before advice</code>と同じです。</p>
+<div class="plist">
+<pre><span class="kwd">class</span> Foo</pre>
+</div>
+<p class="ni"><code>Foo</code>クラスはアスペクトの追加対象となるクラスです。「ログを取る」というアスペクトが分離された結果、本来の処理に集中できています。</p>
+<div class="plist">
+<pre>Logger.new.wrap(Foo, :log_enter, :log_exit, :m1, :m2) </pre>
+</div>
+<p class="ni">この行が重要です。この行がアスペクト（<code>Logger</code>クラス）と対象となるクラス（<code>Foo</code>クラス）を結び付けています。この行は、<code>Foo</code>クラスのメソッド<code>m1</code>と<code>m2</code>の実行前に<code>log_enter</code>、実行後に<code>log_exit</code>を呼び出す、と解釈します。<code>wrap</code>メソッドの引数の意味は以下のとおりです。</p>
+<div class="plist">
+<pre>wrap(target, before, after, *methods)</pre>
+</div>
+<p class="ni"><code>target</code>はクラスまたはオブジェクトで、クラスを指定した場合にはそのクラスのインスタンスメソッドに<code>advice</code>を追加します。クラス以外のオブジェクトを指定した場合には、そのオブジェクトだけに<code>advice</code>を追加します。</p>
+<p class="in"><code>before</code>と<code>after</code>は<code>advice</code>となるアスペクトのメソッド名を指定します。どちらかの<code>advice</code>を指定しない場合には<code>nil</code>を渡します。</p>
+<p class="in"><code>methods</code>には<code>advice</code>を付加するメソッドを指定します。指定方法としては今回使ったように文字列またはシンボルで1つずつ指定してもよいですし、正規表現を使ってもあるパターンにマッチするメソッドに一気に追加することもできます。たとえば <code>/^m/</code> を指定すれば<code>m</code>で始まる名前を持つメソッド全部に<code>advice</code>を追加することができます。</p>
+<div class="plist">
+<pre>foo = Foo.new
+foo.m1
+foo.m2</pre>
+</div>
+<p class="ni">後は通常の<code>Foo</code>の処理を行うだけです。メソッド<code>m1</code>と<code>m2</code>の実行の前後には<code>advice</code>が追加されていますから、標準エラー出力に時刻とメッセージが出力されます。</p>
+<a id="page_055"/>
+<p class="in">もし、<code>advice</code>を取り除きたくなったら、<code>unwrap</code>メソッドを使うことができます。アスペクトのインスタンスをどこかに保持しておいて（ここでは変数<code>logger</code>に格納されているとします）、</p>
+<div class="plist">
+<pre>logger.unwrap(Foo, :log_enter, :log_exit, :m1, :m2) </pre>
+</div>
+<p class="ni">と呼べば<code>advice</code>が削除されます。引数の数と意味は<code>wrap</code>と同じです。</p>
+</section>
+<section id="chap3506" class="level2">
+<h3>AspectRの応用</h3>
+<hr class="hr-gray" />
+<p class="in">任意のメソッドの前後に後から処理を追加できるAspectRの機能はいろいろと応用できると思います。ここではAspectRのサンプルとして添付されているプロファイラ（<code>rbprof</code>）を見てみたいと思います。</p>
+<p class="in">プロファイラは各メソッドの実行時間と呼び出し回数を集計するものです。考えてみると、プロファイラの仕事とは、各メソッドの呼び出し前に回数カウンタを増加させ、呼び出し開始時刻を保存し、また呼び出し後に現在時刻と呼び出し開始時間との差分を取ってメソッドの実行時間を計測して記録することですから、アスペクトによって実現できます。</p>
+<p class="in"><code>rbprof</code>をインストールするためには、AspectRのtarを展開したディレクトリにある<code>aspect/profiler</code>ディレクトリに移動し、root権限で</p>
+<div class="borderterminal">
+<pre># ruby ../../install.rb</pre>
+</div>
+<p class="ni">を実行します。そうすると、</p>
+<div class="borderterminal">
+<pre>% ruby -r rbprof &lt;プロファイルを取るプログラム&gt;</pre>
+</div>
+<p class="ni">でプロファイルが取れます。Ruby標準のプロファイラの起動は、</p>
+<div class="borderterminal">
+<pre>% ruby -r profile &lt;プロファイルを取るプログラム&gt;</pre>
+</div>
+<p class="ni">ですから、ほとんど同じインターフェイスですね。</p>
+<p class="in"><code>profile</code>（標準プロファイラ）と<code>rbprof</code>（アスペクト利用のプロファイラ）との違いは以下のとおりです。</p>
+<ul>
+<li><p><span class="k">rbprofはユーザーが定義したメソッドしか計測しない</span><br />
+<code>profile</code>が組み込みメソッドまで計測するのに比べると物足りなく感じることもあります。</p></li>
+<li><p><span class="k">rbprofは速い</span><br />
+プロファイラは余計な計測が付加されるため実行が遅くなります。フィボナッチ数を計算する簡単なプログラム（<code>fib.rb</code>）で比較すると<code>rbprof</code>はだいたい通常実行の20倍（!）遅いのですが、<code>profile</code>はさらに10倍遅いという結果になりました。</p></li>
+<li><a id="page_056"/><p><span class="k">rbprofには前回実行と比較する機能がある</span><br />
+<code>rbprof</code>は実行情報をファイルに保存します（<code>fib.rb</code>の実行なら<code>fib.prof</code>ファイル）。これにより今回の実行と前回の実行が何パーセントくらい違うかを比較することができます。</p></li>
+</ul>
+<p class="in">実行時間10倍の差はかなり大きなものです。大まかな情報を<code>rbprof</code>でつかんでから<code>profile</code>を使うなどの使い分けもできると思います。</p>
+<p class="in">また、同じ手を使って特定のメソッドだけプロファイルを取ることも可能でしょう。本当は<code>rbprof</code>の標準機能として装備しておいてほしいものですが。</p>
+<p class="in">ここは宿題としたいところですが、少々難しい宿題になりそうなので、解答を用意しておきます（<a href="#list3503">リスト35.3</a>）。</p>
+<div class="plistc" id="list3503">
+<p class="lst-caption">リスト35.3●プロファイラアスペクト（aprof.rb）</p>
+<pre>require <span class="str">&#39;aspectr&#39;</span>
+
+<span class="kwd">class</span> AProf &lt; AspectR::Aspect
+  @@map = {}
+  @@stack = [[0, 0, 0, <span class="str">&quot;dummy&quot;</span>]]
+  <span class="kwd">def</span> profile(target, *methods)
+    self.wrap(target, :prof_enter, :prof_leave, *methods)
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> prof_enter(method, object, exitstatus, *args) 
+    m = method_line(method, object)
+    <span class="kwd">unless</span> map = @@map[m]
+      map = @@map[m] = [0, 0, 0, m]
+    <span class="kwd">end</span>
+    map[0] += 1
+    @@stack.push([Time.now, 0.0, m])
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> prof_leave(method, object, exitstatus, *args) 
+    tick = @@stack.pop
+    m = tick[2]
+    <span class="kwd">unless</span> map = @@map[m]
+      map = @@map[m] = [0, 0, 0, m]
+    <span class="kwd">end</span>
+    cost = Time.now - tick[0]
+    map[1] += cost
+    map[2] += cost - tick[1]
+    @@stack[-1][1] += cost
+  <span class="kwd">end</span>
+
+  <span class="kwd">def</span> self.print_profile(f)
+    data = @@map.values
+    data = data.sort_by{|x| x[3]}
+    f.printf <span class="str">&quot;    self       #      self     total\n&quot;</span>
+    f.printf <span class="str">&quot;  seconds    calls  ms/call  ms/call  name\n&quot;</span>
+    <span class="kwd">for</span> d <span class="kwd">in</span> data
+      f.printf <span class="str">&quot;%8.2f %8d %8.2f %8.2f %s\n&quot;</span>, d[1], d[0], d[2]*1000/d[0], d[1]*1000/d[0], d[3]
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+
+  private
+  <span class="kwd">def</span> method_line(method, object)
+    object.class.to_s + <span class="str">&quot;#&quot;</span> + method
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="kwd">END</span> {
+  AProf.print_profile(STDERR)
+}</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_057"/>
+<p class="in"><code>aprof.rb</code>の使い方は以下のとおりです。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;aprof&#39;</span>
+
+<span class="cmt"># プロファイルを取りたいプログラムを定義</span>
+<span class="kwd">def</span> fib(n)
+  <span class="kwd">if</span> n&lt;2
+    n
+  <span class="kwd">else</span>
+    fib(n-2)+fib(n-1)
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="cmt"># プロファイルを取りたいメソッドの指定</span>
+AProf.new.profile(Object, :fib, :print)
+<span class="cmt"># 実行</span>
+print(fib(20), <span class="str">&quot;\n&quot;</span>);</pre>
+</div>
+<p class="ni">こうすると<code>Object</code>クラスの<code>fib</code>メソッドと<code>print</code>メソッドのプロファイルだけを取ることができます。</p>
+<p class="in">出力は<a href="#fig3501">図35.1</a>のようになります。</p>
+<div class="figconsole" id="fig3501">
+<div class="borderconsole">
+<pre>6765
+    self       #      self     total
+  seconds    calls  ms/call  ms/call  name
+   49.03    21891     0.17     2.24 Object#fib
+    0.00        1     0.64     0.64 Object#print</pre>
+</div>
+<p class="fig-caption">図35.1●aprof使用例</p>
+</div>
+</section>
+<section id="chap3507" class="level2">
+<a id="page_058"/>
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はRubyによるアスペクト指向プログラミングについて探検してみました。アスペクト指向はまだまだ新しい概念です。ちょうど20年くらい前のオブジェクト指向のようなレベルでしょうか。AspectRを使ってあなたもアスペクトの世界を先取りしてみませんか。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-009.xhtml">&lt;&lt; 前ページ</a>　<a href="p-011.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

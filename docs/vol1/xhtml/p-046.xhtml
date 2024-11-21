@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第21章 プロセスとフォーク</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第21章</p>
+<!-- Body -->
+<section id="chap21" class="level1">
+<a id="page_299"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">21</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+プロセスとフォーク
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年2月号]</p>
+<div class="newlead">
+<p class="in">コンカレントプログラミングの手段のうち、今回はプロセスについて解説しています。プロセスの生成やゾンビ化を避ける手段など、現代においても有効なテクニックを解説しています。もっとも、最近はこの辺りはフレームワークにおまかせで、コアなシステムプログラミングをする人でもなければ触らないのかもしれませんが。</p>
+<p class="in">また、書籍『Rubyソースコード完全解説』について紹介しています。名著ですが、絶版なんですよね。Web版はまだ読めるのでそちらでどうぞ。</p>
+<p class="ih">「Ruby開発日記」は、「ソフトウェアの一生」について語っています。ソフトウェアの運命は数奇なものです。オープンソースソフトウェアは比較的長寿ですが、それでも消えていくものもたくさんあります。そんな中でRubyは30周年を迎えられて幸せなほうですね。</p>
+</div>
+<div class="lead">
+<p class="ni">今回は、OSにおけるプログラムの実行実体であるプロセスとその生成について解説します。</p>
+</div>
+<section id="chap2101" class="level2">
+<h3>並列実行</h3>
+<hr class="hr-gray" />
+<p class="in">一度に複数の仕事を依頼されたときには、あなたはどう対処しますか?　一度に1つずつ片付けていきますか?　でも、仕事が5分や10分では終わりそうもないときには?　仕事をもっと小さな単位に分割して、それらを適当な順番で終わらせていきますか?</p>
+<p class="in">昔のコンピュータは一度には1つのことしかできませんでした。シングルタスクといって、1つの仕事が終わるまではひたすら待たされたことを覚えていらっしゃるかもしれません。パソコンではMS-DOSの頃はそんな感じでした。</p>
+<a id="page_300"/>
+<p class="in">最近のコンピュータはマルチタスクで同時に複数の作業ができます。Linuxを始めとするOSはこの仕事（タスク）を片付ける単位としてプロセスを使います。簡単にいうと1つのプログラムを起動してからそれが終了するまでがタスクで、その実行中のプログラムがプロセスです。</p>
+<p class="in">UNIX系OSでは新しいプロセスを作ることをフォーク（fork）と言います。ナイフ、フォーク、スプーンのフォークですね。forkには「枝分かれ」という意味もあるので、そちらのほうから来ているのだと思います。UNIXでは新しいプロセスを作るということは、プロセスがまず自分自身のコピーを作り、それからオリジナルとコピーが違う処理を始めます。だから「枝分かれ」なんですね。</p>
+<p class="in">一方、1つのプロセスの中で複数の処理を同時に行うこともできます。このいわば「プロセス中のプロセス」のようなものは「スレッド」と呼びます。スレッド（thread）とは「縫い糸」のことです。実行の流れが縫い糸のようにちくちくと現れたり消えたり（実行されたり止まったり）することから連想されたのでしょうか。スレッドについては来月解説する予定です。</p>
+</section>
+<section id="chap2102" class="level2">
+<h3>プロセス生成</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyでは新しいプロセスを作るやり方はいくつもあります。</p>
+<p class="in">一番簡単なのは<code>system</code>メソッドでしょう。<code>system</code>メソッドはコマンドを実行し、その終了ステータスだけを返します。</p>
+<div class="plist">
+<pre>system <span class="str">&quot;mv foo.txt bar.txt&quot;</span></pre>
+</div>
+<p class="in">実際には<code>system</code>は、</p>
+<ul>
+<li><p>シグナルハンドラの設定</p></li>
+<li><p>標準入出力のフラッシュ</p></li>
+<li><p>プロセスの生成</p></li>
+<li><p>プロセスの終了待ち</p></li>
+<li><p>プロセスのステータス取得と後始末</p></li>
+</ul>
+<p class="ni">などのめんどくさい処理を行っているのですが、ユーザーはそんなことを気にする必要はありません。<code>system</code>は呼び出したプロセスが正常終了した場合には<code>true</code>、異常終了だった場合には<code>false</code>を返します。</p>
+<p class="in">次に簡単なのプロセス生成は「コマンド呼び出し」でしょう。これはコマンドを呼び出し、そのコマンドの標準出力を文字列として得るものです。</p>
+<div class="plist">
+<pre>`ls -l`</pre>
+</div>
+<p class="ni">は<code>ls -l</code>の出力を1つの文字列として取り出します。</p>
+<p class="in"><code>system</code>同様、コマンド呼び出しもプロセス生成などについて考える必要はありません。</p>
+<p class="in">そして一番プリミティブな方法がフォークです。<code>fork</code>はUNIXの<code>fork</code>システムコールを呼び出し、直接プロセスを生成します。<code>fork</code>は細かなことまで指定できますが、逆にコマンド呼び出しや<code>system</code>に比べると少々気を使う必要があります。</p>
+<p class="in">また、<code>fork</code>はUNIXのシステムコールですから、UNIXでないプラットフォーム（Windows版Rubyとか）では動作しません。Cygwin版RubyではCygwinが頑張って<code>thread</code>を使ってエミュレートしているそうですが。</p>
+</section>
+<section id="chap2103" class="level2">
+<a id="page_301"/>
+<h3>フォーク</h3>
+<hr class="hr-gray" />
+<p class="in">UNIXで新しいプロセスを作るという処理は、基本的にフォークによって自分自身のコピーを作ることから始まります。他のコマンドの実行は、フォークした新しいプロセスの中で<code>exec</code>システムコールによって、自分自身（が実行しているプログラムを）他のコマンドに置き換えることによって行われます。ほとんどの場合、やりたいのはコマンドを実行することだと思うのに、まず自分のコピーを作るというのはどういうことか、という気になりますが、これはそういうものだと納得するしかありません。UNIX Wayというものです。</p>
+<p class="in">Rubyでプロセスをフォークするためには<code>fork</code>メソッドを使います。<code>fork</code>メソッドは大きく分けて2つの使い方があります。最初の使い方はUNIXシステムコール的なやり方です。</p>
+<div class="plist">
+<pre><span class="kwd">if</span> pid = fork()
+  <span class="cmt"># オリジナルのプロセスで実行される</span>
+<span class="kwd">else</span>
+  <span class="cmt"># フォークされたプロセスで実行される</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">このように（ブロックなしで）呼び出された<code>fork</code>メソッドは、新しいプロセスを作り、オリジナル（親）とコピー（子）の両方で<code>fork</code>の続きを実行します。ただし、親では<code>fork</code>は子供のプロセスID（数値）を返し、子では<code>nil</code>を返します。</p>
+<p class="in">子プロセスは親プロセスのコピーですから、同じプログラムを実行し、同じ状態（変数の値とか）を共有しますが、これらはあくまでもコピーですから、子プロセスで変数を書き換えても親プロセスには反映されません。SF好きならパラレルワールドを思い出すかもしれません。分岐してしまった2つの世界（プロセス）はもう別々の歴史を刻むのです。</p>
+<p class="in"><code>if</code>文の<code>else</code>節で子プロセスの実行が終わらなければ、そのまま続きを実行してしまいます。うっかり親子で同じ処理を続けてしまわないように注意してください。</p>
+<p class="in">もう1つの使い方は少々Ruby的です。</p>
+<div class="plist">
+<pre>fork {
+  <span class="cmt"># フォークされたプロセスで実行される</span>
+}</pre>
+</div>
+<p class="in"><code>fork</code>メソッドにブロックを指定して呼び出すと、ブロックの内容は子プロセスでだけ実行されます。また、ブロックの実行が終わると子プロセスは自動的に終了します。このほうがわかりやすいといえばわかりやすいですね。</p>
+</section>
+<section id="chap2104" class="level2">
+<a id="page_302"/>
+<h3>プロセスの入出力</h3>
+<hr class="hr-gray" />
+<p class="in">新しいプロセスが起動されたとき、親プロセスの標準入出力はそのまま引き渡されます。ですから、新しく実行を始めたコマンドが受け取る入力は、</p>
+<ul>
+<li><p>標準入力</p></li>
+<li><p><code>argv</code>（<code>exec</code>システムコールに指定したもの）</p></li>
+</ul>
+<p class="ni">になります。一方、出力は、</p>
+<ul>
+<li><p>標準出力</p></li>
+<li><p>標準エラー出力</p></li>
+<li><p>終了ステータス</p></li>
+</ul>
+<p class="ni">の3種類です。通常の出力は標準出力に、何かエラーが発生したときのメッセージ出力は標準エラー出力に行います。これはエラーメッセージが出力結果を壊してしまわないようにという配慮です。</p>
+<p class="in">入出力先を切り替える、シェルのリダイレクトやパイプのようなことを行うためには、<code>fork</code>したあとで<code>exec</code>する前に標準入出力（ファイルディスクリプタの0, 1, 2番）を切り替えることで実現します。切り替えが終わったあとで<code>exec</code>するわけです。<code>fork</code>と<code>exec</code>が分離しているのはこの前処理を行うためだったんですねえ。</p>
+<p class="in">プログラムは標準入出力を使ったデータのやりとりとは別に、その実行が成功したかどうかを示す数値を返すことができます。これが終了ステータスです。終了ステータスは<code>exit</code>の引数で指定します（デフォルトは0）。プロセスの実行が成功したときには0、失敗したときには0以外を返します。シェルスクリプトでは最も最近終了したプロセスの終了ステータスは変数「<code>$?</code>」に格納されています（偶然ですが、Rubyでも同じ名前の変数で終了ステータスが得られます）。</p>
+<p class="in">たとえば、ファイルの中にrubyという文字列が含まれているかを調べるためにはgrepコマンドを使います。文字列が含まれている場合には終了ステータス0、含まれていない場合には、それ以外を返します。</p>
+<div class="borderterminal">
+<pre>% grep ruby file.txt
+% echo $?
+1    # 含まれていなかった場合</pre>
+</div>
+</section>
+<section id="chap2105" class="level2">
+<h3>ゾンビ（zombie）</h3>
+<hr class="hr-gray" />
+<p class="in">ゾンビっていうとアレですね、死人がうろうろと歩き回るっていう奴ですね。気持ち悪い。それがプロセスと何の関係があるかっていうと、あるんです。プロセスはちゃんと供養しないとゾンビになるんです。たとえば、</p>
+<a id="page_303"/>
+<div class="borderterminal">
+<pre>% ruby -e &#39;fork{};sleep&#39;</pre>
+</div>
+<p class="ni">こんなふうに起動するとRubyは子プロセスをフォークして、子プロセスは何もせずに終了します。親プロセスのほうは子プロセスを放置してそのまま<code>sleep</code>します。</p>
+<p class="in">この状態でpsでプロセスの状態を見ると、</p>
+<div class="borderterminal">
+<pre>% ps a
+  PID TTY      STAT   TIME COMMAND
+ 2297 ttyp0    S      0:00 ruby -e fork{};sleep
+ 2298 ttyp0    Z      0:00 [ruby &lt;defunct&gt;]
+ 2303 ttyp0    R      0:00 ps a</pre>
+</div>
+<p class="ni">というような出力が得られると思います。このZステータスを持つ、<code>&lt;defunct&gt;</code> と表示されるプロセスがゾンビです。ゾンビっていうのは要するに「終了はしたものの、親に終了ステータスを報告していないプロセス」です。</p>
+<p class="in">ゾンビを成仏させる方法は、以下のいずれかです。</p>
+<ul>
+<li><p>親プロセスが<code>wait</code>または<code>waitpid</code>システムコールで子プロセスの終了ステータスを得る</p></li>
+<li><p>親プロセスが先に死んでしまう</p></li>
+</ul>
+<p class="in"><code>wait</code>システムコールは子プロセスの終了ステータスを取り出します。終了ステータスを報告した子プロセスはゾンビを卒業し、リソースを解放して消滅します。<code>waitpid</code>はプロセスIDを指定して<code>wait</code>するものです。複数の子プロセスが存在するケースで有効です。</p>
+<p class="in">親プロセスが先に死ぬと、子プロセスは<code>init</code>プロセスと呼ばれる「ご先祖プロセス」に養子縁組みされます。<code>init</code>はプロセスID1番を持つすべてのプロセスの親に当たるプロセスです。<code>init</code>は養子縁組みされた子プロセスに対して<code>wait</code>システムコールを呼び、そのプロセスに属するリソースを解放し、ゾンビを消滅させます。</p>
+<p class="in">子プロセスがいつ終了したかとか、その終了ステータスとかに関心がない場合には、この養子縁組みを利用して二重<code>fork</code>というテクニックを用いることができます。二重<code>fork</code>では、まず<code>fork</code>によって子プロセスを作り、その子プロセスをさらに<code>fork</code>して実際の処理を行います。子プロセスは実際の処理を行う孫プロセスを<code>fork</code>した後、すぐに終了してしまいます。子プロセスの終了により、孫プロセスは<code>init</code>に養子縁組みされていますから、孫プロセスが終了した時点で<code>init</code>がただちに<code>wait</code>を呼び、プロセスはゾンビになることなく、リソースの解放が行われます。</p>
+</section>
+<section id="chap2106" class="level2">
+<h3>Processのメソッド</h3>
+<hr class="hr-gray" />
+<p class="in">プロセスに対する操作は<code>Process</code>モジュールが行います。<code>Process</code>はクラスでなくモジュールである点に注意してください。主な理由はUNIXのプロセス操作がプロセスIDという数値をベースに行われるからです。</p>
+<p class="in"><code>Process</code>のメソッドは基本的にはUNIXのプロセス関係システムコールに対応しています（<a href="#table2101">表21.1</a>）。各メソッドの動作は<code>man</code>を見ることでだいたい知ることができます。たとえば、Cでの、</p>
+<div class="plist">
+<pre>n = getpgid(pid, pgid);</pre>
+</div>
+<p class="ni">という呼び出しは、</p>
+<div class="plist">
+<pre>Process.getpgid(pid, pgid)</pre>
+</div>
+<p class="ni">になります。ただし、「<code>uid</code>」「<code>uid=</code>」などはそれぞれ<code>getpid</code>, <code>setpid</code>に読み替えてください（<code>egid</code>/<code>euid</code>/<code>gid</code>も同様）。<code>Process</code>を明示的に指定するぶん長くなりますが、あるクラスで<code>Process</code>操作を頻繁に行うならば、</p>
+<div class="plist">
+<pre>include Process
+getpgid(pid, pgid)</pre>
+</div>
+<p class="ni">のように記述することもできます。</p>
+<a id="page_304"/>
+<div class="table" id="table2101">
+<p class="tbl-caption">表21.1●Processのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>egid</code></td>
+<td>実効グループID</td>
+<td><code>ppid</code></td>
+<td>親プロセスID</td>
+</tr>
+<tr>
+<td><code>egid=</code></td>
+<td>実効グループID設定</td>
+<td><code>setpgid</code></td>
+<td>プロセスグループの設定</td>
+</tr>
+<tr>
+<td><code>euid</code></td>
+<td>実効ユーザーID</td>
+<td><code>setpgrp</code></td>
+<td>プロセスグループの設定</td>
+</tr>
+<tr>
+<td><code>euid=</code></td>
+<td>実効ユーザーID設定</td>
+<td><code>setpriority</code></td>
+<td>プライオリティの設定</td>
+</tr>
+<tr>
+<td><code>exit!</code></td>
+<td>強制終了</td>
+<td><code>setsid</code></td>
+<td>セッション開始</td>
+</tr>
+<tr>
+<td><code>fork</code></td>
+<td>fork</td>
+<td><code>times</code></td>
+<td>プロセス時間取得</td>
+</tr>
+<tr>
+<td><code>getpgid</code></td>
+<td>プロセスグループの取得</td>
+<td><code>uid</code></td>
+<td>ユーザーID</td>
+</tr>
+<tr>
+<td><code>getpgrp</code></td>
+<td>プロセスグループの取得</td>
+<td><code>uid=</code></td>
+<td>ユーザーID設定</td>
+</tr>
+<tr>
+<td><code>getpriority</code></td>
+<td>プライオリティの取得</td>
+<td><code>wait</code></td>
+<td><code>wait</code></td>
+</tr>
+<tr>
+<td><code>gid</code></td>
+<td>グループID</td>
+<td><code>wait2</code></td>
+<td>プロセスIDとステータスを得る<code>wait</code></td>
+</tr>
+<tr>
+<td><code>gid=</code></td>
+<td>グループID設定</td>
+<td><code>waitall</code></td>
+<td>全子プロセス対象の<code>wait</code></td>
+</tr>
+<tr>
+<td><code>kill</code></td>
+<td>シグナルを送る</td>
+<td><code>waitpid</code></td>
+<td>pidを指定した<code>wait</code></td>
+</tr>
+<tr>
+<td><code>pid</code></td>
+<td>カレントプロセスID</td>
+<td><code>waitpid2</code></td>
+<td>プロセスIDとステータスを得る<code>waitpid</code></td>
+</tr>
+</table>
+</div></section>
+<section id="chap2107" class="level2">
+<h3>フォークの実例</h3>
+<hr class="hr-gray" />
+<p class="in">では、二重<code>fork</code>テクニックを含めて、<code>fork</code>の使い方を見てみましょう。<a href="#list2101">リスト21.1</a>は<code>fork</code>を使ったソケットサーバーの例です。</p>
+<a id="page_305"/>
+<div class="plistc" id="list2101">
+<p class="lst-caption">リスト21.1●forkによるソケットサーバー</p>
+<pre>require <span class="str">&quot;socket&quot;</span>
+
+gs = TCPserver.open(0)
+loop <span class="kwd">do</span>
+  s = gs.accept
+  fork <span class="kwd">do</span>
+    fork <span class="kwd">do</span>     <span class="cmt"># zombie化を避ける二重fork</span>
+      処理を行う
+      s.close
+    <span class="kwd">end</span>
+  <span class="kwd">end</span>
+  s.close       <span class="cmt"># 親では不要</span>
+  Process.wait  <span class="cmt"># 直接の子を「供養」</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">ま、短いプログラムですし、そんなに難しくないですよね。二重<code>fork</code>だけ少々不自然ですが、まあこんなもんでしょう。</p>
+<p class="in">もう1つ別の例を見てみましょう。Rubyの<code>system</code>メソッドを<code>Process</code>の機能を使って自力で定義した例を<a href="#list2102">リスト21.2</a>に示します。</p>
+<div class="plistc" id="list2102">
+<p class="lst-caption">リスト21.2●mysystem</p>
+<pre><span class="kwd">def</span> mysystem(cmd)
+  STDOUT.flush
+  STDERR.flush
+  pid = fork <span class="kwd">do</span>
+    exec cmd
+  <span class="kwd">end</span>
+  pid, status = Process.waitpid2(pid)
+  <span class="kwd">return</span> <span class="kwd">if</span> status == 0
+  <span class="kwd">return</span> <span class="kwd">false</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><code>fork</code>して子プロセスを作った後、<code>exec</code>メソッドを使って実行ファイルを置き換えています。プログラムの実効ステータスは<code>pid</code>を指定しないで<code>wait</code>だけでも取得できますし、最後のコマンドの終了ステータスは変数 <code>$?</code> で取得できます。ですから、別の解は<a href="#list2103">リスト21.3</a>のようになります。</p>
+<a id="page_306"/>
+<div class="plistc" id="list2103">
+<p class="lst-caption">リスト21.3●mysystem</p>
+<pre><span class="kwd">def</span> mysystem(cmd)
+  STDOUT.flush
+  STDERR.flush
+  fork <span class="kwd">do</span>
+    exec cmd
+  <span class="kwd">end</span>
+  Process.wait
+  <span class="kwd">return</span> <span class="kwd">if</span> $? == 0
+  <span class="kwd">return</span> <span class="kwd">false</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">どちらが好みかというのは人によって違うと思います。他のスレッドが同時に<code>mysystem</code>を呼ぶことが（そして結果として、予想外の<code>Process</code>を<code>wait</code>してしまうことが）ありえるかによって<code>pid</code>を指定するかどうかが決まるでしょう。また、<code>$?</code> というPerl的変数が許容できるかどうかで <code>$?</code> を使うか<code>waitpid2</code>を使うかが決まるでしょう。</p>
+</section>
+<section id="chap2108" class="level2">
+<h3>プロセスの制約</h3>
+<hr class="hr-gray" />
+<p class="in">このようにプロセスは処理を他のプログラムに任せたり、同時に複数の処理を待つことなく実行したりする場合に便利ですが、いくつかの制約があります。</p>
+<ul>
+<li><p>UNIX系OS以外ではうまく動かない</p></li>
+<li><p>プロセス間通信が大変</p></li>
+</ul>
+<p class="in">Windows版Ruby（VC++版）では<code>fork</code>が動きませんし、DOSでもダメです。また、プロセスは環境をコピーしてしまい、変更が親に反映されないのでプロセスの間で情報のやりとりをするのが大変です。情報をやりとりする場合には、</p>
+<ul>
+<li><p>標準入出力で通信</p></li>
+<li><p>ソケットで通信</p></li>
+<li><p>シェアードメモリを使う</p></li>
+</ul>
+<p class="ni">などの方法がありますが、どれもそれなりに面倒です。簡単に使えるのはやはりプロセス起動後には情報のやりとりがほとんどないケースでしょう。ただし、上記のいずれも少々面倒なだけで不可能でないことは申し添えておきます。</p>
+</section>
+<section id="chap2109" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回、駆け足でプロセスについて解説しました。OSの重要な概念であるプロセスを少ないページ数で解説するのはちょっと無理がありますね。この説明でわからなかった人（多数いそうですが）は、ぜひ何かの教科書でプロセスについて調べてみてください。来月はプロセスとはまた違った並列実行へのアプローチ、スレッドについて学ぼうと思います。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-045.xhtml">&lt;&lt; 前ページ</a>　<a href="p-047.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

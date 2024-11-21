@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第38章 テンプレート</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第38章</p>
+<!-- Body -->
+<section id="chap38" class="level1">
+<a id="page_085"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">38</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+テンプレート
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年7月号]</p>
+<div class="newlead">
+<p class="in">テンプレートツールについて説明しています。今回紹介したものの中でERBは現役でRuby on Railsの標準テンプレートエンジンとして活躍していますね。他のものはあまり見かけなくなりましたね。</p>
+<p class="ih">「Ruby開発日記」は「プロトタイプな世界」と題してプロトタイプベースのオブジェクト指向について解説しています。プロトタイプベースオブジェクト指向は今回の記事でも紹介しているように、いくつかの言語で採用されましたが、最近はあまり人気がありません。JavaScriptが広まったときには、これでプロトタイプベースのオブジェクト指向が広まるかと期待されましたが、そうはならなかったようです。人間にとってクラスベースのほうが理解しやすいのかもしれませんね。生き残ったJavaScriptも、そもそも独自のオブジェクトをユーザーが定義するようなスタイルは一般的ではありませんし、そもそも言語に<code>class</code>文が導入されたりしてクラスベースに近づいています。</p>
+</div>
+<div class="lead">
+<p class="ni">もともと「テンプレート」とは図形を書いたりするときに使う穴を抜いた下敷きのようなものです。コンピュータ業界ではそこから転じて、大枠を決めておいて穴埋めしてファイルを生成するような場合の「雛形」のような意味で使われます。</p>
+</div>
+<section id="chap3801" class="level2">
+<h3>ファイル生成</h3>
+<hr class="hr-gray" />
+<p class="in">プログラムの実行結果を含めたHTMLファイルを生成するなど、プログラムによってファイルを生成する処理は珍しいことではありません。</p>
+<p class="in">何も考えないでファイルを生成するプログラムを書くとリスト<a href="#list3801">リスト38.1</a>のようになります。</p>
+<a id="page_086"/>
+<div class="plistc" id="list3801">
+<p class="lst-caption">リスト38.1●ファイル生成プログラム</p>
+<pre>puts <span class="str">&quot;&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;こんにちは&lt;/TITLE&gt;&lt;/HEAD&gt;&quot;</span>
+puts <span class="str">&quot;&lt;BODY&gt;&lt;P&gt;&quot;</span>
+printf <span class="str">&quot;こんにちは。現在の時刻は%sです\n&quot;</span>, Time.now
+puts <span class="str">&quot;&lt;/P&gt;&lt;/BODY&gt;&lt;/HTML&gt;&quot;</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">生成結果は<a href="#list3802">リスト38.2</a>です。</p>
+<div class="plistc" id="list3802">
+<p class="lst-caption">リスト38.2●実行結果</p>
+<pre>&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;こんにちは&lt;/TITLE&gt;&lt;/HEAD&gt;
+&lt;BODY&gt;&lt;P&gt;
+こんにちは。現在の時刻はThu May 13 13:28:15 JST 2004です
+&lt;/P&gt;&lt;/BODY&gt;&lt;/HTML&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">これはプログラムが主でファイルの内容が従という構成です。この構成ではファイルの静的部分がプログラムのあちこちに分散して、見通しが悪くなります。</p>
+<p class="in">また、Webサービスなどではデザイナーとプログラマーが分業することがしばしば行われます。そういう場合にデザイナーとプログラマーが同じファイルを同時に変更するといろいろと面倒なことが起こります。</p>
+<p class="in">そういう諸問題を避けるため、ファイルの静的部分と動的な内容を埋め込む場所を記述したテンプレートを用意し、動的な内容の展開はそのテンプレートを解釈するライブラリ（テンプレートエンジンと呼ぶことがあります）によってによって展開させることが有効となります。<a href="p-014.xhtml#chap37">6月号</a>でInstikiを紹介した際にもテンプレートについて触れましたが、今回はそれらにどのような種類があるのかを解説したいと思います。</p>
+</section>
+<section id="chap3802" class="level2">
+<h3>eRuby</h3>
+<hr class="hr-gray" />
+<p class="in">Ruby界隈で最も古いテンプレートエンジンはeRubyです。これはPerlのテンプレートエンジン<code>eperl</code>に触発されて開発されたものです。eRubyの開発者は前田修吾さんです。eRubyは、</p>
+<ul class="none">
+<li><p><span class="link">http://modruby.net/</span></p></li>
+</ul>
+<p class="ni">から入手可能です。原稿執筆時点での最新バージョンは1.0.5となっています。</p>
+<p class="in">eRubyの最大の特徴はこれが独立したインタプリタであるということです。他のテンプレートエンジンがRubyで記述されたライブラリであるのと比べると、この点が大きな違いになっています。eRubyはCで記述されたインタプリタなので、より高速に動作し、フィルタとして実行するのに向いています。一方、ライブラリではないので他のRubyプログラムから呼び出しにくい（プロセス起動しなければならない）点は欠点になるかもしれません</p>
+<p class="in">eRubyインタプリタが処理するファイルフォーマットを一種の言語であると考えてeRuby（embedded Ruby）と呼ぶことがあります。eRubyのブロックは「<code>&lt;%</code>」で始まり、「<code>%&gt;</code>」で終わります。ブロックの中身はRubyのプログラム（の断片）でなければなりません。eRubyはプログラムが出力を行った場合、そのブロックを出力結果に置き換えます。</p>
+<a id="page_087"/>
+<div class="borderterminal">
+<pre>$ cat foo.erb
+こんにちは、&lt;% print &quot;みなさん!&quot; %&gt;
+$ eruby foo.erb
+こんにちは、みなさん!</pre>
+</div>
+<p class="ih">「<code>&lt;%</code>」の次に「<code>=</code>」がくる場合、そのブロックの内容をRubyプログラムとして評価した値に置き換えます。</p>
+<div class="borderterminal">
+<pre>$ cat bar.erb
+こんにちは、&lt;%= &quot;みなさん!&quot; %&gt;
+$ eruby bar.erb
+こんにちは、みなさん!</pre>
+</div>
+<p class="ih">「<code>&lt;%</code>」の次に「<code>#</code>」がくる場合、ブロックはコメントとして無視されます。</p>
+<div class="borderterminal">
+<pre>$ cat baz.erb
+こんにちは、&lt;%# これは
+コメント %&gt;みなさん!
+$ eruby baz.erb
+こんにちは、みなさん!</pre>
+</div>
+<p class="ih">「<code>&lt;%</code>」の次に「<code>%</code>」がくる場合、これは「<code>&lt;%</code>」のエスケープと解釈されます。静的部分に「<code>&lt;%</code>」という文字列を含むために用います。</p>
+<div class="borderterminal">
+<pre>$ cat quux.erb
+erubyは&lt;%%と%&gt;の間を実行します
+$ eruby quux.erb
+erubyは&lt;%と%&gt;の間を実行します</pre>
+</div>
+<p class="ih">「<code>%</code>」で始まる行は、Rubyプログラムとして評価します。eRubyはその行を出力結果で置き換えます。</p>
+<div class="borderterminal">
+<pre>$ cat calc.erb
+% x = 1 + 1
+1 + 1 = &lt;%= x %&gt;
+$ eruby calc.erb
+1 + 1 = 2</pre>
+</div>
+</section>
+<section id="chap3803" class="level2">
+<a id="page_088"/>
+<h3>ERB</h3>
+<hr class="hr-gray" />
+<p class="in"><code>ERB</code>は純Rubyで記述されたeRubyを解釈するライブラリです。ですからeRubyとは逆の特徴を持つことになります。プログラムからはこちらのほうが使いやすいのではないかと思います。<code>ERB</code>の作者はdRubyの作者でもある関将俊さんです。</p>
+<p class="in">実装上の違いの他に<code>ERB</code>はeRubyとはいくつかの非互換性があります。</p>
+<ul>
+<li><p>「<code>&lt;% %&gt;</code>」の間での出力は<code>ERB</code>の処理に反映されない。<code>ERB</code>は「<code>&lt;% %&gt;</code>」の間のRubyプログラムを実行するだけで、出力の切り替えは行わない</p></li>
+<li><p>「<code>%</code>」で始まる行の解釈は行わない</p></li>
+</ul>
+<p class="in">eRubyプログラムの実例を<a href="#list3803">リスト38.3</a>に示します。この例題を見ればわかるように「<code>&lt;% %&gt;</code>」を使ってループ処理を行うことも簡単にできます。</p>
+<div class="plistc" id="list3803">
+<p class="lst-caption">リスト38.3●eRubyプログラム例</p>
+<pre>&lt;%
+users = File.readlines(<span class="str">&quot;/etc/passwd&quot;</span>).collect{|l|
+  data = l.split(<span class="mcm">/:/</span>)
+  [data[0], data[4]]
+}
+%&gt;
+このマシンのユーザー名と実名:
+
+&lt;% <span class="kwd">for</span> a,n <span class="kwd">in</span> users %&gt;
+アカウント: &lt;%= a %&gt;、名前: &lt;%= n %&gt;
+&lt;% <span class="kwd">end</span> %&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><code>ERB</code>は1.8以降には標準添付されています。1.6系で<code>ERB</code>を使う場合には、</p>
+<ul class="none">
+<li><p><span class="link">http://www2a.biglobe.ne.jp/~seki/ruby/erb-2.0.4.tar.gz</span></p></li>
+</ul>
+<p class="ni">からダウンロードしてください。</p>
+</section>
+<section id="chap3804" class="level2">
+<h3>amrita</h3>
+<hr class="hr-gray" />
+<p class="in">eRubyや<code>ERB</code>などeRuby系のテンプレートエンジンは、元になるファイルにRubyプログラムの断片を埋め込むものです。ですから、量はともかくデザインの中にロジックの一部が紛れ込んでいることになります。また、eRubyファイルは厳密にはHTMLファイルではありませんから、HTMLエディタなどでは処理できません。</p>
+<p class="in">このような問題に対処できるのが<code>amrita</code>です。<code>amrita</code>は純粋なHTML（またはXHTML）ファイルとRubyのデータを結び付けてテンプレート展開を行います。<code>amrita</code>の作者は中島拓さんです。<code>amrita</code>の<code>README</code>から特色を引用します。</p>
+<a id="page_089"/>
+<ul>
+<li><p><code>amrita</code>のテンプレートは <code>&lt;? ... ?&gt;</code> や <code>&lt;% ... %&gt;</code> のような特殊なタグを含まない純粋なHTML/XHTML文書である</p></li>
+<li><p>テンプレートは、ほとんどのHTMLエディタで作成が可能</p></li>
+<li><p>出力の動的な部分を修正しても、Rubyコードには修正が不要</p></li>
+<li><p>モデルデータは、Hash Array文字列のような標準のRubyのデータである。また、自作のクラスのオブジェクトをそのままモデルデータにすることも可能</p></li>
+<li><p>出力はロジックでなくデータでコントロールされる。そのため、テストやデバッグが楽（eXtream Programmingにも向いている）</p></li>
+<li><p>簡単にHTMLテンプレートをRubyのコードにコンパイルすることもできる</p></li>
+</ul>
+<p class="in"><code>amrita</code>はテンプレートとモデルデータを<code>id</code>属性によってマッチさせて、HTML文書を出力します（<a href="#fig3801">図38.1</a>）。テンプレートファイルのタグの中身がモデルデータの値に完全に置き換わっていることに注目してください。</p>
+<div class="fig" id="fig3801">
+  <!-- <div class="image90"> -->
+  <div class="image700">
+      <img src="../image/ch38/38-1.jpg" alt="fig3801" />
+  </div>
+  <p class="fig-caption">図38.1●amritaのテンプレート展開</p>
+</div>
+<p class="in">実際の展開は以下のように行います。</p>
+<p class="in">まず、<code>amrita/template</code>ライブラリをロードします。</p>
+<div class="plist">
+<pre>require <span class="str">&quot;amrita/template&quot;</span></pre>
+</div>
+<p class="in">それからテンプレートエンジンオブジェクトを生成します。生成にはテンプレートファイル名を指定します。</p>
+<div class="plist">
+<pre>tmpl = Amrita::TemplateFile.new(<span class="str">&quot;template.html&quot;</span>)</pre>
+</div>
+<p class="in">テンプレートと対応するモデルデータを用意します。モデルデータはテンプレートの<code>id</code>属性（この例では<code>title</code>と<code>body</code>）に対応した値を持つ必要があります。</p>
+<a id="page_090"/>
+<div class="plist">
+<pre>data = {
+   :title =&gt; <span class="str">&quot;hello world&quot;</span>,
+   :body =&gt; <span class="str">&quot;Amrita is a html template library&quot;</span>
+}</pre>
+</div>
+<p class="in">そしてテンプレートエンジンによって展開を行います。</p>
+<div class="plist">
+<pre>tmpl.expand(STDOUT, data)</pre>
+</div>
+<p class="in"><code>expand</code>メソッドの最初の引数は出力先のストリームです。「<code>&lt;&lt;</code>」メソッドを持つ任意のオブジェクトを出力先に指定できます。第2引数はモデルデータです</p>
+</section>
+<section id="chap3805" class="level2">
+<h3>amritaの繰り返し</h3>
+<hr class="hr-gray" />
+<p class="in">先ほどの例はただ単純な置換でしたが、<code>amrita</code>は繰り返しを行うこともできます。<code>id</code>に対応する値が配列（厳密には<code>Enumerable</code>）であった場合には、対応するタグを配列の要素の数だけ繰り返します。</p>
+<p class="in">たとえば先ほどの例でモデルデータの一部を以下のように配列にすると、</p>
+<div class="plist">
+<pre>data = {
+   :title =&gt; <span class="str">&quot;hello world&quot;</span>,
+   :body =&gt; [<span class="str">&quot;foo&quot;</span>, <span class="str">&quot;bar&quot;</span>, <span class="str">&quot;baz&quot;</span>]
+}</pre>
+</div>
+<p class="ni">出力はこうなります。</p>
+<div class="plist">
+<pre>&lt;html&gt;
+    &lt;body&gt;
+        &lt;h1&gt;hello world&lt;/h1&gt;
+        &lt;p&gt;foo&lt;/p&gt;&lt;p&gt;bar&lt;/p&gt;&lt;p&gt;baz&lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</pre>
+</div>
+<p class="in">テンプレート展開は再帰的に行われます。たとえば、次のようなテンプレートとモデルデータに対する出力を考えてみてください</p>
+<div class="plist">
+<pre>テンプレート:
+&lt;table border=<span class="str">&quot;1&quot;</span>&gt;
+  &lt;tr&gt;&lt;th&gt;lang&lt;/th&gt;&lt;th&gt;author&lt;/th&gt;&lt;/tr&gt;
+  &lt;tr id=<span class="str">&quot;table1&quot;</span>&gt;
+    &lt;td id=<span class="str">&quot;lang&quot;</span>&gt;&lt;td id=<span class="str">&quot;author&quot;</span>&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+モデルデータ:
+data = {
+  :table1=&gt;[
+    { :lang=&gt;<span class="str">&quot;Ruby&quot;</span>, :author=&gt;<span class="str">&quot;Matz&quot;</span> },
+    { :lang=&gt;<span class="str">&quot;Perl&quot;</span>, :author=&gt;<span class="str">&quot;Larry&quot;</span> },
+    { :lang=&gt;<span class="str">&quot;Python&quot;</span>, :author=&gt;<span class="str">&quot;Guido&quot;</span> },
+  ]
+}</pre>
+</div>
+<a id="page_091"/>
+<p class="in"><code>id=table1</code>に対応する値は3要素の配列ですから、<code>&lt;tr&gt;</code> の部分は3回繰り返されることになります。<code>&lt;tr&gt;</code> の中身には“<code>lang</code>”という<code>id</code>を持つタグと“<code>author</code>”という<code>id</code>を持つタグがありますから、配列の各要素がそれぞれモデルデータとして適用され、テンプレート展開されます。その結果、全体の展開結果は以下のようになります。</p>
+<div class="plist">
+<pre>&lt;table border=<span class="str">&quot;1&quot;</span>&gt;
+  &lt;tr&gt;&lt;th&gt;lang&lt;/th&gt;&lt;th&gt;author&lt;/th&gt;&lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Ruby&lt;/td&gt;&lt;td&gt;Matz&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;
+    &lt;td&gt;Perl&lt;/td&gt;&lt;td&gt;Larry&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;
+    &lt;td&gt;Python&lt;/td&gt;&lt;td&gt;Guido&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</pre>
+</div>
+<p class="in">キーに対応する値は多くの場合、文字列が使われますが、<code>nil</code>または<code>false</code>だった場合にはタグそのものが削除されます。また、<code>true</code>だった場合にはテンプレートのタグの中身がそのまま使われます。</p>
+<p class="in">あと、タグの属性を指定する方法を紹介しておきます。HTMLファイルを生成する場合にはタグの中身だけでなく、属性を指定したいケースも多かろうと思います。そういう場合には<code>Amrita::a</code>メソッドを使います。</p>
+<div class="plist">
+<pre>Amrita::a(:href=&quot;http://www.rubyist.net/&quot;){&quot;Matz&quot;}</pre>
+</div>
+<p class="in"><code>Amrita::a</code>メソッドの戻り値は<code>Amrita::AttrArray</code>クラスのオブジェクトで、これが値として与えられた場合には、引数を属性、ブロックの値を内容としてタグが展開されます。</p>
+<div class="plist">
+<pre>テンプレート:
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;a id=<span class="str">&quot;web&quot;</span>&gt;my page&lt;/a&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+
+モデルデータ:
+data = {
+  :web=&gt;Amrita::a(:href=&gt;<span class="str">&quot;http://www.rubyist.net/&quot;</span>){
+    <span class="str">&quot;Matz&quot;</span>
+  },
+}
+
+出力
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;a href=<span class="str">&quot;http://www.rubyist.net/&quot;</span>&gt;Matz&lt;/a&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
+</div>
+<a id="page_092"/>
+<p class="in"><code>amrita</code>にはここでは紹介した他にもいろいろな機能があります。たとえば手続きオブジェクトなどを値に使う方法や、テンプレート展開をコンパイルして高速化する方法などは非常に興味深いです。詳しくは<code>amrita</code>のドキュメントを参照してください。</p>
+</section>
+<section id="chap3806" class="level2">
+<h3>amritaの入手とインストール</h3>
+<hr class="hr-gray" />
+<p class="in">原稿執筆時点でのamritaの最新版は、安定版が1.0.2、開発版が1.8.2です。それぞれ、</p>
+<ul class="none">
+<li><p><span class="link">http://www.brain-tokyo.jp/research/amrita/amrita-1.0.2.tar.gz</span></p></li>
+<li><p><span class="link">http://www.brain-tokyo.jp/research/amrita/amrita-1.8.2.tar.gz</span></p></li>
+</ul>
+<p class="ni">から入手できます。</p>
+<p class="in">インストールは簡単で、ダウンロードした<code>tar</code>ファイルを展開し、作成されたディレクトリ（たとえば<code>amrita-1.0.2など</code>）に移動してから、root権限で<code>ruby install.rb</code>を実行するだけです。</p>
+</section>
+<section id="chap3807" class="level2">
+<h3>amritaのライバルたち</h3>
+<hr class="hr-gray" />
+<p class="in">RAAにはamritaの影響を受けたと思われるテンプレートエンジンライブラリが複数登録されています。</p>
+<div class="description">
+<p class="ditem">xtemplate</p>
+<p class="dni"><code>xtemplate</code>は立石孝彰さんによるXML用テンプレートエンジンです。属性の扱い（「<code>@</code>」を前置したキーは属性）の扱いやXPathが使える点などは<code>amrita</code>よりも優れているように見えます。<code>xtemplate</code>はモデルデータとしてXMLやYAMLを直接使うこともできます。<code>xtemplate</code>については、</p>
+<ul class="none">
+<li><p>　　<span class="link">http://xtemplate.sourceforge.net/</span></p></li>
+</ul>
+<p class="dni">を参照してください。原稿執筆時点での<code>xtemplate</code>の最新版は0.7.0です。</p>
+<p class="ditem">misen</p>
+<p class="dni"><code>misen</code>は白井薫さんが開発されたテンプレートエンジンです。<code>misen</code>の特徴はHTMLだけではなく、任意のフォーマットの展開ができることです。特にスタイルを定義することで、タグの形式も独自に定義できる点が面白いです。サンプルとしてLaTeXスタイルが用意されていて、</p>
+<div class="plistd">
+<pre>\documentclass{article}
+\title{\misen:title}
+\begin{document}
+  \maketitle
+  \begin{misen:body}
+    body will be inserted here
+  \end{misen:body}
+\end{document}</pre>
+</div>
+<a id="page_093"/>
+<p class="dni">のような指定ができます。XML（SGML）ふうのタグの代わりにTeXの <code>\begin{}</code>, <code>\end{}</code> で範囲が指定されています。</p>
+<p class="din"><code>misen</code>については、</p>
+<ul class="none">
+<li><p>　　<span class="link">http://devel.korinkan.co.jp/misen/</span></p></li>
+</ul>
+<p class="dni">を参照してください。原稿執筆時点での<code>misen</code>の最新バージョンは0.11.1です。</p>
+<p class="ditem">kwartz</p>
+<p class="dni">厳密にいうと<code>kwartz</code>は「Rubyで実装されたテンプレートエンジン」で「Rubyのためのテンプレートエンジン」ではありません。<code>kwartz</code>はテンプレートに埋め込む言語を独自言語とすることで、Rubyだけでなく、PHPやJavaにも対応しています。<code>kwartz</code>はRuby, PHP, Java用のテンプレート展開コードを生成します。利用者は生成されたコードを（コンパイルして）利用します。<code>kwartz</code>についての情報は、</p>
+<ul class="none">
+<li><p>　　<span class="link">http://www.kuwata-lab.com/kwartz/</span></p></li>
+</ul>
+<p class="dni">を参照してください。<code>kwartz</code>はIPAの平成15年度未踏ソフトウェア創造事業の対象でした。<code>kwartz</code>の開発者は桑田誠さんです。</p>
+</div>
+</section>
+<section id="chap3808" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はテンプレートエンジンについて調べてみました。現在はWebアプリケーションの開発が盛んです。RubyでWebアプリケーションを、と考えている人も多いのではないでしょうか。Webページのデザインとロジックを分離できるテンプレート技術は優れたWebアプリケーションを開発するのに非常に役に立つ技術です。<code>amrita</code>を始めとしたテンプレートエンジンはきっとそのために役立つことでしょう。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-015.xhtml">&lt;&lt; 前ページ</a>　<a href="p-017.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第6章 はじめの一歩</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第6章</p>
+<!-- Body -->
+<section id="chap06" class="level1">
+<a id="page_065"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">6</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+はじめの一歩
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2001年11月号]</p>
+<div class="newlead">
+<p class="in">私にとって初めての初心者向けの連載初回になります。これまでは中級者以上を対象にした文章しか書いてこなかったこともあって、自信のなさが文面からにじみ出ていますね。苦肉の策として、初心者向け、中級者向け、現状報告の3部構成にしたのも、作者の不安を反映していますね。</p>
+<p class="in">興味深いのは、JAOO訪問記です。デンマークのオーフス市で開催されたこのカンファレンスへの出席は私にとって大変刺激的でした。インターネットでしか会話したことのなかった人たちや、著名な開発者などと直接交流できる日が来るとは、それまでの私には想像もできなかったことです。特に世界最初のオブジェクト指向言語と呼ばれるSimulaの開発者であるKristien Nygaard教授は「気のいいおじいさん」という感じで、気さくに話してくださいました。なかには冷戦時代の公開するとヤバそうな話も。とてもその年のチューリング賞受賞者とは思えない気さくさ。</p>
+</div>
+<div class="lead">
+<p class="ni">Ruby知ってますか。Rubyは便利なんです。それになにより気持ちがいいんです。今回から始まるこの連載では、Ruby作者自らが、Rubyを知らない人でもRubyを使えるようになるような解説を試みます。乞うご期待。</p>
+</div>
+<section id="chap0601" class="level2">
+<h3>ごあいさつ</h3>
+<hr class="hr-gray" />
+<p class="in">はじめまして。まつもと ゆきひろと申します。一部では“Matz”としても知られていますが、Rubyを作っている人です。</p>
+<p class="in">私は頼まれるとなかなかイヤといえない性格なので、以前からお付き合いのあったLinux magazineの編集の人からの「Ruby入門の連載をお願いします」という依頼に、つい「はい」と答えてしまいました。開発者としてRubyとはそもそもの初めからの付き合いですし、それも今年でもう8年にもなります。正直なところ、初心はすっかり忘れてしまいました。</p>
+<a id="page_066"/>
+<p class="in">問題は初心を忘れているという点だけではなくて、そもそもちゃんとした初心者向けの文章を書いたことがないってことのほうが重要な気がします。そういえば、出たばっかりの『Rubyを256倍使う本 太陽編』じゃなかった『黄道編』でも、私の書いたREADME.EXT.jpという文書（拡張ライブラリの書き方を解説している）に対して</p>
+<div class="blockquote">
+<p class="ni">Rubyの内部構造を知っている人が書いている</p>
+</div>
+<p class="ni">と断言されていました。一瞬「そりゃ内部構造を知らなきゃREADME.EXT.jpは書けないでしょ」とツっこんだのですが、要するに「内部構造を知っている人にしか読めない文書だ」という意味なんでしょう。やはり初心者向けの連載を引き受けたのは無謀であったか……。</p>
+<p class="in">というわけで（なにが「というわけ」なんだか）、入門向けのわかりやすい文章を書く自信はまったくないのですが、それなりに努力しますのでよろしくお願いします。</p>
+<p class="in">皆さんの評判がよければ、連載が続くかもしれません。</p>
+</section>
+<section id="chap0602" class="level2">
+<h3>連載の構成</h3>
+<hr class="hr-gray" />
+<p class="in">本連載は毎月以下の3部構成にしようと考えています。</p>
+<div class="description">
+<p class="ditem">Ruby入門</p>
+<p class="dni">この連載の本文です。できるだけRubyのことをまったく知らない人も学べるような内容にしようと思っています。皆さんにとっても一番優しく、私にとっては一番難しい部分です。</p>
+<p class="ditem">知られざるRuby</p>
+<p class="dni">見かけは単純でも奥が深いことが多いのがRubyです。このパートではRubyの一部を取り上げて、かなり突っ込んだ内容まで解説します。初心者を卒業した人にも役に立つ内容にしたいと考えています。</p>
+<p class="ditem">Ruby開発日記</p>
+<p class="dni">せっかく開発者自らによる連載なのですから、開発者でないと書けないことも載せたいと思って作ったのが、この「Ruby開発日記」です。Ruby開発の最新トピックや、私自身の近況を毎月少しずつ紹介しようと思います。</p>
+</div>
+</section>
+<section id="chap0603" class="level2">
+<h3>Rubyとは</h3>
+<hr class="hr-gray" />
+<p class="in">前振りはここまでにして、ここからが本文です。</p>
+<p class="in">今回は初回ですから、そもそもRubyとはいったい何かという点から始めたいと思います。一言で言ってしまうとRubyは、</p>
+<blockquote>
+<p class="in"><span class="k">オブジェクト指向プログラミング言語</span></p>
+</blockquote>
+<p class="ni">なのですが、これではわかる人にしかわかりませんから、もうちょっとていねいに説明します。</p>
+<p class="in">まず「オブジェクト指向」はとりあえず置いておきましょう。今月は「オブジェクト指向」の話はしません。で、残りの「プログラミング言語」のほうですが、こちらは「プログラムを作るときに使う言語」です。</p>
+<a id="page_067"/>
+<p class="in">コンピュータは人間に代わっていろいろな仕事を速く正確に行ってくれますが、正直なところあまり頭は良くありません。SF映画に出てくるような柔軟な発想で人間を助けてくれるパートナーなんてまだまだ夢のまた夢です。現在のコンピュータが仕事をしてくれるのは、誰か人間がその仕事の手順を正確にコンピュータに教えてあげてくれたからです。その手順書を「プログラム」と呼びます。</p>
+<p class="in">繰り返しになりますが、コンピュータはあまり頭が良くありませんので、この手順書を人間の言葉で書いても読めません。ですから、コンピュータにもわかる言語で書いてやる必要があります。これが「プログラミング言語」です。</p>
+<p class="in">プログラミング言語にはいろいろな種類があります。たとえば、BASIC, FORTRAN, C, Pascal, Lisp, Perl, Smalltalkなどがあげられます。いくつかは聞いたことがあるのではないでしょうか?</p>
+<p class="in">Rubyはそれらと同じプログラミング言語です。ですから、Rubyを使うということは、プログラムを作る、つまりコンピュータに仕事の手順を教えてやるということなのです。</p>
+</section>
+<section id="chap0604" class="level2">
+<h3>なぜRuby</h3>
+<hr class="hr-gray" />
+<p class="in">世の中にプログラミング言語がいくつあるのか正確に知っている人は誰もいません。以前、数千はあるのではという文章を読んだことがあります。まあ誰も知らないマイナーなものはこの際置いておくとしても、相当メジャーなものに限っても両手では足りないくらいあるでしょう。</p>
+<p class="in">その中で、なぜRubyを使うのか、あるいはなぜRubyを学ぶのか、という疑問が出てくるのは当然だと思います。ここで「学ぶ必要はない」と答えてしまうと、私のRubyの作者としての面目は丸つぶれですし、この連載も初回にして最終回になってしまいます。それは私にとって個人的に非常にまずいので、とりあえず「学ぶ必要はある」として考えましょう。</p>
+<p class="in">他の言語に比べて、Rubyが優れている理由はいくつかあるのですが、代表的なものを列挙しておきます。</p>
+<div class="description">
+<p class="ditem">手軽に実行できる</p>
+<p class="dni">Rubyのプログラムは書いてすぐに実行できます。これはRuby言語を解釈するプログラム（これをインタプリタと呼びます）が、プログラムを読み込んですぐに実行するからです。一方、C言語などの場合では、プログラムはまずコンピュータが直接実行できる形式に変換するプログラム（これをコンパイラと呼びます）が、C言語で書かれたプログラムを解釈しますから、実際に実行する前に1ステップ必要になります。このコンパイルと呼ばれるステップには、数分から場合によっては数時間も必要になりますから、すぐ実行というわけにはいきません。</p>
+<p class="ditem">機能が強力</p>
+<p class="dni">あなたが自分でプログラムを書いてコンピュータにやらせたい仕事はなんでしょうか?　人によってそれぞれだと思いますが、Linux magazineの読者である皆さんならば、テキスト処理やファイル操作、システム管理などの仕事が多いのではないでしょうか。Rubyはそういう仕事が大の得意です。Rubyはこのあたりを先輩に当たる言語であるPerlから学びました。</p>
+<a id="page_068"/>
+<p class="ditem">わかりやすい</p>
+<p class="dni">わかりやすいと感じるかどうかは人によって違うと思うので、この「わかりやすい」という長所には主観がたっぷり入っています。少なくとも私はわかりやすいプログラムが書きやすいようにRubyを設計しました。もっともプログラムがわざわざわかりにくくなるように言語を設計する人はあんまりいないと思います。いや、世の中にはBrainf*ckという言語のような「わかりにくいことそのものが存在意義」というプログラミング言語もあるにはありますけど。</p>
+<p class="din">Rubyは文法がシンプルで同じ仕事を比較的簡潔に書けるという点、充実したライブラリのおかげで自分で書かなくてはいけないことが少ない点、それから今後説明するオブジェクト指向という考え方に基づいて設計されているので言語に一貫性がある点などが、わかりやすさの原因になっていると考えています。</p>
+<p class="ditem">フリーソフトウェア</p>
+<p class="dni">私にとってあまりに当たり前なのでつい忘れてしまうのですが、人によっては重要な特徴であると思います。Rubyはフリーソフトウェア、あるいはオープンソースソフトウェアであるため、利用に際して費用がかかりません。開発者である私に対しても謝礼や代金を払う必要はいっさいありません。</p>
+</div>
+</section>
+<section id="chap0605" class="level2">
+<h3>サンプルRubyプログラム</h3>
+<hr class="hr-gray" />
+<p class="in">くどくどと説明ばかりを読んでいてもイメージがわかないと思いますので、ここで実際のRubyプログラムをいくつか見てみましょう。</p>
+<p class="in">まずは超簡単なものから。</p>
+<div class="plist">
+<pre>puts 1+2</pre>
+</div>
+<p class="in">これは1+2を計算して出力するものです。<code>puts</code>は1行出力のための手続きです。別にRubyだから特別というふうには見えません。実際にはこのようなプログラムでも背後で「オブジェクト」がいろいろ動いているのですが、その話は来月以降ゆっくり説明したいと思います。</p>
+<p class="in">次のものはもうちょっと複雑です。以下のプログラムはコマンドライン引数として指定したファイルのそれぞれの行数を調べます。</p>
+<div class="plist">
+<pre> 1 total = 0
+ 2 nfile = 0
+ 3 <span class="kwd">for</span> file <span class="kwd">in</span> ARGV
+ 4   n = 0
+ 5   File::foreach(file) <span class="kwd">do</span>
+ 6     n += 1
+ 7   <span class="kwd">end</span>
+ 8   printf <span class="str">"file %s has %d lines\n"</span>, file, n
+ 9   total += n
+10   nfile += 1
+11 <span class="kwd">end</span>
+12 printf <span class="str">"total %d files %d lines\n"</span>, nfile, total
+</pre>
+</div>
+<a id="page_069"/>
+<p class="in">1行目と2行目は変数の初期化です。総行数を保存する<code>total</code>という変数とファイル数を保存する<code>nfile</code>という変数を両方とも0にしています。</p>
+<p class="in"><code>ARGV</code>はコマンドライン引数です。<code>for</code>文で各ファイルに対して繰り返しています（3行目）。引数に指定したファイル名がそれぞれ変数<code>file</code>に入って繰り返されます。</p>
+<p class="in"><code>File::foreach(file)</code>は<code>file</code>で指定したファイルの各行に対して繰り返す手続きです（5行目）。今回は行数を数えるだけですから、ファイルごとの行数を変数<code>n</code>に足していくだけです。</p>
+<p class="in">各行に対する繰り返しが終了したら、<code>printf</code>手続きを使って、そのファイルの行数を出力し（8行目）、トータルの行数とファイル数を増やしておきます（9, 10行目）。最後にトータルのファイル数と行数を出力して終わりです（12行目）。</p>
+<p class="in">他の言語でプログラムを書いたことがある（あるいは読んだことがある）人ならば、あまり説明しなくてもかなり推測できるのではないかと思います。この「常識が通用する」部分もRubyの長所の1つです。</p>
+<p class="in">せっかくのプログラムですから、実行してみましょう。とりあえず上記のプログラム（行番号を除く）をエディタを使ってファイルにします。ここでは<code>count.rb</code>という名前だとします。これをRubyインタプリタの引数にします。それから行数を数えたいファイル名を続けて並べます。ですから、たとえばカレントディレクトリのヘッダーファイル（拡張子が<code>".h"</code>のファイル）の行数を数えたければ、</p>
+<div class="borderconsole">
+<pre>% ruby count.rb *.h</pre>
+</div>
+<p class="ni">と実行します。出力例を<a href="#fig0601">図6.1</a>に示します。</p>
+<div class="figconsole" id="fig0601">
+<div class="borderconsole">
+<pre>file config.h has 118 lines
+file defines.h has 94 lines
+file dln.h has 31 lines
+file env.h has 60 lines
+file intern.h has 414 lines
+file node.h has 358 lines
+file re.h has 41 lines
+file regex.h has 228 lines
+file rename2.h has 307 lines
+file ruby.h has 623 lines
+file rubyio.h has 66 lines
+file rubysig.h has 90 lines
+file st.h has 46 lines
+file util.h has 53 lines
+file version.h has 4 lines
+total 15 files 2533 lines</pre>
+</div>
+<p class="fig-caption">図6.1●Rubyプログラムの実行例</p>
+</div>
+<p class="in">どうです?　そんなに難しくないでしょう?</p>
+<a id="page_070"/>
+<p class="in">実はRubyを使わなくてもLinuxなら<code>wc -l *.h</code>とすれば行数は簡単に求まるのですが、ここでは「自分でプログラムしたのだ」という満足感を得たのだということにしておきましょう（笑）。これは最初の一歩なのですから。そのうち、既存のコマンドでは簡単には済まないこともできるようになります。</p>
+</section>
+<section id="chap0606" class="level2">
+<h3>はじめに下準備を</h3>
+<hr class="hr-gray" />
+<p class="in">さて、Rubyを使ってみたくなりましたか?　え、ならない?　では、念力を送らなければ。……。さあ、使いたくなりましたか?</p>
+<p class="in">では、Rubyを使ってみたくなったところで、お手元のマシンでRubyが使えるかどうか確かめてみましょう。Linux magazineの読者ですから、マシンにはきっとLinuxがインストールしてあると思います。</p>
+<p class="in">最近の多くのLinuxでは最初からRubyがインストールしてあります。試してみましょう。xtermなどの画面から、シェルプロンプトに対して以下のように入力します（“<code>%</code>”はシェルプロンプトです）。</p>
+<div class="borderconsole">
+<pre>% ruby -v
+ruby 1.6.4 (2001-08-06) [i386-linux]</pre>
+</div>
+<p class="ni">などと表示されたらRubyが使えます。バージョンや日付は異なっているかもしれません。使える人はラッキーでした。使えない人はなんとかしましょう。</p>
+</section>
+<section id="chap0607" class="level2">
+<h3>インストール</h3>
+<hr class="hr-gray" />
+<p class="in">というわけで、使えなかった人はRubyをインストールする必要があります。インストール手順はRuby公式サイトの<span class="link">http://www.ruby-lang.org/ja/install.html</span>などを参考にするとよいとありますが、若干情報が古いようです（最新は1.4.5とか書いてあるし）。</p>
+<p class="in">どうせですから、最新をインストールしましょう。Windows使いならともかくLinuxなら楽勝です。実際、私もLinuxでRubyを開発してますから。</p>
+<p class="in">まず、ソースコードを入手します。「超」最新安定版であるstable-snapshotがよいでしょう（「超」は「最新」にかかります）。</p>
+<ul class="none">
+<li><p><span class="link">ftp://ftp.ruby-lang.org/pub/ruby/stable-snapshot.tar.gz</span></p></li>
+</ul>
+<p class="ni">を手に入れます。同じディレクトリにある<code>ruby-1.6.4.tar.gz</code>がリリース安定版です。たぶん、今月号が出る頃には<code>ruby-1.6.5.tar.gz</code>に置き換わっていると思いますが。</p>
+<p class="in">ソースを入手したら、それを展開します。適当なディレクトリで以下のコマンドを実行します。</p>
+<div class="borderconsole">
+<pre>% tar zxvf stable-snapshot.tar.gz</pre>
+</div>
+<p class="in">つらつらとメッセージが出て<code>ruby</code>ディレクトリができているはずです。あとはコンパイルです。以下の手順でコマンドを実行してください。</p>
+<a id="page_071"/>
+<div class="borderconsole">
+<pre>% cd ruby
+% ./configure
+% make</pre>
+</div>
+<p class="in">これでコンパイルは完了です。実際のインストールの前にテストしておきましょう。</p>
+<div class="borderconsole">
+<pre>% make test
+test succeeded</pre>
+</div>
+<p class="ni">と出れば、成功です。Linuxではコンパイルもテストも失敗しないはずです。後はインストールです。rootになって、</p>
+<div class="borderconsole">
+<pre>% su
+# make install</pre>
+</div>
+<p class="ni">とすれば、インストールは完了です。もしあなたがroot権限をお持ちであれば、このようにLinuxでのインストールは簡単です。もし、rootになれないのであれば、つまりそのマシンには他に管理者がいるということですから、その管理者の方にお願いするのが一番手っ取り早いでしょう。</p>
+<div class="blockquote">
+<p class="ni"><span class="k">「ねえ、Rubyをインストールして」</span></p>
+</div>
+<p class="in">もちろん、自分のホームディレクトリにインストールするという方法もあるにはあるのですが、やはりここはそのマシンを使うすべての人の幸せのため管理者の方にお願いするのが正解でしょう。</p>
+<p class="in">また、もしあなたが何らかの事情でWindowsでRubyしたいと強く望んでいるのでしたら、</p>
+<ul class="none">
+<li><p><span class="link">http://www.pragmaticprogrammer.com/ruby/downloads/ruby-install.html</span></p></li>
+</ul>
+<p class="ni">からバイナリをダウンロードしたほうがよいかもしれません。ただし、私はWindowsのことはなんにもわかりませんから、くれぐれも私には質問しないでくださいね。お願いします。</p>
+</section>
+<section id="chap0608" class="level2">
+<h3>Rubyの使い方</h3>
+<hr class="hr-gray" />
+<p class="in">とりあえずRubyインタプリタの使い方を説明しておきましょう。といっても全然難しくなんかありません。</p>
+<div class="borderconsole">
+<pre>% ruby プログラム</pre>
+</div>
+<p class="ih">「プログラム」の部分にはエディタなどで入力したRubyプログラムのファイル名が入ります。これでRubyプログラムが実行できます。Rubyプログラムファイルには、たとえば<code>sample.rb</code>というように<code>".rb"</code>という拡張子を付けるのが慣習になっていますが、別に付けなければならないというものではありません。</p>
+<a id="page_072"/>
+<p class="in">実際には、Rubyインタプリタはたくさんのコマンドラインオプションがあるのですが、とりあえず今回は初回ですから、必要はないでしょう。興味のある人は、</p>
+<div class="borderconsole">
+<pre>% ruby -h</pre>
+</div>
+<p class="ni">と実行すると一覧を見ることができます（<a href="#list0601">リスト6.1</a>）。</p>
+<div class="plistc" id="list0601">
+<p class="lst-caption">リスト6.1●Rubyインタプリタのコマンドラインオプション</p>
+<pre>Usage: ruby [switches] [--] [programfile] [arguments]
+  -0[octal]       specify record separator (\0, if no argument)
+  -a              autosplit mode with -n or -p (splits $_ into $F)
+  -c              check syntax only
+  -Cdirectory     cd to directory, before executing your script
+  -d              set debugging flags (set $DEBUG to true)
+  -e &#39;command&#39;    one line of script. Several -e&#39;s allowed. Omit [programfile]
+  -Fpattern       split() pattern for autosplit (-a)
+  -i[extension]   edit ARGV files in place (make backup if extension supplied)
+  -Idirectory     specify $LOAD_PATH directory (may be used more than once)
+  -Kkcode         specifies KANJI (Japanese) code-set
+  -l              enable line ending processing
+  -n              assume &#39;while gets(); ... end&#39; loop around your script
+  -p              assume loop like -n but print line also like sed
+  -rlibrary       require the library, before executing your script
+  -s              enable some switch parsing for switches after script name
+  -S              look for the script using PATH environment variable
+  -T[level]       turn on tainting checks
+  -v              print version number, then turn on verbose mode
+  -w              turn warnings on for your script
+  -x[directory]   strip off text before #!ruby line and perhaps cd to directory
+  --copyright     print the copyright
+  --version       print the version</pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap0609" class="level2">
+<h3>irbの使い方</h3>
+<hr class="hr-gray" />
+<p class="in">もう1つ便利なツールirbも紹介しておきましょう。Rubyインタプリタがインストールされていれば、たぶんirbもインストールされていると思います。irbはinteractive ruby（対話型Ruby）の略です。irbを使えばプログラムを対話的に入力できるので、手軽に実験することができます。irbの起動にはただ<code>irb</code>コマンドを実行するだけでかまいません。</p>
+<a id="page_073"/>
+<div class="borderconsole">
+<pre>% irb
+irb(main):001:0&gt;</pre>
+</div>
+<p class="in">起動するとプロンプトが出てきますから、それに向かって実行したいRubyのプログラムを入力します。</p>
+<div class="borderconsole">
+<pre>irb(main):001:0&gt; 1+1
+2
+irb(main):002:0&gt;</pre>
+</div>
+<p class="in">複数の行に渡るプログラムもそのまま入力できます。</p>
+<div class="borderconsole">
+<pre>irb(main):002:0&gt; def fact(n)
+irb(main):003:1&gt;  if n == 0
+irb(main):004:2&gt;    1 
+irb(main):005:2&gt;  else
+irb(main):006:2*   n*fact(n-1)
+irb(main):007:2&gt;  end
+irb(main):008:1&gt; end
+nil
+irb(main):009:0&gt; fact(10)
+3628800
+irb(main):010:0&gt;</pre>
+</div>
+<p class="in">プロンプトの最初の数字は入力した行番号、次の数字はネストのレベルです。</p>
+<p class="in">irbを使えば、Rubyの挙動を簡単に確認できるので非常に便利です。やはり、実際に使ってみるのが一番勉強になります。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-006.xhtml">&lt;&lt; 前ページ</a>　<a href="p-008.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

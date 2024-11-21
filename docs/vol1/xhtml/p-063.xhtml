@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第29章 再入門オブジェクト指向</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第29章</p>
+<!-- Body -->
+<section id="chap29" class="level1">
+<a id="page_391"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">29</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+再入門オブジェクト指向
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年10月号]</p>
+<div class="newlead">
+<p class="ih">「オブジェクト指向」を改めて解説しています。背景としては、この時代はオブジェクト指向が大変注目されていた反面、あまり品質のよろしくない記事があふれていて、やや混乱が発生していたことがあります。この記事ではRubyをベースにしたオブジェクト指向解説を行っています。あくまでもRubyの話なので、たとえば「仕様の継承と実装の継承の区別」とか「継承と型の関係」などについて触れられていないのが、現代の視点からは不満がありますね。</p>
+<p class="in">また、後半ではirbを紹介しています。irbは現代でも活用されていますし、当時と比較すると補完機能などについても大変進歩していますが、基本的な部分は20年前から変わらず存在しています。REPLをベースにした体験の良さを一般に示したのはirbの功績ではないでしょうか。</p>
+<p class="ih">「Ruby開発日記」では、LL Saturdayの参加記録です。当日まさかの台風直撃で、開催が危ぶまれるほどでしたが、楽しいイベントでした。帰りの飛行機が飛んでほんとに良かったです。</p>
+</div>
+<div class="lead">
+<p class="ni">先月は『独習Ruby』と題して、Ruby全体の概観と独習のコツを復習してみましたが、いかがでしたでしょうか。今月はRubyの基礎の基礎であり、意外と理解が難しいと思われている「オブジェクト指向」について学びます。</p>
+</div>
+<section id="chap2901" class="level2">
+<h3>オブジェクト指向は難しい?</h3>
+<hr class="hr-gray" />
+<p class="in">オブジェクト指向が難しいと感じている人に、私が解説するというのは至難の業です。なんといっても最初にオブジェクト指向について触れたはるか昔の高校時代から今に至るまで、私はオブジェクト指向が難しいなどと一度も思ったことがないからです。自分が難しいと思っていないのに、難しいと感じている人にわかる説明をするのは困難ですよね。</p>
+<p class="in">どうやらオブジェクト指向には、わかる人にはすんなりわかっても、わからない人にはさっぱりわからないという傾向があるようです。そこで、いろいろ調査してみました。Web日記へのツッコミや周辺の人々の経験から、オブジェクト指向の学習についていくつかのことがわかってきました。</p>
+<a id="page_392"/>
+<p class="in">まず、第1に「オブジェクト指向は難しい」というイメージが先行しているということです。確かにオブジェクト指向の解説には、オブジェクト、クラス、メソッドなどどこかで聞いたようなカタカナ言葉が大量に発生します。しかも、よそで聞くのとでは意味が違うようです。いまさら別の訳語を用意するわけにもいきませんので慣れるしかないのですが、改めてまとめてみたいと思います。</p>
+<p class="in">第2に、実用的でない解説が横行していることがあります。たとえば継承というとすぐに「哺乳類」は「動物」のサブクラスだとかいうような例題が登場します。しかし、実際のプログラミングで継承を使うときに、哺乳類だの脊椎動物だのと知識表現的な使い方をすることはまずありません。使われない例題で解説するようでは理解できない人が出ても当然でしょう。私自身もそういう本を書いているので同罪ではあるのですが。</p>
+<p class="in">第3に、オブジェクト指向言語にはいろいろあって、微妙に流儀や定義が違ううえ、説明するほうも自分の流儀に固執するので、複数の書籍がそれぞれ違うことが書いてある（ように読める）ので、混乱を招いていることがあるようです。よく考えると結局は似たようなことが書いてあるわけですが、初心者のうちは表面的な違いが重要になりますから。</p>
+<p class="in">第4に、オブジェクト指向という考え方は、データの構造のようなものを表現する考えであるともいえます。コンピュータの処理を手続きだけ考える人は、このデータ構造という部分で引っかかるようです。</p>
+<p class="in">しかし、私はオブジェクト指向は難しい考え方ではなく、先入観を取り払って適切に学習すればすぐに身につく考え方だと思います。今回はその辺に挑戦してみましょう。</p>
+</section>
+<section id="chap2902" class="level2">
+<h3>わかるオブジェクト指向</h3>
+<hr class="hr-gray" />
+<p class="in">まずはいくつかの基本的な単語を学びましょう。オブジェクト指向ってのは、どういうわけだかよく使われる単語を再利用するクセがありますが、オブジェクト指向の文脈ではこうなんだと思って覚えてください。</p>
+<div class="description">
+<p class="ditem">オブジェクト</p>
+<p class="dni">プログラムに登場するさまざまな「概念」のうち、データとして直接取り扱えるものがオブジェクトです。たとえば、数や文字列はオブジェクトです。この「データをオブジェクトとして捉える」というのがオブジェクト指向の最大公約数だと思います。その他のものはみな「あると便利なもの」でしょう。</p>
+<p class="ditem">メソッド</p>
+<p class="dni">オブジェクト指向の重要な要素として「オブジェクトは自分自身にふさわしい処理を知っている」というものがあります。この自分自身にふさわしい処理のことを「メソッド」と呼びます。</p>
+<p class="din">オブジェクトのユーザーは処理の詳細については何も知らなくても、メソッドを通じてオブジェクトを操作できます。むしろ、オブジェクトの内部構造や処理手順などについては知らないほうがよいとされています。</p>
+<a id="page_393"/>
+<p class="ditem">クラス</p>
+<p class="dni">人間は分類するのが好きです。あの生き物とこの生き物は同じ特徴を持つから「犬」という同じ種類の生き物として分類しようとかいうような活動は、はるかな昔から行われてきました。</p>
+<p class="din">オブジェクト指向においても、同じ特徴を持つオブジェクトをまとめた「クラス」というものがあります。クラスはオブジェクトの特徴を決めるひな形になります。たとえば「文字列クラス」は個々の文字列が持ついろいろな特徴をまとめたものです。そしてすべての文字列オブジェクトは、文字列クラスに所属します。</p>
+<p class="din">あるオブジェクトがどんな構造を持つか、どんなメソッドを持つかはクラスによって決まります。</p>
+<p class="din">実はクラスはオブジェクト指向に必須の概念ではないのですが、非常に便利なのでほとんどのオブジェクト指向言語で採用されています。</p>
+<p class="din">オブジェクトのことを「インスタンス」と呼ぶ場合がありますが、これはオブジェクトがクラスに属していることを強調する表現です。</p>
+<p class="ditem">継承</p>
+<p class="dni">「継承」というのは、あるクラスの機能を引き継いで新しいクラスを作ることです。既存のクラスの機能をちょっとだけ変えたものを作るときに便利です。継承はオブジェクト指向の解説では必ず強調される機能ですが、実際にはそんなに多用されるわけではありません。次第に慣れていけばよいでしょう。</p>
+</div>
+</section>
+<section id="chap2903" class="level2">
+<h3>できるオブジェクト指向</h3>
+<hr class="hr-gray" />
+<p class="in">さて、「オブジェクト」「メソッド」「クラス」「継承」などの基本単語について定義しましたが、これだけで、オブジェクト指向の考え方が身につくとは思えません。実際にオブジェクト指向を身につけるためにはやはり自分でやってみることが重要のようです。</p>
+<p class="in">自分で小さなプログラムを書き、実際に動かしてみることで理解が進むでしょう。その点Rubyは、</p>
+<ul>
+<li><p>純粋オブジェクト指向言語であらゆるものがオブジェクト</p></li>
+<li><p>インタプリタですぐに実行できる</p></li>
+</ul>
+<p class="ni">などの特徴がありますから、この目的にぴったりです。また、irbというプログラムを使えば対話形式でプログラムできます。</p>
+<p class="in">Rubyがインストールされていれば、irbも同時にインストールされているはずです。</p>
+<div class="borderterminal">
+<pre>% irb
+irb(main):001:0&gt;</pre>
+</div>
+<p class="in">irbのプロンプトの意味は以下のとおりです。</p>
+<div class="fig" id="fig2901">
+  <!-- <div class="image30"> -->
+  <div class="image300">
+      <img src="../image/ch29/29-1.jpg" alt="fig2901" />
+  </div>
+  <p class="fig-caption">図29.1●irbのプロンプトの意味</p>
+</div>
+<a id="page_394"/>
+<p class="in">インデントレベルは<code>if</code>や<code>while</code>などのネストのレベルを示します。行番号は今までirbに入力した行数を示します。そして<code>self</code>は現在の<code>self</code>の値を表示します。</p>
+<p class="in"><code>readline</code>ライブラリがインストールされていれば、bashなどと同様に行編集が使えるはずです。</p>
+<p class="in">では、irbを使って実行しながら、オブジェクト指向を実感してみましょう。</p>
+<div class="borderterminal">
+<pre>irb(main):001:0&gt; a = &quot;foo&quot;
+=&gt; &quot;foo&quot;</pre>
+</div>
+<p class="ni">文字列 <code>"foo"</code> を変数<code>a</code>に代入しました。変数<code>a</code>が指しているのは文字列というオブジェクトですから、メソッドを呼び出すことができます。</p>
+<div class="borderterminal">
+<pre>irb(main):002:0&gt; a.size
+=&gt; 3</pre>
+</div>
+<p class="ni">この文は「<code>a</code>という変数が指すオブジェクトの<code>size</code>メソッドを呼び出す」という意味です。「<code>.</code>」の左側がメソッド呼び出しの対象になります。</p>
+<p class="in">文字列オブジェクトは<code>String</code>クラスに属するオブジェクトで、<code>String</code>クラスの<code>size</code>メソッドは文字列の長さを返します。変数<code>a</code>が指す文字列は <code>"foo"</code> ですから、その長さは3ですよね。</p>
+<p class="in">オブジェクトは文字列だけじゃないので、今度は別の種類のオブジェクトを試してみましょう。同じ変数<code>a</code>に配列を代入してみます。</p>
+<div class="borderterminal">
+<pre>irb(main):003:0&gt; a = [1,2]
+=&gt; [1, 2]</pre>
+</div>
+<p class="ni">変数<code>a</code>は今度は配列を指すようになりました。今まで<code>a</code>から指されていた文字列は誰からも参照されなくなります。誰からも参照されなくなったオブジェクトはシステムが自動的に後片付けをしてくれますので、忘れて結構です。</p>
+<p class="in">さて、配列に対してもメソッドを呼び出しましょう。</p>
+<div class="borderterminal">
+<pre>irb(main):004:0&gt; a.size
+=&gt; 2</pre>
+</div>
+<a id="page_395"/>
+<p class="ni">文字列のときと同じく、<code>size</code>メソッドを呼び出しました。この配列は2要素の配列ですからサイズは2です。「<code>a.size</code>」というプログラムが文字列の長さを求めたときとまったく同じであることに注目してください。文字列の長さを求める処理と配列の長さを求める処理は内部的には異なっているかもしれませんが、正しい処理方法が自動的に選択されています。</p>
+<p class="in">このように同じ名前のメソッドを呼び出しても「<code>.</code>」の左側の式のオブジェクト種別に応じて、適切な処理が選択されることを「動的結合」と呼びます。また、同じ式の振る舞いが実行時に異なることを「ポリモルフィズム」とか「多態」と呼びます。</p>
+<p class="in">あるオブジェクトのクラスを知るためには<code>class</code>メソッドを使います。</p>
+<div class="borderterminal">
+<pre>irb(main):005:0&gt; a.class
+=&gt; Array
+irb(main):006:0&gt; &quot;a&quot;.class
+=&gt; String
+irb(main):007:0&gt; 1.class
+=&gt; Fixnum</pre>
+</div>
+<p class="in"><code>Fixnum</code>というのはFixed-size Numberの略で、コンピュータが高速に取り扱うことができる範囲（32ビットCPUでは2<sup>31</sup>−1〜−2<sup>31</sup>）の整数のことです。この範囲を超える整数は<code>Bignum</code>というクラスに所属します。</p>
+<p class="in"><code>Fixnum</code>クラスは<code>Integer</code>クラスを継承しています。<code>Integer</code>クラスは整数に共通の性質を定義しているクラスで、<code>Fixnum</code>と<code>Bignum</code>がこれを継承しています。このようなクラスを<code>Fixnum</code>の「スーパークラス」と呼びます。<code>Integer</code>クラスはさらに数値に共通の性質を定義している<code>Numeric</code>クラスを継承し、<code>Numeric</code>クラスはRubyのあらゆるオブジェクトに共通の性質を定義している<code>Object</code>クラスを定義しています。</p>
+<p class="in">クラスのスーパークラスは<code>superclass</code>メソッドで得られます。</p>
+<div class="borderterminal">
+<pre>irb(main):005:0&gt; Fixnum.superclass
+=&gt; Integer
+irb(main):005:0&gt; Integer.superclass
+=&gt; Numeric
+irb(main):005:0&gt; Numeric.superclass
+=&gt; Object
+irb(main):005:0&gt; Object.superclass
+=&gt; nil</pre>
+</div>
+<p class="in"><code>Object</code>はすべてのクラスの頂点ですから、スーパークラスを持ちません。ですから、<code>superclass</code>メソッドはnilを返します。<code>nil</code>とは「何もない」という意味です。</p>
+</section>
+<section id="chap2904" class="level2">
+<a id="page_396"/>
+<h3>irb補完計画</h3>
+<hr class="hr-gray" />
+<p class="in">あ、そうそう。irbを使うに当たって便利なおまじないをご紹介しましょう。ホームディレクトリに<a href="#list2901">リスト29.1</a>に示す内容の <code>.irbrc</code>というファイルを用意しておきます。</p>
+<div class="plistc" id="list2901">
+<p class="lst-caption">リスト29.1●.irbrc</p>
+<pre>require <span class="str">&quot;irb/completion&quot;</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">この設定を行うと、<span class="r">TAB</span>キーを押すことで変数名やクラス名、メソッド名などの補完が使えるようになります。一度使ってみればわかりますが、とてつもなく便利です。</p>
+<div class="borderterminal">
+<pre>irb
+irb(main):001:0&gt; foo = &quot;foo&quot;
+=&gt; &quot;foo&quot;
+irb(main):002:0&gt; fo&lt;ここで2度TAB&gt;
+foo     for     fork    format</pre>
+</div>
+<p class="ni">今まで入力した部分で候補が1つだけに絞れる場合には<span class="r">TAB</span>一度だけで補完してくれます。そうでない場合には2度<span class="r">TAB</span>を押すとリストを表示します。ここでは <code>"fo"</code> で始まる変数とメソッドをリストしています。</p>
+<div class="borderterminal">
+<pre>irb(main):002:0&gt; foo.g&lt;ここで2度TAB&gt;
+foo.grep   foo.gsub   foo.gsub!</pre>
+</div>
+<p class="in">irbの偉いところは、<span class="r">TAB</span>を押した地点の左側を解析して、<code>foo</code>という変数が指しているオブジェクトが文字列であれば、文字列のメソッドを一覧してくれることです。上の例では、文字列メソッドのうち <code>"g"</code> で始まるメソッドの一覧を表示しています。もちろん変数<code>foo</code>の中身が他のオブジェクトに変わればそれにも追随してくれます。</p>
+</section>
+<section id="chap2905" class="level2">
+<h3>クラスの世界</h3>
+<hr class="hr-gray" />
+<p class="in">さて、再びオブジェクト指向のおさらいに戻りましょう。あまり大規模でないプログラムならRubyが提供しているクラスとオブジェクトを使うだけで十分です。</p>
+<p class="in">Rubyの提供しているクラスは主要なものだけでも、</p>
+<ul>
+<li><p>数値（整数、実数など）</p></li>
+<li><p>文字列</p></li>
+<li><p>配列</p></li>
+<li><a id="page_397"/><p>ハッシュ（任意のオブジェクトをインデックスにする）</p></li>
+<li><p>正規表現（パターンマッチに使う）</p></li>
+<li><p>ファイル入出力</p></li>
+<li><p>ディレクトリ</p></li>
+<li><p>時刻</p></li>
+<li><p>クラス、モジュール、メソッドなど</p></li>
+</ul>
+<p class="ni">があります。これらを単に組み合わせるだけでも強力なプログラムが実現できます。</p>
+<p class="in">しかし、プログラムが少々複雑になってくると、データ中心の構成にしたくなります。このようなデータ型を定義するためには、自分自身でクラスを作ればよいのです。Rubyでは組み込みのクラスも、自分の作ったクラスも区別がありません。</p>
+<p class="in">では、実際にクラスを作ってみましょう。</p>
+<p class="in">例題として簡単なカウンタクラスを作ります。カウンタクラス（名前は<code>Counter</code>にしましょう）は、以下の機能を持ちます。</p>
+<ul>
+<li><p>初期化（初期値はゼロ）</p></li>
+<li><p>カウント値を増加</p></li>
+<li><p>現在のカウント値を報告</p></li>
+</ul>
+<p class="ni">実際のカウンタプログラム（<code>counter.rb</code>）を<a href="#list2902">リスト29.2</a>に示します。</p>
+<div class="plistc" id="list2902">
+<p class="lst-caption">リスト29.2●counter.rb</p>
+<pre> 1  <span class="kwd">class</span> Counter
+ 2    <span class="kwd">def</span> initialize
+ 3      @count = 0
+ 4    <span class="kwd">end</span>
+ 5    <span class="kwd">def</span> count_up
+ 6      @count += 1
+ 7    <span class="kwd">end</span>
+ 8    <span class="kwd">def</span> count
+ 9      <span class="kwd">return</span> @count
+10    <span class="kwd">end</span>
+11  <span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">簡単なプログラムではありますが、最初ですからていねいに見てみましょう。</p>
+<p class="in">1行目でクラスの定義を始めています。「<code>class</code>」の後ろに続くのがクラス名になります。Rubyではクラス名の最初の文字を大文字にする必要があります。</p>
+<p class="ih">「<code>def</code>」で始まるのがメソッド定義です。「<code>class</code>」に対応する「<code>end</code>」の範囲内の「<code>def</code>」で、そのクラスのメソッドが定義されます。ここでは<code>initialize</code>, <code>count_up</code>, <code>count</code>の3つのメソッドを定義しています。</p>
+<p class="in"><code>initialize</code>は初期化用のメソッドです。Rubyではオブジェクトが新しく作られたときに、<code>initialize</code>という名前のメソッドが自動的に呼ばれます。<code>initialize</code>メソッドはカウント値（<code>@count</code>）をゼロに初期化しています。「<code>@</code>」で始まる変数は「インスタンス変数」といってオブジェクトごとの状態を保持します。</p>
+<a id="page_398"/>
+<p class="in"><code>count_up</code>メソッドはカウント値を増加させるメソッドです。メソッドはカウント値に指定された数を足すという単純なものです。</p>
+<p class="in"><code>count</code>メソッドは現在のカウント値を返すメソッドです。<code>@count</code>の値を<code>return</code>で指定しています。</p>
+<p class="in">では、このプログラムをirbを使って試してみましょう。まず、<code>load</code>でカウンタプログラムを読み込みます。</p>
+<div class="borderterminal">
+<pre>irb(main):001:0&gt; load &quot;counter.rb&quot;
+=&gt; true</pre>
+</div>
+<p class="in">次に実験用にカウンタオブジェクトを1つ作ってみましょう。オブジェクトを作るにはクラスの<code>new</code>メソッドを呼び出します。<code>new</code>メソッドの内部で<code>initialize</code>メソッドが呼ばれて初期化が行われます。</p>
+<div class="borderterminal">
+<pre>irb(main):002:0&gt; c = Counter.new
+=&gt; #&lt;Counter:0x40290cb8 @count=0&gt;</pre>
+</div>
+<p class="in">では、カウンタを増やしてみましょう。</p>
+<div class="borderterminal">
+<pre>irb(main):003:0&gt; c.count_up
+=&gt; 1</pre>
+</div>
+<p class="in">ちゃんと増えたかどうか確認します。</p>
+<div class="borderterminal">
+<pre>irb(main):004:0&gt; c.count
+=&gt; 1</pre>
+</div>
+<p class="in">できているようですね。</p>
+<p class="in">このようにirbを使えば、オブジェクト指向機能を始めとしたRubyのいろいろな機能を手軽に試してみることができます。「習うより慣れろ」とも言いますし、実際にプログラムを動かしてみることで多くのことが学べるのではないでしょうか。</p>
+</section>
+<section id="chap2906" class="level2">
+<h3>継承の実際</h3>
+<hr class="hr-gray" />
+<p class="in">さて、上記のプログラムでは特にスーパークラスを指定しませんでした。あのプログラムの<code>Counter</code>クラスのスーパークラスはいったいなんになるのでしょう。これも試してみましょう。</p>
+<div class="borderterminal">
+<pre>irb(main):007:0&gt; Counter.superclass
+=&gt; Object</pre>
+</div>
+<p class="ni">何も指定しなかった場合のスーパークラスは<code>Object</code>クラスなんですね。</p>
+<a id="page_399"/>
+<p class="in">では今度はスーパークラスを指定してクラスを作ってみましょう。先ほどの<code>Counter</code>クラスは増加のみでしたが、減少もできるカウンタ<code>BiCounter</code>を作ります（<a href="#list2903">リスト29.3</a>）。</p>
+<div class="plistc" id="list2903">
+<p class="lst-caption">リスト29.3●bicount.rb</p>
+<pre>require <span class="str">&#39;counter.rb&#39;</span>
+<span class="kwd">class</span> BiCounter &lt; Counter
+  <span class="kwd">def</span> count_down
+    @count -= 1
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><code>class</code>文でクラス名の後ろに「<code>&lt;</code>」に続けてクラスを指定すると、そのクラスがスーパークラスになります。省略した場合は先ほど見たようにスーパークラスは<code>Object</code>になります。<code>BiCounter</code>クラスは<code>Counter</code>クラスのすべてのメソッドを受け継いだうえに<code>count_down</code>メソッドが追加されます。</p>
+<p class="in">これも試してみます。</p>
+<div class="borderterminal">
+<pre>irb(main):008:0&gt; load &quot;bicount.rb&quot;
+=&gt; true
+irb(main):009:0&gt; b = BiCounter.new
+=&gt; #&lt;BiCounter:0x40278bf4 @count=0&gt;
+irb(main):010:0&gt; b.count_up
+=&gt; 1
+irb(main):011:0&gt; b.count
+=&gt; 1
+irb(main):012:0&gt; b.count_down
+=&gt; 0
+irb(main):013:0&gt; b.count
+=&gt; 0</pre>
+</div>
+<p class="in">よしよし。</p>
+</section>
+<section id="chap2907" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はオブジェクト指向の紹介を行いました。かなり駆け足でしたが、オブジェクト指向プログラミングのきっかけになれば幸いです。また、対話型Rubyインタプリタirbも紹介しました。irbも大変便利なのでぜひ使ってみてください。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-062.xhtml">&lt;&lt; 前ページ</a>　<a href="p-064.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

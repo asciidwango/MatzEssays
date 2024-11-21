@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第56章 測定狂時代</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第56章</p>
+<!-- Body -->
+<section id="chap56" class="level1">
+<a id="page_235"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">56</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+測定狂時代
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">オープンソースマガジン</span>, 2005年12月号]</p>
+<div class="newlead">
+<p class="in">今回はパフォーマンスのプロファイリングとチューニングの話について触れています。この「ハッカーズライフ」連載は分量が少ないのでどれも表面的な解説しかできないのが残念なところですね。ツールについてもgprofの解説しかありません。実際にはプロファイリングツールには各種あり、使いこなせばずいぶん便利なものがたくさんあるのですが、これはまた別の機会に解説するとしましょう。</p>
+<p class="ih">「おまけ」は「ハッカー養成塾」というタイトルで、わたしの過去作品や教訓などについて記述しています。うろおぼえですが、掲載誌が変わったタイミングで執筆者の多くがこのような記事を書いたのだったと思います。今（2024年）から見れば30年以上前の話がほとんどで、懐かしいですね。ここであげられている作品のうち、morqだけは今でも使っているのです。</p>
+</div>
+<section id="chap5601" class="level2">
+<h3>測定狂</h3>
+<hr class="hr-gray" />
+<p class="ih">「バカは風邪をひかない」と言いますが、幸い私のバカさ加減は許容範囲内のようで、年に数回風邪をひきます。もっとも例年夏風邪をひくことが多いので「やっぱりバカなんだ」と思うことも多いのですが、今年はなんとか大丈夫だったようです。</p>
+<p class="in">風邪をひくと体温計で体温を測ります。昔は水銀の入った体温計ですが、最近はデジタル体温計が主流のようです。測定が終わるとビープ音が鳴ったりして、なかなか賢いです。さらに、わずか1秒で体温がわかる、耳で測定する体温計もあります。ガジェット好きとしてはぜひほしいアイテムですが、家族の理解が得られず、まだ入手していません。</p>
+<p class="in">風邪をひいたときの行動は人によっていろいろでしょうが、私はとにかく頻繁に体温を測ります。ひどいときなど数分おきに測定して、家族をあきれさせることもあります。でも、体温を測るとなんだか自分の体のベンチマークを取っているようで楽しくなりませんか?　病気が直っていく様子がうかがえるようで、私にとっては病気でしんどいときの数少ない楽しみです。</p>
+<a id="page_236"/>
+<p class="in">日常生活における測定といえば、体重測定があります。体温ほど熱心に測定する気にならないのは、なかなか自分の望む方向に（私の場合は減る方向に）変化しないせいに違いありません。健康のためにはもうちょっと痩せたほうがいいんだけどなあ。運動もしないでコンピュータの前に座ってばかりなので、増加してないだけでも喜ぶべきなのかもしれませんが。気乗りしないといっても、数日に1回は入浴前に体重計に乗り、その結果をPDAに記録してグラフを書いてたりするんで、やっぱり測定好きなんですね。</p>
+</section>
+<section id="chap5602" class="level2">
+<h3>スピード狂</h3>
+<hr class="hr-gray" />
+<p class="in">さて、私の知人のハッカーの中には何人か「スピード狂」がいます。スピード狂といっても峠で自動車レースをするわけではなくて、プログラムの実行速度を速くするために異常に熱意を燃やす人たちのことです。彼らはRubyのようなスクリプト言語は使いません。「だって遅いじゃん」。使うのはもっぱらCです。まれにC++を使う人もいますが、あまり多くはありません。「C++は（コンストラクタとか暗黙の呼び出しがあるから）実行コストが直接的に見えないので好きでない」という人が多いようです。Javaは以前に比べてずいぶん高速化されましたが、それでもまだ不満そうです。また、個人的な知人たちの中にはいませんが、高速化のためにはアセンブラを駆使する人も存在すると聞いたことがあります。もっともRISC以降、単にアセンブラで書くよりCなどで書いたほうが高速化されることも多いようで、アセンブラ派はめっきり数が少なくなったようです。</p>
+<p class="in">もちろん、そんなに極端な人はたくさんはいないでしょうが、ハッカーの多くは何らかのスピード狂的側面を持っているようで、同じ動作となるプログラムの実行時間を短縮するという課題は燃えるものがあります。プログラムを繰り返し実行しながら「ここをいじるとコンマ何秒短縮された」などとハックを繰り返すのは、ハッカーにとってある意味大変幸福な時間です。パズルを解くときの知的チャレンジに似ているからでしょう。</p>
+<p class="in">CでコンパイルしたプログラムをCPUで直接実行するのに比べると、Rubyのようなインタプリタ型言語の実行はだいたい100〜1000倍くらい遅い<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> ことが知られています。では、スピード狂はまったくインタプリタ型言語に寄り付かないかというと、そうでもないようです。もともとの実行時間が長いほど、改善による時間短縮幅が大きく、より達成感を感じられるからです。インタプリタ型言語の場合、処理をどれだけライブラリルーチンで消費できるかが鍵になります。Rubyの各ライブラリルーチンはそれぞれそれなりに工夫して作られていますから、上手に使いこなせば、素朴にCで実装したプログラムと同等近い性能が出る場合もあるそうです。</p>
+</section>
+<section id="chap5603" class="level2">
+<a id="page_237"/>
+<h3>無駄な努力</h3>
+<hr class="hr-gray" />
+<p class="in">プログラムの高速化のように、プログラムの意味を変えずに性質（実行速度とかメモリ消費量など）を改善することを最適化<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a> と呼びます。ハッカーは最適化が大好きですが、そのような最適化の努力がいつも報われるとは限りません。最近のruby-talkメーリングリストに以下のようなポスト（ruby-talk:158426）がありました。</p>
+<div class="blockquote">
+<p class="in">私の会社ではC++による3次元レンダリングソフトを利用しています。そのソフトはJavaScriptとLua<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a> のバインディングが提供していました。LuaはRubyほどには使い勝手がよくなかったうえ、私たちは速度とメモリの効率のため、より面倒なプログラミングテクニックを使う必要がありました。そのテクニックは確かに効果があり、FPS<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a> は1〜2%向上していました。私は大変苦労してLuaのプログラムを書き、単純なシーンのレンダリングで890〜910FPSを達成したことに誇りを覚えていました。</p>
+<p class="in">しかし、昨日、C++プログラマーの一人がレンダリングアルゴリズムにある変更を行ったところ、FPSが劇的に向上しました。今まで15FPSだった複雑なシーンのレンダリングが170FPSでできるようになったのです。私たちが非常に苦労して実現した数%の向上など、10分ほどかけて適切なアルゴリズムに変更するだけで吹き飛んでしまったのです。</p>
+</div>
+<p class="in">ソフトウェア業界には昔から「premature optimization is source of all evil（早すぎる最適化はすべての悪の源）」ということわざがあります。プログラムの高速化においては努力がいつも報われるとは限らないのです。無闇な高速化の試みは、かえってプログラムの見通しが悪くなったりする弊害のほうが大きいのです。</p>
+</section>
+<section id="chap5604" class="level2">
+<h3>無駄でない努力</h3>
+<hr class="hr-gray" />
+<p class="in">ハッカーたるもの無駄な努力をするべきではありません。天より与えられたハッキングの才能を浪費することは許されないのです<a href="#fn5" class="footnote-ref" id="fnref5" epub:type="noteref" role="doc-noteref">5</a>。では、努力を無駄にしないためにはどうしたらよいでしょうか。</p>
+<p class="in">そのためには「パレートの法則」を理解する必要があります。パレートの法則とは「80 : 20則」とも呼ばれる法則で、全体の8割の数値は全体を構成する2割の要素が生み出しているという法則です。19世紀後半のイタリアの経済学者ヴィルフレド・パレート（Vilfredo Federico Damaso Pareto）が発見したことから名前が付いています。</p>
+<a id="page_238"/>
+<p class="in">パレートの法則からわかるのは、要するに努力が報われる8割の領域と報われない2割の領域<a href="#fn6" class="footnote-ref" id="fnref6" epub:type="noteref" role="doc-noteref">6</a> があり、報われない領域でいくら努力しても無駄にしかならないということです。だから最適化を始める前にその作業は無駄になるかならないかを見極める必要があります。</p>
+</section>
+<section id="chap5605" class="level2">
+<h3>プロファイラ</h3>
+<hr class="hr-gray" />
+<p class="in">作業が無駄になるかどうか見極めるツールをプロファイラと呼びます。Linuxで最も有名なプロファイラはgprofでしょう。</p>
+<p class="in">gprofを使うためにはコンパイル時にccのコマンドラインオプションに「<code>-pg</code>」を追加します。このオプション付きでコンパイルされたプログラムには、関数の実行状態を測定するルーチンがリンクされます。プログラムを実行するとカレントディレクトリに<code>gmon.out</code>ファイルが生成されます。プロファイル結果を見るには、そのディレクトリで、</p>
+<div class="borderterminal">
+<pre>gprof &lt;プログラム名&gt;</pre>
+</div>
+<p class="ni">を実行します。これによって、</p>
+<ul>
+<li><p>どの関数がどのくらいの時間を消費しているか?</p></li>
+<li><p>どの関数がどこから何回呼ばれているか?</p></li>
+</ul>
+<p class="ni">などの情報を含む長いリストが出力されます。それを調べることで、「どの関数で最も時間がかかっているか」とか「どの関数が無駄に関数を呼び出しているか」などを確かめられます。この情報に基づくことで、より効果的な最適化ができることでしょう。</p>
+<p class="in">実行速度を見るgprof以外にも、メモリ消費量を調べるメモリプロファイラなど、測定するプログラムはたくさんあります。</p>
+<p class="in">正しく測定して効果的な最適化を行うことは、ハッカーの測定狂的性質とスピード狂的性質の両方を一度に満足させることができます。一粒で二度おいしい最適化、あなたも試してみませんか?</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">100〜1000倍くらい遅い</span></p>
+<p>とはいっても、実際には実行時間のほとんどがCで書かれたライブラリルーチンの中で消費されるので、直接1000倍の差がつくことはめったにない。
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">最適化</span></p>
+<p>最適化とはいうものの、最適（最もよい状態）になることはめったにない。より正確には「ちょっとマシ化」とでも呼んだほうがよさそうだ。英語では「optimization」と呼ぶ。「optim-」は「optimistic（楽観的）」から来ているから、英語のほうが実態を的確に表現しているようだ。
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">Lua</span></p>
+<p>ブラジルで開発されたスクリプト言語。アプリケーションの組み込みの容易さと実行速度の高速さが特徴だといわれている。ブロックが「<code>end</code>」で終わるところだけはRubyに似ているかも。
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">FPS</span></p>
+<p>Frame Per Second。1秒間に処理できる画面数。
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn5">
+<p><span class="k">浪費することは許されないのです</span></p>
+<p>念のため注釈を付けておくが、当然冗談である。だが、ハッカーが無駄な努力を嫌う傾向があるのは事実である。
+<a href="#fnref5" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn6">
+<p><span class="k">8割の領域と2割の領域</span></p>
+<p>パレートの法則の80 : 20の関係は経験則であり、実際にはもっと極端な場合もしばしばある。少なくともプログラミングに関しては90 : 10とか99 : 1とかは決して珍しくない。
+<a href="#fnref6" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-043.xhtml">&lt;&lt; 前ページ</a>　<a href="p-045.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第60章 オープンソースライセンス</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第60章</p>
+<!-- Body -->
+<section id="chap60" class="level1">
+<a id="page_255"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">60</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+オープンソースライセンス
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">オープンソースマガジン</span>, 2006年4月号]</p>
+<div class="newlead">
+<p class="in">オープンソースライセンスの選び方についてです。この点については現代でもほとんど状況に変化はありませんね。この原稿が書かれた頃と比べると、MITライセンスの使用例が劇的に増えたことと、Apacheライセンスを採用するものもそれなりに増えた点でしょうか。この当時はRubyは独自ライセンス（Rubyライセンス）とGPLのデュアルライセンスでしたが、このあと、大変な苦労をしてRubyライセンスとBSDライセンスのデュアルライセンスに変更しました。これはRubyライセンスにリライセンスを許可する条項が入っていたから可能になったもので、そうでない場合はFSFが行っていたようにソースコード貢献者すべてから事前に同意を取っていなければ事実上不可能だったことでしょう。</p>
+<p class="in">ライセンスの取り扱いは確かに面倒ですが、より大きな面倒を避けるために最初にキチンとしておいたほうがよいでしょう。これは時代を超えた教訓です。</p>
+</div>
+<section id="chap6001" class="level2">
+<h3>プロジェクトの障害</h3>
+<hr class="hr-gray" />
+<p class="in">先日、15年ぶりにGPL<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> の新版（v3）のドラフトが公開<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a> されました。具体的な内容はともかく、フリーソフトウェア/オープンソースのライセンスが再び注目されています。今回はライセンスというものについて考えてみましょう。</p>
+<p class="in">世の中にハッカー気質を持つ人はたくさんいますが、その数だけオープンソースプロジェクトがあるかというと、なかなかそうはいきません。「自分のオープンソースプロジェクトを始める」のは敷居が高く、さまざまな障害があるわけですが、オープンソースプロジェクトにおける非技術的な障害の筆頭はライセンスでしょう。他の問題の多くは、そもそも根源的な問題である「何を作るのかを決める」とか、「実装手段を考える」あるいは「デバッグする」に至るまで、ある程度「ハッカー魂」を揺さぶるものがあります。だからこそ、ハッカーたちは喜んでプロジェクトに参加するわけです。</p>
+<a id="page_256"/>
+<p class="in">ところが、ライセンスときたら、プログラムほど明確ではないし、技術的にも面白くもないし、その割には厳密な話をし始めると面倒で、煮ても焼いてもおいしくありません。いっそ「こんなものなければよいのに」と思うほとです。では、なぜわざわざライセンスを用意するのかというと、主な理由は意思表明のためです。適切なライセンスには、「開発者がこのソフトウェアをどう扱ってほしいか」という意思をはっきり示すことになります。それによって、ユーザーは安心してソフトウェアを使うことができるわけです。これが不明瞭な場合、ユーザーが確実に安心してソフトウェアを利用するには、開発者に直接問い合わせるしかありません。世界中から「こんなケースに使ってもよいか?」と問い合わせが殺到するのは、決してうれしいことではありません。また、ライセンスには、訴訟など法的なトラブルから守られる（かもしれない）という期待も込められています。</p>
+</section>
+<section id="chap6002" class="level2">
+<h3>ライセンスの選び方</h3>
+<hr class="hr-gray" />
+<p class="in">オープンソースプロジェクトを開始するとして、そのソフトウェアに設定するライセンスとして何を選んだらよいでしょうか。</p>
+<p class="in">私からできる最初のアドバイスは、「決して新しいライセンスを作らない」です。13年前、Rubyの開発を開始した時点でそのことがわかっていれば、私の人生はもうちょっとだけ楽だったでしょう。当時の私は、ソースコードの流用を明示的に許可したライセンスを提供したいと考えていました。そこで、Perlのライセンス（Artisticライセンス<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a>）をベースに流用を許可し、入出力データ（Rubyの場合はRubyプログラム）には制限が及ばないことを明記したライセンスを用意しました。ライセンスを作るのは、プログラミングに少し似ています。何を許可したいとか、何を禁止したいとか考えるのはアルゴリズムのときと同じです。思い返せば、確かに作っていたときは楽しかったんです。</p>
+<p class="in">しかし、この「コード」はプログラムよりもずっとデバッグが大変です。プログラムほど簡単に「実行」できないので、問題はすぐには発見されませんし、たとえ見つかっても簡単には修正できません。</p>
+<p class="in">たとえば、自分で作ったライセンスに含んだ条項に何らかの問題があったとしましょう。すぐに思い付くのは、GPLと互換性がなく、GPLソフトウェアとリンクができなくなってしまうケースです。「似たような思想に基づいて作られたライセンス同士が非互換とは、いったいどういうことか」と悲しくなりますが、これがライセンスの現実です。その場合には、（困るユーザーもいることでしょうが）GPLソフトウェアとのリンクをあきらめるか、あるいはライセンスの変更を行うことになります。</p>
+<p class="in">このとき、ライセンスを適用したソフトウェアの全コードがあなたによって書かれたものであれば、問題はほとんどありません。新しいバージョンを新しいライセンスでリリースすればそれでおしまいです。しかし、たとえば別の人のパッチが含まれていれば、ソフトウェアはあなただけのものではなく、法的にはパッチを書いた人との共同著作物という扱いを受けます。厳密な話をすると、他人の権利を勝手に侵害するわけにはいきませんから、理論上ライセンスの変更にはこれら共同著作者すべての合意が必要です。何年もの間、開発を行ってきたRubyのようなソフトウェアでは、権利関係者が何人いるのかすでに確認しようがありません。FSF<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a> のソフトウェアのようにコードを貢献する場合には権利譲渡契約を結ぶようにしているなら楽なんでしょうが、パッチをもらうたびにそのような手続きを行うのも面倒です。たいていの場合は、ライセンスの変更をあきらめてしまうか、さんざん努力しても結局は全員の確認を取れず、誰かから苦情が出ないことを祈りつつ、変更することになります。</p>
+<a id="page_257"/>
+<p class="in">自分でライセンスを作るということは、そのような苦労を何年にもわたって一手に引き受けるということも意味するのです。心からアドバイスします。止めたほうが無難です。</p>
+</section>
+<section id="chap6003" class="level2">
+<h3>オープンソースライセンスの選び方</h3>
+<hr class="hr-gray" />
+<p class="in">あなたがオープンソースプロジェクトを開始するとして、将来問題が起きない（起きにくい）ライセンスを選ぶにはどうしたらよいでしょうか。</p>
+<p class="in">世の中にはたくさんのオープンソースライセンス<a href="#fn5" class="footnote-ref" id="fnref5" epub:type="noteref" role="doc-noteref">5</a> が存在します。すでに多すぎるほどです。この中から選び出すだけで十分でしょう。それもメジャーなものを選択することをお勧めします。だいたいライセンス変更のようなトラブルが起きるのは、マイナーなライセンスを選んだプロジェクトと相場が決まっています。メジャーなものは広く使われているので、大きな問題が残っていないと考えられますし、いざというときに仲間が多いのも安心です。マイナーなライセンスでは、他のライセンスとの組み合わせなど十分な検討が行われていないことが多く、不安が残ります。</p>
+<p class="in">ソフトウェアのライセンスを選ぶに当たってまず考えなければならないのは「コピーレフトを望むか」どうかでしょう。コピーレフトとは、簡単にいうと「あなたの書いたフリーなソフトウェアに対して、自由を擁護しないものがタダ乗りすることを許さない」というものです。FSFはソフトウェア自由の擁護者として、コピーレフトを強く推進しています。一方、コピーレフトについてさほど気にしていない開発者も多いようです。あなたがコピーレフトを望むのであれば、選択肢はほぼGPLしかありませんし、ライブラリとして使われるものであればLGPL<a href="#fn6" class="footnote-ref" id="fnref6" epub:type="noteref" role="doc-noteref">6</a> も候補にあがります。ライブラリにGPLを適用すると、事実上GPLソフトウェアからしか使えないので、より「制限」の緩いLGPLのほうが広く使われる可能性があります。しかし、LGPLはあまり使い勝手がよくないうえに、「わかりにくい」「十分な考察が進んでいない」などの欠点がありますので、コピーレフトを強く望まない場合にはお勧めできません。</p>
+<p class="in">コピーレフトにそれほどを強いこだわりのない人には、GPL以外の選択肢もあります。ここで重要なのは、「そのソフトウェアは、別のソフトウェアとのリンクが必要かどうか」です。将来、何らかの形でGPLソフトウェアとのリンクされることが予想される場合には、GPLとの互換性<a href="#fn7" class="footnote-ref" id="fnref7" epub:type="noteref" role="doc-noteref">7</a> が重要になります。プラグイン機能を持つソフトウェアやライブラリはこの点に注意しなくてはなりません。GPLと矛盾しないライセンスとしては、修正BSDライセンスやX11ライセンス<a href="#fn8" class="footnote-ref" id="fnref8" epub:type="noteref" role="doc-noteref">8</a> などがあります。</p>
+<a id="page_258"/>
+<p class="in">もう1つの検討すべき要素は、関連ソフトウェアとライセンスをそろえることでしょう。たとえばEclipseプラグインなどはCPL<a href="#fn9" class="footnote-ref" id="fnref9" epub:type="noteref" role="doc-noteref">9</a> を選択すべきでしょう。また、PHP関連のソフトウェアはPHPとライセンスをそろえたほうが無難です。Rubyで書かれたソフトウェアは、Ruby自身とはライセンス的に独立なのですが、それでもRubyライセンスを選ぶ人が多いようです。</p>
+</section>
+<section id="chap6004" class="level2">
+<h3>避けたいライセンストラブル</h3>
+<hr class="hr-gray" />
+<p class="in">すでに述べたように、ライセンスのトラブルは「面倒くさい」「面白くない」などイヤなものです。しかも、悪いことに法的な問題は「問題があるのかないのかはっきりしない」というオマケ付きです。「はっきりしたことは裁判してみないとね」とかいわれても、被告になんかなりたくないし……。</p>
+<p class="in">訴訟リスクをゼロにすることは不可能みたいですが、それでも面倒な問題を回避するためにも、ライセンスについては賢く付き合いたいものです。そして、われわれの本来の「仕事」であるプログラミングに集中しましょう。Happy Hacking。</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">GPL</span></p>
+<p><span class="link">http://www.gnu.org/licenses/gpl.txt</span>
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">ドラフトが公開</span></p>
+<p><span class="link">http://gplv3.fsf.org/draft/</span>
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">Artisticライセンス</span></p>
+<p>Perlのライセンスは、このArtisticとGPLの二本立て。Larryが自分の意見を表明したもので、FSFからは単体では「フリーソフトウェアライセンスではない」とまでいわれている。これをベースにしたのがRubyライセンスの不幸の始まりというか何というか。
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">FSF</span></p>
+<p>Free Software Foundationの略。<br />
+<span class="link">http://www.fsf.org/</span>
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn5">
+<p><span class="k">たくさんのオープンソースライセンス</span></p>
+<p>「オープンソースの定義」を満たすとしてOpen Source Initiativeが認定したライセンスは60種類近くに上る。認定されていないが定義を満たすであろうライセンス（Rubyライセンスもその1つ）を含めるといったいいくつになることやら。
+<a href="#fnref5" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn6">
+<p><span class="k">LGPL</span></p>
+<p><span class="link">http://www.gnu.org/licenses/lgpl.txt</span>
+<a href="#fnref6" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn7">
+<p><span class="k">GPLとの互換性</span></p>
+<p><span class="link">http://www.gnu.org/licenses/license-list.ja.html</span>にはGPLと他のライセンスの組み合わせという観点から種々のフリーソフトウェアライセンスについて述べられている。ライセンスのことを知ろうと思えばまずここを読んでほしい。
+<a href="#fnref7" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn8">
+<p><span class="k">修正BSDライセンスやX11ライセンス</span></p>
+<p><span class="link">http://www.opensource.org/licenses/bsd-license.php</span><br />
+<span class="link">http://ftp.x.org/pub/X11R7.0/doc/html/LICENSE.html</span>
+<a href="#fnref8" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn9">
+<p><span class="k">CPL</span></p>
+<p>Common Public Licenseの略。<br />
+<span class="link">http://www.opensource.org/licenses/cpl1.0.txt</span>
+<a href="#fnref9" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-048.xhtml">&lt;&lt; 前ページ</a>　<a href="p-050.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

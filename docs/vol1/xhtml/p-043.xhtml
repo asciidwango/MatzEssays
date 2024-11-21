@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第19章 ネットワークプログラミング</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第19章</p>
+<!-- Body -->
+<section id="chap19" class="level1">
+<a id="page_277"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">19</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+ネットワークプログラミング
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年12月号]</p>
+<div class="newlead">
+<p class="in">ネットワークプログラミングの基礎であるソケットについて解説しています。この辺は20年経ってもほとんど変化はありませんね。例題としている「アンテナ」というのは若い人はもうご存じないでしょうね。Webページを一定間隔で巡回して、その更新状況を知るためのソフトウェアのことを当時はアンテナと呼んでいました。現代で言うRSSリーダーに近いものですが、しかし、そのRSSリーダーでさえ時代遅れの感があります。最近は情報は勝手にプッシュ通知でやって来ますからねえ。</p>
+<p class="ih">「Ruby開発日記」は、「予想外」というテーマで人も言語も将来のことはわからないという話を書いています。未来はいつでも予想不能ですねえ。</p>
+</div>
+<div class="lead">
+<p class="ni">「サーバーならLinux」とはよくいわれることですが、今回はネットワークのクライアントとしても活用できるぞ、というところを見てみます。</p>
+</div>
+<section id="chap1901" class="level2">
+<h3>クライアント/サーバー</h3>
+<hr class="hr-gray" />
+<p class="in">クライアント/サーバーとはシステムの構成方法の1つで、サービスを提供するサーバーと、そのサービスを利用する（おそらくは複数の）クライアントから構成されます。しかし、一言にクライアント/サーバーといっても技術の進歩に伴い時代によって変化しています。</p>
+<p class="in">はるかな太古、なんていうとその時代を知っている人には失礼でしょうが、昔は中心に巨大なコンピュータがあり、その周りに「端末」と呼ばれる機械がつながっていました。1960年代後半から80年代にかけてのことです。当時コンピュータは高価なものだったので、利用者全員がコンピュータを使うことは夢にも考えられませんでした。端末には画面とキーボードがありましたが、行うのは入出力だけで、実際の処理はすべて中央コンピュータが行っていました。これがクライアント/サーバーという概念のはしりです。</p>
+<a id="page_278"/>
+<p class="in">しかし、時代が経つにつれ、コンピュータの価格が下がり、端末としてコンピュータを使えるようになりました。そうなるとただの画面とキーボードの代わりに使うばかりではもったいないと、処理の一部を端末側に移すようになってきました。これらはインテリジェント端末と呼ばれることもありました。また、PCのような安価なコンピュータに端末のふりをさせるやり方（端末エミュレータ）もこの頃普及しました。おそらく、この頃が「クライアント/サーバー」という言葉が誕生した頃（80年代後半頃）だと思います。</p>
+<p class="in">しかし、ムーアの法則により、クライアント側のコンピュータ処理能力はどんどん向上します。下手をするとクライアントのほうが高い処理能力を要求するなんて事態も発生するようになりました。これが90年代頃ではないでしょうか。</p>
+<p class="in">1つの例はX Window Systemです。今ではLinuxを始めとするUNIX系OSでのGUIを統一してしまった感のあるXですが、登場したばかりの頃はいろんな意味で驚きのあるクライアント/サーバーシステムでした。</p>
+<p class="in">Xで（当時）驚かされた点は、</p>
+<ul>
+<li><p>ユーザーが直接使う画面、キーボード、マウスなどを管理するのがサーバーで、処理を行うのがクライアントであるという、旧来のクライアント/サーバーとはまったく逆の構成</p></li>
+<li><p>GUIプログラムの処理の部分がそれなりに複雑なので、しばしばクライアントのほうが規模が大きくなった</p></li>
+</ul>
+<p class="ni">という「逆転現象」でした。Xサーバーだけを積んだ「X端末」なるマシンも登場しました。端末がサーバーを持っているという事態に混乱した人も多数いました。</p>
+<p class="in">もう1つの例はWWWです。もともとWWWはHTMLで記述されたテキストデータを提供するだけのものでした。ですから、CGIのようなサーバー側で動的にデータを生成するものが少々あっても、Webサーバーに必要な処理というのはたいしたものではありませんでした。むしろ、HTMLを構文解析し、適切に表示するクライアント側プログラム（ブラウザ）のほうが肥大化し、たくさんの計算能力を必要としました。</p>
+<p class="in">このように、90年代はクライアント側の時代であったと考えることができるでしょう。</p>
+<p class="in">しかし、2000年以降は話が複雑になってきます。さすが時代は21世紀です（意味不明）。</p>
+<p class="in">まず、第一に起きたことはWWWの異常なまでの普及です。これによって人気のあるWebサーバーにはアクセスが集中するようになりました。このトラフィックに対処するためサーバー側にもいろいろな工夫が求められるようになりました。たとえば、複数のWebサーバーに負荷を分散する「ロードバランシング」や、単なるCGIよりも効率のよい新しいスタイルのサーバーサイドプログラム（ApacheモジュールやFastCGI, Servlet）です。</p>
+<p class="in">一方、クライアント側もJavaScriptによるクライアント側処理の複雑化や、XMLやSVGなどの対応するフォーマットの多様化、あるいはFlashなどのプラグインで、より肥大化しています。かつては10年間隔ぐらいで重点が交互に移っていたクライアントとサーバーは、いまや数カ月単位で振動しているという印象さえあるほどです。</p>
+</section>
+<section id="chap1902" class="level2">
+<a id="page_279"/>
+<h3>基本に立ち返る</h3>
+<hr class="hr-gray" />
+<p class="in">表面を眺めると変化の大きいクライアント/サーバーシステムですが、その基本となる部分に注目してみると、意外なほど変化していません。</p>
+<p class="in">WWWの基礎となるHTTPは現在使われているHTTP 1.1（RFC2068）が制定されたのが1997年、HTTP 1.0（RFC1945）は1996年です。メール転送のSMTP（RFC780）は1981年、FTP（RFC542）は1973年に決まっています。FTPが制定された時点では、本書の読者の多くは生まれていないんじゃないでしょうか。</p>
+<p class="in">それらプロトコルを伝える通信手段（トランスポート層、ネットワーク層）である、TCP/IPやイーサネットは、それぞれ1970年代の産物です。</p>
+<p class="in">ということは、これらの基本をマスターしていれば、当面は安泰ということもいえるでしょう。今回は、Rubyでこれらを使ったネットワークプログラミングをどう行うかについて学びましょう。</p>
+</section>
+<section id="chap1903" class="level2">
+<h3>ソケット</h3>
+<hr class="hr-gray" />
+<p class="in">ネットワーク経由の通信には「ソケット」というものを使います。電球を差し込んだりするアレですね。前もって「待ち合わせた」ところでお互いにソケット同士をつなぎあわせることで通信路ができるわけです。待ち合わせる場所はソケットの種別によって変わってきますが、最もよく用いられるTCP/IPのソケットでは、ホスト（ホスト名またはIPアドレスで指定する）とポート（1から65535までの整数で指定する）の組み合わせで待ち合わせます。サーバー側があるポート番号でリクエストを待ち受け、クライアント側がサーバーのホスト名と接続するポート番号を指定してつなぎにいく、という形になります。</p>
+<p class="in">ですから、URLの、</p>
+<ul class="none">
+<li><p><span class="link">http://www.ruby-lang.org:80/ja/index.html</span></p></li>
+</ul>
+<p class="ni">の「//」から「/」の間は「ホストwww.ruby-lang.orgのポート80番」で待っているWebサーバーのソケットを指定していることになります。</p>
+<p class="in">他の種類のソケットではまた違う条件で待ち合わせることになります。</p>
+<p class="in">UNIXは入出力は統一的にストリームとして扱います。ネットワーク経由の入出力も例外ではありません。Rubyではソケットに対する入出力も普通のファイルに対する入出力とまったく同じ形式で行うことができます。違うのは接続する手続きとソケットに対してのみ有効な処理だけです。</p>
+</section>
+<section id="chap1904" class="level2">
+<h3>Socketクラス群</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyはソケット関係のクラスが目的別に8つ用意されています（<a href="#fig1901">図19.1</a>）。ソケットはストリームですから、これらのクラスは<code>IO</code>のサブクラスです。</p>
+<div class="fig" id="fig1901">
+  <!-- <div class="image50"> -->
+  <div class="image450">
+      <img src="../image/ch19/19-1.jpg" alt="fig1901" />
+  </div>
+  <p class="fig-caption">図19.1●ソケット関連クラス群</p>
+</div>
+<a id="page_280"/>
+<p class="in">実はこれらソケットクラスをそのまま使う機会は減ってきています。後述のそれぞれのプロトコルに対応した「<code>net/</code>」クラスを使うほうが簡単だからです。とはいえ、基礎は大切です。<code>net/</code> クラスもこれらのクラスを使って記述されていますし、新しいプロトコルに対応するクラスを自分で作るためにはソケットの知識は不可欠です。ここでは簡単に各ソケットクラスについて解説しておきましょう。</p>
+<p class="in"><code>BasicSocket</code>は<code>IO</code>の直接のサブクラスで、他のすべてのソケットクラスのスーパークラスです。<code>BasicSocket</code>は抽象クラスで、インスタンスを作りません。<code>BasicSocket</code>クラスのメソッドは<a href="#table1901">表19.1</a>のとおりです。</p>
+<div class="table" id="table1901">
+<p class="tbl-caption">表19.1●BasicSocket クラスのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">クラスメソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>close_read</code></td>
+<td>読み込みのクローズ</td>
+</tr>
+<tr>
+<td><code>close_write</code></td>
+<td>書き込みのクローズ</td>
+</tr>
+<tr>
+<td><code>getpeername</code></td>
+<td>接続先ソケットの情報</td>
+</tr>
+<tr>
+<td><code>getsockname</code></td>
+<td>自ソケットの情報</td>
+</tr>
+<tr>
+<td><code>getsockopt(opt)</code></td>
+<td>ソケットオプションの取得</td>
+</tr>
+<tr>
+<td><code>recv(len[,flag])</code></td>
+<td>データの受け取り</td>
+</tr>
+<tr>
+<td><code>send(str[,flag[,to]])</code></td>
+<td>データの送信</td>
+</tr>
+<tr>
+<td><code>setsockopt(opt,val)</code></td>
+<td>ソケットオプションの設定</td>
+</tr>
+<tr>
+<td><code>shutdown([how])</code></td>
+<td>ソケット通信の終了</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>IPSocket</code>は<code>TCPSocket</code>と<code>UDPSocket</code>のスーパークラスで抽象クラスです。<code>IPSocket</code>は<a href="#table1902">表19.2</a>のメソッドを持っています。</p>
+<div class="table" id="table1902">
+<p class="tbl-caption">表19.2●IPSocketクラスのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">クラスメソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>addr</code></td>
+<td>自ソケットの情報</td>
+</tr>
+<tr>
+<td><code>peeraddr</code></td>
+<td>接続先ソケットの情報</td>
+</tr>
+<tr>
+<td><code>recvfrom(len[,flag])</code></td>
+<td>データの受け取り</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>TCPSocket</code>はコネクション型のソケット、つまり相手先と接続して継続的にデータを流すタイプのソケットです。一方、<code>UDPSocket</code>はパケット型のソケット、つまりデータを1つ1つの塊として相手先を指定して送ることができます。相手先を固定することもできますが、必ずしもそうする必要はありません。</p>
+<p class="in"><code>UNIXSocket</code>は「UNIXドメインソケット」のクラスです。UNIXドメインソケットとは同じコンピュータのプロセス間で通信する手段で、待ち合わせに「ホスト名とポート」ではなく、「ファイルパス」を使います。その他の点は<code>TCPSocket</code>と同様、コネクション型のストリーム入出力を行います。</p>
+<p class="in"><code>TCPServer</code>と<code>UNIXServer</code>は、それぞれ<code>TCPSocet</code>と<code>UNIXSocket</code>のサーバー版です。これらのクラスはサーバー側のソケット処理を簡単にしてくれます。</p>
+<p class="in">最後の<code>Socket</code>クラスは低レベルソケットインターフェイスです。<code>Socket</code>クラスはC言語レベルのすべてのソケットAPIに対応するメソッドを持っています。ですから、<code>Socket</code>クラスを使えば、Cで記述するのと同じくらいきめ細かなプログラミングができます。繁雑なのでめったにやることはありませんが。</p>
+<a id="page_281"/>
+<p class="in">各ソケットクラスのメソッドなどはドキュメントを参照してください。Rubyのドキュメントとしては、</p>
+<ul>
+<li><p>『Rubyデスクトップリファレンス』（オライリージャパン）</p></li>
+<li><p>『プログラミングRuby』（ピアソンエデュケーション）</p></li>
+<li><p><span class="link">http://www.ruby-lang.org/ja/man-1.6/</span></p></li>
+</ul>
+<p class="ni">があります。</p>
+</section>
+<section id="chap1905" class="level2">
+<h3>初めてのソケットプログラミング</h3>
+<hr class="hr-gray" />
+<p class="in">というわけで、ソケットクラスを用いたプログラムを書いてみましょう。最初は簡単にネットワーク経由で時刻を取得するプログラムです。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;socket&#39;</span>
+print TCPSocket.open(<span class="str">&quot;localhost&quot;</span>, <span class="str">&quot;daytime&quot;</span>).read</pre>
+</div>
+<p class="in">簡単ですね。「<code>open</code>して<code>read</code>する」これだけです。それ以外のことはRubyとそのクラスライブラリが取り計らってくれます。<code>open</code>の引数はホスト名とサービス名です。サービス名の代わりにポート番号で指定してもかまいません。</p>
+<p class="in">このプログラムがうまく動作すれば、</p>
+<div class="borderterminal">
+<pre>Thu Oct 10 11:04:55 2002</pre>
+</div>
+<p class="ni">のように時刻が表示されます。ここで、</p>
+<div class="borderterminal">
+<pre>Connection refused - &quot;connect(2)&quot;</pre>
+</div>
+<p class="ni">というようなエラーメッセージが表示された人は、残念でした。お使いのマシンでは時刻を返す<code>daytime</code>サービスが起動していません。最近はほとんどのマシンでセキュリティなどの理由で<code>daytime</code>サービスは停止してあるようですね。</p>
+<p class="in">その場合には「クライアント側のソケットプログラムはこのようにするものである」と納得するだけにしておいてください。</p>
+<p class="in">もし、どうしても<code>daytime</code>サービスの結果が見たければ、<code>/etc/inetd.conf</code>というファイルに<code>daytime</code>という文字列を含む行が、「<code>#</code>」でコメントアウトされているはずです。</p>
+<div class="plist">
+<pre><span class="cmt">#daytime  stream  tcp  nowait  root  internal</span>
+<span class="cmt">#daytime  dgram   udp  wait    root  internal</span></pre>
+</div>
+<p class="in">今使うのはTCP/IPですから、上のほうの「<code>tcp</code>」を含む行の「<code>#</code>」を外してください。それから実際に<code>daytime</code>サービスを提供する<code>inetd</code>を再起動してください。</p>
+<a id="page_282"/>
+<div class="borderterminal">
+<pre># /etc/init.d/inetd restart</pre>
+</div>
+<p class="in">でも、わざわざそこまですることはないかなあ。</p>
+<p class="in">とにかく、このようにRubyならたった2行（実質は1行）でソケットプログラミングができます。Cでのソケットプログラミングの経験がある人にとっては、驚きといえるのではないでしょうか。</p>
+<p class="in">では、サーバー側も見てみましょう。先ほどの<code>daytime</code>プログラムが動かなかった人が大半でしょうから、<code>daytime</code>サーバーと同じ働きをするサーバーを書いてみましょう。本来の<code>daytime</code>サービスのポートはrootでなければ使えませんから（1024番以下のポートはroot権限が必要）、待ち合わせるポートは12345番ということにしましょう。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;socket&#39;</span>
+s = TCPServer.new(12345)
+loop {
+  cl = s.accept
+  cl.print Time.now.strftime(<span class="str">&quot;%c&quot;</span>)
+  cl.close
+}</pre>
+</div>
+<p class="in">これで終わりです。ネットワークサーバーというと大げさな印象がありますが、拍子抜けするくらい簡単ですね。このプログラムを起動しておいて、別のターミナルから先ほどのクライアントプログラムを <code>"daytime"</code> の部分を12345に置き換えて実行してみましょう。</p>
+<div class="borderterminal">
+<pre>Thu Oct 10 12:29:59 2002</pre>
+</div>
+<p class="ni">のように時刻が表示されれば成功です。</p>
+<p class="in">このようにRubyを使えばネットワークプログラミングの基本的な部分は決して難しくありません。しかも、RubyのソケットクラスはIPv6対応ですから、いろいろややこしいIPv6対応を考えなくても、IPv4とIPv6との両方に対応したプログラムが書けます（クライアント側ならです。サーバー側は実は明示的にIPv6対応する必要があります）。</p>
+</section>
+<section id="chap1906" class="level2">
+<h3>プロトコル</h3>
+<hr class="hr-gray" />
+<p class="ih">「Rubyを使えばネットワークも簡単」とはいうものの、上記のソケットプログラムはしょせんつなげただけです。ちゃんとしたネットワークプログラムはつないだ先と取り決めに従ってきちんとデータのやりとりをしなければなりません。この取り決めのことを「プロトコル」といいます。</p>
+<p class="in">プロトコル（protocol）とは辞書によると、</p>
+<div class="blockquote">
+<p class="hangindent">①（条約の）議定書・原案。</p>
+<p class="hangindent">②外交儀礼。</p>
+<p class="hangindent">③コンピューター – システムで、データ通信を行うために定められた規約。情報フォーマット、交信手順、誤り検出法などを定める。 </p>
+<p class="right">【広辞苑】</p>
+</div>
+<a id="page_283"/>
+<p class="ni">なのだそうです。この場合は③の意味ですね。どちらがどのような順序でどのようなメッセージを送るか、データを送信する場合にはどのような形式で送るかなどを、通信の両端で正しく合意できていないと情報交換はできません。たとえば、先ほどの<code>daytime</code>サービスでさえ、</p>
+<ul>
+<li><p>クライアントが接続したらサーバー側から日付文字列を送る</p></li>
+</ul>
+<p class="ni">というプロトコルに従っていたわけです。ネットワーク上のサービスはどのようなものでも、何らかのプロトコルに従って通信されています。たとえばWWWで使われるHTTP（HyperText Transfer Protocol）、ファイルのアップロードなどに使われるFTP（File Transfer Protocol）、メールの取得に使うPOP3（Post Office Protocol version 3）、メールの送信に使うSMTP（Simple Mail Transfer Protocol）などです。やたらPで終わる略語が多いと思ったらみんなプロトコルという意味だったんですね。</p>
+<p class="in">このようなプロトコルをネットワーク層（イーサネットなど）、トランスポート層（TCP/IPなど）の上位にある層なので「アプリケーション層」と呼ぶことがあります。ちゃんとしたネットワークアプリケーションを作るにはこのプロトコルを処理するプログラムを書く必要があります。</p>
+<p class="in">しかし、アプリケーション層のプロトコルは先ほどの<code>daytime</code>のような簡単なものばかりじゃないんですよねえ。</p>
+</section>
+<section id="chap1907" class="level2">
+<h3>「net/」シリーズ</h3>
+<hr class="hr-gray" />
+<p class="in">しかし、「難しいものを簡単に」というのはRubyのゴールの1つです。Rubyにはこれらのプロトコル（のうち、いくつか）を簡単に扱うためのクラスライブラリが標準添付されています。</p>
+<ul>
+<li><p><code>net/ftp</code></p></li>
+<li><p><code>net/http</code></p></li>
+<li><p><code>net/imap</code></p></li>
+<li><p><code>net/pop</code></p></li>
+<li><p><code>net/smtp</code></p></li>
+<li><p><code>net/telnet</code></p></li>
+</ul>
+<p class="ni">これらにはライブラリ名に「<code>net/</code>」が付いているので、個人的に「<code>net/</code>」シリーズと呼んでいます。発音するときには「ねっとすらっしゅ」ライブラリという感じでお願いします。これらのライブラリはプロトコルのクライアント側に相当します。これらのプロトコルのサーバーをいちから作りたい人はそんなにいないでしょうからね。</p>
+<p class="in">なお、「ねっとすらっしゅ」ライブラリの作者は<code>net/imap</code>が前田修吾さん、<code>net/telnet</code>が青山和光さん、残り全部が青木峰郎さんです。</p>
+<p class="in">今回はその中でも主要なものである、<code>net/http</code>を見てみましょう。</p>
+</section>
+<section id="chap1908" class="level2">
+<a id="page_240"/>
+<h3>簡易アンテナの実装</h3>
+<hr class="hr-gray" />
+<p class="ih">「アンテナ」っていうのは、テレビなどの電波を受けるもの、ではなくって、この場合はWWWページの更新状況をチェックするためのプログラムなんだそうです。たとえば、</p>
+<ul class="none">
+<li><p><span class="link">http://www.ruby-lang.org/ja/hotlinks.html</span></p></li>
+</ul>
+<p class="ni">なんかは、このアンテナの出力結果になるわけですね（<a href="#fig1902">図19.2</a>）。</p>
+<div class="fig" id="fig1902">
+  <!-- <div class="image80"> -->
+  <div class="image700">
+      <img src="../image/ch19/19-2.jpg" alt="fig1902" />
+  </div>
+  <p class="fig-caption">図19.2●Ruby Hotlinks</p>
+</div>
+<p class="in">今回は、「ねっとすらっしゅ」ライブラリで、アンテナの基本になる部分を実装してみましょう。基本的な手順は、</p>
+<ol class="list_parentheses">
+<li><code>net/http</code>を使ってページのヘッダーを取得</li>
+<li>ヘッダーの<code>Last-Modified</code>フィールドの情報を得る</li>
+</ol>
+<p class="ni">だけです。</p>
+</section>
+<section id="chap1909" class="level2">
+<h3>アンテナ料理の下準備</h3>
+<hr class="hr-gray" />
+<p class="in">さて、例によって例題プログラムで使うライブラリの解説をしておきましょう。アンテナの例題では以下のライブラリを使います。</p>
+<ul class="none">
+<li><p><code>uri</code></p></li>
+<li><p><code>net/http</code></p></li>
+</ul>
+<p class="in"><code>uri</code>はURI（Uniformed Resource Indicator）のことです。URL（Uniformed Resource Locator）とどこが違うのかといわれると正直なところよくわかりません。ただ、URLはURIのサブクラスなのだそうですから、URIでしか表現できないものがあるんでしょう、きっと（頼りない）。</p>
+<a id="page_285"/>
+<p class="in"><code>uri</code>ライブラリの提供するURIクラスには以下のクラスメソッドがあります。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>URI.extract</code>　「URIっぽい」部分の抽出</pre></li>
+<li><pre class="tabbing"><code>URI.join   </code>　URIの結合</pre></li>
+<li><pre class="tabbing"><code>URI.parse  </code>　URIオブジェクトの取得</pre></li>
+<li><pre class="tabbing"><code>URI.split  </code>　URIを個々の要素に分割</pre></li>
+</ul>
+<p class="in">個々のURIオブジェクト（実際には種別ごとにクラスが違うのですが）にはたくさんのメソッドがありますが、その主要なものは以下のとおりです。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>scheme  </code>　URIの種別（httpとか）</pre></li>
+<li><pre class="tabbing"><code>userinfo</code>　ユーザー情報</pre></li>
+<li><pre class="tabbing"><code>host    </code>　ホスト名</pre></li>
+<li><pre class="tabbing"><code>port    </code>　ポート番号</pre></li>
+<li><pre class="tabbing"><code>path    </code>　パス</pre></li>
+<li><pre class="tabbing"><code>query   </code>　補助</pre></li>
+</ul>
+<p class="in">一方の<code>net/http</code>ライブラリはHTTPクライアントのためのライブラリです。<code>Net::HTTP</code>クラスの主要なクラスメソッドは以下のとおりです。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>new(host,port)   </code>　新しいHTTP接続</pre></li>
+<li><pre class="tabbing"><code>start(host, port)</code>　HTTP処理</pre></li>
+<li><pre class="tabbing"><code>get(uri)         </code>　<code>GET</code>による取得</pre></li>
+<li><pre class="tabbing"><code>get_print(uri)   </code>　<code>GET</code>したページの出力</pre></li>
+</ul>
+<p class="in"><code>Net::HTTP</code>クラスの主要なインスタンスメソッドは以下のとおりです。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>get(path[,header]) </code>　<code>GET</code>リクエスト</pre></li>
+<li><pre class="tabbing"><code>head(path[,header])</code>　<code>HEAD</code>リクエスト</pre></li>
+<li><pre class="tabbing"><code>post(path[,header])</code>　<code>POST</code>リクエスト</pre></li>
+<li><pre class="tabbing"><code>start              </code>　HTTP処理</pre></li>
+<li><pre class="tabbing"><code>finish             </code>　接続終了</pre></li>
+</ul>
+<p class="in"><code>Net::HTTP</code>を使った典型的な典型的な処理の流れは、</p>
+<ul>
+<li><p><code>Net::HTTP.start</code>を使って全体を囲む</p></li>
+<li><p>インスタンスメソッドを使ってページを取得</p></li>
+</ul>
+<p class="ni">となります。</p>
+<div class="plist">
+<pre>Net::HTTP.start(host, port) {|http|
+  r = http.get  <span class="cmt"># とかなんとか</span>
+}</pre>
+</div>
+<a id="page_286"/>
+<p class="ni"><code>HTTP::start</code>を使えば明示的に<code>finish</code>する必要はありません。Rubyが忘れずに<code>finish</code>してくれます。</p>
+</section>
+<section id="chap1910" class="level2">
+<h3>簡易アンテナの実装</h3>
+<hr class="hr-gray" />
+<p class="in">下準備したことを踏まえて、簡易アンテナを実装してみましょう（<a href="#list1901">リスト19.1</a>）。ページの更新時刻が取得できたときにはそれを表示し、できなかった場合（CGI出力されたページなどは時刻が表示されません）には、「不明」と出力します。</p>
+<div class="plistc" id="list1901">
+<p class="lst-caption">リスト19.1●簡易アンテナ</p>
+<pre><span class="cmt">#!/usr/bin/ruby</span>
+
+require <span class="str">&#39;uri&#39;</span>
+require <span class="str">&#39;net/http&#39;</span>
+
+uri = URI.parse(ARGV[0])
+<span class="kwd">if</span> uri.scheme != <span class="str">&quot;http&quot;</span>
+  STDERR.puts <span class="str">&quot;error: #{$0} only supports http&quot;</span>
+  exit 1
+<span class="kwd">end</span>
+
+Net::HTTP.start(uri.host, uri.port) {|http|
+  response = http.head(uri.path)
+  printf <span class="str">&quot;URL %s の更新時刻は&quot;</span>, uri
+  <span class="kwd">if</span> response.key?(<span class="str">&quot;last-modified&quot;</span>)
+    printf <span class="str">&quot;%sです。\n&quot;</span>, response[<span class="str">&quot;last-modified&quot;</span>]
+  <span class="kwd">else</span>
+    printf <span class="str">&quot;不明です。\n&quot;</span>
+  <span class="kwd">end</span>
+}</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">なんだか、例題そのもののような超簡単なプログラムになってしまいましたね。では、実行してみましょう。ここでは仮にプログラムの名前を<code>pagedate.rb</code>とします。</p>
+<div class="borderterminal">
+<pre>URL http://www.ruby-lang.org/ の更新時刻は不明です。</pre>
+</div>
+<p class="ni">あら?</p>
+<a id="page_287"/>
+<p class="in">実は<span class="link">www.ruby-lang.org</span>のトップページはCGIになっているので、時刻がわからないのです。では、他のページを見てみましょう。</p>
+<div class="borderterminal">
+<pre>URL http://www.ruby-lang.org/ja/ の更新時刻はSat, 07 Sep 2002 15:45:02 GMTです。</pre>
+</div>
+<p class="ni">今度はCGIではないので、ちゃんと取れました。めでたし、めでたし。このようにわずか数行でアンテナが書けるというのはたいしたものです（例によって自画自賛）。</p>
+<p class="in">しかし、これではあまりにも簡易すぎますね。ちょっと考えただけでも、「<code>HEAD</code>が失敗したら<code>GET</code>でページ全体を取得してみる」とか「ページがリダイレクトされた場合の対応」とかの対応が考えられていませんし、それにそもそもアンテナというものは、指定されたURLの更新時刻を調べるだけではなくて、URLが以前チェックしたときから更新されているかどうかをチェックするものです。</p>
+<p class="in">とはいうものの、ページの制限もありますし、この辺は読者への宿題ということにしておきましょう。</p>
+<p class="in"><code>HEAD</code>の失敗やリダイレクトへの対応は、例外処理を使えば比較的簡単に実現できます。失敗したときにもリダイレクトされたときにも<code>head</code>メソッドは例外を発生させますから、<code>begin</code>～<code>rescue</code>で例外を捕捉してやれば対応できますよね。</p>
+<p class="in">また、更新チェックは、たとえば、</p>
+<ul>
+<li><p>過去の更新時刻をファイルに覚えておいて、今回取得した時刻と比較する</p></li>
+<li><p>時刻が取れなかった場合、ページ内容のMD5値を取っておいて、現在の内容のMD5値と比較する（いつ更新したかはわからなくても更新したかどうかはわかる）</p></li>
+</ul>
+<p class="ni">などの方法が考えられます。</p>
+</section>
+<section id="chap1911" class="level2">
+<h3>実用への遠い道</h3>
+<hr class="hr-gray" />
+<p class="in">このようにRubyのネットワークプロトコル対応クラスライブラリを使えば、簡易なアンテナならすぐに書けてしまうわけですが、ここから実用的なアンテナまではなかなか遠い道のりがあります。</p>
+<p class="in">実は本格的なアンテナの実装には、本当はいろいろ考慮すべき点があるんだそうです。いわく、</p>
+<ul>
+<li><p>認証が必要なページに対する対応</p></li>
+<li><p>HTTPの<code>If-Modified-Since</code>（ある時刻より新しいときだけ転送する）指定を使って更新時刻のチェック</p></li>
+<li><p>更新時刻の取得には本体はいらない（ことが多い）ため、できる限りHTTPの<code>HEAD</code>リクエストを使って無駄な転送をなくす</p></li>
+<li><p>更新時刻をくれないWebサーバーもあるので、その場合には、本文を入手し、本文中から「更新時刻っぽい時間表記」を抽出する</p></li>
+<li><p>WebサーバーがHTTP/1.1を受け付けない場合にはHTTP/1.0で再試行してみる</p></li>
+<li><p>Webサーバーが落ちていた場合には十分に間隔を空けて再試行してみる</p></li>
+<li><a id="page_288"/><p>さらに、トラフィックの無駄を省くため他のアンテナが取得したデータを再利用する</p></li>
+</ul>
+<p class="ni">などなどなど。まあ、ただ単にいつ更新したか知りたいというだけでそれぞれのページに迷惑をかけるわけにはいかないので、妥当な心づかいだと思います。</p>
+<p class="in">今回はHTTPアクセスの基本の説明しかしませんでしたが、これから本気でアンテナを開発する人はぜひこれらの点にも気を付けてすばらしいものを作ってくださいませ。</p>
+<p class="in">なお、Rubyで書かれた本格的なアンテナといえば「たまてばこ」があります。「たまてばこ」のホームページは</p>
+<ul class="none">
+<li><p><span class="link">http://www.wakaba.toyonaka.osaka.jp/~ikemo/soft/tama/</span></p></li>
+</ul>
+<p class="ni">です。</p>
+<p class="ih">「たまてばこ」は1700行を超える大作です。小さなプログラムでもすぐに1000行を超えてしまうようなCと違ってRubyの1700行はかなり大規模です。ただ、「たまてばこ」では「<code>net/</code>」ライブラリは使わず、<code>URL</code>クラスなどを始めとして、クラスライブラリをかなり自前で用意しています（一部<code>net/http</code>や<code>cgi</code>を使っていますが）。標準ライブラリを使えば、もう少し小さくなるかもしれません。</p>
+</section>
+<section id="chap1912" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">というわけで、今回はネットワークプログラミングの基礎であるソケットと、その上位にあるアプリケーション層のネットワークプロトコルライブラリについて学びました。しかし、ネットワークプログラミングは奥が深いので、まだまだ説明できません。次回はぜひクライアント/サーバーモデルを超えたネットワークプログラミングである「分散プログラム」について見てみたいと思います。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-042.xhtml">&lt;&lt; 前ページ</a>　<a href="p-044.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第58章 Let’s Talk Lisp</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第58章</p>
+<!-- Body -->
+<section id="chap58" class="level1">
+<a id="page_247"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">58</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+Let’s Talk Lisp
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">オープンソースマガジン</span>, 2006年2月号]</p>
+<div class="newlead">
+<p class="in">最古にして最強のプログラミング言語（誇張した表現）であるLispについて語っています。こんなに強力なのにLispはいつになっても人気がないんですよねえ。ガベージコレクションにしても例外処理にしても、多重継承にしてもLispが起源だったり、そうでなくてもLispでの実験によって発展した技術は多くて、JavaやPython, Rubyなんかで知られるようになったテクニックや実装技術でLisp由来のものは驚くほど多いのですが。もっとも私もLispから多大な影響を受けていながら、全然Lispでない言語を作っているので人のことは言えないのですが。</p>
+</div>
+<section id="chap5801" class="level2">
+<h3>Lispは学ぶ道具?　使う道具?</h3>
+<hr class="hr-gray" />
+<p class="in">Eric Raymondのエッセイ「ハッカーになろう」<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> では、Lispのことが以下のように紹介されています。</p>
+<div class="blockquote">
+<p class="ni">LISPは、それをモノにしたときのすばらしい悟り体験のために勉強しましょう。この体験は、その後の人生でよりよいプログラマーとなる手助けとなるはずです。たとえ、実際にはLISPそのものをあまり使わなくても。</p>
+</div>
+<p class="in">それに対してLispハッカーであるPaul Grahamは以下のように反応<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a> しています。</p>
+<a id="page_248"/>
+<div class="blockquote">
+<p class="ni">彼がLispについて言っていることはよくある意見だ。つまり、Lispを学べばよいプログラマーになれる、でもそれを実際に使うことはない、と。</p>
+<p class="in">何故だい?　プログラミング言語なんてただの道具じゃないか。Lispでよいプログラムが書けるなら、使うべきなんだ。</p>
+</div>
+<p class="in">そのとおり。あまり使われていませんが、Lispには優れたところがたくさんあります。私は、Paul GrahamほどのLispハッカーではありませんが、Lispプログラマーの端くれ<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a> として、今回はそのすばらしいLispについて簡単に紹介してみようと思います。</p>
+</section>
+<section id="chap5802" class="level2">
+<h3>Lispの歴史</h3>
+<hr class="hr-gray" />
+<p class="in">Lispの歴史は古く、その誕生は1958年だといわれています。1958年といえば、まだほとんどのプログラミング言語が登場していない時期です。この頃にすでに存在していたプログラミング言語で今でも生き残っているのはFORTRAN（1954年）とCOBOL（1959年）くらいのものでしょう。</p>
+<p class="in">Lispがプログラミング言語として特異なのは、もともとはプログラミング言語として設計されたのではなく、数学的な計算モデルとして設計されたことに原因があると考えます。Lispの設計者として知られるJohn McCarthyは、それが計算機言語として使えるとは考えもしませんでした。単なる計算モデルとして記述した万能関数evalを、彼の研究室の大学院生であるSteve RussellがIBM 704の機械語で実現したことによって、初めてプログラミング言語Lispが誕生したのです。</p>
+</section>
+<section id="chap5803" class="level2">
+<h3>Lispのすごさ</h3>
+<hr class="hr-gray" />
+<p class="in">しばらく前になりますが、あるオブジェクト指向関連のイベントで「私がオブジェクト指向を理解したのはMartin Fowlerの『リファクタリング』を読んでからです」という講演を聞いて<ruby>驚愕<rt>きょうがく</rt></ruby>しました。オブジェクト指向に最初に触れたのが1980年代で、処理系といえばSmalltalkという私のような人間は「もう、じじいの領域だな」と強く感じた一瞬でした。</p>
+<p class="in">しかし、実際問題として、Javaで初めてオブジェクト指向を学んだ人はすでにかなりの割合になっているようです。そういう人たちにとっては、オブジェクト指向が真新しい概念のように感じられるかもしれません。また、Javaで強調されている例外処理やガベージコレクション、バーチャルマシンなどの概念も、最近登場したもののように感じられることでしょう。</p>
+<p class="in">しかし、実際にはそれらはみんなJavaよりも何十年も（文字どおり何十年も）前にLispで実現されていたのです。オブジェクト指向の登場が1968年のSimulaであったことをご存じの方も多いと思います。実に40年近くも前のことです。1980年代にはLisp処理系上にオブジェクト指向システムを構築する研究が多数行われており、それらの研究を踏まえて、1988年にはCommon Lispの標準としてCLOS（Common Lisp Object System）が取り込まれています。</p>
+<a id="page_249"/>
+<p class="in">このCLOSは多重継承やマルチプルメソッドなど現在でもまだ斬新と考えられる機能がたくさん盛り込まれています。また、最近話題のアスペクト指向に類似の機能<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a> であるメソッドコンビネーションも含まれています。Javaなどがようやく取り込もうとしている技術は、20年前のLispの技術だったわけです。</p>
+<p class="in">アスペクト指向だけではありません。Javaで初めてガベージコレクションを知ったという人も多いでしょうが、Lispはごく初期の処理系からガベージコレクションを備えていました。データをオブジェクトとして取り扱い、メモリの割り当てを明示的に行わないLispでは、ガベージコレクションは必須だったのです。これまた40年も前の技術ということになります。</p>
+<p class="in">バーチャルマシン、バイトコードインタプリタなどの単語もJavaとともに広く知られるようになりましたが、もともとはSmalltalkで用いられていた技術です。Smalltalkの実装は1970年代後半から1980年代初頭にかけて行われており、その技術もまたLispの影響を受けています。見る人が見ればSmalltalkの処理系はLispの処理系にそっくりであることがわかります。</p>
+<p class="in">同じ時期に生まれたFORTRANやCOBOLが今まで蓄積した膨大な資産を管理するためにほそぼそと生き残っているのに対して、Lispはいつも時代の最先端に位置しているのは興味深いことです。</p>
+</section>
+<section id="chap5804" class="level2">
+<h3>Lispの強さ</h3>
+<hr class="hr-gray" />
+<p class="in">最先端の機能を提供してきたLispですが、その強さは特定の機能に見出せるわけではありません。むしろ、Lispはいろいろな機能を実験してみるのに非常に便利なため、その中でよいものが生き残ったと考えるべきでしょう。Lispの先進性は、Lispの強さの副作用とでも呼ぶべきものなのです。</p>
+<p class="in">その強さを表現するキーワードは「動的」です。インタプリタそのものであるevalを持っているLispは非常に動的で、単なるデータだけでなくプログラム自体を取り扱うことができます。Javaなどにもリフレクションという名前でプログラム自体を扱う機能が提供されていますが、データとプログラムが同一のフォーマットで表現されるLispの動的性にはかないません。プログラム自体を扱うプログラミング、メタプログラミングによって、Lispの上にいわば別の新しい言語を作り出すことが簡単にできます。新しく言語処理系を書かなくても目的別に特別設計された言語、ドメイン特化言語<a href="#fn5" class="footnote-ref" id="fnref5" epub:type="noteref" role="doc-noteref">5</a> を作り出すこともできますし、言語自体に手を加えなくてもオブジェクト指向機能のようなものも実現できます。</p>
+</section>
+<section id="chap5805" class="level2">
+<h3>Lispの不幸</h3>
+<hr class="hr-gray" />
+<p class="in">そんなに優れた言語なのに広まらなかったLispは、不幸としかいいようがありません。もちろん、ただ単に運が悪かっただけではなく、いろいろと理由はあるのでしすが。</p>
+<p class="in">その1つはさまざまな誤解です。Lispは他のプログラミング言語に比べて「高級」なので、実装が大変に難しく、なかなか性能のよい処理系が登場しませんでした。性能第一のFORTRANなどの言語と比較すると、その点で長らく不利でした。その後、実装技術が向上して他の言語と遜色ない性能が出せるようになってもその誤解は解けず、いつまでも「Lispは遅い、使えない」と思われてきたのです。また、学者しか使わない言語というイメージが形成されたのもつらいところです。</p>
+<a id="page_250"/>
+<p class="in">もう1つの理由はあのかっこでしょう。Lispのプログラムには大量のかっこが登場します。慣れれば優先度などが明確に表現されるよい文法なのですが、少なくとも初心者は引いてしまいそうです。また、プログラミングスタイルが「普通」の言語とは相当異なることも問題です。この点では関数型言語も似たような障壁に当たっているようです。</p>
+</section>
+<section id="chap5806" class="level2">
+<h3>MatzLisp</h3>
+<hr class="hr-gray" />
+<p class="in">JavaはLispで培われてきた技術を広く知らしめるのに貢献しました。今まで知る人ぞ知る技術であったものが、Javaのおかげでたくさんの人が知る「常識」に格上げされたといってもよいでしょう。しかし、Javaには、Lispの強さのごく一部しか取り込んでいません。「時代は動的言語」といわれていますが、それはJavaが提供しなかったLispの強さを取り込んでいく、世間がますますLispの強さに気が付いていく過程なのかもしれません。私のデザインしたRubyがその一翼を担っているのは誇らしい限りです。</p>
+<p class="in">先日、某イベントの二次会で「実はRubyは『MatzLisp』<a href="#fn6" class="footnote-ref" id="fnref6" epub:type="noteref" role="doc-noteref">6</a> っていうLispの方言だったんだよ!」と語られたようです。なんとも傑作なネタですが、Lispの強さを痛感した私が「自分が満足するために」作り出したRubyは、文法こそ違うものの、その本質としてLisp文化を継承しているのかもしれません。</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">ハッカーになろう</span></p>
+<p>原題は「How To Become A Hacker」。日本語訳は山形浩生さんの訳で以下のURLで読める。<br />
+<span class="link">http://cruel.org/freeware/hacker.html</span>
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">以下のように反応</span></p>
+<p>エッセイ「普通のやつらの上を行け」での反応。このエッセイの川合史郎さんによる日本語訳は以下のURLで読める。<br />
+<span class="link">http://www.shiro.dreamhost.com/scheme/trans/beating-the-averages-j.html</span>
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">Lispプログラマーの端くれ</span></p>
+<p>もっとも私が普段プログラムしているのはCやらRubyやらで、Lispを使うのはもっぱらEmacsのためだし、私の書いたプログラムはいつもLispらしくないのだが、今回はそれは棚に上げることにする。
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">アスペクト指向に類似の機能</span></p>
+<p>それもそのはず、CLOSの設計者にはAspectJの開発者Gregor Kiczaleがいる。「アスペクト指向に類似」というよりアスペクト指向の元になったというべきか。
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn5">
+<p><span class="k">ドメイン特化言語</span></p>
+<p>目的別に特別設計された言語（DSL: Domain Specific Language）。
+<a href="#fnref5" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn6">
+<p><span class="k">MatzLisp</span></p>
+<p>MITで開発された有名なLispにMacLispというものがあり、それとかけているという点でもこのネタは秀逸である。
+<a href="#fnref6" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-046.xhtml">&lt;&lt; 前ページ</a>　<a href="p-048.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

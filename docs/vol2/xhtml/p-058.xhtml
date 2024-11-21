@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第69章 オープンソースよ、永遠に</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第69章</p>
+<!-- Body -->
+<section id="chap69" class="level1">
+<a id="page_291"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">69</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">まつもと ゆきひろのハッカーズライフ</span><br />
+オープンソースよ、永遠に
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">オープンソースマガジン</span>, 2007年1月号]</p>
+<div class="newlead">
+<p class="in">ハッカーズライフ連載の最終回。フリーソフトウェアとオープンソースについての解説。特にあまり触れられない背景と動機について解説しています。オープンソースのありかたもあまり変化していませんね。この20年の変化について考えると、</p>
+<ul>
+<li><p>ソフトウェア全般</p>
+<ul>
+<li><p>オープンソースがより一般化した</p></li>
+<li><p>ソフトウェアがますますWeb中心になった</p></li>
+<li><p>コンピュータの性能は上がった</p></li>
+</ul></li>
+<li><p>プログラミング言語</p>
+<ul>
+<li><p>静的型言語の流行</p></li>
+<li><p>関数型アプローチの流行</p></li>
+<li><p>新しい言語は企業がバックについているものが多い</p></li>
+<li><p>JavaScript/TypeScript技術の盛り上がり</p></li>
+</ul></li>
+</ul>
+<p class="ni">などがありますね。しかし、総合的に見るとこれだけ時間が経っているのに、ユーザー体験は意外と変化していないというのが正直なところです。これから20年後はいったいどうなっているのでしょうか。新しい技術により、まったく違う世界になっているのか、それともやはり「意外と変化していないね」と笑うのか。未来はどっちでしょう。長生きして明るい未来を見たいものです。</p>
+</div>
+<section id="chap6901" class="level2">
+<a id="page_292"/>
+<h3>オープンソースって?</h3>
+<hr class="hr-gray" />
+<p class="in">オープンソース/フリーソフトウェアとの付き合いも、ずいぶん長くなりました。初めてフリーソフトウェアに触れたのは大学時代の1989年で、EmacsとGCCがフリーソフトウェアとの最初の接近遭遇です。自分でリリースした最初のフリーソフトウェアは、Emacs Lispで書かれたメールリーダーcmailでした（1990年）。その後、Rubyをリリースしたり（1995年）、今の会社に転職してフルタイムのフリーソフトウェア開発者になったり（1997年）、私の生活に占めるオープンソースの割合はどんどん高まってきています。</p>
+<p class="in">このように「オープンソースな生活」をしている私ですが、困ったこともあります。IT業界人でない人に、「オープンソースとは何か」をなかなか理解してもらえないのです。こちらにもこだわりがあるので「無償のソフトウェア」などという簡単かつ誤解を生みそうな表現はできませんし、苦労して説明しても結局は煙に包まれたような顔をされてしまいます。</p>
+<p class="in">この「理解されにくさ」は、そもそもオープンソースという単語が誤解されやすいうえに、いろいろな側面を持つ多面的な概念であることと無関係ではないでしょう。というわけで、今回はオープンソースという概念の多面性について考えてみます。</p>
+</section>
+<section id="chap6902" class="level2">
+<h3>定義</h3>
+<hr class="hr-gray" />
+<p class="in">まずは、言葉の定義から見ていきましょう。フリーソフトウェアの定義は「（FSF<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> の考える）ソフトウェアの自由を保証するソフトウェア」であり、ここでいうソフトウェアの自由とは、</p>
+<ol start="0">
+<li><p>実行する自由</p></li>
+<li><p>ソースコードを読む自由</p></li>
+<li><p>ソースコードを改変する自由</p></li>
+<li><p>ソースコードを再配布する自由</p></li>
+</ol>
+<p class="ni">のことです。実行の自由を保証するため、ソフトウェアは無償で入手できる必要がありますし、学習・研究用にソースコードも入手可能でなければいけません。また、不具合の修正や自分の目的に合わせるための改変を許可したり、他の人に勧めるために再配布も自由である必要があります。</p>
+<p class="in">一方、オープンソースソフトウェアとは、「オープンソースの定義」<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a> を満たすライセンスで配布されているソフトウェアのことです。オープンソースの定義が、作者の意向でもソフトウェア自体の性質でもなく、ライセンスによって定められることに注目してください。つまり、どのようなソフトウェアであるかよりも、そのソフトウェアが「どのように扱えるか」という点を問題としているわけです。</p>
+</section>
+<section id="chap6903" class="level2">
+<a id="page_293"/>
+<h3>オープンソースの歴史</h3>
+<hr class="hr-gray" />
+<p class="in">オープンソースは1998年に誕生した新しい単語ですが、それよりもはるか以前から成立していたフリーソフトウェア運動に端を発しています。これは、当時MITに所属していたRichard M. Stallmanが始めた「ソフトウェアの商用化によって、それ以前にプログラマたちが享受していたソフトウェアの自由が奪われていくのを憂えて誕生させた運動」です。1983年、Stallmanが自身で開発していたEmacsエディタなどをGPL<a href="#fn3" class="footnote-ref" id="fnref3" epub:type="noteref" role="doc-noteref">3</a> の下で公開し、他の人々にもこのライセンスの採用を勧めました。それ以来、StallmanとFSFは数多くのソフトウェアをGPLの下で公開しており、優れたコンパイラであるGCCや、UNIXコマンドの多くをカバーするGNUツールなど、オープンソースにとって欠かせない存在になっています。</p>
+<p class="in">しかしこの考えは、企業にあまり理解されませんでした。一説には「フリー」という単語が「無料」を連想させるからとも、商用ソフトウェアを毛嫌いするStallmanの態度が商用ソフトウェアも扱うIT企業に敬遠されたともいわれていますが、はっきりしたことはわかりません。そのような環境の中で、フリーソフトウェアをビジネス領域に定着させるための方策として誕生した単語が「オープンソース」です。これは「ソースコードを公開している」という部分しか表現していない単語ですが、</p>
+<ul>
+<li><p>真新しい言葉が持つよいイメージ</p></li>
+<li><p>無料というビジネス的に望ましくない側面を強調しすぎていない</p></li>
+<li><p>なんとなく新しいビジネストレンドという印象を与えられる</p></li>
+</ul>
+<p class="ni">などの利点から、ビジネスに近い人々から支持されました。Stallmanたちは「オープンソースという言葉には最も重要な『自由』が含まれていない」と反対しましたが、現実派は「オープンソースの定義によって自由は保証されている」として、この点をあまり重視しませんでした。</p>
+</section>
+<section id="chap6904" class="level2">
+<h3>オープンソースの背景</h3>
+<hr class="hr-gray" />
+<p class="ih">「なぜオープンソースなのか?」、また「なぜオープンソースが成立できるのか?」という点が気になる人もいるでしょう。</p>
+<p class="in">フリーソフトウェアの場合は簡単です。フリーソフトウェアには「ソフトウェアの自由を維持する」という崇高な目的があります。過激な行動こそありませんが、基本的には人類の歴史で繰り返されてきた自由闘争の一種です。ところが、自由にそれほど固執しないオープンソースの場合には、ちょっと話がややこしくなります。無理やり一言で表現するなら「近年の社会の変化に適合したソフトウェア開発のありかた」とでもいえばよいでしょうか。</p>
+<p class="in">もともと知識や情報を共有するという行為は、科学の領域では普通のことでした。知識を論文として（無償で）公開し、先人の業績を利用して新たな研究を行うことは当たり前のことです。ソフトウェア、特に商用ソフトウェアは「商品」として扱われるので忘れがちですが、論文の内容と同様のやり方が適用できます。とはいえ、ソフトウェアの開発にはそれなりに費用がかかるわけですが、それを「無料のソフトウェア」として公開してしまうことに抵抗はないのでしょうか?　これには2つの理由があります。</p>
+<a id="page_294"/>
+<p class="in">最初の理由は、コンピュータの普及とインターネットの発達です。昔はきちんとしたソフトウェアを開発をしようと思えば、高価な大型コンピュータを導入し、たくさんの技術者を集める必要がありました。それが今では家庭にあるコンピュータでも十分可能で、ネットでのやり取りだけで開発されることも珍しくありません。趣味のプログラミングのレベルでも、相当な開発ができるようになったのです。</p>
+<p class="in">もう1つの理由は、ソフトウェアの複雑化とコモディティ化<a href="#fn4" class="footnote-ref" id="fnref4" epub:type="noteref" role="doc-noteref">4</a> が同時に起こったことです。ソフトウェアがカバーする領域はどんどん広くなり、ソフトウェアはどんどん複雑になっています。昔は1万行程度で実現できていたOSも、今では600万行を超える<a href="#fn5" class="footnote-ref" id="fnref5" epub:type="noteref" role="doc-noteref">5</a> ような一大ソフトウェアになっています。ところが、人間の財布の中身はさほど変化しませんから、1つ1つのソフトウェアの規模がどんなに大きくなってもソフトウェア全体にかけられる費用はそんなに増やせません。結果として、よほどの大手でなければ、自分たちだけで必要なソフトウェアを開発・提供できなくなってしまいました。企業がオープンソースに注目する理由はここにあります。「すべてのソフトウェアを自分たちで開発できない以上、競争力の源になる一部を除いて、みんなで共有して開発したほうが得になる」という企業側の冷徹な計算があるのです。</p>
+<p class="in">オープンソースに関わる人々の思惑は1つではありません。経営上の損得から参加する企業、ソフトウェアの自由のために参加するプログラマー、上司の命令だから参加する会社員、それこそ千差万別です。しかし、オープンソースによってすべての人が幸せになる可能性があり、それが継続していくような発展的な循環が起きているのは、本当によいことだと思います。そして潤沢なオープンソースソフトウェアに囲まれることで、ハッカーは自らがハッカーたりえる「場」を見いだせるのではないでしょうか。</p>
+</section>
+<section id="chap6905" class="level2">
+<h3>終わりに</h3>
+<hr class="hr-gray" />
+<p class="in">これまで皆さんにご好評いただいた本連載「まつもとゆきひろのハッカーズライフ」は、残念ながら今回で最終回になります。UNIX USER時代から数えると24回にもわたってお付き合いいただき、本当にありがとうございます。連載が終わってもハッカーとしての人生はまだまだ終わりません。これからも皆さんがプログラミングライフを楽しむことができるようお祈りしています。Happy Hacking!</p>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p><span class="k">FSF</span></p>
+<p>Free Software Foundationの略。<br />
+<span class="link">http://www.fsf.org/</span>
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p><span class="k">「オープンソースの定義」</span></p>
+<p>オープンソースの定義は、もともとDebianディストリビューションにおいてフリーソフトウェアと認定する基準を定めた「DFSG（Debian Free Software Guideline）」がベースになっている。第1特集Part 4のリスト1参照。<br />
+<span class="link">http://opensource.org/docs/definition.php</span><br />
+<span class="link">http://www.opensource.jp/osd/osd-japanese_plain.html</span>
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn3">
+<p><span class="k">GPL</span></p>
+<p>GNU General Public Licenseの略で、ソフトウェアの自由を保証するために定義されたライセンス。<br />
+<span class="link">http://www.gnu.org/copyleft/gpl.html</span>
+<a href="#fnref3" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn4">
+<p><span class="k">コモディティ化</span></p>
+<p>コモディティ（Commodity）は日用品。日用品のようにありふれていて、安く手に入り、生産にコストがかけられなくなること。
+<a href="#fnref4" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn5">
+<p><span class="k">600万行を超える</span></p>
+<p>最近のLinuxカーネルだけの話。Windows 2000が約2000万行、Windows Vistaもおそらく数千万行クラスだと思われる。
+<a href="#fnref5" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-057.xhtml">&lt;&lt; 前ページ</a>　<a href="p-bmatter-001.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

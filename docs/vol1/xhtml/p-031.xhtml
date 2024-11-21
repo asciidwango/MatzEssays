@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第14章 数と電卓</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第14章</p>
+<!-- Body -->
+<section id="chap14" class="level1">
+<a id="page_197"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">14</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+数と電卓
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年7月号]</p>
+<div class="newlead">
+<p class="in">Rubyの数クラスについてです。ご存じの方もいらっしゃるでしょうが、私は数学が大変苦手です。ですから、数値計算関係の実装をするときには大変困ります。幸い、Rubyコミュニティには数学が得意な人がたくさんいるので、みなさんの助けを借りてなんとか実装しています。これは20年前も今も変わらない点です。Rubyの数クラスで自慢したい点は、<code>coerce</code>システムです。Rubyの他のクラスと比べて、数クラスに特徴的なことは、クラスごとにカバーしている範囲が異なることと、混合した演算が許されていることです。既知のクラスだけならばあまり問題にならないのですが、新しい数クラスを導入したときに、既存の数クラスとの相互変換を簡潔に扱うことは困難な課題です。<code>coerce</code>はそれをきれいに表現できる仕組みです。普通のユーザーは新しい数クラスを定義することはありませんし、めったに見ることのない部分ではありますが、Rubyではこんな目立たない部分でも一生懸命設計されている1つの例です。<code>coerce</code>システムは、書籍『オブジェクト指向スクリプト言語Ruby』の共著者である石塚圭樹のアイデアに基づいて設計されました。</p>
+<p class="in">この章では、日本語入力システムについても紹介しています。私の使っている「きゅうり改」ですが、20年経った今でも使っています。ただし、当時利用していた日本語変換システム「かんな」は使えなくなってしまいましたので、今は「fcitx + mozc」で日本語入力しています。他にユーザーはいないようですが。雑誌掲載時にはCD-ROMに設定ファイルを収録してもらいましたが、今回はクラウドへのリンクを用意しました。以下のURLから<code>mozc.tbl</code>というファイルをダウンロードし、mozcのローマ字テーブルとして読み込むと、mozcで「きゅうり改」が使えるようになります。</p>
+<ul class="none">
+<li><p><span class="link">https://tinyurl.com/3e244k9r</span></p></li>
+</ul>
+</div>
+<div class="lead">
+<p class="ni">コンピュータの本来の意味は「計算機」で、数の計算は得意中の得意です。今月はRubyにおける数の扱いを見てみましょう。</p>
+</div>
+<section id="chap1401" class="level2">
+<a id="page_198"/>
+<h3>はじめに</h3>
+<hr class="hr-gray" />
+<p class="in">最近、コンピュータを何に使ってますか。私の場合は、メールの読み書きやWebのブラウズ、プログラミング、それから忘れちゃいけない原稿書きが主な使い道です。おかげで、ときどきコンピュータが計算機であることを忘れて、計算するために電卓を探したりすることさえあります。かっこわるい。</p>
+<p class="in">Rubyも計算機上のプログラミング言語ですから、もちろん数の扱いは得意です。Rubyの数は<a href="#fig1401">図14.1</a>のようなクラスで表現されます。</p>
+<div class="fig" id="fig1401">
+  <!-- <div class="image60"> -->
+  <div class="image500">
+      <img src="../image/ch14/14-1.jpg" alt="fig1401" />
+  </div>
+  <p class="fig-caption">図14.1●数のクラス階層</p>
+</div>
+<p class="in"><a href="#fig1401">図14.1</a>を見ると、クラス階層が浅めのRubyにしては継承が活用されているのがわかります。これは歴史的に数学の世界が数の構成について一種の継承のような分類を行ってきたことをある程度反映しています。数には整数（<code>Integer</code>）があり、それとは別に小数点以下も表現できる浮動小数点数（<code>Float</code>）もあります。</p>
+<p class="in">整数には一定の範囲内（2の30乗程度まで）の整数を表現する<code>Fixnum</code>クラスと、それ以上の数を表現する<code>Bignum</code>クラスとがありますが、これはむしろ実装の都合で、普段は気にする必要はありません。Rubyは整数の値に応じて勝手に変換してくれます。</p>
+<p class="in">ですから、たとえば2の100乗なども簡単に計算できます。</p>
+<div class="plist">
+<pre>puts 2**100  <span class="cmt"># =&gt; 1267650600228229401496703205376</span></pre>
+</div>
+<p class="in">浮動小数点数は小数点以下も表現できます。1.5とか3.14とかですね。算数で実数と呼んでいるものに相当します。ただし、コンピュータの中では2進法で計算していたり、有効な桁数に限界があったりする関係で、誤差が発生します。電卓で1÷3×3が0.99999999になったりするようなものです。浮動小数点数を扱うときにはいつも誤差に気を付ける必要があります。絶対にしてはいけないことは、2つの<code>Float</code>を「<code>==</code>」演算子で比較することです。同じように見えてもほんのわずかのずれで同じと判定されないことがあります。2つの<code>Float</code>の差が一定以下かどうかという判定を使うか、いっそ「<code>&lt;</code>」や「<code>&gt;</code>」を使った別の条件に変える必要があります。</p>
+</section>
+<section id="chap1402" class="level2">
+<h3>数の表現</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyのプログラムの中での数値の表現はいくつもあります（<a href="#table1401">表14.1</a>）。</p>
+<a id="page_199"/>
+<div class="table" id="table1401">
+<p class="tbl-caption">表14.1●数値表現</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">名称</span></th>
+<th><span class="k">例</span></th>
+<th><span class="k">値</span></th>
+</tr>
+<tr>
+<td>整数（10進）</td>
+<td><code>1234</code></td>
+<td>1234</td>
+</tr>
+<tr>
+<td>2進整数</td>
+<td><code>0b1011</code></td>
+<td>11</td>
+</tr>
+<tr>
+<td>8進整数</td>
+<td><code>01234</code></td>
+<td>668</td>
+</tr>
+<tr>
+<td>16進整数</td>
+<td><code>0x1234</code></td>
+<td>4660</td>
+</tr>
+<tr>
+<td>浮動小数点数</td>
+<td><code>1.234</code></td>
+<td>1.234</td>
+</tr>
+<tr>
+<td>指数表示浮動小数点数</td>
+<td><code>1.23e3</code></td>
+<td>1230.0（1.23×10の3乗）</td>
+</tr>
+<tr>
+<td>文字コード</td>
+<td><code>?a</code></td>
+<td>97（<code>'a'</code>のASCIIコード）</td>
+</tr>
+<tr>
+<td>コントロールコード</td>
+<td><code>?\C-a</code></td>
+<td>1（Control-Aのコード）</td>
+</tr>
+<tr>
+<td>メタコード</td>
+<td><code>?\M-a</code></td>
+<td>225（aのコード97<code>|0x80</code>）</td>
+</tr>
+<tr>
+<td>コントロールメタコード</td>
+<td><code>?\C-?\M-a</code></td>
+<td>129（Control-Aのコード1<code>|0x80</code>）</td>
+</tr>
+</table>
+</div>
+<p class="in">数値表現の数の並びにはアンダースコア（<code>'_'</code>）を含めることができます。たとえば、読みやすさのために整数を3桁ごとに区切る目的に使えます。</p>
+<div class="plist">
+<pre>1_234_567   <span class="cmt"># =&gt; 1234567</span></pre>
+</div>
+</section>
+<section id="chap1403" class="level2">
+<h3>算術演算</h3>
+<hr class="hr-gray" />
+<p class="in">数に対する小学生の頃からおなじみの演算はもちろん提供されています。他のプログラミング言語でもだいたい同じですが、「×」の代わりに「<code>*</code>」が、「÷」の代わりに「<code>/</code>」が使われます。あと、剰余（余り）を求める演算子「<code>%</code>」と、べき乗を求める演算子「<code>**</code>」があります。</p>
+<div class="plist">
+<pre>p 1 + 1   <span class="cmt"># =&gt; 2</span>
+p 3 - 2   <span class="cmt"># =&gt; 1</span>
+p 2 * 4   <span class="cmt"># =&gt; 8</span>
+p 6 / 3   <span class="cmt"># =&gt; 3</span>
+p 5 % 2   <span class="cmt"># =&gt; 1</span>
+p 3**10   <span class="cmt"># =&gt; 59049</span></pre>
+</div>
+<p class="in">べき乗に「<code>^</code>」演算子を使う言語もありますが、Rubyでは「<code>^</code>」は別の意味を持ちますから、注意してください。</p>
+<p class="in">整数同士の算術演算の結果は整数、両辺いずれか（あるいは両方）が浮動小数点数である算術演算の結果は浮動小数点数です。整数同士の演算の場合、割り算の結果も整数になることに注意してください。ですから、</p>
+<div class="plist">
+<pre>p 5 / 2     <span class="cmt"># =&gt; 2</span></pre>
+</div>
+<p class="ni">になり、2.5にはなりません。2.5がほしければ、</p>
+<div class="plist">
+<pre>p 5 / 2.0   <span class="cmt"># =&gt; 2.5</span></pre>
+</div>
+<p class="ni">とする必要があります。</p>
+<p class="in">余りについても少々追加説明が必要です。余りを求めるメソッドは実は4つあります。</p>
+<a id="page_200"/>
+<ul class="none">
+<li><pre class="tabbing"><code>x.divmod(y)   </code>　<code>x</code>と<code>y</code>の商と余りの両方を返します</pre></li>
+<li><pre class="tabbing"><code>x % y         </code>　<code>x</code>と<code>y</code>の余り（modulo）を返します</pre></li>
+<li><pre class="tabbing"><code>x.modulo(y)   </code>　「<code>%</code>」演算子と同じです。</pre></li>
+<li><pre class="tabbing"><code>x.remainder(y)</code>　<code>x</code>と<code>y</code>の余り（remainder）を返します</pre></li>
+</ul>
+<p class="in"><code>divmod</code>メソッドの返す商（<code>q</code>）と余り（<code>r</code>）の間には、</p>
+<div class="plist">
+<pre>x = y * q + r   （ただしrの符号はyの符号と等しい）</pre>
+</div>
+<p class="ni">という関係があります。「<code>%</code>」演算子と<code>x.modulo(y)</code>は、<code>x.divmod(y)</code>の余りの部分だけを返します。</p>
+<p class="in">一方、<code>remainder</code>は<code>r</code>の符号が<code>x</code>と等しい余りを返します。ですから、<code>remainder</code>と<code>modulo</code>は負の数を含む演算で違いが現れます。</p>
+<div class="plist">
+<pre>(13.modulo(4))         <span class="cmt"># =&gt;  1</span>
+(13.remainder(4))      <span class="cmt"># =&gt;  1</span>
+(13.modulo(-4))        <span class="cmt"># =&gt; -3</span>
+(13.remainder(-4))     <span class="cmt"># =&gt;  1</span>
+((-13).modulo(4))      <span class="cmt"># =&gt; -3</span>
+((-13).remainder(4))   <span class="cmt"># =&gt; -1</span>
+((-13).modulo(-4))     <span class="cmt"># =&gt; -1</span>
+((-13).remainder(-4))  <span class="cmt"># =&gt; -1</span></pre>
+</div>
+</section>
+<section id="chap1404" class="level2">
+<h3>ビット演算</h3>
+<hr class="hr-gray" />
+<p class="in">コンピュータは数を<code>0</code>と<code>1</code>の並び（ビット列）として扱います。たとえば、整数の5は<code>101</code>というビット列で表現されています。このビット列に対する操作は以下のものが用意されています。</p>
+<ul class="none">
+<li><pre class="tabbing"><code>| </code>　ビットor</pre></li>
+<li><pre class="tabbing"><code>&amp; </code>　ビットand</pre></li>
+<li><pre class="tabbing"><code>^ </code>　ビットxor</pre></li>
+<li><pre class="tabbing"><code>&lt;&lt;</code>　左ビットシフト</pre></li>
+<li><pre class="tabbing"><code>&gt;&gt;</code>　右ビットシフト</pre></li>
+<li><pre class="tabbing"><code>~ </code>　ビット反転</pre></li>
+</ul>
+<p class="in">ビット単位での論理和を求めるのがビットorで、ビット単位での論理積がビットandです。</p>
+<div class="plist">
+<pre>0b101 | 0b1100</pre>
+</div>
+<p class="ni">は2進数での各桁（ビット）ごとにいずれかが<code>1</code>であるビットが<code>1</code>になり、結果は<code>0b1101</code>（10進では13）になります。両辺のビット列の長さが違う場合には右端でそろえて演算し、足りないビットは<code>0</code>であるとみなします（正の数の場合）。</p>
+<p class="in">一方、ビットandでは両方ともが<code>1</code>であるビットだけが<code>1</code>になり、</p>
+<div class="plist">
+<pre>0b101 &amp; 0b1100</pre>
+</div>
+<p class="ni">の結果は<code>0b100</code>（つまり10進の4）になります。</p>
+<a id="page_201"/>
+<p class="in">xorは排他的論理和（exclusive or）とも呼ばれて、両辺のビットのいずれか一方だけが1のとき1になります。</p>
+<div class="plist">
+<pre>0b101 ^ 0b1100</pre>
+</div>
+<p class="ni">の結果は<code>0b1001</code>（つまり10進の9）になります。これらの論理演算のビットの組み合わせを<a href="#table1402">表14.2</a>に示します。</p>
+<div class="table" id="table1402">
+<p class="tbl-caption">表14.2●ビット論理演算</p>
+<table class="tbl08">
+<tr>
+<th><span class="k">x</span></th>
+<th><span class="k">y</span></th>
+<th><span class="k">x <code>|</code> y (or)</span></th>
+<th><span class="k">x <code>&amp;</code> y (and)</span></th>
+<th><span class="k">x <code>^</code> y (xor)</span></th>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</table>
+</div>
+<p class="in">左ビットシフトはビット列を左側にずらします。ずらした右側にはゼロが入れられます。ですから</p>
+<div class="plist">
+<pre>0b101 &lt;&lt; 1</pre>
+</div>
+<p class="ni">は、<code>0b101</code>が1ビットずつ左にずらされて<code>0b1010</code>になり、10進では10になります。整数を<span class="f">n</span>ビット左にシフトすることは、その整数を2の<span class="f">n</span>乗倍することと同じ意味を持ちます。</p>
+<p class="in">逆に右側にシフトするのが右ビットシフトです。</p>
+<div class="plist">
+<pre>0b101 &gt;&gt; 1</pre>
+</div>
+<p class="ni">は<code>0b101</code>が1ビットずつ右にずらされて<code>0b10</code>になります。はみだしたビットは捨てられます。整数を<span class="f">n</span>ビット右にシフトすることは、その整数を2の<span class="f">n</span>乗で割ることと同じ意味を持ちます。</p>
+<p class="in">ビット列として整数を見るとき、負の数は「2の補数」で表現されていると考えることができます。「2の補数」とはコンピュータの世界での伝統的な負の数の表現方式の1つで「ビット反転して+1」した値のことです。考えやすいので、まずは整数のサイズに制限のある場合から考えましょう。整数のサイズが16ビットだったとして、0に対する2の補数は、まず0のビット反転である<code>0xffff</code>を計算し、それに1を足します。するとその結果はやはり0になります。0には +0 も −0 もありませんから、これはこれでよいわけです。同様に−1は<code>0xffff</code>, −2は<code>0xfffe</code>になります。</p>
+<p class="in">歴史的には「1の補数」という別の負の数の表現方式が使われていたこともあるそうです。これは単純に整数をビット反転したものです。この方式では +0 と −0 ができてしまいますね。私は実際に1の補数を使ったコンピュータを見たことはありません。</p>
+<p class="in">すでに説明したようにRubyには<code>Bignum</code>がありますので、整数のサイズは制限がありません。C言語では整数をビット列として扱う場合には、整数型のサイズ（16ビットとか32ビットとか64ビットとか）に制限されますが、Rubyでは100ビットだろうが1000ビットだろうが表現できます。</p>
+<div class="plist">
+<pre>1 &lt;&lt; 1000  <span class="cmt"># 1以下999ビット0が続くビット列</span></pre>
+</div>
+<p class="in">ですから、Rubyの整数をビット列として考えると、理論的には正の数の場合には左側に無限に0が続くと考えることができます。負の数の場合には逆に無限に1が続くことになります。まあ、実際に無限に0なり1なりが並んでいるわけではありませんが。</p>
+<p class="in">最後にビット反転はビット1の桁を<code>0</code>にビット0の桁を<code>1</code>に置き換えた数を返します。</p>
+<div class="plist">
+<pre>~0    <span class="cmt"># =&gt; -1</span>
+~1    <span class="cmt"># =&gt; -2</span></pre>
+</div>
+<p class="in"><span class="f">n</span>のビット反転は (−<span class="f">n</span>−1) と同じ意味になります。</p>
+</section>
+<section id="chap1405" class="level2">
+<a id="page_202"/>
+<h3>文字列化</h3>
+<hr class="hr-gray" />
+<p class="in">数値を文字列にするためには<code>to_s</code>メソッドを使います。</p>
+<div class="plist">
+<pre>puts 10.to_s  <span class="cmt"># =&gt; 10</span></pre>
+</div>
+<p class="in"><code>puts</code>のような出力メソッドは内部的に<code>to_s</code>を呼びますから、直接出力しても同じことです。</p>
+<div class="plist">
+<pre>puts 10  <span class="cmt"># =&gt; 10</span></pre>
+</div>
+<p class="in">Rubyは普段使われる10進数の他に2進数、8進数、16進数を扱うことができます。ある数を10進以外で出力するためには<code>printf</code>を使います。また文字列化するためには<code>sprintf</code>を使います（<a href="#table1403">表14.3</a>）。</p>
+<div class="plist">
+<pre>a = 3456
+printf(<span class="str">&quot;%b\n&quot;</span>, a)  <span class="cmt"># =&gt; 110110000000</span>
+printf(<span class="str">&quot;%o\n&quot;</span>, a)  <span class="cmt"># =&gt; 6600</span>
+printf(<span class="str">&quot;%d\n&quot;</span>, a)  <span class="cmt"># =&gt; 3456</span>
+printf(<span class="str">&quot;%x\n&quot;</span>, a)  <span class="cmt"># =&gt; d80</span>
+printf(<span class="str">&quot;%X\n&quot;</span>, a)  <span class="cmt"># =&gt; D80</span></pre>
+</div>
+<div class="table" id="table1403">
+<p class="tbl-caption">表14.3●printfの基数指定</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">表記</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>%b</code></td>
+<td>2進数（binary）</td>
+</tr>
+<tr>
+<td><code>%o</code></td>
+<td>8進数（octal）</td>
+</tr>
+<tr>
+<td><code>%d</code></td>
+<td>10進数（decimal）</td>
+</tr>
+<tr>
+<td><code>%x</code></td>
+<td>16進数（hexadecimal）</td>
+</tr>
+<tr>
+<td><code>%X</code></td>
+<td>16進数, ただしA-Fは大文字</td>
+</tr>
+</table>
+</div>
+<p class="in">Ruby 1.7では<code>Integer</code>クラスの<code>to_s</code>メソッドが引数に基数を指定できます（基数は2, 8, 16が有効）。</p>
+<div class="plist">
+<pre>a = 3456
+p a.to_s(2)     <span class="cmt"># =&gt; 110110000000</span>
+p a.to_s(8)     <span class="cmt"># =&gt; 6600</span>
+p a.to_s(10)    <span class="cmt"># =&gt; 3456</span>
+p a.to_s(16)    <span class="cmt"># =&gt; d80</span></pre>
+</div>
+</section>
+<section id="chap1406" class="level2">
+<h3>文字列からの変換</h3>
+<hr class="hr-gray" />
+<p class="in">逆に文字列を数値化するためには、<code>to_i</code>メソッドまたは<code>Integer</code>メソッドを使います。</p>
+<div class="plist">
+<pre>puts <span class="str">&quot;10&quot;</span>.to_i      <span class="cmt"># =&gt; 10</span>
+puts Integer(<span class="str">&quot;10&quot;</span>)  <span class="cmt"># =&gt; 10</span></pre>
+</div>
+<p class="in"><code>to_i</code>メソッドと<code>Integer</code>メソッドの違いは、そのスタイル以外にも、</p>
+<ul>
+<li><p><code>to_i</code>は数値として解釈できない文字列に対して0を返す。<code>Integer</code>はエラーにする</p></li>
+<li><p><code>Integer</code>は数値の前のプリフィックス（<code>0x</code>とか<code>0b</code>とか）を解釈する。<code>to_i</code>は解釈しない</p></li>
+</ul>
+<p class="ni">という違いがあります。</p>
+<p class="in">ですから、10進以外の数値表現から数値を得るためには、先頭に基数を表すプリフィックスを付けて<code>Integer</code>メソッドを使います（8進数の場合は先頭に“<code>0</code>”を付ける）。</p>
+<a id="page_203"/>
+<div class="plist">
+<pre>Integer(<span class="str">&quot;0b110110000000&quot;</span>)  <span class="cmt"># =&gt; 3456</span>
+Integer(<span class="str">&quot;06600&quot;</span>)           <span class="cmt"># =&gt; 3456</span>
+Integer(<span class="str">&quot;0xd80&quot;</span>)           <span class="cmt"># =&gt; 3456</span>
+Integer(<span class="str">&quot;0XD80&quot;</span>)           <span class="cmt"># =&gt; 3456</span></pre>
+</div>
+<p class="in">Ruby 1.7では<code>String</code>クラスの<code>to_i</code>メソッドの引数に基数を指定できます（基数は2, 8, 16が有効）。</p>
+<div class="plist">
+<pre>p <span class="str">&quot;110110000000&quot;</span>.to_i(2)  <span class="cmt"># =&gt; 3456</span>
+p <span class="str">&quot;6600&quot;</span>.to_i(8)          <span class="cmt"># =&gt; 3456</span>
+p <span class="str">&quot;d80&quot;</span>.to_i(16)          <span class="cmt"># =&gt; 3456</span>
+p <span class="str">&quot;D80&quot;</span>.to_i(16)          <span class="cmt"># =&gt; 3456</span></pre>
+</div>
+</section>
+<section id="chap1407" class="level2">
+<h3>数値同士の変換</h3>
+<hr class="hr-gray" />
+<p class="in"><code>Integer</code>メソッドや<code>to_i</code>メソッドは浮動小数点数を整数に変換するためにも使えます。</p>
+<div class="plist">
+<pre>p Integer(1.5)   <span class="cmt"># =&gt;  1</span>
+p 1.5.to_i       <span class="cmt"># =&gt;  1</span>
+p Integer(-1.5)  <span class="cmt"># =&gt; -1</span>
+p -1.5.to_i      <span class="cmt"># =&gt;  1</span></pre>
+</div>
+<p class="ni">これらは小数点以下を切り捨てます。小数点以下を四捨五入するためには<code>round</code>メソッドを使います。</p>
+<div class="plist">
+<pre>p 1.2.round      <span class="cmt"># =&gt;  1</span>
+p 1.6.round      <span class="cmt"># =&gt;  2</span>
+p -1.2.round     <span class="cmt"># =&gt; -1</span>
+p -1.6.round     <span class="cmt"># =&gt; -2</span></pre>
+</div>
+<p class="in">その他にも繰り上げて整数化する<code>ceil</code>、繰り下げて整数化する<code>floor</code>があります。</p>
+<div class="plist">
+<pre>p 1.2.ceil       <span class="cmt"># =&gt;  2</span>
+p -1.2.ceil      <span class="cmt"># =&gt; -1</span>
+p 1.2.floor      <span class="cmt"># =&gt;  1</span>
+p -1.2.floor     <span class="cmt"># =&gt; -2</span></pre>
+</div>
+<p class="ni">これらのメソッドは浮動小数点数を整数化するためのものですが、逆に浮動小数点数に変換するためには<code>to_f</code>メソッドまたは<code>Float</code>メソッドを使います。</p>
+<div class="plist">
+<pre>p 5.to_f         <span class="cmt"># =&gt; 5.0</span>
+p Float(5)       <span class="cmt"># =&gt; 5.0</span></pre>
+</div>
+<p class="ni">これらのメソッドは文字列に対しても有効です。</p>
+<div class="plist">
+<pre>p <span class="str">&quot;5.5&quot;</span>.to_f     <span class="cmt"># =&gt; 5.5</span>
+p Float(<span class="str">&quot;5.5&quot;</span>)   <span class="cmt"># =&gt; 5.5</span></pre>
+</div>
+<p class="ni"><code>Integer</code>と<code>to_i</code>と同様に</p>
+<a id="page_204"/>
+<ul>
+<li><p><code>to_f</code>は数値として解釈できない文字列に対して0.0を返す。<code>Float</code>はエラーにする</p></li>
+</ul>
+<p class="ni">という違いがあります。</p>
+</section>
+<section id="chap1408" class="level2">
+<h3>繰り返し</h3>
+<hr class="hr-gray" />
+<p class="in">たとえば熟練したCプログラマーであれば、10回繰り返したいと思えば、一瞬のうちに、</p>
+<div class="plist">
+<pre><span class="kwd">for</span> (i=0; i&lt;10; i++) {
+  ...
+}</pre>
+</div>
+<p class="ni">という表現が頭に浮かぶかもしれません。しかし、やりたいこと（10回繰り返したい）と、実際の表現の意味にはかなりレベルの差があります。上記のCを解釈するとこうです。</p>
+<ul>
+<li><p>変数<code>i</code>をまず<code>0</code>に初期化し、</p></li>
+<li><p>それから<code>i&lt;10</code>が成立するまで繰り返す、</p></li>
+<li><p>毎回の繰り返しの直後には<code>i++</code>を実行する</p></li>
+</ul>
+<p class="in">ところがRubyであればこうなります。</p>
+<div class="plist">
+<pre>10.times {
+  ...
+}</pre>
+</div>
+<p class="ni">まさに「10回繰り返す」そのものです。直接的ですね。この<code>times</code>メソッドは整数クラスに用意されているループ用のメソッドです。このようなループ用メソッドは「イテレータ（繰り返し子）」とも呼ばれて、Rubyにはいくつも用意されています。</p>
+<p class="in">数のクラスにある繰り返し用メソッドは以下のとおりです（<code>n</code>, <code>m</code>, <code>step</code>はそれぞれ数とします）。</p>
+<div class="plist">
+<pre><span class="cmt"># n回繰り返す</span>
+10.times {
+  ...
+}
+
+<span class="cmt"># 1増やしながら繰り返す(終端を含む)</span>
+4.upto(7) {|i|
+  p i     <span class="cmt"># 4,5,6,7を出力</span>
+}
+
+<span class="cmt"># 1減らしながら繰り返す(終端を含む)</span>
+4.downto(2) {|i|
+  p i     <span class="cmt"># 4,3,2を出力</span>
+}
+
+<span class="cmt"># step数を加えながら終端を超えるまで繰り返す</span>
+4.step(10, 2) {|i|
+  p i     <span class="cmt"># 4,6,8,10を出力</span>
+}</pre>
+</div>
+</section>
+<section id="chap1409" class="level2">
+<a id="page_205"/>
+<h3>数学関数（Math）</h3>
+<hr class="hr-gray" />
+<p class="in">数、特に浮動小数点数に対してLinux（UNIX）では<code>libm</code>が提供する数学関数を使うことができます。これらの関数は<code>Math</code>モジュールが提供しています。これらの関数の使い方は、</p>
+<div class="plist">
+<pre>p Math.sqrt(2)  <span class="cmt"># =&gt; 1.414213562</span></pre>
+</div>
+<p class="ni">のように<code>Math</code>モジュールを明示的に指定して呼び出すか、<code>Math</code>モジュールをインクルードして、</p>
+<div class="plist">
+<pre>include Math
+p sqrt(2)       <span class="cmt"># =&gt; 1.414213562</span></pre>
+</div>
+<p class="ni">のように使うかのいずれかです。<code>Math</code>モジュールが提供する数学関数を<a href="#table1404">表14.4</a>に示します。</p>
+<div class="table" id="table1404">
+<p class="tbl-caption">表14.4●Mathモジュールの数学関数（Ruby 1.6）</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">関数</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>atan2(x,y)</code></td>
+<td><code>x</code>/<code>y</code>のアークタンジェント（逆正接）</td>
+</tr>
+<tr>
+<td><code>cos(x)</code></td>
+<td><code>x</code>のコサイン（余弦）</td>
+</tr>
+<tr>
+<td><code>exp(x)</code></td>
+<td><code>x</code>の指数関数</td>
+</tr>
+<tr>
+<td><code>frexp(x)</code></td>
+<td><code>x</code>の指数部と仮数部の配列</td>
+</tr>
+<tr>
+<td><code>ldexp(x,e)</code></td>
+<td><code>x</code>の2の<code>e</code>乗をかけた数</td>
+</tr>
+<tr>
+<td><code>log(x)</code></td>
+<td><code>x</code>の自然対数</td>
+</tr>
+<tr>
+<td><code>log10(x)</code></td>
+<td><code>x</code>の常用対数</td>
+</tr>
+<tr>
+<td><code>sin(x)</code></td>
+<td><code>x</code>のサイン（正弦）</td>
+</tr>
+<tr>
+<td><code>sqrt(x)</code></td>
+<td><code>x</code>の平方根</td>
+</tr>
+<tr>
+<td><code>tan(x)</code></td>
+<td><code>x</code>のタンジェント（正接）</td>
+</tr>
+</table>
+</div>
+<p class="in">三角関数の<code>x</code>はラジアンで表現されます。</p>
+<p class="in">その他に<code>Math</code>モジュールでは定数として、円周率<code>PI</code>と自然対数の底<code>E</code>も定義されています。</p>
+<pre><code>p Math::PI    # =&gt; 3.141592654
+p Math::E     # =&gt; 2.718281828</code></pre>
+<p class="in">Ruby 1.7では<code>Math</code>モジュールの提供する数学関数が増えています。1.7で追加された数学関数を<a href="#table1405">表14.5</a>に示します。</p>
+<a id="page_206"/>
+<div class="table" id="table1405">
+<p class="tbl-caption">表14.5●Ruby 1.7で追加された数学関数</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">関数</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>acos(x)</code></td>
+<td><code>x</code>のアークコサイン（逆余弦）</td>
+</tr>
+<tr>
+<td><code>acosh(x)</code></td>
+<td><code>x</code>のアークハイパボリックコサイン（逆双曲線余弦）</td>
+</tr>
+<tr>
+<td><code>asin(x)</code></td>
+<td><code>x</code>のアークサイン（逆正弦）</td>
+</tr>
+<tr>
+<td><code>asinh(x)</code></td>
+<td><code>x</code>のアークハイパボリックサイン（逆双曲線正弦）</td>
+</tr>
+<tr>
+<td><code>atan(x)</code></td>
+<td><code>x</code>のアークタンジェント（逆正接）</td>
+</tr>
+<tr>
+<td><code>atanh(x)</code></td>
+<td><code>x</code>のアークハイパボリックタンジェント（逆双曲線正接）</td>
+</tr>
+<tr>
+<td><code>cosh(x)</code></td>
+<td><code>x</code>のハイパボリックコサイン（双曲線余弦）</td>
+</tr>
+<tr>
+<td><code>hypot(x,y)</code></td>
+<td>原点と点<span class="f">(</span><code>x</code>, <code>y</code><span class="f">)</span>の距離</td>
+</tr>
+<tr>
+<td><code>sinh(x)</code></td>
+<td><code>x</code>のハイパボリックサイン（双曲線正弦）</td>
+</tr>
+<tr>
+<td><code>tanh(x)</code></td>
+<td><code>x</code>のハイパボリックタンジェント（双曲線正接）</td>
+</tr>
+</table>
+</div>
+<p class="in">私自身はこれらの数学関数を使ったことはほとんどありませんし、「アークハイパボリックコサイン」など、正直なところそれが何を意味するのかもよくわからないのですが、使う人は使うのでしょう、きっと。</p>
+</section>
+<section id="chap1410" class="level2">
+<h3>乱数</h3>
+<hr class="hr-gray" />
+<p class="in">ランダムな数がほしい場合があります。一番ありそうなケースはゲームを作る場合でしょう。</p>
+<p class="in">Rubyで乱数を得るためには<code>rand</code>メソッドを使います。<code>rand</code>メソッドの呼び出し方は2種類あります。<code>rand</code>メソッドに整数の引数を指定すると、その数よりも小さい整数の乱数を返します。</p>
+<div class="plist">
+<pre>rand(10)  <span class="cmt"># 0から9までの乱数</span></pre>
+</div>
+<p class="ni"><code>rand</code>メソッドに引数を与えないと（あるいは0を与えると）、0.0から1.0の間の浮動小数点数の乱数を返します。この乱数は0.0を含み、1.0を含まない範囲になります。</p>
+<p class="in">Rubyが提供する乱数はある種の「擬似乱数」にしかすぎません。擬似乱数はある「種」となる数値を初期値として計算される、一見ばらばらに見える数列です。ですから、同じ種を与えれば「再現性のある乱数」というなんとなく矛盾したものが得られるわけです。乱数の種は<code>srand</code>メソッドで指定します。</p>
+<div class="plist">
+<pre>srand(0)  <span class="cmt"># 「種」の指定</span>
+p rand    <span class="cmt"># =&gt; 0.170828036 (いつも同じ「乱数」)</span>
+p rand    <span class="cmt"># =&gt; 0.7499019805(いつも同じ)</span></pre>
+</div>
+<p class="in">LinuxでないOSでは実際の乱数の値は上記とは違うかもしれませんが、何度やっても同じ乱数が得られるという点は変わりません。</p>
+<p class="in"><code>srand</code>を明示的に呼び出さなかった場合には、Rubyのほうで「適当な」種を用意してくれます。</p>
+</section>
+<section id="chap1411" class="level2">
+<a id="page_207"/>
+<h3>有理数と複素数</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyは非常に拡張性のある言語なので、自分で数の階層に新しいクラスを追加することができます。そのような例としては有理数（<code>rational</code>）と複素数（<code>complex</code>）をあげておきます。</p>
+<p class="in"><code>rational</code>ライブラリはRubyで記述されたライブラリで、有理数クラスを定義します。有理数とは2つの整数の商の形で表現される数です。浮動小数点数では誤差を含んでしまう「割り切れない数」も正確に扱うことができます。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;rational&#39;</span>
+r = Rational.new(1,3)  <span class="cmt"># 「1/3」を定義</span></pre>
+</div>
+<p class="in">Rubyのすごい点は、この新しく定義した有理数が既存の数と自由に計算できる点です。</p>
+<div class="plist">
+<pre>p 2 + r    <span class="cmt"># =&gt; Rational(7, 3)</span></pre>
+</div>
+<p class="in">複素数も同様です。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;complex&#39;</span>
+c = Complex(1,4)
+p 15 + c   <span class="cmt"># =&gt; Complex(16, 4)</span>
+p 15 * c   <span class="cmt"># =&gt; Complex(15, 60)</span></pre>
+</div>
+</section>
+<section id="chap1412" class="level2">
+<h3>複利計算</h3>
+<hr class="hr-gray" />
+<p class="in">さて、少しは実用的な数の計算をしてみましょう。銀行や郵便局にお金を預けると利子が付きます。この利子は普通「年利0.5%」というふうに表現されます。これは1年間預けると元の金額の0.5%が利子として追加されるという意味です。</p>
+<p class="in">利子の計算は普通は複利計算が行われます。これはつまり前回の利子分も元本に加算されるということです。ここでは話を簡単にするため税金については考えないこととすると、複利計算の公式は以下のようになります。</p>
+<div class="plist">
+<pre>受け取り額 = 元本*((1+利率)**運用年数)</pre>
+</div>
+<p class="ni">この式は利子の計算を1年に1回行う（1年複利）場合の式ですが、1カ月複利や半年複利などの場合、この式の「利率」を「利率÷(1年÷複利期間)」に置き換え、「運用年数」を「運用年数÷複利期間」に置き換えます。</p>
+<p class="in">ということで、元本を<code>x</code>円、利率を<code>i</code>%、預け入れ期間を<code>n</code>年とし、複利期間を<code>t</code>年とした場合、受け取り額を求めるメソッドは以下のようになります。</p>
+<div class="plist">
+<pre><span class="kwd">def</span> fukuri(x, i, n, t)
+  x * ((1+(i/100.0/(1/0.5)))**(n*1.0/t))
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">「運用年数」の部分で「<code>n*1.0</code>」としているのは、<code>n</code>と<code>t</code>を両方とも整数を指定してしまった場合に「<code>n/t</code>」が整数の商にならないためです。</p>
+<a id="page_208"/>
+<p class="in">では、実際に計算してみましょう。郵便局の半年複利の定額貯金に私のへそくり20万を預けたとしましょう。実際はそんなにありませんが。これを10年預けると税引き前でいったいいくらになるでしょう。</p>
+<p class="in">さっき郵便局で利率を確認したら、定額貯金は年利0.07%だそうです。なんでしょう、この利率は。ほとんどゼロじゃないですか。で、計算すると、</p>
+<div class="plist">
+<pre>p fukuri(200000, 0.07, 10, 0.5)  <span class="cmt"># =&gt; 201404.6648</span></pre>
+</div>
+<p class="ni">うーむ、10年で1404円ですか。お話になりませんね。これじゃ利子の意味がありません。</p>
+<p class="in">これが10年前ならどうでしょう。調べたら、10年前の定額貯金の利率は5.0%だそうです（!）。</p>
+<div class="plist">
+<pre>p fukuri(200000, 5.0, 10, 0.5)   <span class="cmt"># =&gt; 327723.2881</span></pre>
+</div>
+<p class="ni">32万7千円ですか。12万増ですか。あの頃いっぱい預けていればよかった。って、その頃は結婚したばかりでお金なかったんですけど。</p>
+<p class="in">なお、複利計算の公式については</p>
+<ul class="none">
+<li><p><span class="link">http://plaza27.mbn.or.jp/~financial/subdata/mas1.html</span></p></li>
+</ul>
+<p class="ni">を参考にさせていただきました。</p>
+</section>
+<section id="chap1413" class="level2">
+<h3>超高機能電卓irb</h3>
+<hr class="hr-gray" />
+<p class="in">皆さんは電卓は何を使っていますか。最近はチープなものなら100円ショップでも手に入りますよね。ソーラー電池がつくと1000円くらいのものでしょうか。これらは四則演算とせいぜいレジスタが1つ2つあるくらいの単純なものです。本誌の読者ならLinux使いでしょうから、そのような低級な電卓では満足できなくて、もうちょっと高級なものを使っているかもしれません。私はHPの関数電卓を愛しているという人を何人も知っています。あるいはUNIXコマンドのbcを使うという人もいます。GUI版の単純電卓であるxcalcを愛用している人もいるかもしれません。</p>
+<p class="in">ここで紹介するのはirbというコマンドです。irbはinteractive ruby（対話的ruby）の略です。つまりRubyのプログラミングを対話的に行うためのツールです。もちろん、Rubyは単なる電卓ではないのですが、これを電卓として考えると実に高機能な電卓です。たとえば、</p>
+<ul>
+<li><p>任意の数の変数が使える</p></li>
+<li><p>任意の桁数の整数が扱える</p></li>
+<li><p>もちろん実数計算もできる</p></li>
+<li><p>おまけにRubyの全機能が使える</p></li>
+<li><p>さらに行編集も可能</p></li>
+</ul>
+<p class="ni">といたれりつくせりです。</p>
+<p class="in">ただし、電卓として考えると「整数÷整数」の割り算の結果が整数になってしまうのはちょっと使いにくいですね。ここだけは注意する必要がありますね。</p>
+<a id="page_209"/>
+<p class="in">irbを起動するとプロンプトが出て入力を求められます。</p>
+<div class="borderconsole">
+<pre>irb(main):001:0&gt;</pre>
+</div>
+<p class="in">最初の「<code>001</code>」は行番号、次の「<code>0</code>」はネストの深さを意味します。では、ちょっと計算してみましょう。</p>
+<div class="borderconsole">
+<pre>irb(main):001:0&gt; 1 + 1
+2
+irb(main):002:0&gt; 2 * 4
+8
+irb(main):003:0&gt; 2 ** 10
+1024
+irb(main):004:0&gt; 2 ** 100
+1267650600228229401496703205376</pre>
+</div>
+<p class="in">電卓としてはなかなか快調です。では、メソッドも定義してみましょう。先ほどの複利計算メソッドを定義します。</p>
+<div class="borderconsole">
+<pre>irb(main):005:0&gt; def fukuri(x, i, n, t)
+irb(main):006:1&gt;  x*((1+(i/100.0/(1/0.5)))**(n*1.0/t))
+irb(main):007:1&gt; end
+nil</pre>
+</div>
+<p class="in"><code>def</code>文の本体の間はネストが1になっていることに注目してください。これで複利計算も使える電卓になりました。先ほどの定額貯金の計算もこのとおりです。</p>
+<div class="borderconsole">
+<pre>irb(main):008:0&gt; fukuri(200000, 0.07, 10, 0.5)
+201404.6648</pre>
+</div>
+<p class="in">では、1年複利だとどうなるんでしょう。こういうときに行編集機能は便利です。上カーソルでさっきの行を表示させ、0.5の部分を1に直すだけです。</p>
+<div class="borderconsole">
+<pre>irb(main):009:0&gt; fukuri(200000, 0.07, 10, 1)
+200701.1035</pre>
+</div>
+<p class="ni">なんと10年で701円ですか。さみしい。では、逆に1カ月複利だと?</p>
+<div class="borderconsole">
+<pre>irb(main):010:0&gt; fukuri(200000, 0.07, 10, 1/12.0)
+208577.3631</pre>
+</div>
+<p class="ni">今度は8577円になります。このようにirbは電卓としても便利です。もちろん本来の目的であるちょっとRubyの機能を対話的に試してみたいときにもとても役に立ちます。</p>
+</section>
+<section id="chap1414" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回は計算機の原点「数」を中心に解説しました。</p>
+<p class="in">以前から白状しているように、私は数学苦手です。学生時代から数学は落ちこぼれてました。今回、付け焼き刃の知識で解説したところもあります。もし間違い、勘違いなどがありましたら、こっそり教えてくださいませ。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-030.xhtml">&lt;&lt; 前ページ</a>　<a href="p-032.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第42章 Webアプリケーションの基礎</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第42章</p>
+<!-- Body -->
+<section id="chap42" class="level1">
+<a id="page_131"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">42</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+Webアプリケーションの基礎<br />（その2）
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年11月号]</p>
+<div class="newlead">
+<p class="in">Webアプリケーションの基礎の解説、2回目です。今回はHTMLのフォームとCGIが中心です。現代のWebアプリケーション開発でも基本的な構成は継承していますが、さすがにフォームやCGIを直接使うことはなくなりましたね。あと、Webアプリケーションフレームワークも紹介していますが、個別の紹介は次章に任せます。</p>
+<p class="ih">「Ruby開発日記」は「汝は人狼なりや?」ということで、人狼ゲームの紹介です。本文中でも紹介した人狼BBSですが、2020年1月31日いっぱいでサービス終了してしまいました。ログは今でも読めるので（2024年3月現在）、読み返すのも楽しいですね。</p>
+</div>
+<div class="lead">
+<p class="ni">先月に引き続きWebアプリケーションの基礎になる部分を学びましょう。それから、Webアプリケーションの作成を簡単にしてくれるWebアプリケーションフレームワークの簡単な紹介を行います。</p>
+</div>
+<section id="chap4201" class="level2">
+<h3>FormとGETとPUT</h3>
+<hr class="hr-gray" />
+<p class="in">先月解説したように、CGIとはURLにプログラムを対応させて、動的にページを作り出す仕組みのことです。先月は「Hello World」という文字列と現在時刻を表示させました（<a href="#list4201">リスト42.1</a>）。</p>
+<div class="plistc" id="list4201">
+<p class="lst-caption">リスト42.1●CGIサンプルプログラム</p>
+<pre><span class="cmt">#! /usr/bin/ruby</span>
+addr = ENV[<span class="str">&quot;REMOTE_ADDR&quot;</span>]
+client = ENV[<span class="str">&quot;HTTP_USER_AGENT&quot;</span>]
+
+print <span class="str">&quot;content-type: text/html\n\n&quot;</span>
+print &lt;&lt;<span class="kwd">END</span>
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;hello world&lt;/title&gt;
+&lt;body&gt;
+hello, it&#39;s #{Time.now.to_s}.&lt;br&gt;
+you are using #{client} from #{addr}.
+&lt;/body&gt;
+&lt;/html&gt;
+<span class="kwd">END</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_132"/>
+<p class="in">しかし、「Webアプリケーション」と呼ばれるものはただ単にURLに対応するプログラムを起動すればよいというものではありません。実際にはユーザーからのさまざまな入力を受け付けます。CGIプログラムがクライアントからの入力を得るためにはHTMLのFORMを使います。</p>
+<p class="in">Linux magazineの読者の皆さんならば、Webブラウザ上でラジオボタンやリストボックス、テキスト領域などへの入力を行ったことがあると思います。HTMLではそれらを総称してFORM（フォーム）と呼びます。HTMLが提供するFORMには<a href="#table4201">表42.1</a>のようなコントロールがあります。</p>
+<div class="table" id="table4201">
+<p class="tbl-caption">表42.1●HTML FORMのコントロール</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">INPUTタグのtype属性</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>checkbox</code></td>
+<td>チェックボックス</td>
+</tr>
+<tr>
+<td><code>file</code></td>
+<td>ファイルのアップロード</td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td>非表示</td>
+</tr>
+<tr>
+<td><code>image</code></td>
+<td>イメージボタン</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>パスワード（入力内容を「<code>*</code>」でマスク）</td>
+</tr>
+<tr>
+<td><code>radio</code></td>
+<td>ラジオボタン</td>
+</tr>
+<tr>
+<td><code>reset</code></td>
+<td>入力のクリア</td>
+</tr>
+<tr>
+<td><code>select</code></td>
+<td>リストボックス</td>
+</tr>
+<tr>
+<td><code>submit</code></td>
+<td>入力送信ボタン</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td>1行テキスト入力</td>
+</tr>
+<tr>
+<td><code>textarea</code></td>
+<td>複数行テキスト入力</td>
+</tr>
+</table>
+</div>
+<p class="in">HTMLの入力要素は <code>&lt;FORM&gt;</code> タグの中で使います。<code>&lt;FORM&gt;</code> タグには以下のような属性を指定します。</p>
+<ul>
+<li><p><code>action</code></p></li>
+<li><p><code>method</code></p></li>
+<li><p><code>enctype</code></p></li>
+</ul>
+<p class="ih">「<code>action</code>」はそのフォームの中で<code>submit</code>ボタンまたはイメージボタンが押されたときにリクエストが送られるURLです。</p>
+<p class="ih">「<code>method</code>」は<code>GET</code>または<code>POST</code>です。<code>GET</code>の場合にはパラメータはURLと一緒に渡されます。具体的には、</p>
+<div class="plist">
+<pre>http://www.example.com/index.rb?foo=5&amp;bar=10</pre>
+</div>
+<p class="ni">という形式です。「<code>index.rb</code>」までがURL、「<code>?</code>」以降がパラメータになります。複数のパラメータの区切りには「<code>&amp;</code>」が用いられます。また、特殊な意味を持つ文字（空白文字や「<code>&amp;</code>」そのもの、全角文字など）は、「<code>%</code>」に続く16進二桁で表現します。たとえば空白は「<code>%20</code>」、チルダは「<code>%7E</code>」と表現されます。</p>
+<a id="page_133"/>
+<p class="in">一方、<code>POST</code>ではパラメータはHTTPリクエストのボディ部に格納されます（<code>GET</code>の場合は通常ボディ部は空）。パラメータは1行に1つずつ、「<code>名前=値</code>」という形式で渡されます。それと、ファイルアップロードの場合には「マルチパート形式」という方法で渡されるのですが、ここでは説明を省略します。</p>
+<p class="ih">「<code>enctype</code>」はリクエストのエンコーディング方法を示します。デフォルトは「<code>application/x-www- form-urlencoded</code>」です。通常は明示的に指定する必要はないでしょう。</p>
+<p class="in">ですから、<a href="#list4202">リスト42.2</a>のようなHTMLファイルがあれば、パラメータ<code>foo</code>と<code>bar</code>を与えて、CGIを起動することができます。</p>
+<div class="plistc" id="list4202">
+<p class="lst-caption">リスト42.2●FORMを使ったHTMLファイル</p>
+<pre>&lt;<span class="kwd">html</span>&gt;
+&lt;<span class="kwd">head</span>&gt;&lt;<span class="kwd">title</span>&gt;HTML FORM&lt;/<span class="kwd">title</span>&gt;
+&lt;<span class="kwd">body</span>&gt;
+&lt;<span class="kwd">form</span> <span class="kwd">method</span>=<span class="str">&quot;POST&quot;</span> <span class="kwd">action</span>=<span class="str">&quot;http://www.example.com/update.rb&quot;</span>&gt;
+&lt;!<span class="cmt">-- &lt;input type=&quot;&quot;&gt;で指定する --</span>&gt;
+&lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;foo&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;1&quot;</span>&gt;1&lt;<span class="kwd">br</span>&gt;
+&lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;foo&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;2&quot;</span>&gt;2&lt;<span class="kwd">br</span>&gt;
+&lt;<span class="kwd">input</span> <span class="kwd">type</span>=<span class="str">&quot;checkbox&quot;</span> <span class="kwd">name</span>=<span class="str">&quot;foo&quot;</span> <span class="kwd">value</span>=<span class="str">&quot;3&quot;</span>&gt;3&lt;<span class="kwd">br</span>&gt;
+&lt;!<span class="cmt">-- selectはメニューリスト --</span>&gt;
+&lt;<span class="kwd">select</span> <span class="kwd">name</span>=<span class="str">&quot;bar&quot;</span>&gt;
+&lt;<span class="kwd">option</span> <span class="kwd">value</span>=<span class="str">&quot;東京&quot;</span>&gt;東京&lt;/<span class="kwd">option</span>&gt;
+&lt;<span class="kwd">option</span> <span class="kwd">value</span>=<span class="str">&quot;東京&quot;</span>&gt;松江&lt;/<span class="kwd">option</span>&gt;
+&lt;<span class="kwd">option</span> <span class="kwd">value</span>=<span class="str">&quot;東京&quot;</span>&gt;那覇&lt;/<span class="kwd">option</span>&gt;
+&lt;/<span class="kwd">select</span>&gt;
+&lt;/<span class="kwd">body</span>&gt;
+&lt;/<span class="kwd">html</span>&gt;</pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap4202" class="level2">
+<h3>ステートレスなHTTP</h3>
+<hr class="hr-gray" />
+<p class="in">CGIとHTMLフォームによって、ユーザーの入力を受け付け動的なページを生成できるようになりました。これにより、たとえば検索パターンを受け付けて、データベースをアクセスし、検索結果を返すようなWebアプリケーションを作ることができます。しかし、これだけでは、もっと複雑なWebアプリケーションを作るためにどうしても欠けているものがあります。それは同一クライアントからの一連のアクセスを1つのものとしてまとめる機能です。このような一連のアクセスのことを「セッション」と呼びます。</p>
+<p class="in">単純なデータベース検索のようなものを除けば、多くのWebアプリケーションは「状態」を必要とします。たとえば、ショッピングカートのあるインターネットショップを実現するWebアプリケーションでは、顧客が今までどのような商品をカートに入れたのかという「状態」を記憶しておく必要があるでしょう。あるいはアンケートを取るサイトでは、ユーザーが今までにどのような質問に答えたのかを記録する必要があるでしょう。これらを実現するためにはセッションが必要です。</p>
+<a id="page_134"/>
+<p class="in">HTTPは基本的にHTTPリクエストに含まれている情報だけでレスポンスの内容が決まり、アクセスの文脈などを考慮しないプロトコルです。このようなプロトコルのことを「状態がない」あるいは「ステートレス」と呼びます。ステートレスなプログラムは文脈を管理する必要がありませんから、実装も運用も楽だという利点がありますが、そのままではセッションを実現することができません。</p>
+<p class="in">そこでHTTPの上に何らかの「仕組み」を用意することでセッションを実現することになります。</p>
+</section>
+<section id="chap4203" class="level2">
+<h3>セッションの作り方</h3>
+<hr class="hr-gray" />
+<p class="in">では、どうやってセッションを実現すればよいでしょう。結局、一連のHTTPのやりとりに、これらを連続のものとして識別するIDを埋め込むことができればよいわけです。</p>
+<p class="in">サーバー側でIDを生成してクライアントに渡し、次のリクエストでそのIDを含むリクエストを渡してもらうためにはいくつか方法があります。</p>
+<p class="in">最初の方法はHTML FORMの<code>hidden</code>フィールドを使う方法です。<code>hidden</code>フィールドはHTML FORMの一部としてパラメータ渡しされますが、ブラウザ上では表示されないものです。表示されないということは、編集もされないのでサーバー側が渡した値をそのまま返すことが期待されます。サーバーが<code>hidden</code>フィールドにセッション識別用のIDを渡せば、クライアントはその識別IDを戻してくれることが期待できます。これでHTTPリクエストが、HTTPレスポンスに対応することがはっきりわかります。HTTPレスポンスとHTTPリクエストの間の関連付けができれば、連続するやりとりすべてをセッションとして管理することが可能です。</p>
+<p class="in"><code>hidden</code>フィールドを使ってセッションを実現するときには、HTML FORMの<code>action</code>には<code>GET</code>を選択するべきではありません。<code>GET</code>ではパラメータがすべてURLに埋め込まれるため、他人が簡単にセッションIDを入手することができます。<code>POST</code>にすればすべて解決とまではいえませんが、<code>GET</code>よりははるかに安全です。</p>
+<p class="in">セッションを実現するもう1つの方法はCookieを使うことです。CookieはHTTPのやりとりにくっつけることができる小さなデータで、HTTPレスポンスにくっつけてクライアントに渡すと、クライアントはCookieに指定された範囲のURLにアクセスするときに、リクエストに同じCookieをくっつけてサーバーに渡します。「くっつく」とはHTTPリクエストやHTTPレスポンスのヘッダー部分に格納されるという意味です。</p>
+<p class="in">それぞれのCookieは以下の属性を持っています。</p>
+<div class="description">
+<p class="ditem">name</p>
+<p class="dni">Cookieの名前。重複しない名前を付けます。</p>
+<p class="ditem">value</p>
+<p class="dni">Cookieの値。セッションに使う場合にはセッションIDに使う識別子を入れます。</p>
+<p class="ditem">path（省略可能）</p>
+<p class="dni">Cookieが適用されるパスを指定します。このパスに該当するリクエストにCookieがくっつきます。</p>
+<a id="page_135"/>
+<p class="ditem">domain（省略可能）</p>
+<p class="dni">Cookieが適用されるドメインを指定します。このドメインへのリクエストにCookieがくっつきます。</p>
+<p class="ditem">expires（省略可能）</p>
+<p class="dni">Cookieの有効期限を示します。時刻は、</p>
+<div class="plistd">
+<pre>Sat, 01 Jan 2000 00:00:00 GMT</pre>
+</div>
+<p class="dni">のような形式で指定します。</p>
+<p class="ditem">secure（省略可能）</p>
+<p class="dni">Cookieがsecure（安全）かどうかを指定します。secureなCookieはHTTPS通信のときだけ渡されます。</p>
+</div>
+<p class="in">このような仕組みを使ってセッションを実現します。</p>
+</section>
+<section id="chap4204" class="level2">
+<h3>CGIプログラミング</h3>
+<hr class="hr-gray" />
+<p class="in">さて、仕組みについては十分に見てきました。ここからは実際にプログラムを作ってみましょう。残念ながら実用的なプログラムを作るには誌面が足りそうにないので、非常に簡単なセッションを使ったCGIプログラムを作ります（<a href="#list4203">リスト42.3</a>）。</p>
+<div class="plistc" id="list4203">
+<p class="lst-caption">リスト42.3●セッションを使ったCGI</p>
+<pre><span class="cmt">#! /usr/bin/ruby</span>
+require <span class="str">&#39;cgi&#39;</span>
+require <span class="str">&#39;cgi/session&#39;</span>
+
+cgi = CGI.new(<span class="str">&quot;html4&quot;</span>)
+session = CGI::Session.new(cgi)
+name = cgi[<span class="str">&quot;name&quot;</span>].to_s
+
+cgi.out(<span class="str">&quot;charset&quot;</span> =&gt; <span class="str">&quot;EUC-JP&quot;</span>) {
+  cgi.html {
+    cgi.head { cgi.title {<span class="str">&quot;hello session&quot;</span>}}
+    cgi.body {
+      <span class="kwd">if</span> name != <span class="str">&quot;&quot;</span> || session[<span class="str">&quot;name&quot;</span>]
+        <span class="kwd">if</span> name != session[<span class="str">&quot;name&quot;</span>]
+          session[<span class="str">&quot;name&quot;</span>] = name
+        <span class="kwd">end</span>
+        <span class="str">&quot;こんにちわ #{session[&quot;name&quot;]}さん。&lt;br&gt;&lt;br&gt;&quot;</span> +
+        <span class="str">&quot;あなたが #{session[&quot;name&quot;]}さんでなければ、&quot;</span>
+      <span class="kwd">else</span>
+        <span class="str">&quot;はじめまして&quot;</span>
+      <span class="kwd">end</span> +
+      <span class="str">&quot;&lt;br&gt;&lt;br&gt;名前入力してください&lt;p&gt;&quot;</span> +
+      cgi.form(<span class="str">&quot;post&quot;</span>, <span class="str">&quot;example.cgi&quot;</span>) {
+        cgi.text_field(<span class="str">&quot;name&quot;</span>) +
+        cgi.submit(<span class="str">&quot;login&quot;</span>)
+      }
+    }
+  }
+}</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_136"/>
+<p class="in">まず、このプログラムが使っている2つのライブラリ、“<code>cgi</code>”と“<code>cgi/session</code>”について紹介します。これらのライブラリはいずれも標準添付ですから、Rubyが使える場所では特にインストールする必要はありません。</p>
+<p class="in"><code>cgi</code>はHTTPサーバーから受け取ったCGI情報の解釈と、HTTPサーバーへの応答の作成を支援するライブラリです。<code>GET</code>や<code>POST</code>で受け取ったパラメータは<code>cgi</code>オブジェクトを使って、</p>
+<div class="plist">
+<pre>cgi[name]</pre>
+</div>
+<p class="ni">という形式で受け取ることができます。パラメータが存在しないときには空文字列を返します。<code>cgi</code>オブジェクトはHTMLのタグに対応したメソッドを持っています。基本的にタグは、</p>
+<div class="plist">
+<pre>cgi.tag(<span class="str">&quot;attr&quot;</span>=&gt;<span class="str">&quot;value&quot;</span>){<span class="str">&quot;body&quot;</span>}</pre>
+</div>
+<p class="ni">という形式で呼び出します。引数には属性を、ブロックにはタグの内側にくる文字列を指定します。<a href="#list4203">リスト42.3</a>>の例題を見ればわかるように、タグメソッドはネストして呼び出すこともできます。<code>cgi</code>オブジェクトの生成には、生成するHTMLのレベルを指定します。有効なレベルは、</p>
+<ul class="none">
+<li><pre class="tabbing"><code>html3  </code>　– HTML3.2</pre></li>
+<li><pre class="tabbing"><code>html4  </code>　– HTML4.01</pre></li>
+<li><pre class="tabbing"><code>html4Tr</code>　– HTML4.01 Transitional</pre></li>
+<li><pre class="tabbing"><code>html4Fr</code>　– HTML4.01 Frameset</pre></li>
+</ul>
+<p class="ni">です。「とりあえず」の場合には例題にあるように“<code>html4</code>”を指定しておけばよいのではないでしょうか。</p>
+<p class="in"><code>cgi/session</code>は<code>hidden</code>フィールドやCookieを使ったセッション管理を自動的に行ってくれるライブラリです。セッションはハッシュのように使える一種のデータベースで、</p>
+<ul>
+<li><p>クライアントからのリクエストにセッション情報が含まれていなければ自動的にセッションIDを生成</p></li>
+<li><p>セッション間で共有される情報は、</p>
+<div class="plist">
+<pre>session[name]</pre>
+</div>
+<p class="ni">で参照・格納が可能</p></li>
+</ul>
+<a id="page_137"/>
+<p class="ni">というものです。例題では“<code>name</code>”という名前で、ユーザーから与えられた名前情報を格納していました。<code>cgi/session</code>を使うには、まずセッションオブジェクトを生成する必要があります。セッションオブジェクトの生成は、</p>
+<div class="plist">
+<pre>CGI::Session(cgi)</pre>
+</div>
+<p class="ni">で行います。<code>cgi</code>は<code>CGI</code>オブジェクトです。<code>CGI::Session</code>オブジェクトはオプションを受け取ることもできます。</p>
+<div class="plist">
+<pre>session = CGI::Session.new(cgi,
+    <span class="str">&#39;database_manager&#39;</span> =&gt; CGI::Session::PStore,
+    <span class="str">&#39;session_key&#39;</span> =&gt; <span class="str">&#39;_rb_sess_id&#39;</span>,
+    <span class="str">&#39;session_expires&#39;</span> =&gt; Time.now + 30 * 60,
+    <span class="str">&#39;prefix&#39;</span> =&gt; <span class="str">&#39;pstore_sid_&#39;</span>)</pre>
+</div>
+<p class="in">有効なオプションを<a href="#table4202">表42.2</a>に示します。</p>
+<div class="table" id="table4202">
+<p class="tbl-caption">表42.2●HTMLフォームのコントロール</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">オプション</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>session_key</code></td>
+<td>HTMLに埋め込むセッションキーの名前（<code>_session_id</code>）</td>
+</tr>
+<tr>
+<td><code>session_id</code></td>
+<td>セッションID（自動生成）</td>
+</tr>
+<tr>
+<td><code>new_session</code></td>
+<td>真のとき、強制的に新しいセッションを開始する（<code>false</code>）</td>
+</tr>
+<tr>
+<td><code>database_manager</code></td>
+<td>データベースクラス（<code>CGI::Session::FileStore</code>）</td>
+</tr>
+<tr>
+<td><code>session_domain</code></td>
+<td>セッション用Cookieの<code>domain</code></td>
+</tr>
+<tr>
+<td><code>session_expires</code></td>
+<td>セッション用Cookieの<code>expires</code></td>
+</tr>
+<tr>
+<td><code>session_path</code></td>
+<td>セッション用Cookieの<code>path</code></td>
+</tr>
+<tr>
+<td><code>session_secure</code></td>
+<td>セッション用Cookieの<code>secure</code></td>
+</tr>
+</table>
+</div>
+<p class="in"><code>database_manager</code>には<code>cgi/session</code>の実際のデータを格納するクラスを指定します。標準で用意されているのは<code>CGI::Session::FileStore</code>と<code>CGI::Session::MemoryStore</code>です。<code>cgi/session/pstore</code>を<code>require</code>すればデータをPStoreデータベースに格納する<code>CGI::Session::PStore</code>も利用可能です。バックエンドを用意すれば、セッションデータをPostgreSQLなどDBMSに格納することもできます。</p>
+</section>
+<section id="chap4205" class="level2">
+<h3>Webアプリケーションフレームワーク</h3>
+<hr class="hr-gray" />
+<p class="in">というわけで、<code>cgi</code>ライブラリと<code>cgi/session</code>ライブラリを利用すれば、セッションを持つCGIプログラムを比較的簡単に開発できるのですが、正直なところある程度以上複雑なWebアプリケーションを開発するためには、少々低レベルすぎる印象があります。HTTPが渡すCGIデータの構造とか、生成するHTMLの属性とか細かなところは気にせず、もっとハイレベルな開発が行いたいものです。また、数多くのページから構成されるWebアプリケーションでは、共有部分を効率よく開発したり、デザインの共通性を最大限に生かすことも求められます。</p>
+<a id="page_138"/>
+<p class="in">このようなニーズに答えるためのものが「Webアプリケーションフレームワーク」です。Webアプリケーションフレームワークと呼ばれるものはたくさんあります。RAAを調べてみたところ、何らかのWebアプリケーションの枠組みを提供するものは実に19個も登録されています（<a href="#table4203">表42.3</a>）。どうもRAAに登録されていないものもいくつかあるようです。</p>
+<div class="table" id="table4203">
+<p class="tbl-caption">表42.3●RubyのWebアプリケーションフレームワーク</p>
+<table class="tbl06">
+<tr>
+<th><span class="k">プロジェクト</span></th>
+<th><span class="k">作者</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td>Arrow</td>
+<td>Michael Granger</td>
+<td>Apacheを対象にしたフレームワーク</td>
+</tr>
+<tr>
+<td>Borges</td>
+<td>Eric Hodel</td>
+<td>継続でセッションを実現する</td>
+</tr>
+<tr>
+<td>CGIKit</td>
+<td>鈴木鉄也</td>
+<td>WebObjects類似のフレームワーク</td>
+</tr>
+<tr>
+<td>Cerise</td>
+<td>wglozer</td>
+<td>J2EE類似のフレームワーク（amritaを利用）</td>
+</tr>
+<tr>
+<td>Iowa</td>
+<td>Kirk Haines</td>
+<td>コンポーネントベースフレームワーク</td>
+</tr>
+<tr>
+<td>Mortar</td>
+<td>evan</td>
+<td>Mason類似のフレームワーク</td>
+</tr>
+<tr>
+<td>Narf</td>
+<td>P. May &amp; T. Clarke</td>
+<td>UnitTest重視のcgiライブラリ</td>
+</tr>
+<tr>
+<td>Nora</td>
+<td>Moonwolf</td>
+<td>cgiを置き換えるライブラリ</td>
+</tr>
+<tr>
+<td>Radical</td>
+<td>Idan Sofer</td>
+<td>HTTPサーバーを含むpure Rubyフレームワーク</td>
+</tr>
+<tr>
+<td>Rails</td>
+<td>David H. Hansson</td>
+<td>MVC（ActionPack）とDB（ActiveRecord）で実現</td>
+</tr>
+<tr>
+<td>Roach</td>
+<td>Aaron Barnett</td>
+<td>jspならぬrspを利用するAPサーバー</td>
+</tr>
+<tr>
+<td>Ruby.APP</td>
+<td>Stephan Schmidt</td>
+<td>J2EEやZopeを意識したフレームワーク</td>
+</tr>
+<tr>
+<td>SWS</td>
+<td>Marek Janukowicz</td>
+<td>WebObjects類似のフレームワーク</td>
+</tr>
+<tr>
+<td>WAF</td>
+<td>Bryan Zarnett</td>
+<td>Jakarta Struts類似のフレームワーク</td>
+</tr>
+<tr>
+<td>Wakaba</td>
+<td>UENO Katsuhiro</td>
+<td>HTTPリクエストをメソッド呼び出しとみなす</td>
+</tr>
+<tr>
+<td>cgi-application</td>
+<td>Moonwolf</td>
+<td>cgiとcgi/sessionを使ったフレームワーク</td>
+</tr>
+<tr>
+<td>div</td>
+<td>関将俊</td>
+<td>dRubyを使ったフレームワーク</td>
+</tr>
+<tr>
+<td>rweb</td>
+<td>iGEL</td>
+<td>cgiを置き換えるライブラリ</td>
+</tr>
+<tr>
+<td>webapp</td>
+<td>田中哲</td>
+<td>CGI/FastCGI/mod_ruby/WEBrickを利用可能</td>
+</tr>
+</table>
+</div>
+<p class="in"><a href="#table4203">表42.3</a>のプロジェクトを大きく分類すると、以下のようになるようです。</p>
+<div class="description">
+<p class="ditem">標準添付のcgiライブラリを置き換えるもの</p>
+<p class="dni">標準添付の<code>cgi</code>ライブラリに不満を持つ人は多いようです。確かにPerlのCGIをベースに設計された<code>cgi</code>ライブラリはちょっと古い印象があります。もっと使いやすいライブラリをというニーズは多いのでしょうか。Narf, Nora, Rwebなどがこれに当たります。</p>
+<p class="ditem">J2EEやWebObjectsなどJava系技術の移転</p>
+<p class="dni">Web系技術の開発が一番盛んなのはやはりJava周辺かもしれません。Java周辺で開発された技術をRubyに移転するプロジェクトもたくさんあります。CGIKit（WebObjects）、Cerise（J2EE）、SWS（WebObjects）、WAF（Struts）、Roach（JSP）などがこれに当たります。</p>
+<p class="din">Java系ではありませんが、PerlのWebアプリケーションフレームワークであるMasonを移植したMortarも方針は類似しているでしょう。</p>
+<a id="page_139"/>
+<p class="ditem">比較的小規模なアイデア勝</p>
+<p class="dni">アプリケーションを1つのオブジェクトで実現するWakaba, dRubyを使ったdiv、CGI/FastCGI/mod_ruby/WEBrickをほとんどコード変更なしで移行できるwebapp, 標準添付の<code>cgi</code>を利用することでわずか200行強で実装されているcgi-applicationなどはこのあたりに分類されるでしょう。</p>
+<p class="ditem">プロダクションレベルを狙うもの</p>
+<p class="dni">Iowa, Railsなどは他からの影響を受けつつもある程度独自路線をとっているようです。これらのフレームワークはショッピングサイトの構築など実アプリケーションに使われています。</p>
+<p class="ditem">その他</p>
+<p class="dni">mod_rubyをターゲットにしたArrow, 継続（Continuation）を使ったBorges, pure Rubyを売り物にしているRadical, J2EEなども意識したRuby.APPなどは、まだ十分な情報を入手していません。これから流行するかもしれないので、注目していきたいです。</p>
+<p class="din">特にBorgesは、Iowa（<a href="#table4203">表42.3</a>で紹介されたものの初期のバージョン）が、SmalltalkのSeasideというフレームワークに移植され、それ（の一部）を再びRubyで実装したというなかなか奇妙な経緯を持つフレームワークです。継続ベースのWebアプリケーションフレームワークは性能を向上させるのが難しいのですが、面白いアイデアではあります。Ruby以外だと、Schemeの継続ベースWebアプリケーションフレームワークKahuaは経済産業省の未踏プロジェクトの対象になっていましたね。</p>
+</div>
+<p class="ih">「こんなになくてもいいじゃないか」という気分にもなりますが、やはり思想の違いを反映しているのでしょう。「Webアプリケーションのあるべき姿」についての考えがそれぞれ違う以上、簡単には結論は出ないようです。ただ、最近の流行を見ていると、</p>
+<ul>
+<li><p>MVC（モデル/ビュー/コントローラー）の分離</p></li>
+<li><p>ビューにはテンプレートを使う</p></li>
+</ul>
+<p class="ni">ことが有望だと考えられているようです。あとは性能、データベースアクセス周り、ロジック部の書きやすさなどが判断基準になるようです。</p>
+</section>
+<section id="chap4206" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はHTTPのセッションについて学んだ後、RubyのWebアプリケーションフレームワークについて眺めてみました。</p>
+<p class="in">しかし、RAAに登録されたものだけで19個となると、「どれを使ったらいいのか」という気分になりますね。もちろん、個人個人のニーズに合ったものを選ぶのが一番なので、来月以降これらのフレームワークのいくつかを紹介しようと思っています。</p>
+<p class="in">先月、今月とほとんどRubyのプログラムが登場しませんでしたので、来月はRubyプログラムを作れるといいなと思っています。</p>
+<p class="in">なお、Webアプリケーションフレームワークの調査には、同僚であるかずひこさんのご協力をいただきました。どうもありがとうございます。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-023.xhtml">&lt;&lt; 前ページ</a>　<a href="p-025.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

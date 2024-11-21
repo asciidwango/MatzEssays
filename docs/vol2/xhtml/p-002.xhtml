@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第31章 Rubyの国へようこそ</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第31章</p>
+<!-- Body -->
+<section id="chap31" class="level1">
+<a id="page_003"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">31</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+Rubyの国へようこそ
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2003年12月号]</p>
+<div class="newlead">
+<p class="in">今はなき『Linux magazine』（アスキー・メディアワークス）2003年12月号からの連載記事です。ちょうど前の連載が11月号で終わっているので、間を空けずに連載開始ですね。前回の連載である「初等Ruby講座」が初心者向けだったのと比べて、中級者程度を仮定して原稿を書いています。とはいえ、初回ですから今回はRubyの概要を説明している程度ですね。背景となる哲学まで解説しているのは、Ruby作者が執筆する連載ならではと言えるかもしれません。</p>
+<p class="in">前回の連載に引き続き、コラム「Ruby開発日記」は継続しています。今回はオープンソースとビジネスがテーマになっています。</p>
+</div>
+<div class="lead">
+<p class="ni">今年でRubyが誕生してから10年になります。その間にRuby言語とそれを取り巻く世界はどんどん広がってきました。この連載では、Rubyの作者という立場からRubyの世界のあちこちを探検して、新しいもの、珍しいものなどを紹介しようと思います。</p>
+</div>
+<section id="chap3101" class="level2">
+<h3>Rubyの紹介</h3>
+<hr class="hr-gray" />
+<p class="in">数年前と違い、今では書店に行けば「Ruby」とタイトルに入った本が数冊は並んでいますから、本誌の読者であれば全然聞いたことはないという人のほうが少なくなっているかもしれません。10年前に私が作った「おもちゃ」がここまで広まっているのを見ると驚きを通り越して不思議な感じがします。</p>
+<p class="in">でも、実際にRubyを使うところまではいかない人も大勢いらっしゃるようです。実際、私に会って、「Ruby使おうと思ってはいるんですけど」とか、「興味はあるんですけど」とかおっしゃる方はたくさんいます。「けど」がつきまとううちははまだRubyの本当のうれしさが伝わっていないのかもしれません。</p>
+<p class="in">さて、話を元に戻して、今回は初回ですから、まずRubyとはいったい何かという点から始めたいと思います。</p>
+<a id="page_004"/>
+<p class="in">一言で言ってしまうとRubyは、</p>
+<div class="blockquote">
+<p class="ni"><span class="k">オブジェクト指向プログラミング言語</span></p>
+</div>
+<p class="ni">です。つまり、プログラムを作るときに、コンピュータの仕事の手順を記述するための「言語」です。人間の使う言語と違って、融通の利かないコンピュータにも理解してもらう必要がありますからあいまいな部分があってはいけません。同じような理由から<ruby>語彙<rt>ご|い</rt></ruby>も非常に限られています。プログラミング言語にはRubyの他にもBASIC, FORTRAN, COBOL, C, C++, Pascal, Lisp, Perl, Java, Smalltalkなどがあります。</p>
+<p class="in">Rubyの特徴は手軽さです。Rubyのプログラムは簡単に書いて簡単に実行できます。たとえば定番の<code>"hello world"</code>プログラムをRubyで書くと、</p>
+<div class="plist">
+<pre>print <span class="str">&quot;hello world\n&quot;</span></pre>
+</div>
+<p class="ni">と1行で書けます。意味も見ただけで明らかです。これを実行するのも、このプログラムが<code>hello.rb</code>というファイルに格納されているとして、</p>
+<div class="plist">
+<pre>ruby hello.rb</pre>
+</div>
+<p class="ni">だけです。Rubyはインタプリタ型言語ですからプログラムを読み込んですぐに実行するからです。</p>
+<p class="in">ところがこれをCで書くと</p>
+<div class="plist">
+<pre><span class="kwd">#include</span> &lt;stdio.h&gt;
+<span class="kwd">int</span>
+main(<span class="kwd">int</span> argc, <span class="kwd">char</span> **argv)
+{
+  printf(<span class="str">&quot;hello world\n&quot;</span>);
+}</pre>
+</div>
+<p class="ni">と行数換算で6倍、バイト数でも3倍以上にもなります。本質の部分（<code>printf</code>の行）の内容はほぼ同じですから、残りは「おまじない」ということになります。これがJavaならもっと増えます。</p>
+<div class="plist">
+<pre><span class="kwd">public</span> <span class="kwd">class</span> HelloWorld {
+  <span class="kwd">public</span> <span class="kwd">static</span> <span class="kwd">void</span> main(String[] args) {
+    System.out.println(<span class="str">&quot;Hello World&quot;</span>);
+  }
+}</pre>
+</div>
+<p class="in">Javaプログラムはバイト換算ではRubyの5倍近くなります。「なんでこんなにおまじないが……」と思わせます。</p>
+<p class="in">また、これらの言語ではプログラムを実行する前に、コンパイラによって実行形式に変換する必要があります。コンパイラによる変換には数分から場合によっては数時間も必要になりますから、すぐ実行というわけにはいきません。そのぶん、実行は高速だったりするんですけど。</p>
+<p class="in">Rubyのありがたい点はそれだけではありません。プログラムを書いていて、何もかもをゼロから書くのは現実的ではありません。他の人が作ってくれた機能をライブラリとして利用して、それらを組み合わせてプログラムを作るのが普通でしょう。ですから、言語の優劣は単なる文法の違いだけではなく、どれくらい使いやすいライブラリがそろっているかという点によって決まります。ただ単にいろいろなライブラリがあるだけでは十分ではなく、それらがきちんと整理されていて、使いやすい必要があります。</p>
+<a id="page_005"/>
+<p class="in">Rubyの場合、文字列や配列などの基本的なデータ構造とそれに関連する手続きはクラスという単位で整理されていて非常に強力です。</p>
+<p class="in">例としてRubyでの時刻の取り扱いを見てみましょう。Rubyでは時刻は<code>Time</code>クラスで取り扱います。現在時刻を表示させるにはこのようにします。</p>
+<div class="plist">
+<pre>puts Time.now
+<span class="cmt"># =&gt; Wed Oct 15 12:23:19 JST 2003</span></pre>
+</div>
+<p class="in">では、Rubyが誕生してから（正確にはその日の午前0時から）、今まで何秒過ぎたかということは、以下のように計算します。</p>
+<div class="plist">
+<pre>puts Time.now - Time.local(1993,2,24)
+<span class="cmt"># =&gt; 335708687.362405</span></pre>
+</div>
+<p class="in">えーと10月15日現在で3億3570万8687秒ですか。<code>Time</code>は内部的にはマイクロ秒単位で時刻を管理していますので小数点以下の端数が表示されています。</p>
+<p class="in">基本的なデータ構造以外のライブラリも、データベース、ネットワーク、CGI、XMLなどなど充実しています。先輩であるPerlやPythonに比べると数という点ではまだ少々負けていますが、主要な機能は網羅していると思います。</p>
+<p class="in">Rubyの最大の特徴はそれがフリーソフトウェアであることかもしれません。Rubyは「自由なソフトウェア」として、すべてのソースコードが完全に無償で公開されています。利用についてまったく費用がかかりません。書籍などを買えば別ですが。開発者である私に対しても、謝礼や代金を払う必要はありません。</p>
+</section>
+<section id="chap3102" class="level2">
+<h3>昔々のお話</h3>
+<hr class="hr-gray" />
+<p class="in">昔々、1990年代初頭、私はPerlを使っていませんでした。しかし、同僚は「Perlっていいぞ」と勧めてきます。当時私が使っていたのは、シェル（bsh）、AWK、そしてEmacsです。コマンドによる処理を自動化させるためにはシェルを使い、もうちょっと複雑な処理が必要なときにはシェルスクリプトの中でAWKを使いましたが、実は当時の私はほとんどの処理はEmacsで行っていました。10年前、すでにEmacsは私の一部でした。テキスト編集はもちろん、メールを読むのも、書くのも、ネットニュースの読み書きも、Emacsで行っていました。それだけではありません。少々複雑な処理が必要な場合にはEmacsのマクロを使い、もっと複雑な処理が必要ならばEmacs Lispでプログラムを組んでいました。メールリーダーさえ、Emacs Lisp製の自作のものでした（cmail）。これは今でも使っています。</p>
+<p class="in">そんな私が同僚に勧められてPerlについて調べてみたときに感じたのは、お互いに矛盾する2つの印象でした。</p>
+<p class="in">最初の1つは「これは面白い」というものです。シェルというのはいろんなことができますが、しょせんはコマンドの組み合わせに若干の制御構造を追加したようなものです。言語として考えたときには、あまりほめられたものではありません。ところが、このPerlという言語は外部コマンドを利用しなくてもたいていのことはできるのです。シェルのようで、しかも「より普通のプログラミング言語」という点は非常に魅力的でした。また、ほんのちょっと普通のプログラミング言語への一歩を踏み出すだけで、どれほどいろんなことができるようになるか、というのは感動的でさえありました。</p>
+<a id="page_006"/>
+<p class="in">ところが同時に大きな不満も感じました。私は高校時代からどういうわけかプログラミング言語に非常に興味を持ち、優れた言語を追い求めてきました。興味がつのってとうとう大学ではプログラミング言語の研究室に所属したほどです。ここで私はいろいろな経験をしましたが、それはまた別の機会に。</p>
+<p class="in">とにかく、そういう「言語おたく」の視点からみると、Perlという言語はどうにも手抜きというか、半端というか、正直いうと出来が悪い言語という印象でした。この分野において「普通のプログラミング言語」がこんなにも強力なのであれば、「よいプログラミング言語」があれば、それはすごくすばらしいものになるのではないだろうか。そう思ったのがすべての始まりだったのです。</p>
+<p class="in">私は、もともと「いつかは自分の言語を作ってやろう」と考えていました。大学の卒業論文も独自のオブジェクト指向言語の設計と実装がテーマでした。これは完成の域には至りませんでしたが。就職後しばらくなりをひそめていた創作意欲がわき上がります。「言語を作ろう」。1993年の始め頃です。</p>
+<p class="in">それから後は、名前が決まり、自分の作業ディレクトリに広がっていた過去に書いていた言語処理系のソースコードを切ったり張ったりして、曲がりなりに動くまで数カ月、普通のプログラミングに使えるようになるまではさらに数カ月、1993年の終わり頃にはとりあえず使えるようなものができていました。</p>
+<p class="in">とはいえ、私自身はこれを「自分のおもちゃ」と感じていましたので、他人に使ってもらう決心が付いてアルファテスターを募集したのは1994年の12月、インターネットで一般公開したのはさらにその1年後の1995年12月でした。</p>
+</section>
+<section id="chap3103" class="level2">
+<h3>Rubyを取り巻く世界</h3>
+<hr class="hr-gray" />
+<p class="in">こんなふうに始まったRubyの物語ですが、Rubyを使ってみたいという人が増えるにつれて、それを取り巻く世界はどんどんどんどん広がっていきました。</p>
+<p class="in">Rubyの世界を図に書くとこんな感じでしょうか（<a href="#fig3101">図31.1</a>）。かなり醜いですが、扇形の中心に「コア」、その外側に「添付ライブラリ」と「添付拡張ライブラリ」、その外側に「ライブラリ」、一番外に「アプリケーション」がくる図になっています。</p>
+<div class="fig" id="fig3101">
+  <!-- <div class="image70"> -->
+  <div class="image500">
+      <img src="../image/ch31/31-1.jpg" alt="fig3101" />
+  </div>
+  <p class="fig-caption">図31.1●Rubyの世界</p>
+</div>
+<p class="in">中心にあるのが「コア」です。これはRubyの本体で、文法とそれを解釈実行するインタプリタからなっています。これは「Rubyそのもの」と呼んでもよいですが、実際のところRubyの世界全体からすれば小さな領域です。私にとっては一番面白いところで、Rubyの世界の中で私の「居住地」はやはりこの周辺になるでしょう。</p>
+<a id="page_007"/>
+<p class="in">コアはいくつかの部品から構成されています。Rubyプログラムを解釈し構文木（こうぶんぎ）と呼ばれる内部構造に変換するパーサー（parser）、その構文木をたどりながら実行するエバリュエータ（evaluator）、実行中にオブジェクトを作り出したりいらなくなったオブジェクトをリサイクルしたりするガベージコレクタ（garbage collector）などです。これらの部品はみなCで書かれたプログラムです。</p>
+<p class="in">コアのすぐ下にあるのが「組み込みライブラリ」です。組み込みライブラリは、Rubyのライブラリのうちインタプリタに初めから組み込まれているもので、これもCで記述されています。これらはコアの機能を利用して実行されます。</p>
+<p class="in">Rubyの組み込みライブラリに含まれるクラスのうち代表的なものを<a href="#table3101">表31.1</a>に示します。</p>
+<div class="table" id="table3101">
+<p class="tbl-caption">表31.1●組み込みクラス（抜粋）</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">クラス</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">クラス</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>Array</code></td>
+<td>配列</td>
+<td><code>Kernel</code></td>
+<td>共通関数モジュール</td>
+</tr>
+<tr>
+<td><code>Bignum</code></td>
+<td>多倍長文字列</td>
+<td><code>Marshal</code></td>
+<td>オブジェクトシリアライズ</td>
+</tr>
+<tr>
+<td><code>Class</code></td>
+<td>クラスのクラス</td>
+<td><code>Math</code></td>
+<td>数学関数モジュール</td>
+</tr>
+<tr>
+<td><code>Comparable</code></td>
+<td>比較機能モジュール</td>
+<td><code>Module</code></td>
+<td>モジュールのクラス</td>
+</tr>
+<tr>
+<td><code>Dir</code></td>
+<td>ディレクトリ</td>
+<td><code>Numeric</code></td>
+<td>数のクラス</td>
+</tr>
+<tr>
+<td><code>Enumerable</code></td>
+<td>数え上げ機能モジュール</td>
+<td><code>Object</code></td>
+<td>オブジェクト</td>
+</tr>
+<tr>
+<td><code>Exception</code></td>
+<td>例外</td>
+<td><code>Range</code></td>
+<td>範囲クラス</td>
+</tr>
+<tr>
+<td><code>File</code></td>
+<td>ファイル</td>
+<td><code>Regexp</code></td>
+<td>正規表現</td>
+</tr>
+<tr>
+<td><code>Fixnum</code></td>
+<td>小整数</td>
+<td><code>String</code></td>
+<td>文字列</td>
+</tr>
+<tr>
+<td><code>Float</code></td>
+<td>浮動小数点数</td>
+<td><code>Struct</code></td>
+<td>構造体</td>
+</tr>
+<tr>
+<td><code>GC</code></td>
+<td>ガベージコレクタ</td>
+<td><code>Symbol</code></td>
+<td>シンボル</td>
+</tr>
+<tr>
+<td><code>Hash</code></td>
+<td>ハッシュ</td>
+<td><code>Thread</code></td>
+<td>スレッド</td>
+</tr>
+<tr>
+<td><code>IO</code></td>
+<td>入出力（<code>File</code>の親クラス）</td>
+<td><code>Time</code></td>
+<td>時刻</td>
+</tr>
+<tr>
+<td><code>Integer</code></td>
+<td>整数</td>
+<td></td>
+<td></td>
+</tr>
+</table>
+</div>
+<p class="in">コアと組み込みライブラリとでインタプリタを構成します。</p>
+<p class="in">組み込みライブラリの外側には「添付ライブラリ」があります。添付ライブラリとはインタプリタに組み込まれてはいないが、Rubyインタプリタとともに配布されているライブラリです。</p>
+<p class="in">組み込み以外のライブラリには、Cで実装されたものと、Rubyで実装されたものがあります。使う側からはどちらもまったく同じように使えるのですが、あえて区別する場合にはCで実装されたものを拡張ライブラリと呼びます。拡張ライブラリは、既存のライブラリとRubyの橋渡しをするもの（ラッパーとも呼ぶ）や、インタプリタでは間に合わない高速な処理を実現するためのものなどがあります。</p>
+<p class="in">Rubyの添付ライブラリのうち、代表的な拡張ライブラリを<a href="#table3102">表31.2</a>に、Rubyで記述されたものを<a href="#table3103">表31.3</a>に示します。</p>
+<a id="page_008"/>
+<div class="table" id="table3102">
+<p class="tbl-caption">表31.2●添付拡張ライブラリ（抜粋）</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">ライブラリ</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">ライブラリ</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>Win32API</code></td>
+<td>Win32システムコールの呼び出し</td>
+<td><code>iconv</code></td>
+<td><code>iconv</code>による文字コード変換</td>
+</tr>
+<tr>
+<td><code>bigdecimal</code></td>
+<td>多倍長浮動小数点数</td>
+<td><code>nkf</code></td>
+<td><code>nkf</code>による文字コード変換</td>
+</tr>
+<tr>
+<td><code>curses</code></td>
+<td><code>curses</code>ライブラリラッパー</td>
+<td><code>readline</code></td>
+<td>行入力編集</td>
+</tr>
+<tr>
+<td><code>dbm</code></td>
+<td><code>dbm</code>ライブラリラッパー</td>
+<td><code>socket</code></td>
+<td>ネットワークソケット</td>
+</tr>
+<tr>
+<td><code>digest/md5</code></td>
+<td>MD5ハッシュ値（SHA1などもあり）</td>
+<td><code>stringio</code></td>
+<td>StringIO</td>
+</tr>
+<tr>
+<td><code>dl</code></td>
+<td>C関数の呼び出し</td>
+<td><code>tk</code></td>
+<td>Tkインターフェイス</td>
+</tr>
+<tr>
+<td><code>etc</code></td>
+<td>ユーザー情報の取得</td>
+<td><code>win32ole</code></td>
+<td>Win32OLE</td>
+</tr>
+<tr>
+<td><code>fcntl</code></td>
+<td><code>fcntl</code>用定数</td>
+<td><code>zlib</code></td>
+<td>zlib圧縮ルーチン</td>
+</tr>
+</table>
+</div>
+<div class="table" id="table3103">
+<p class="tbl-caption">表31.3●添付ライブラリ（抜粋）</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">ライブラリ</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">ライブラリ</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>benchmark</code></td>
+<td>ベンチマーク</td>
+<td><code>net/smtp</code></td>
+<td>SMTP処理</td>
+</tr>
+<tr>
+<td><code>cgi</code></td>
+<td>CGIプログラミング</td>
+<td><code>net/telnet</code></td>
+<td>Telnet処理</td>
+</tr>
+<tr>
+<td><code>complex</code></td>
+<td>複素数</td>
+<td><code>observer</code></td>
+<td>オブザーバーデザインパターン</td>
+</tr>
+<tr>
+<td><code>csv</code></td>
+<td>CSVファイルの読み書き</td>
+<td><code>open-uri</code></td>
+<td>URI</td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>日付</td>
+<td><code>optparse</code></td>
+<td>コマンドライン引数解析</td>
+</tr>
+<tr>
+<td><code>debug</code></td>
+<td>デバッガ</td>
+<td><code>parsedate</code></td>
+<td>日付解釈</td>
+</tr>
+<tr>
+<td><code>delegate</code></td>
+<td>デレゲーターデザインパターン</td>
+<td><code>pp</code></td>
+<td>データ整形</td>
+</tr>
+<tr>
+<td><code>drb</code></td>
+<td>分散Ruby（distributed ruby）</td>
+<td><code>profile</code></td>
+<td>プロファイラ</td>
+</tr>
+<tr>
+<td><code>erb</code></td>
+<td>埋込Ruby（embedded ruby）</td>
+<td><code>pstore</code></td>
+<td>簡易オブジェクトデータベース</td>
+</tr>
+<tr>
+<td><code>fileutils</code></td>
+<td>ファイル操作</td>
+<td><code>rexml</code></td>
+<td>XML処理ライブラリ</td>
+</tr>
+<tr>
+<td><code>find</code></td>
+<td>ディレクトリスキャン</td>
+<td><code>scanf</code></td>
+<td>文字列解析</td>
+</tr>
+<tr>
+<td><code>ftools</code></td>
+<td>ファイル操作</td>
+<td><code>tempfile</code></td>
+<td>一時ファイル</td>
+</tr>
+<tr>
+<td><code>irb</code></td>
+<td>対話Ruby（interactive ruby）</td>
+<td><code>test/unit</code></td>
+<td>ユニットテスト</td>
+</tr>
+<tr>
+<td><code>matrix</code></td>
+<td>行列</td>
+<td><code>thread</code></td>
+<td>スレッド支援</td>
+</tr>
+<tr>
+<td><code>net/ftp</code></td>
+<td>FTP処理</td>
+<td><code>uri</code></td>
+<td>URI処理</td>
+</tr>
+<tr>
+<td><code>net/http</code></td>
+<td>HTTP処理</td>
+<td><code>webrick</code></td>
+<td>汎用インターネットサーバー</td>
+</tr>
+<tr>
+<td><code>net/imap</code></td>
+<td>IMAP処理</td>
+<td><code>xmlrpc</code></td>
+<td>XML RPC</td>
+</tr>
+<tr>
+<td><code>net/pop</code></td>
+<td>POP処理</td>
+<td><code>yaml</code></td>
+<td>YAMLライブラリ</td>
+</tr>
+</table>
+</div>
+<p class="in">インタプリタの外側には、世界中のRubyユーザーが作ったライブラリとアプリケーションが存在しています。Rubyを使ったプログラムはあらゆる領域に及んでいます。その多くはRAA（Ruby Application Archive）からアクセスできます（<a href="#fig3102">図31.2</a>）。</p>
+<div class="fig" id="fig3102">
+  <!-- <div class="image80"> -->
+  <div class="image700">
+      <img src="../image/ch31/31-2.jpg" alt="fig3102" />
+  </div>
+  <p class="fig-caption">図31.2●RAA（http://raa.ruby-lang.org/）</p>
+</div>
+<p class="in">RAAは開発者が自主的に登録したアプリケーションやライブラリなどのインデックスサイトです。RAAは情報を提供するだけで配布や検証などは行いません。原稿執筆時点で、340アプリケーション、629ライブラリが登録されています。</p>
+<a id="page_009"/>
+<p class="in">RAAのカバーする領域はさまざまです。FoxやwxWindowのようなGUIツールキットもあれば、PostgreSQL, MySQLなどのデータベースアクセスライブラリ、WeblogやWeb日記のようなWebベースのアプリケーションとそれを支援するライブラリ、テキスト処理、数値処理、人工知能、バイオインフォマティックスなどなどなど。実に192のカテゴリにおよぶ1011のプロジェクトがそろっています。</p>
+<p class="in">この連載では今後RAAから興味深いプロジェクトを選び出して紹介することにも挑戦したいと考えています。</p>
+<p class="in">とはいえ、RAAには欠点もあります。RAAはあくまでも自主的に登録されたものですから、分類や説明などに不備があるものや、古くてメンテされていないものも残っています。ですから、ほしいものを探すときにはカテゴリだけではなく、検索を利用する必要もあります。たぶん、管理者によるカテゴリの再分類やレーティング（優れたプログラムへの投票）などの機能が付け加わればもっとよくなると思うのですが。</p>
+</section>
+<section id="chap3104" class="level2">
+<h3>思想と哲学</h3>
+<hr class="hr-gray" />
+<p class="in">ここまでRubyの世界を概観してきましたが、実はRubyの世界にはもう1つ隠された領域があります。地下世界とでも呼ぶのでしょうか。</p>
+<p class="in">それは「思想と哲学」です。</p>
+<p class="in">私がRubyの作者として知られるようになったここ数年、あちこちのイベントやカンファレンスで講演を依頼されるようになりました。それらの講演で使った発表資料の一部は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.rubyist.net/~matz/slides/</span></p></li>
+</ul>
+<p class="ni">で見ることができます。これをご覧になった人は奇妙に思われるかもしれない点があります。それは「Rubyそのものについてほとんど説明していない」点です。資料の中にはRubyのプログラムが1行も登場しないものもあります。</p>
+<p class="in">実は、私は単なるプログラミング言語としてのRubyよりも、その背後にある思想やら哲学やらのほうによっぽど興味があり、機会があればそのことについて話したいと考えているのです。ですから、講演では原則とか設計原理とかそんな話ばかりしているのです。言語開発者からプログラミング言語Rubyの具体的な紹介や機能について聞くことを期待していた聴衆には迷惑な話かもしれませんが。</p>
+<a id="page_010"/>
+<p class="in">そんなRubyの「思想と哲学」というのはどのようなものでしょうか。一言でいうと「人に優しいプログラミング言語」です。そして目標は「楽しいプログラミング」です。</p>
+<p class="in">もちろんプログラミングにおいて最も重要なことは、「なんのためにプログラムするか?」です。プログラミングの目的が何らかの仕事を達成することである以上、これは当然です。「どのような言語でプログラムするか」はそれに比べたら<ruby>些細<rt>ささい</rt></ruby>なことでしかありません。まともなプログラミング言語であれば、どんなアルゴリズムでも記述可能です。生産性に最も重要なのは言語の文法ではなく、目的に合ったライブラリが存在するかどうかです。</p>
+<p class="in">しかし、実際にはプログラミングを行う人の「気分」を最も左右するのは、どのような言語で、あるいはどのような環境でプログラムするかです。プログラマーの気分を重視するとき、言語は重要な要素になるのです。</p>
+<p class="in">Rubyはもともと私の「おもちゃ」として生まれましたが、Rubyをデザインするときに一番気にしていたのは、どのような言語でプログラムしたら自分が一番気分が良いか、ということです。気分というのはなかなか表現しにくいのですが、結局は「思ったことをすぐに実現できる」かどうかということのようです。</p>
+<p class="in">ですから、Rubyはプログラムをすぐに実行できるインタプリタの手軽さと、やりたいことをすぐに片付けられる強力なクラスライブラリを兼ね備えているのです。</p>
+<p class="in">強力な機能を持っていても、それを覚えきれなければ仕方がありません。そこでRubyはオブジェクト指向という統一的なルールを導入し、豊富な機能をクラスライブラリという形で分類しました。同じ数の機能を提供するのでも、数百個の関数がフラットに並ぶ構造よりも、機能別にクラスに分けられ、各機能がメソッドとして提供されるほうがずっと理解しやすく覚えやすいだろうという考えからです。</p>
+<p class="in">また、変数や式に型がないが、オブジェクト自身が自分の型を知っている型システムや、実行時にプログラムの挙動を制御できるリフレクションなどのダイナミックプログラミング機能もそのためです。</p>
+<p class="in">Rubyの特徴と言ってもよい、変数のスコープがひと目でわかる変数名や、ループやコールバックの抽象化をエレガントに行うことができるブロックも、読みやすく、書きやすい言語の実現を目的としています。</p>
+<p class="in">その他、ここには書ききれないような細かな点が積み重なってRubyは、私にとって、気分の良い言語になりました。幸いなことに、世界中の数多くのプログラマーも私と同じようにRubyを使うと気分が良いと感じてくれているようです。</p>
+<p class="in">そして、世界中の人が喜んでRubyを使ってくれていて、今日もRubyの世界は広がり続けているのです。</p>
+</section>
+<section id="chap3105" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回はRubyの世界を概観してみました。来月からは、Rubyの世界のそれぞれの領域から目新しいことを探し出して皆さんに紹介していこうと思います。どうぞお楽しみに。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-001.xhtml">&lt;&lt; 前ページ</a>　<a href="p-003.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

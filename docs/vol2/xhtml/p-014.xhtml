@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第37章 Instiki</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第37章</p>
+<!-- Body -->
+<section id="chap37" class="level1">
+<a id="page_073"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">37</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+Instiki
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2004年6月号]</p>
+<div class="newlead">
+<p class="in">今回はWikiアプリケーションであるInstikiとその内部の解説です。もうInstikiはメンテナンスされていませんし、使われている技術の多くも（発想はともかく）現代ではなくなってしまっています。そういう意味では時代遅れの記事なのですが、注目すべきはInstikiの作者です。作者はDavid Heinemeier Hansson, つまりRuby on Railsの作者DHHその人です。彼はこの記事が公開された年にRuby on Railsを公開し、Ruby成功の立役者になりました。Instikiを見ると彼の技術へのこだわりがちょっとうかがえるような気がします。</p>
+<p class="ih">「Ruby開発日記」は「歴史は繰り返す」です。繰り返し登場しては失敗する技術というものがあるものです。ここであげた3つの技術は、20年経ってもやっぱり何度も登場しては成功せずに終わっています。わずかな例外としては子供向けビジュアル言語であるScratchでしょうか。同じような技術は他にもあると思います。そういえばタブレットコンピュータも繰り返し失敗した技術でしたが、iPadによってとうとう成功してしまって、貴重な例外になりましたね。</p>
+</div>
+<div class="lead">
+<p class="ni">今月は「とんがったWiki」であるInstikiの内部を眺めることで、Instikiが使っている「新しい道具」について学ぶことにします。</p>
+</div>
+<section id="chap3701" class="level2">
+<h3>Instiki</h3>
+<hr class="hr-gray" />
+<p class="in">InstikiはWikiを実現するWebアプリケーションで、David Heinemeier Hanssonによって作られました。誰でも自由に書き込むことができるWebシステムであるWikiについては、第3回でも取り上げましたが、今月はWikiそのものについては解説しません。Wikiの詳細は2004年2月号の第3回を参照してください。Instikiの原稿執筆時点での最新バージョンは0.7.0です。Instikiのホームページは、</p>
+<a id="page_074"/>
+<ul class="none">
+<li><p><span class="link">http://instiki.nextangle.com:3000/wiki/show/HomePage</span></p></li>
+</ul>
+<p class="ni">です。このサイトもInstikiで運用されています。</p>
+<p class="in">ユーザーから見たInstikiの最大の特徴は、インストールが簡単なことです。<code>tar.gz</code>ファイルをダウンロードして、任意の場所に展開したら、その中にある<code>instiki.rb</code>を実行すれば終わりです。あとは何も必要ありません。HTTPサーバーを用意する必要さえないのです。必要なライブラリもすべて添付されています。</p>
+<p class="in">しかし、Instikiの本当の面白さはその実装にあります。今回はInstikiを実現している中身を探ることで、明日の開発に役立つ技術を学ぶことにしましょう。</p>
+<p class="in">Instikiを構成している技術には以下のようなものがあります。どれも面白いものばかりです。</p>
+<ul>
+<li><p><code>WEBrick</code></p></li>
+<li><p><code>ERB</code></p></li>
+<li><p><code>RedCloth</code></p></li>
+<li><p><code>Madeleine</code></p></li>
+</ul>
+<p class="in">Instikiはこれらの技術をMVCで構成しています。MVC（Model-View-Controller）についてはまた別の機会に解説したいと思います。</p>
+</section>
+<section id="chap3702" class="level2">
+<h3>WEBrick</h3>
+<hr class="hr-gray" />
+<p class="in"><code>WEBrick</code>は、CQ出版社の今はなき『Open Design』誌における連載「Rubyではじめるインターネットプログラミング」の中から生まれたインターネットサーバー構築用ツールキットです。Ruby 1.8からは標準添付になっています。作者は高橋征義さんと後藤裕蔵さんです。</p>
+<p class="in">Instikiは<code>WEBrick</code>を使って、自前でHTTPサービスを提供します。Apacheなどのインストールが必要ない反面、HTTP標準の80番ポートを使用するためにはInstikiの実行そのものにroot権限が必要になります。</p>
+</section>
+<section id="chap3703" class="level2">
+<h3>ERB</h3>
+<hr class="hr-gray" />
+<p class="in"><code>ERB</code>はdRubyの作者でもある咳さん（関将俊さん）によるRubyで記述されたeRuby（embedded Ruby）の実装です。eRubyがフォーマットの名前で、<code>ERB</code>がそれを解釈するツールの名前です。<code>ERB</code>はRuby 1.8に添付されているのですが、なぜかInstikiにも含まれています。</p>
+<p class="in">eRubyはテキストにRubyのプログラムを埋め込んだものです。これがembeddedと呼ばれるゆえんです。Rubyプログラムを埋め込んだeRubyファイルの例を<a href="#list3701">リスト37.1</a>に示します。</p>
+<div class="plistc" id="list3701">
+<p class="lst-caption">リスト37.1●eRubyファイルの例</p>
+<pre>&lt;<span class="kwd">HTML</span>&gt;
+&lt;<span class="kwd">BODY</span>&gt;
+&lt;<span class="kwd">H1</span>&gt;現在時刻&lt;/<span class="kwd">H1</span>&gt;
+&lt;%= Time.now %&gt;
+&lt;<span class="kwd">UL</span>&gt;
+&lt;%# loop in eRuby %&gt;
+&lt;% <span class="kwd">for</span> i in %w(foo bar baz) %&gt;
+  &lt;<span class="kwd">LI</span>&gt;&lt;%= i %&gt;&lt;/<span class="kwd">LI</span>&gt;
+&lt;% end %&gt;
+&lt;/<span class="kwd">UL</span>&gt;
+&lt;<span class="kwd">H1</span>&gt;eRuby書式&lt;/<span class="kwd">H1</span>&gt;
+&lt;<span class="kwd">P</span>&gt;eRubyは &lt;%% と %%&gt; の間にRubyを埋め込みます。&lt;/<span class="kwd">P</span>&gt;
+&lt;/<span class="kwd">BODY</span>&gt;
+&lt;/<span class="kwd">HTML</span>&gt;</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_075"/>
+<p class="in">これを<code>ERB</code>で処理すると、eRubyは「<code>&lt;%</code>」と「<code>%&gt;</code>」で囲まれた部分を処理します。その外側はそのまま残します。「<code>&lt;%= %&gt;</code>」で囲まれた部分はRubyのプログラムとして解釈され、その結果がファイルに埋め込まれます。</p>
+<p class="ih">「<code>&lt;% %&gt;</code>」で囲まれた部分はプログラムとしての解釈だけを行い、結果の埋め込みは行いません。</p>
+<p class="ih">「<code>&lt;%# %&gt;</code>」で囲まれた部分はコメントとして解釈し、式の評価も結果の埋め込みも行いません。最後に「<code>&lt;%%</code>」と「<code>%%&gt;</code>」はエスケープとして解釈され、それぞれ「<code>&lt;%</code>」と「<code>%&gt;</code>」に置換されます。</p>
+<p class="in">eRubyファイルを解釈するには以下のようにします。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;erb&#39;</span>
+
+s = ERB.new(str).result(binding)</pre>
+</div>
+<p class="in">ここで<code>str</code>はeRubyフォーマットの文字列、<code>binding</code>はRubyプログラムを解釈する場合の名前空間です。ある場所での名前空間は<code>binding</code>メソッドで得ることができます。<code>binding</code>の指定は省略可能で、その場合にはトップレベルで評価することになります。</p>
+<p class="in">InstikiではそれぞれのページのテンプレートをeRubyファイルとして用意しておいて、<code>ERB</code>を通すことでHTMLファイルを出力しています。テンプレートを利用することで、画面表示を比較的自由にカスタマイズすることができるようになっています。</p>
+</section>
+<section id="chap3704" class="level2">
+<h3>RedCloth</h3>
+<hr class="hr-gray" />
+<p class="in">Wikiは普通「Wiki記法」と呼ばれる簡単なマークアップを使って入力するのですが、InstikiはWiki記法を使いません。その代わりに使っているのがTextileと呼ばれる記法です。もともとはPHPあたりから登場した記法のようですが、<a href="#table3701">表37.1</a>のような記法でマークアップできるものです。</p>
+<ul class="none">
+<li><p><span class="link">http://www.textism.com/tools/textile/</span></p></li>
+</ul>
+<a id="page_076"/>
+<div class="table" id="table3701">
+<p class="tbl-caption">表37.1●Textile記法</p>
+<table class="tbl13">
+<tr>
+<th><span class="k">記法</span></th>
+<th><span class="k">表記</span></th>
+<th><span class="k">意味</span></th>
+<th><span class="k">表記例</span></th>
+</tr>
+<tr>
+<td>ブロック</td>
+<td><code>h[n].</code></td>
+<td>ヘッダー（<code>H1</code>, <code>H2</code>）</td>
+<td><code>h1.</code></td>
+</tr>
+<tr>
+<td>記法</td>
+<td><code>bq.</code></td>
+<td>ブロック引用</td>
+<td><code>bq. this is quoted</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>#</code></td>
+<td>番号リスト</td>
+<td><code># numeric list</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>*</code></td>
+<td>リスト</td>
+<td><code>* bullet list</code></td>
+</tr>
+<tr>
+<td>インライン</td>
+<td><code>_foo_</code></td>
+<td>強調</td>
+<td></td>
+</tr>
+<tr>
+<td>記法</td>
+<td><code>__it__</code></td>
+<td>斜体</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>*strong*</code></td>
+<td>強調（拡大字体）</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>**bold**</code></td>
+<td>ボールド</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>??cite??</code></td>
+<td>引用</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>-del-</code></td>
+<td>削除</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>+ins+</code></td>
+<td>挿入</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>^super^</code></td>
+<td>上付き</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>~sub~</code></td>
+<td>下付き</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>@code@</code></td>
+<td>コード</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>"link":URL</code></td>
+<td>リンク</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>!URL!</code></td>
+<td>イメージ</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>|a|table|row|</code></td>
+<td>テーブル</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>%(class)span%</code></td>
+<td>範囲指定</td>
+<td><code>%{color:red}hello%</code></td>
+</tr>
+</table>
+</div>
+<p class="in"><code>RedCloth</code>はTextileを解釈してHTMLに変換するためのライブラリです。作者はRuby用YAML処理系の作者でもあるwhy the lucky stiffです。変な名前ですが、「Why」は彼の本当の名前だそうです（発音は「わい」）。</p>
+<p class="in">Textileは思想的にはRDなどに近いのですが、RDには、</p>
+<ul>
+<li><p>汎用のドキュメントフォーマットを目指しているが、TextileはHTML専用、他のフォーマットには変換できない</p></li>
+<li><p>ブロック記法は貧弱だが、インラインが豊富</p></li>
+</ul>
+<p class="ni">という特徴があります。個人的にはTextile表現は文章を書くためには貧弱すぎる印象を持っているのですが、Wikiくらいの軽い文章を書くのには向いているのかもしれません。</p>
+<p class="in">TextileはHTMLに特化しているので、RDでは難しいイメージやテーブル、色指定や、それらのアラインメント（右寄せ、左寄せ、センタリングなど）も指定できます。また、<code>&lt;pre&gt;</code>や<code>&lt;code&gt;</code>などはHTMLタグを直接書くことで対応しています。</p>
+<p class="in">イメージはURLを「<code>!</code>」で囲むことで表現します。また、かっこで説明文（alt）を指定することもできますし、冒頭にアラインメント指定子（「<code>&lt;</code>」「<code>&gt;</code>」「<code>=</code>」のいずれかで、それぞれ左寄せ、右寄せ、センタリング）を指定します。</p>
+<div class="plist">
+<pre>!&gt;http://www.rubyist.net/image/ruby.gif(Ruby Gem)!</pre>
+</div>
+<a id="page_077"/>
+<p class="in">かっこによる指定はリンクにも使えます。たとえば、</p>
+<div class="plist">
+<pre><span class="str">&quot;a link (textism site)&quot;</span>:http://www.textism.com/</pre>
+</div>
+<p class="ni">と指定すれば、「<code>textism site</code>」の部分がHTMLの<code>a</code>タグのタイトル属性になります。</p>
+<p class="in"><code>RedCloth</code>の使い方は非常に簡単で、<code>redcloth</code>ライブラリを<code>require</code>した後、<code>RedCloth.new(str)</code>で<code>RedCloth</code>オブジェクトを作り、<code>to_html</code>メソッドでHTMLに変換するだけです。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;redcloth&#39;</span>
+
+html = RedCloth(str).to_html</pre>
+</div>
+<p class="in">InstikiはURLのリンク化とWikiワードにも対応していますが、これは<code>RedCloth</code>の機能ではなく、Instikiの内部で置換を行っています。</p>
+</section>
+<section id="chap3705" class="level2">
+<h3>Madeleine</h3>
+<hr class="hr-gray" />
+<p class="in"><code>Madeleine</code>はObject PrevalenceのRuby実装です。作者はAnders Bengtssonです。</p>
+<ul class="none">
+<li><p><span class="link">http://madeleine.sourceforge.net/</span></p></li>
+</ul>
+<p class="in">Object Prevalenceとはアプリケーションの永続化のためのデザインパターンの一種です。Object Prevalenceでは永続化するデータをデータベースサーバーのような異なるプロセスに置くのではなく、オブジェクトをそのままアプリケーションプロセスのメモリに格納します。リレーショナルデータベースを使う場合のように、データベースに格納するためにオブジェクトをテーブルに変換する必要もなく、検索のためにSQL文を組み立ててサーバーとソケット通信する必要もないので、構造が簡単で、高性能を実現しやすい特徴があります。</p>
+<p class="in">Java用のObject PrevalenceライブラリのPrevaylerのホームページには、JDBCを経由してOracleを利用する場合と比較すると、Prevaylerのほうが9000倍（!）高速なケースがあると自慢しています。</p>
+<ul class="none">
+<li><p><span class="link">http://www.prevayler.org/wiki.jsp</span></p></li>
+</ul>
+<p class="in">9000倍とは穏やかではありません。その秘密はどこにあるのでしょうか。</p>
+<p class="in">Object Prevalenceの仕組みは、スナップショットとジャーナリングにあります。実際に処理するデータは実行中のアプリケーションのメモリ中に保持し、検索などはSQLなどを介さず直接行います。データの更新はメモリに対して行うと同時に、ジャーナルログにも書き込みます。</p>
+<p class="in">また、定期的にメモリ中のデータをスナップショットと呼ばれるファイルに書き出し、そこまでのジャーナルログは消去します。</p>
+<p class="in">プログラムの起動時には、</p>
+<ul>
+<li><p>スナップショットが存在しなければアプリケーションデータを初期化</p></li>
+<li><p>スナップショットがあれば最新のものを読み込む</p></li>
+<li><p>ジャーナルログもあればそれも読み込み、アプリケーションデータを最新のものにする</p></li>
+</ul>
+<p class="ni">という手順でメモリ中にデータを用意します。プログラムが異常終了した場合でも、スナップショットとジャーナルログは残されていますので、最新のデータを復旧することが可能です。</p>
+<a id="page_078"/>
+<p class="in">基本的な原理はこれだけです。しかし、Java版（Prevayler）では、別の仮想マシンにアプリケーションデータのReplica（レプリカ、複製）を用意して、ジャーナリングとスナップショットの生成はそちらに任せています。これによりスナップショットのために実行を停止させる必要がなく、高性能が実現できているわけです。Ruby版のMadeleineではReplicaは（まだ）使われていませんから、スナップショットを取るために全体が停止してしまいます。ですから、Java版ほど劇的な性能は実現できないような気がします。</p>
+<p class="in">Object Prevalenceにも欠点がないわけではありません。</p>
+<p class="in">まず、すべてのデータをメモリ中に保持するため、データ量が増大するとそれにつれてメモリを消費します。リレーショナルデータベースでは参照しないデータはファイルだけに格納されるので必要メモリ量は少なくて済みます。もっとも最近はメモリの最大値は増加しており、サーバーではギガバイト単位のメモリ容量も少しも珍しくなくなりました。価格も低下の一方ですから、メモリ容量は重大な問題にならなくなっているかもしれません。</p>
+<p class="in">次の問題は、データがアプリケーションプロセスのメモリ中に展開されているため、複数プロセスが同一データにアクセスすることには向かないということです。この場合には、データを保持するプロセスがサーバーとなって、複数のクライアントからのアクセスを受け取るという形になりますが、そうなると、せっかく削減したソケット通信を再び導入することになってしまいます。ここは上手に実装しないとせっかく実現した高性能を台無しにしてしまう可能性があります。</p>
+<p class="in">最後に、Object Prevalenceそのものの欠点ではないのですが、実は現在のRuby処理系には大量オブジェクトの扱いにGCの問題がありますから、それでなくてもあまり大量の永続データの扱いには向きません。とはいっても、Instikiが取り扱うようなWikiデータ程度の規模なら何の問題もないでしょう。</p>
+<p class="in">Rubyにおける<code>Madeleine</code>の使い方は以下のとおりです。</p>
+<p class="in">まず、システムの初期化を行います。</p>
+<div class="plist">
+<pre>require <span class="str">&#39;madeleine&#39;</span>
+
+m = SnapshotMadeleine.new(<span class="str">&quot;/path/to/storage&quot;</span>) {
+  Data.new
+}</pre>
+</div>
+<p class="in"><code>SnapshotMadeleine.new</code>の引数にはスナップショットやログを置くディレクトリへのパスを指定します。省略可能な第2引数にはスナップショットへオブジェクトを書き込む際に文字列化を行うモジュールを指定します。デフォルトでは組み込みの<code>Marshal</code>モジュールを用いますが、たとえば<code>YAML</code>モジュールを指定することで、YAMLフォーマットでセーブすることができるようになります。</p>
+<p class="in">既存のスナップショットが存在しない場合には、ブロックを評価してその結果をアプリケーションデータにします。</p>
+<p class="in">戻り値が<code>Madeleine</code>へのハンドルになります。データへのアクセス（特に更新）は必ずこのハンドルを経由する必要があります。アクセスの方法は以下のとおりです。</p>
+<div class="plist">
+<pre>m.execute_command(command)</pre>
+</div>
+<a id="page_079"/>
+<p class="in"><code>command</code>はコマンドオブジェクトと呼ばれて、データへのアクセスを行うオブジェクトです。<code>execute_command</code>が呼ばれると、以下の手順で処理を行います。</p>
+<ul>
+<li><p>ロックを行う</p></li>
+<li><p>ログに書き込む</p></li>
+<li><p><code>command.execute</code>を呼ぶ</p></li>
+</ul>
+<p class="in"><code>command</code>はどんなクラスのオブジェクトでもかまわないのですが、以下のメソッドを持つ必要があります。</p>
+<div class="plist">
+<pre>command.execute(data)</pre>
+</div>
+<p class="ni"><code>data</code>はアプリケーションデータになります。</p>
+<p class="in"><code>Madeleine</code>には使用上の注意がいくつかあります。</p>
+<p class="in">まず1つは、<code>command</code>の<code>execute</code>コマンドは副作用を持っていてはいけない、ということです。ここでいう副作用を持たないとはアプリケーションデータ以外に影響を及ぼさないということです。これはたとえばアプリケーションデータ以外のオブジェクトを変更することとか、何かを出力することを含みます。<code>execute</code>コマンドはログからの復旧などユーザーが予想しない時点で呼び出されますので、副作用があるとアプリケーションに悪影響が発生します。</p>
+<p class="in">それから、<code>data</code>はスナップショットとしてファイルに保存されますから、ファイルに書き込むための文字列化を行うことができるデータだけを含む必要があります。たとえば、<code>Socket</code>など<code>IO</code>オブジェクトのサブクラスは文字列化できないので、データに含むことはできません。間接的に参照するのでもだめです。</p>
+<p class="in">また、<code>command</code>が<code>data</code>への参照を持たないという点にも注意する必要があります。アプリケーションデータへの参照は<code>execute</code>の引数として渡されるものだけを使ってください。<code>command</code>はやはり文字列化されてジャーナルログに記録されますから、アプリケーションデータへの参照を持っているとログがふくれあがって性能上の問題が発生します。</p>
+<p class="in">では、ここでMadeleineを使った簡単なプログラムを見てみましょう（<a href="#list3702">リスト37.2</a>）。</p>
+<div class="plistc" id="list3702">
+<p class="lst-caption">リスト37.2●Madeleineサンプル</p>
+<pre>require <span class="str">&#39;madeleine&#39;</span>
+
+<span class="kwd">class</span> CountData
+  attr_accessor :count
+  <span class="kwd">def</span> initialize
+    @count = 0
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="kwd">class</span> CountInc
+  <span class="kwd">def</span> execute(data)
+    data.count += 1
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="kwd">class</span> CountShow
+  <span class="kwd">def</span> execute(data)
+    data.count
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="cmt"># Madeleineハンドルを初期化</span>
+m = SnapshotMadeleine.new(<span class="str">&quot;/tmp/data&quot;</span>) {
+  CountData.new
+}
+
+Thread.start {
+  loop {
+    sleep 120      <span class="cmt"># 120秒ごとにスナップショットを取る</span>
+    m.take_snapshot
+  }
+}
+<span class="kwd">while</span> line = gets
+  <span class="kwd">case</span> line
+  <span class="kwd">when</span> <span class="mcm">/^inc/</span>
+    printf <span class="str">&quot;count -&gt; %d\n&quot;</span>, m.execute_command(CountInc.new)
+  <span class="kwd">when</span> <span class="mcm">/^show/</span>
+    printf <span class="str">&quot;count: %d\n&quot;</span>, m.execute_query(CountShow.new)
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_080"/>
+<p class="in">このプログラムは標準入力に“<code>inc</code>”と打つとカウンタの値を1増やし、“<code>show</code>”と打つとカウンタの現在値を表示します。<code>execute_query</code>メソッドはまだ説明していませんが、これはログに記録しないでコマンドを実行するメソッドです。ログに記録が行われませんから、実行されるコマンドはアプリケーションデータを更新しないようにしてください。データの更新が行われると、メモリ中のデータとジャーナルの間に不整合が発生して深刻な問題を引き起こします。</p>
+</section>
+<section id="chap3706" class="level2">
+<h3>Madeleine::Automatic</h3>
+<hr class="hr-gray" />
+<p class="in">Instikiでは実際にはMadeleineの<code>Madeleine::Automatic</code>という機能が使われています。<code>Madeleine::Automatic</code>を使ったサンプルを<a href="#list3703">リスト37.3</a>に示します。</p>
+<a id="page_081"/>
+<div class="plistc" id="list3703">
+<p class="lst-caption">リスト37.3●Madeleine::Automaticサンプル</p>
+<pre>require <span class="str">&#39;madeleine&#39;</span>
+require <span class="str">&#39;madeleine/automatic&#39;</span>
+
+<span class="kwd">class</span> CountData
+  include Madeleine::Automatic::Interceptor
+  attr_accessor :count
+  <span class="kwd">def</span> initialize
+    @count = 0
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> inc
+    @count += 1
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+m = Madeleine::Automatic::
+      AutomaticSnapshotMadeleine.new(<span class="str">&quot;/tmp/data&quot;</span>) {
+  CountData.new
+}
+Thread.start {
+  loop {
+    sleep 10
+    m.take_snapshot
+  }
+}
+<span class="kwd">while</span> line = gets
+  <span class="kwd">case</span> line
+  <span class="kwd">when</span> <span class="mcm">/^inc/</span>
+    printf <span class="str">&quot;count -&gt; %d\n&quot;</span>, m.system.inc
+  <span class="kwd">when</span> <span class="mcm">/^show/</span>
+    printf <span class="str">&quot;count: %d\n&quot;</span>, m.system.count
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><code>Madeleine::Automatic</code>を使ったものとの違いは、</p>
+<ul>
+<li><p>ハンドルのクラス名が違う（えらい長い）</p></li>
+<li><p>コマンドが登場しない</p></li>
+<li><p>データオブジェクトのメソッドを（<code>m.system</code>経由で）直接呼べる</p></li>
+</ul>
+<p class="ni">という点です。コマンドを使わないで済むのでプログラムがずいぶんすっきりしているのがわかります。</p>
+</section>
+<section id="chap3707" class="level2">
+<a id="page_082"/>
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月は実際のアプリケーションであるInstikiの中身を見ることで、新しい技術をいくつか紹介しました。Instikiは進歩が速く、今回の原稿を用意している間に3回もバージョンアップが行われました。実際にInstikiを使うかどうかはともかく、他人のソースコードを読むことは大変に勉強になります。あなたもソースコードを探検してみませんか?</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-013.xhtml">&lt;&lt; 前ページ</a>　<a href="p-015.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

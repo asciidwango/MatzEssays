@@ -1,0 +1,68 @@
+@charset "UTF-8";
+
+
+/* ファイル情報
+----------------------------------------------------------------
+【内容】
+KADOKAWA リフロー型共通スタイル
+
+【バージョン】
+ver.1.1.0
+
+【細目】
+・リンク指定
+・ページ別スタイル
+・ツール類に自動追加されるスタイル指定等
+
+【更新履歴】
+2018/06/01 ver.1.1.0
+・リンク指定「黒文字用」を追加
+
+2015/08/01 ver.1.0.0
+・公開版
+---------------------------------------------------------------- */
+
+
+/* リンク指定
+---------------------------------------------------------------- */
+/* 青文字用 */
+a.link-blue:link     { color: #0000ff; }
+a.link-blue:visited  { color: #0000ff; }
+a.link-blue:hover    { color: #0000ff; }
+a.link-blue:focus    { color: #0000ff; }
+a.link-blue:active   { color: #0000ff; }
+
+/* 赤文字用 */
+a.link-red:link      { color: #ff0000; }
+a.link-red:visited   { color: #ff0000; }
+a.link-red:hover     { color: #ff0000; }
+a.link-red:focus     { color: #ff0000; }
+a.link-red:active    { color: #ff0000; }
+
+/* 黒文字用（マウスオーバー時は灰色） */
+a.link-black:link    { color: #000000; }
+a.link-black:visited { color: #000000; }
+a.link-black:hover   { color: #696969; }
+a.link-black:focus   { color: #696969; }
+a.link-black:active  { color: #696969; }
+
+
+/* 下線［表示］ */
+.hltr a.link-line    { text-decoration: underline; }
+.vrtl a.link-line    { text-decoration: overline;  }
+
+/* 下線［非表示］ */
+.hltr a.link-noline  { text-decoration: none; }
+.vrtl a.link-noline  { text-decoration: none; }
+
+
+/* ページ別スタイル
+---------------------------------------------------------------- */
+/* 電子版断り書き（デジタル追加文言）ページの全体設定 */
+.p-caution {
+  font-size:  0.9em;
+}
+
+
+/* etc
+---------------------------------------------------------------- */

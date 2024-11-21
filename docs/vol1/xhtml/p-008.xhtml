@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第6章 はじめの一歩</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-007.xhtml">第6章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<section id="chap0610" class="level2">
+<h3>◆ 知られざるRuby ◆ open</h3>
+<hr class="hr-blue" />
+<p class="in">今回のテーマは<code>open</code>です。</p>
+<p class="in">入出力をするためにファイルをオープンするのが<code>open</code>です。<code>open</code>は<code>Kernel</code>モジュールで定義されているメソッドで、<code>Kernel</code>モジュールはすべてのクラスの親である<code>Object</code>にインクルードされているので、<code>open</code>はどのクラスでも用いることができます。たとえば、このように使います。</p>
+<div class="plist">
+<pre>f = open(<span class="str">&quot;/usr/share/dict/words&quot;</span>)
+f.grep(<span class="mcm">/Ruby/</span>){|line| print line}</pre>
+</div>
+<p class="in">これは<code>/usr/share/dict/words</code>にある辞書ファイルから<code>Ruby</code>という単語のある行を探して出力する小プログラムです。</p>
+<a id="page_074"/>
+<p class="in"><code>open</code>メソッドの引数は以下のようになっています。</p>
+<div class="plist">
+<pre><code>open(path[, mode[, perm]])</code></pre>
+</div>
+<p class="ni"><code>path</code>はオープンするファイルのパス、<code>mode</code>はファイルの入出力モードを決定する文字列、または整数フラグ、<code>perm</code>は<code>open</code>により新しいファイルが作られたときのパーミッション（アクセス権）を整数で指定します。カギかっこ“<code>[]</code>”でくくられた部分は省略が可能です。</p>
+<p class="in"><code>mode</code>を文字列で指定するには、<a href="#table0601">表6.1</a>の入出力モードを指定します。</p>
+<div class="table" id="table0601">
+<p class="tbl-caption">表6.1●openで指定する入出力モードの補助指定</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">指定する文字列</span></th>
+<th><span class="k">入出力モード</span></th>
+</tr>
+<tr>
+<td><code>"r"</code></td>
+<td>読み込みモード。ファイルが存在しなければエラーになる</td>
+</tr>
+<tr>
+<td><code>"r+"</code></td>
+<td>読み込み・書き込みモード。ファイルが存在しなければエラーになる</td>
+</tr>
+<tr>
+<td><code>"w"</code></td>
+<td>書き込みモード。ファイルがなければ作る。あればサイズ0にする</td>
+</tr>
+<tr>
+<td><code>"w+"</code></td>
+<td>読み込み・書き込みモード。ファイルがなければ作る。あればそのファイルのサイズ0にする</td>
+</tr>
+<tr>
+<td><code>"a"</code></td>
+<td>追加書き込みモード。ファイルがなければ作る。ファイル末尾にseekする</td>
+</tr>
+<tr>
+<td><code>"a+"</code></td>
+<td>追加読み込み・書き込みモード。ファイルがなければ作る。ファイル末尾にseekする</td>
+</tr>
+</table>
+</div>
+<p class="in">文字列によるモード指定では2文字目に“<code>b</code>”を追加することができます。これはバイナリモードでの読み込みを意味しますが、UNIXのような、もともとバイナリモードという概念がないOSでは“<code>b</code>”を指定しても単に無視されます。</p>
+<p class="in">整数フラグの場合、基本的な動作モードを<a href="#table0602">表6.2</a>の定数から指定します。それを補助する動作として<a href="#table0603">表6.3</a>の定数を、“<code>|</code>”（ビットOR）で複数指定することができます。これらの定数は、<code>File</code>クラスで定義されていますので、たとえば、</p>
+<div class="plist">
+<pre>open(path, File::RDWR|File::CREAT, 0666)</pre>
+</div>
+<p class="ni">のように指定するという意味です。</p>
+<a id="page_075"/>
+<div class="table" id="table0602">
+<p class="tbl-caption">表6.2●openで指定する入出力モード（文字列の場合）</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">指定する定数</span></th>
+<th><span class="k">入出力モード</span></th>
+</tr>
+<tr>
+<td><code>RDONLY</code></td>
+<td>読み込みモード</td>
+</tr>
+<tr>
+<td><code>WRONLY</code></td>
+<td>書き込みモード</td>
+</tr>
+<tr>
+<td><code>RDWR</code></td>
+<td>読み込み・書き込みモード</td>
+</tr>
+</table>
+</div>
+<div class="table" id="table0603">
+<p class="tbl-caption">表6.3●openで指定する入出力モードの補助指定</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">orで指定する定数</span></th>
+<th><span class="k">入出力モード</span></th>
+</tr>
+<tr>
+<td><code>CREAT</code></td>
+<td>指定した<code>path</code>にファイルが存在しなかった場合は作成する。つまり、逆にいえばこの定数が指定されない場合には、ファイルが存在していなければエラーになる</td>
+</tr>
+<tr>
+<td><code>EXCL</code></td>
+<td><code>CREAT</code>と一緒に使用された場合、ファイルがすでに存在した場合にエラーとなる</td>
+</tr>
+<tr>
+<td><code>NOCTTY</code></td>
+<td>指定した<code>path</code>がterminalデバイスを参照していて、かつプロセスが制御端末を持たない場合でも、そのterminalが制御端末にならない</td>
+</tr>
+<tr>
+<td><code>TRUNC</code></td>
+<td>ファイルがすでに存在し、通常ファイルであり、書き込み可モード（<code>RDWR</code>または<code>WRONLY</code>）が指定されている場合、そのファイルの長さは0に切り詰められる</td>
+</tr>
+<tr>
+<td><code>APPEND</code></td>
+<td>ファイルを追加モードでオープンし、ファイル末尾にseekする</td>
+</tr>
+<tr>
+<td><code>NONBLOCK</code><br /><code>NDELAY</code></td>
+<td>ファイルを<code>nonblocking</code>モードでオープンする。<code>open</code>を始めとする、ファイル・ディスクリプタに対するすべてのシステムコールは、ブロックしない。ブロックが発生しそうな場合にはシステムコールが失敗する</td>
+</tr>
+<tr>
+<td><code>SYNC</code></td>
+<td>ファイルを同期I/Oモードでオープンする。ファイル・ディスクリプタに対するすべての<code>write</code>は、実際に書き込みが完了するまで終了しない</td>
+</tr>
+</table>
+</div>
+<p class="in">デフォルトの入出力モードは読み込みモード（“<code>r</code>”または<code>RDONLY</code>）です。</p>
+<p class="in">新規に作るファイルのパーミッションを指定する第三引数<code>perm</code>を省略した場合には<code>0666</code>を指定したことになります。<code>0666</code>というのは「獣の数」ではなくて、パーミッションを指定する8進数です。最初の<code>0</code>はこの数字が8進数であることを示します。続く3つの数字は、左からそれぞれ「ファイルの所有者」「ファイルの所有グループに属するユーザー」「それ以外のユーザー」に対するアクセス許可権を指定しています。8進数の一桁は3ビットなのですが、それの各ビットで「読み込み権」「書き込み権」「実行権」を表現します。<code>6</code>は2進数で表現すると<code>110</code>つまり、「読み込み権と書き込み権は許可するが実行権は許可しない」という意味になります。</p>
+<p class="in">これをまとめると<code>0666</code>はファイルの所有者（自分が新規に作成するのだからプログラムの実行者と同じ）、ファイルの所有グループに所属するユーザー、その他のユーザーの誰もに対して、読み込みと書き込みを許可し、実行を許可しないパーミッションという意味になります。</p>
+<p class="in">ただし、この値がそのまま使われるわけではなく、プロセス単位のパーミッションマスク（umask）で修正され、（perm&amp;umask）が実際の値になります。この値は新規にファイルを作るときにだけ有効で、すでに存在するファイルに<code>perm</code>を指定してオープンしたとしても、ファイルのパーミッションは変化しません。</p>
+<p class="in">以上のパーミッションの挙動はUNIX系OSでは共通のものです。では、そのようなファイルのアクセス権を持たないOSではどうなるのでしょうか?　それはそのOSでのPOSIXエミュレーション層の実装に依存するのですが、基本的には、ない袖は振れないので、存在しないアクセス権を指定しても無視するというのが基本です。</p>
+<p class="in">ファイルをオープンした<code>open</code>は<code>File</code>クラスのオブジェクトを返します。</p>
+<p class="in"><code>open</code>にはファイルだけでなく、コマンドを指定することができます。<code>open</code>は<code>path</code>が“<code>|</code>”で始まるときには、それに続く文字列をコマンドとして起動し、そのコマンドの標準入出力に対してパイプラインをつなぎ、それに対応する<code>IO</code>クラスのオブジェクトを返します。<code>path</code>が“<code>|</code>”で始まる場合には第3引数を指定するとエラーになります。</p>
+<a id="page_076"/>
+<p class="in">Perlを使っている人は注意する必要があるのですが、読み込みでも書き込みでも“<code>|</code>”は先頭に来ます。</p>
+<p class="in">さらにコマンド名が“<code>-</code>”であるとき、つまり<code>path</code>に“<code>|-</code>”を指定した場合には、Rubyインタプリタをforkして子プロセスを作り、その子プロセスの標準入出力との間にパイプラインをつなぎます。</p>
+<p class="in"><code>open</code>がブロックとともに呼び出されたとき、<code>open</code>はファイルをオープンして、そのオープンしたファイルをパラメータとしてブロックを実行し、ブロックの実行が終了するとファイルをクローズします。</p>
+<p class="in">つまり、以下のようになります。</p>
+<div class="plist">
+<pre>open(path, mode) <span class="kwd">do</span> |f|
+   ... 
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">これは以下のコードとほぼ同じ動作をします。</p>
+<div class="plist">
+<pre>f = open(path, mode)
+<span class="kwd">begin</span>
+   ... 
+<span class="kwd">ensure</span>
+  f.close
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">これはつまりブロック付きで<code>open</code>を呼び出した場合、途中でエラーが起きたり、例外などで実行を中断したとしても必ずファイルがクローズされるということです。この形式の利用は積極的に推奨されています。</p>
+<p class="in">この呼び出し方をした場合には<code>open</code>の戻り値はファイルのオブジェクトではなく、ブロックで一番最後に評価した式の値になります。これは、もうクローズしてしまったファイルオブジェクトよりもブロックの評価値のほうが使い道があるだろうという配慮からそうなっています。</p>
+<p class="in"><code>open</code>はファイルとコマンドを両方開くことができる高機能なメソッドですが、コマンドではなくファイルしか開かないことが明らかな場合、<code>File</code>クラスのメソッドを使うことができます。</p>
+<div class="plist">
+<pre>File::new(path[, mode[, perm]])
+File::open(path[, mode[, perm]])</pre>
+</div>
+<p class="ni">これらのメソッドの引数の意味は<code>open</code>メソッドと同様ですが、<code>path</code>の先頭の“<code>|</code>”をチェックしません。ですから（あまりないことですが）、ファイル名の先頭に“<code>|</code>”が付いていてもオープンすることができます。また、これらのメソッドは<code>File</code>クラスのオブジェクトを返します。</p>
+<p class="in">それから、<code>File::new</code>はブロックを取りませんが（与えられても無視します）、<code>File::open</code>は<code>open</code>同様にブロック付きで呼び出すことができます。動作も<code>open</code>と同じです。これは<code>new</code>はオブジェクトの生成に専念するというルールからで、他のクラスのメソッド、たとえば<code>Dir::new</code>と<code>Dir::open</code>でも同じような関係が成立しています。</p>
+<p class="in">ファイルを開くことだけが目的の<code>File::open</code>とは逆に、コマンドを開くことが明らかな場合には<code>IO::popen</code>が使えます。</p>
+<div class="plist">
+<pre>IO::popen(cmd[, mode])</pre>
+</div>
+<p class="ni">こちらには<code>cmd</code>の先頭に“<code>|</code>”は付きません（付けてはいけません）。<code>IO::popen</code>は<code>open</code>メソッド同様にブロックを取ります。<code>IO::popen</code>の戻り値は<code>IO</code>クラスのオブジェクトです。</p>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-007.xhtml">&lt;&lt; 前ページ</a>　<a href="p-009.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第33章 Wiki Wiki</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　<a href="p-006.xhtml">第33章</a>　&gt;　Ruby開発日記</p>
+<!-- Body -->
+<section id="chap3313" class="level2">
+<a id="page_034"/>
+<h3>◆ Ruby開発日記 ◆ 日本Rubyの会</h3>
+<hr class="hr-green" />
+<p class="in">先日アメリカのテキサス州オースチンで開催されたRuby Conference 2003に出席してきました。前日にはC++の開発者Bjarne Stroustrup博士に招待されてTexas A&amp;M大学でセミナーを開いたりと忙しい旅行であったのですが、実に有意義でした。</p>
+<p class="in">Ruby Conferenceそのものはわずか50名弱の出席であったのですが、それでも出席者の質も、またプレゼンテーションの質も良好で、これほど優れたカンファレンスはもっと大規模でお金のかかったものを含めてもなかなかありません。プログラムを<a href="#table3303">表33.3</a>に示します。</p>
+<div class="table" id="table3303">
+<p class="tbl-caption">表33.3●Ruby Conference 2003プログラム</p>
+<table class="tbl00">
+<tr>
+<th><span class="k">1日目</span></th>
+</tr>
+<tr>
+<td>Working in the Garden: Web Apps with Borges – Eric Hodel</td>
+</tr>
+<tr>
+<td>The State of XML Processing in Ruby – James Britt</td>
+</tr>
+<tr>
+<td>Object-relational mapping with Lafcadio – Francis Hwang</td>
+</tr>
+<tr>
+<td>Ruby World: (not) Implemented – Steve Tuckner</td>
+</tr>
+<tr>
+<td>Generating Code in Ruby – Jack Herrington</td>
+</tr>
+<tr>
+<td>Roundtable with Matz</td>
+</tr>
+<tr>
+<th><span class="k">2日目</span></th>
+</tr>
+<tr>
+<td>Programming LEGO MINDSTORMS with Ruby – Shashank Date</td>
+</tr>
+<tr>
+<td>(...aside) – David Alan Black</td>
+</tr>
+<tr>
+<td>Building Environment for MUES – Michael Granger</td>
+</tr>
+<tr>
+<td>A Cluless Ruby Hacker Explores Security – Nathaniel Talbott</td>
+</tr>
+<tr>
+<td>Teaching Ruby to Testers – Bret Pettichord</td>
+</tr>
+<tr>
+<td>Introducing Ruby to the Corporate World – Jim Freeze</td>
+</tr>
+<tr>
+<td>Keynote 「Visions for the Future」 – Matz</td>
+</tr>
+<tr>
+<th><span class="k">3日目</span></th>
+</tr>
+<tr>
+<td>Building with Rake – Jim Weirich</td>
+</tr>
+<tr>
+<td>Toward a Refactoring Framework for FreeRIDE – Hal Fulton</td>
+</tr>
+<tr>
+<td>Ruby Java Debug Wire Protocol – Rich Kilmer</td>
+</tr>
+</table>
+</div>
+<p class="in">今年で3度目となるRuby Conferenceですが、この質の高さは驚嘆に値します。出席者の中からも「すばらしいカンファレンスだった」「来年もぜひまた来たい」という感想が聞かれました。私もそう思います。</p>
+<p class="in">今年からはDavid Alan Blackを中心にRuby Central LLCという非営利団体が設立され、今後はその団体の主催という形でRuby Conferenceが開催されることになりました。昨年までは単なる有志の集まりだったRuby ConferenceもRuby Centralの登場で今後はよりきちんとした組織化が行われるのではないかと期待されます。</p>
+<p class="in">さて、Ruby Conference会場で何度か聞かれた質問に「日本ではRubyカンファレンスって開かれているの?」というものです。</p>
+<p class="in">話を聞いてみると、海外のRubyユーザーから見ると、日本は開発者は住んでいるし、Ruby関連の本は40冊近くも出版されているし、ruby-listを始めとするメーリングリストで議論は活発に行われているし、日本語でしか書かれていない（ので彼らは興味があっても読めない）ページがたくさんあるし、などなどでまるで日本に対して「黄金の国ジパング」に似たようなイメージを持っているようです。</p>
+<p class="in">そんな「夢の国」ではきっとRubyに関するイベントはたくさん開かれていて、Ruby Conference以上にすばらしいものに違いない、そういう期待をこめて上記の質問につながっているようです。しかし、意に反して、私の答えは「いや、きちんとしたイベントは開かれていないんだよ」でした。彼らは一様に（ほんの少し）落胆したようでした。</p>
+<a id="page_035"/>
+<p class="in">そうなんです。たぶん日本は世界で一番Rubyユーザーの多い国なんですけど、Rubyカンファレンスのようなイベントがほとんど開催されていません。過去を振り返ると2000年に京都でLinux Conferenceと併催されたカンファレンスはPerl/Ruby Conferenceという名前でPerlコミュニティとの共同開催でした。しかも主催はほとんどPerlコミュニティに任せっきりでした。その次の年に開かれたYAPRC（Yet Another Perl/Ruby Conference）19101でもそうです。2003年はLL Saturdayというイベントが開かれましたが、これもPerl, PHP, Python, Rubyの集まりでした。</p>
+<p class="in">実はRuby単体のイベントはほとんど開かれていないんです。セミナーのようなものといくつかの単発的な宴会を除けば、ここ数年では2003年10月に島根県の玉造温泉（私の自宅のすぐそばです）で開かれたRuby温泉ミーティングくらいでしょうか。</p>
+<p class="in">これはもしかするとユーザーコミュニティが存在しないせいかもしれません。PerlでもLinuxでもPostgreSQLでもPHPでも、「日本なんとかユーザー会」のような会が存在していて日本語のWebページを用意したり、ドキュメントを翻訳したり、イベントを主催したりしているようです。</p>
+<p class="in">ところがRubyの場合、Webページもドキュメントも最初から日本語で用意されていますし、コミュニティといえばメーリングリストを主体としたどちらかというと開発コミュニティそのものしか存在しません。</p>
+<p class="in">しかし、ユーザーコミュニティの不在はイベントやユーザーとしての交流の少なさなどの弊害を生んでいるといえないこともありません。そこで先日の温泉ミーティングではこの事態を打開すべく「日本Rubyの会」の発足が提唱されました。「日本Rubyユーザー会」ではないのは、日本全国のような広い範囲で「ユーザー会」というのは実効的でないだろうという意見を反映したものです。</p>
+<p class="in">まだ詳細は決定していないのですが、会長に日本人唯一のRuby Conference皆勤賞（私を除く）のたかはしさんにお願いしようと考えています。私は実際には全然働かない名前だけの「名誉総裁」くらいのポジションを狙っています（笑）。</p>
+<p class="in">日本Rubyの会では、日本を代表するユーザーコミュニティとして、</p>
+<ul>
+<li><p>イベントの主催者</p></li>
+<li><p>宴会/食事会の名義</p></li>
+<li><p>寄付の送金先</p></li>
+<li><p>物心両面での開発支援</p></li>
+<li><p>サーバーなどのホスティング</p></li>
+<li><p>Webを中心とした情報発信</p></li>
+<li><p>ユーザー交流支援</p></li>
+</ul>
+<p class="ni">などができたらいいなあと考えています。</p>
+<p class="in">日本における唯一の弱点であるユーザーコミュニティが改善されるとき、日本が名実ともに「Rubyの夢の国、ジパング」になる日がやってくることでしょう（大げさ）。楽しみだなあ。</p>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-006.xhtml">&lt;&lt; 前ページ</a>　<a href="p-008.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

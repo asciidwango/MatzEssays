@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第44章 マークアップ・マークダウン</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 2</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 2</a>　&gt;　第44章</p>
+<!-- Body -->
+<section id="chap44" class="level1">
+<a id="page_157"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">44</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">探訪Ruby</span><br />
+マークアップ・マークダウン
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2005年1月号]</p>
+<div class="newlead">
+<p class="in">シンプルなマークアップ言語の良さを力説した後、実例として、RD, Textile, Markdownの3つを紹介しています。Markdownは現在非常に広く使われていますが、残りの2つはあまり見なくなりましたね。ただし、私が書く原稿は今でもRD（のサブセット）で書いていますし、プレゼン用スライドもRDで書いてRabbitで表示させていますから、私にとってはRDはまだまだ現役ですね。</p>
+<p class="ih">「Ruby開発日記」は「名前重要」です。内容は私があちこちで述べていることで、たとえばオライリーの『プログラマが知るべき97のこと』（2010年）という本に書いたエッセイとだいぶ重複していますが、時期的にこちらがオリジナルですね。後半、末娘の名付けに悩む心情はなかなかリアルです。20年前にそんなに悩んでいたとはすっかり忘れていました。</p>
+</div>
+<div class="lead">
+<p class="ni">今月はWebからちょっと離れて、ドキュメント記述などに使われるマークアップ言語について探検します。</p>
+</div>
+<section id="chap4401" class="level2">
+<h3>私の嫌いなもの</h3>
+<hr class="hr-gray" />
+<p class="in">ただ単に文章を書くだけならプレーンテキストで十分ですが、プレーンテキストではカバーしきれない要求、たとえば図を入れたい、きれいにフォーマットしたい、などに応えるためには、何らかのマークアップが必要になります。マークアップのフォーマットにはいろいろあって、代表的なものにはTeX, SGML, HTML, XMLなどがあります。これらは有名ですからこれ以上の説明は不要ですよね。</p>
+<p class="in">マークアップ言語の目的と意義については理解しているつもりなんですが、これらはそろいもそろって、読むにはマークアップが目ざわりで、書くのはおっくうという欠点があります。TeXの、</p>
+<div class="plist">
+<pre>\begin{document}
+  ...
+\end{document}</pre>
+</div>
+<a id="page_158"/>
+<p class="ni">というのも、たかだか文書の始まりと終わりを指定するのになんでそんなに書かねばならないのか、と不満ですし、HTMLやXMLの、</p>
+<div class="plist">
+<pre>&lt;<span class="kwd">HTML</span>&gt;
+&lt;<span class="kwd">HEAD</span>&gt;...&lt;/<span class="kwd">HEAD</span>&gt;
+&lt;<span class="kwd">BODY</span>&gt;...&lt;/<span class="kwd">BODY</span>&gt;
+&lt;/<span class="kwd">HTML</span>&gt;</pre>
+</div>
+<p class="ni">のようなのも冗長で好きではありません。「マークアップ（markup）」という単語はもともと「組版指示」というような意味ですから、文章の内容から考えるとさほど重要な要素ではありません。飾りみたいなもんです。それがこんなに目立つ記法を持っているというのは何か間違っているとしか言いようがありません。そんなわけで私は「マークアップ言語」が嫌いです。</p>
+<p class="in">そんなマークアップ言語嫌いがデザインした文書フォーマットがRD（Ruby Document）です。</p>
+</section>
+<section id="chap4402" class="level2">
+<h3>RD</h3>
+<hr class="hr-gray" />
+<p class="in">RDは、私たちが『オブジェクト指向スクリプト言語Ruby』（アスキー、ISBN4-7561-3254-5）を執筆していたときにデザインしたマークアップ言語です。RDはPerlのドキュメントに用いられていたPOD（Plain Old Document）フォーマットと、プレーンテキストからTeX文書を生成してくれる<code>Plain2</code>というツールの記法とを組み合わせて生まれました。</p>
+<p class="in">その特徴は、</p>
+<ul>
+<li><p>プレーンテキストふうの記法（と若干のインライン記法）だけで文書のマークアップができる</p></li>
+<li><p>インデントを利用することにより、自然な文章の構造化を行うことができる</p></li>
+<li><p><code>rd2</code>プログラムにより、さまざまなフォーマットに変換可能</p></li>
+</ul>
+<p class="ni">という点です。</p>
+<p class="in">RDフォーマットは上記の『オブジェクト指向スクリプト言語Ruby』の執筆に用いられた後、Ruby関連のさまざまなドキュメントに用いられ、今では、</p>
+<ul class="none">
+<li><pre class="tabbing">RWiki 　– RDを全面的に採用したWiki</pre></li>
+<li><pre class="tabbing">tDiary　– スタイルの1つとしてRDを利用可能</pre></li>
+<li><pre class="tabbing">Rabbit　– RDで記述するプレゼンテーションソフト</pre></li>
+</ul>
+<p class="ni">などさまざまな局面で用いられています。また、『Ruby 256倍本』の1つ『Rubyを256倍使うための本 魔道編』（アスキー、ISBN4-7561-3747-4）では、RDラブを自称する「るびきち」氏がRDを主要なテーマにして1冊まるまる解説しています。</p>
+</section>
+<section id="chap4403" class="level2">
+<a id="page_159"/>
+<h3>RDの文法</h3>
+<hr class="hr-gray" />
+<p class="in">RDはプレーンテキストに毛が生えたようなフォーマットですから、あまり複雑な構造を表現することはできません。ですが私たちが日常的に書く文章のほとんどはカバーできると思います。</p>
+<p class="in">RDの基本的な文法は以下のとおりです。</p>
+<ul>
+<li><p>空行は段落の区切り</p></li>
+<li><p>「<code>= 見出し</code>」で見出し（<code>&lt;H1&gt;</code>相当）になる。以下、「<code>== 小見出し1</code>」（<code>&lt;H2&gt;</code>）、「<code>== 小見出し2</code>」と続く</p></li>
+<li><p>「<code>*</code>」で箇条書き</p></li>
+<li><p>「<code>(1)</code>」で数字付き箇条書き</p></li>
+<li><p>「<code>:</code>」で定義リスト</p></li>
+<li><p>インデントした領域は引用</p></li>
+<li><p>二重かっこによるインライン。<code>((- 脚注 -))</code>、<code>((&lt;リンク&gt;))</code>など</p></li>
+</ul>
+<p class="in"><a href="#list4401">リスト44.1</a>にそれらを使ったRDの例を示します。</p>
+<div class="plistc" id="list4401">
+<p class="lst-caption">リスト44.1●RDの例</p>
+<pre>= 大見出し - RDの文法
+
+この章ではRDの文法を解説します。
+
+== 段落区切り
+
+RDの文章はプレーンテキストと同様です。
+文章中の改行は特別扱いされず、バックエンド(TeXや
+HTML)にそのまま渡されます。
+
+ただし、空行は段落の区切りとしての意味を持ちます。
+
+== 箇条書き
+
+RDの箇条書きは2種類あります
+
+  * 単なる箇条書き
+    * 箇条書きはネストできます
+  * 数字付き箇条書き
+
+数字付き箇条書きは
+
+  (1) 最初の要素
+  (2) 次の要素
+  (4) かっこ内の数字は無視されます
+
+のように書きます。
+
+用語の定義もできます。
+
+  : 用語
+
+    同じレベルで始まる段落がその定義になります。
+
+また、インデントによって引用できます。
+
+  #! /usr/bin/ruby
+  print &quot;hello world&quot;
+
+以上で簡単な説明は終わりです。</pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap4404" class="level2">
+<a id="page_160"/>
+<h3>RDtool</h3>
+<hr class="hr-gray" />
+<p class="in">RDを実際に処理するプログラムが<code>RDtool</code>です。<code>RDtool</code>はToshさんによって開発されました。現在のメンテナンスはMoonWolfさんによって行われています。RDに関する情報は、</p>
+<ul class="none">
+<li><p><span class="link">http://www2.pos.to/~tosh/ruby/rdtool/ja/index.html</span></p></li>
+</ul>
+<p class="ni">から入手できますが、メンテナー交代を反映していないので少々情報が古いようです。原稿執筆時点での<code>RDtool</code>の最新版は0.6.16です。</p>
+<p class="in">Debianではパッケージ化されているので、</p>
+<div class="borderterminal">
+<pre># apt-get install rdtool</pre>
+</div>
+<p class="ni">だけでインストールできます。その他のプラットフォームでは、<code>rdtool-0.6.16.tar.gz</code>を展開したディレクトリで、</p>
+<div class="borderterminal">
+<pre># ruby setup.rb</pre>
+</div>
+<p class="ni">をroot権限で実行することでインストールできます。Emacsの<code>rd-mode.el</code>を利用したい人は<code>utils</code>ディレクトリにある<code>rd-mode.el</code>というファイルをEmacs Lispディレクトリにコピーしてください。インストールが完了すると<code>rd2</code>というコマンドが使えるようになります。</p>
+<a id="page_161"/>
+<div class="borderterminal">
+<pre># rd2 example.rd &gt; example.html</pre>
+</div>
+<p class="ni">のようにするとRDを変換してくれます。デフォルトではHTMLに変換します。</p>
+<section id="chap440401" class="level3">
+<h4>rd2のバックエンド</h4>
+<p class="in"><code>rd2</code>コマンドの主要な部分は<code>rd</code>ライブラリとして分離されていますので、Rubyで書かれた他のプログラムからRDを処理することが簡単にできます。</p>
+<p class="in"><code>rd2</code>にはHTMLとman形式への変換を行うバックエンドが用意されていますが、自分でバックエンドを用意することで新しい形式へ比較的簡単に対応することができます。RDツールは<code>Visitor</code>パターンを使っているので、バックエンドを記述するためには、</p>
+<ul>
+<li><p><code>RD::RDVisitor</code>クラスのサブクラスを用意する</p></li>
+<li><p>それぞれのマークアップに対応するメソッド（例: <code>apply_to_Headline</code>）を再定義し、目的の形式に変換した文字列を返す</p></li>
+</ul>
+<p class="ni">だけです。実際、HTMLバックエンドは（コメントや空行も含めて）487行、man形式対応はわずか247行で実現されています。</p>
+<p class="in">ここではバックエンドの1つの例として、同僚の前田修吾さんが作った<code>rd2sxi</code>を紹介しましょう。これはRDから、OpenOffice.orgのプレゼンテーションスライドファイルを生成するプログラムです。</p>
+<p class="in"><code>rd2sxi</code>は全部で1700行を超えるプログラムなので（出力するXMLのテンプレートが大きいのです）、誌面に収まりませんが、作者の前田さんの許可を得たので、編集部のWebサイト（<span class="link">http://www.ascii.co.jp/linuxmag/update/</span>）に掲載してあります。ダウンロードして、<code>rd2sxi-0.1.tar.gz</code>を展開したら、そのディレクトリの<code>setup.rb</code>を実行してください</p>
+<p class="in">なお、<code>rd2sxi</code>はオープンソースGISソフトウェア、GRASS日本語版と一緒に配布されているIPAフォントがインストールされていることを仮定していますから、ご使用になる場合はIPAフォントをインストールする（あるいは<code>rd2sxi</code>を修正する）必要があります。GRASS日本語版については、</p>
+<ul class="none">
+<li><p><span class="link">http://www.grass-japan.org/FOSS4G/GRASS/grass-int.html</span></p></li>
+</ul>
+<p class="ni">を参照してください。</p>
+</section>
+</section>
+<section id="chap4405" class="level2">
+<h3>Rabbit</h3>
+<hr class="hr-gray" />
+<p class="in">RabbitはkouさんによるRDでスライドが記述できるプレゼンテーションソフトウェアです。原稿執筆時点でのRabbitの最新版は0.0.5です。</p>
+<ul class="none">
+<li><p><span class="link">http://www.cozmixng.org/~rwiki/?cmd=view;name=Rabbit</span></p></li>
+</ul>
+<p class="in"><code>rd2sxi</code>がRDテキストからOpenOffice.orgのスライドを作って、画像やテーマなどの編集はOpenOffice.orgに任せているのに対して、RabbitはRDだけでスライドを完結させることができます。画像を入れることもできますし、テーマ機能で見栄えを別に定義することもできます。</p>
+<a id="page_162"/>
+<p class="in">なかなか楽しいソフトウェアですし、実用性も高そうです。</p>
+</section>
+<section id="chap4406" class="level2">
+<h3>Textile</h3>
+<hr class="hr-gray" />
+<p class="in">目立ちすぎるマークアップは嫌い、という考えは私だけのものではないらしく、RDと似たコンセプトのマークアップは他にもあります。その1つがTextileです。TextileのホームページのURLを以下に示します。</p>
+<ul class="none">
+<li><p><span class="link">http://www.textism.com/tools/textile/</span></p></li>
+</ul>
+<p class="in">Textileの文法については、以下のほうがわかりやすいかもしれません。</p>
+<ul class="none">
+<li><p><span class="link">http://hobix.com/textile/</span></p></li>
+</ul>
+<p class="in">Textileの特徴は以下のとおりです。</p>
+<div class="description">
+<p class="ditem">シンプルなマークアップ</p>
+<p class="dni">行をベースにした非常にシンプルなマークアップです。</p>
+<p class="ditem">シンプルなインライン</p>
+<p class="dni">RDのインラインは二重かっこ<code>(())</code>を使うので少々うっとうしいのですが、Textileではインライン修飾記法はもっとシンプルです。</p>
+<p class="ditem">HTML専用</p>
+<p class="dni">複数のフォーマットに変換できるRDに対して、TextileはHTML専用です。そのぶん、HTML的なスタイルや属性の指定が可能です。右揃え、センタリング、左揃えなどのアラインメントの指定も可能も可能です。また、Textileで表現しきれない複雑なことはHTMLを直接書くことで対応します。</p>
+</div>
+<p class="in">Textileも空行が段落の区切りを意味します。見出しは行の先頭に「<code>h1.</code>」を置くことで表現します。レベルに合わせて「<code>h1.</code>」から「<code>h6.</code>」までがあります。引用は「<code>bq.</code>」、脚注は「<code>fn1.</code>」、箇条書きはRD同様「<code>*</code>」を用い、数字付き箇条書きは「<code>#</code>」です。</p>
+<p class="in">その他Textileの文法を<a href="#table4401">表44.1</a>に示します。</p>
+<a id="page_163"/>
+<div class="table" id="table4401">
+<p class="tbl-caption">表44.1●Textileのスタイル指定</p>
+<table class="tbl01">
+<tr>
+<th colspan="2"><span class="k">ブロック修飾子</span></th>
+</tr>
+<tr>
+<td><code>hn.</code></td>
+<td>見出し <code>&lt;Hn&gt;</code></td>
+</tr>
+<tr>
+<td><code>bq.</code></td>
+<td>引用 <code>&lt;BLOCKQUOTE&gt;</code></td>
+</tr>
+<tr>
+<td><code>fnn.</code></td>
+<td>脚注</td>
+</tr>
+<tr>
+<td><code>p.</code></td>
+<td>段落 <code>&lt;P&gt;</code></td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>箇条書き</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>数字付き箇条書き</td>
+</tr>
+<tr>
+<th colspan="2"><span class="k">インライン修飾子</span></th>
+</tr>
+<tr>
+<td><code>_強調_</code></td>
+<td><code>&lt;EM&gt;</code></td>
+</tr>
+<tr>
+<td><code>*strong*</code></td>
+<td><code>&lt;STRONG&gt;</code></td>
+</tr>
+<tr>
+<td><code>??引用??</code></td>
+<td><code>&lt;CITE&gt;</code></td>
+</tr>
+<tr>
+<td><code>@コード@</code></td>
+<td><code>&lt;CODE&gt;</code></td>
+</tr>
+<tr>
+<td><code>-削除-</code></td>
+<td><code>&lt;DEL&gt;</code></td>
+</tr>
+<tr>
+<td><code>+挿入+</code></td>
+<td><code>&lt;INS&gt;</code></td>
+</tr>
+<tr>
+<td><code>^上付き^</code></td>
+<td><code>&lt;SUP&gt;</code></td>
+</tr>
+<tr>
+<td><code>~下付き~</code></td>
+<td><code>&lt;SUB&gt;</code></td>
+</tr>
+<tr>
+<td><code>%span%</code></td>
+<td><code>&lt;SPAN&gt;</code></td>
+</tr>
+<tr>
+<th colspan="2"><span class="k">テーブル</span></th>
+</tr>
+<tr>
+<td><code>|a|table|row|</code></td>
+<td><code>|</code>で囲む</td>
+</tr>
+<tr>
+<th colspan="2"><span class="k">リンク</span></th>
+</tr>
+<tr>
+<td><code>"linktext":url</code></td>
+<td>リンク</td>
+</tr>
+<tr>
+<td><code>!imageurl!</code></td>
+<td>イメージ</td>
+</tr>
+<tr>
+<td><code>[n]</code></td>
+<td>脚注への参照</td>
+</tr>
+</table>
+</div>
+<p class="in">先にも述べたように、TextileはHTML専用なのでHTML属性などを指定することができます。ブロック修飾子の場合ピリオドの直前に、クラスやIDを指定するかっこ「<code>()</code>」や、スタイルを指定するブレース「<code>{}</code>」、言語を指定するブラケット「<code>[]</code>」を置くことができます。インライン修飾子の場合には、これらの指定を先頭の文字の直後に置きます。スタイル指定できる場所にはアラインメントも記述できます（<a href="#table4402">表44.2</a>）。</p>
+<div class="table" id="table4402">
+<p class="tbl-caption">表44.2●Textileのスタイル指定</p>
+<table class="tbl01">
+<tr>
+<td><code>(class)</code></td>
+<td>クラス指定</td>
+</tr>
+<tr>
+<td><code>(#id)</code></td>
+<td>ID</td>
+</tr>
+<tr>
+<td><code>{style}</code></td>
+<td>スタイル</td>
+</tr>
+<tr>
+<td><code>[lang]</code></td>
+<td>言語</td>
+</tr>
+<tr>
+<td><code>&lt;</code></td>
+<td>右寄せ</td>
+</tr>
+<tr>
+<td><code>&gt;</code></td>
+<td>左寄せ</td>
+</tr>
+<tr>
+<td><code>=</code></td>
+<td>センタリング</td>
+</tr>
+<tr>
+<td><code>&lt;&gt;</code></td>
+<td>ジャスティファイ</td>
+</tr>
+</table>
+</div>
+<p class="in"><a href="#list4402">リスト44.2</a>がTextileの使用例です。</p>
+<div class="plistc" id="list4402">
+<p class="lst-caption">リスト44.2●Textileの例</p>
+<pre>p(example). A          → &lt;p class=&quot;example&quot;&gt;A&lt;/p&gt;
+p(#big-red). Red       → &lt;p id=&quot;big-red&quot;&gt;Red&lt;/p&gt;
+p{color:blue}. Blue    → &lt;p style=&quot;color:blue&quot;&gt;Blue&lt;/p&gt;
+p[fr]. rouge           → &lt;p lang=&quot;fr&quot;&gt;rouge&lt;/p&gt;
+
+It&#39;s %{color:red}red%  → &lt;p&gt;It&#39;s &lt;span style=&quot;color:red;&quot;&gt;red&lt;/span&gt;
+p&gt;. Right              → &lt;p style=&quot;text-align:right;&quot;&gt;Right&lt;/p&gt;</pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap4407" class="level2">
+<a id="page_164"/>
+<h3>Markdown</h3>
+<hr class="hr-gray" />
+<p class="in">もう1つのプレーンテキストふうマークアップがMarkdownです。</p>
+<ul class="none">
+<li><p><span class="link">http://daringfireball.net/projects/markdown/syntax</span></p></li>
+</ul>
+<p class="in">Markdownの特徴はTextileとほぼ同じです。</p>
+<ul>
+<li><p>シンプルなマークアップ</p></li>
+<li><p>シンプルなインライン</p></li>
+<li><p>HTML専用</p></li>
+</ul>
+<p class="in">ただし、TextileのようなCSSクラスやスタイルの指定などはできません。逆に引用などの表現力はMarkdownのほうが高いように感じます。Markdownの文法を<a href="#list4403">リスト44.3</a>に示します。</p>
+<div class="plistc" id="list4403">
+<p class="lst-caption">リスト44.3●Markdownの文法</p>
+<pre>見出しは下線で
+==============
+
+小見出しも同様
+--------------
+
+# 「#」も見出しに使える
+## 「#」の数でH1からH6まで
+
+&gt; 引用は「&gt;」を行頭に
+&gt; &gt; ネストした引用も可能
+
+* 箇条書き
+
+1. 数字付き箇条書き
+
+コードの引用はRD同様インデントで行う
+
+  #! /usr/bin/ruby
+  print &quot;hello world&quot;
+
+インラインはTextileに似ている。
+
+  * _強調_
+  * *strong*
+  * `コード`
+
+リンクはブラケットを使う
+
+  [リンク](http://www.rubyist.net)
+
+自動的にリンクにすることもできる
+
+  &lt;http://www.rubyist.net/~matz&gt;</pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap4408" class="level2">
+<a id="page_165"/>
+<h3>RedClothとBlueCloth</h3>
+<hr class="hr-gray" />
+<p class="in">TextileにしてもMarkdownにしても記法だけではあまり意味がなく、実際にHTMLに変換するツールがあって初めて役に立ちます。TextileをHTMLに変換するRuby用のツールはRedClothといいます。Markdown用のツールはBlueClothといいます。なんだかややこしいですが、RedClothが先にあって、BlueClothがその名前を真似たということのようです。</p>
+<p class="in">RedClothの作者はSyck（YAML for Ruby）の作者でもある「why the lucky stiff」です。RedClothは、</p>
+<ul class="none">
+<li><p><span class="link">http://www.whytheluckystiff.net/ruby/redcloth/</span></p></li>
+</ul>
+<p class="ni">から入手することができます。原稿執筆時点でのRedClothの最新版は3.0.0で、このバージョンからTextileとMarkdownの両方をサポートします。インストールすると<code>redcloth</code>コマンドによってTextileからHTMLへの変換ができるようになります。</p>
+<p class="in">また、</p>
+<div class="plist">
+<pre>require <span class="str">&#39;redcloth&#39;</span></pre>
+</div>
+<p class="ni">とすることで、Rubyプログラムから変換を行うこともできます。</p>
+<p class="in"><code>RedCloth</code>オブジェクトは<code>String</code>クラスのサブクラスです。オブジェクトの生成は以下のように行います。</p>
+<div class="plist">
+<pre>r = RedCloth.new(<span class="str">&quot;_textile_ text&quot;</span>)</pre>
+</div>
+<p class="in"><code>RedCloth</code>オブジェクトからHTMLを取り出すには<code>to_html</code>メソッドを使います。</p>
+<div class="plist">
+<pre>r.to_html <span class="cmt"># =&gt; &quot;&lt;p&gt;&lt;em&gt;textile&lt;/em&gt;text&lt;/p&gt;&quot;</span></pre>
+</div>
+<p class="in"><code>to_html</code>に引数を指定することで、変換エンジンを変更できます。</p>
+<div class="plist">
+<pre><span class="cmt"># Markdownとして変換</span>
+r.to_html(:markdown)
+
+<span class="cmt"># Textileとして変換</span>
+r.to_html(:textile)
+
+<span class="cmt"># Markdown優先で変換</span>
+r.to_html(:markdown, :textile)</pre>
+</div>
+<a id="page_166"/>
+<p class="in">RDtoolは「1つの文法からいろいろな形式に変換する」というアプローチでしたが、RedClothは「複数の文法からHTMLに変換する」というアプローチです。どちらも興味深いですね。</p>
+<p class="in">BlueClothのほうもRedClothとほとんど同じです。ホームページは、</p>
+<ul class="none">
+<li><p><span class="link">http://bluecloth.rubyforge.org/</span></p></li>
+</ul>
+<p class="ni">です。原稿執筆時点での最新版は1.0.0です。BlueClothとRedClothの違いは、</p>
+<ul>
+<li><p>BlueClothはMarkdown専用</p></li>
+<li><p><code>bluecloth</code>コマンドは完全なHTMLファイルを出力できる</p></li>
+</ul>
+<p class="ni">ことでしょうか。</p>
+</section>
+<section id="chap4409" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今月はプレーンテキストふうマークアップ言語を3種類紹介してみました。皆さんもシンプルマークアップの魅力を体験してみませんか。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-027.xhtml">&lt;&lt; 前ページ</a>　<a href="p-029.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

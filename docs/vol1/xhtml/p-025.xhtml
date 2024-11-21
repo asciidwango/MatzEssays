@@ -1,0 +1,875 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第12章 パターンマッチ</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第12章</p>
+<!-- Body -->
+<section id="chap12" class="level1">
+<a id="page_163"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">12</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+パターンマッチ
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2002年5月号]</p>
+<div class="newlead">
+<p class="in">現代においてはパターンマッチと言えば、Ruby 2.7から導入された構文のことを連想する人のほうが多そうですが、こちらは正規表現による文字列のパターンマッチです。当時のEmacsベースの正規表現エンジンは、<ruby>鬼雲<rt>おにぐも</rt></ruby>に置き換わってしまいましたが、基本的な部分は同じです。</p>
+<p class="in">また、Riteという次世代インタプリタ構想も披露しています。記事の末尾に「ぐずぐずしてたら、他の人に負けちゃうかもしれません」と予想していたとおり、Rubyのインタプリタコアの置き換えは笹田さんのYARVによって達成されてしまいました。しかし、Rite構想は無駄になったわけではなく、こちらはmrubyのコアになりました。今でもmrubyのソースコードに何箇所かRiteという表現が残っています。</p>
+</div>
+<div class="lead">
+<p class="ni">先月学んだ文字列クラスに続いて、今月はRubyの文字列処理のもう1つの鍵である正規表現クラス<code>Regexp</code>について学んで、文字列処理の神髄に迫りましょう。</p>
+</div>
+<section id="chap1201" class="level2">
+<h3>パターンとは</h3>
+<hr class="hr-gray" />
+<p class="in">文字列を処理する場合に、たとえば「<code>"Ruby"</code>という文字列を含む」というのは比較的簡単ですが、もうちょっとインテリジェントなルールを記述したい場合もあります。たとえば、「<code>P</code>で始まって<code>l</code>で終わる」とかです。でも、コンピュータは（Rubyも）人間の言葉はわかりませんから、コンピュータにでもわかる言葉でこのルールを表現してやらなくてはいけません。このようなルールが「正規表現」です。Rubyではスラッシュ「<code>/</code>」で囲まれた部分が正規表現になります。</p>
+<div class="plist">
+<pre><span class="mcm">/Ruby/</span>   <span class="cmt"># 「&quot;Ruby&quot;という文字列を含む」</span>
+<span class="mcm">/P.*l/</span>   <span class="cmt"># 「Pで始まってlで終わる」</span></pre>
+</div>
+<p class="ni">後者は少々難しいルールを表現していますね。この細部の意味についてはあとで詳しく説明します。</p>
+<a id="page_164"/>
+<p class="in">正規表現は文字列のパターンを表現するための、いわばミニ言語ですから、文法があります。外側の言語（Ruby）とは違う文法を持つ独立した言語ですから、ときおり混乱の元になることもありますが、文法をきちんと押さえてしまえばこれほど便利なものはありません。</p>
+</section>
+<section id="chap1202" class="level2">
+<h3>パターンマッチのパワー</h3>
+<hr class="hr-gray" />
+<p class="in">正規表現によるパターンマッチのパワーでなにができるのか、その能力の一端をご紹介しましょう。たとえば、パターンマッチ機能を使えば、次のようなことは朝飯前です。</p>
+<ul>
+<li><p><span class="k">ログファイルから「日付のようなもの」を取り出す</span><br />
+しかも、日本式、米国式、欧州式のそれぞれに対応できます。</p></li>
+<li><p><span class="k">HTMLファイルから「URLのようなもの」を取り出す</span><br />
+URLを抽出すればリンク集やブックマークをデータとして加工できます。</p></li>
+<li><p><span class="k">典型的なスペルミスを探す</span><br />
+日本語では「私はは」のような助詞の連結のミスが多いのですが、それらもパターンで表現できます。</p></li>
+</ul>
+<p class="ih">「のようなもの」というあたりがパターンマッチ以外の方法ではなかなか実現できないのですが、逆にいえばパターンマッチの最も得意とする領域ということです。</p>
+<p class="in">これらの具体的な方法についてはあとで紹介します。</p>
+</section>
+<section id="chap1203" class="level2">
+<h3>パターンの文法</h3>
+<hr class="hr-gray" />
+<p class="in">正規表現は「メタ文字」と呼ばれる特殊機能を持つ文字とそれ以外の文字から構成されます。メタ文字はプログラミング言語における制御構造のようなものです。正規表現のメタ文字を<a href="#table1201">表12.1</a>に示します。</p>
+<a id="page_165"/>
+<div class="table" id="table1201">
+<p class="tbl-caption">表12.1●正規表現のメタ文字</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">表記</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">表記</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>任意の一文字（改行以外）</td>
+<td><code>m,n?</code></td>
+<td><code>m</code>回から<code>n</code>回の繰り返し（非よくばり型）</td>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td><code>[a-z]</code>は<code>a</code>から<code>z</code>までのいずれか</td>
+<td><code>^</code></td>
+<td>行頭</td>
+</tr>
+<tr>
+<td><code>[^]</code></td>
+<td><code>[^a-z]</code>は<code>a</code>から<code>z</code>以外の文字</td>
+<td><code>$</code></td>
+<td>行末（改行があればその直前）</td>
+</tr>
+<tr>
+<td><code>\w</code></td>
+<td>単語を構成する文字</td>
+<td><code>\A</code></td>
+<td>文字列の先頭</td>
+</tr>
+<tr>
+<td><code>\W</code></td>
+<td>単語を構成する文字以外</td>
+<td><code>\Z</code></td>
+<td>文字列の末尾（改行があればその直前）</td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>空白文字。<code>[\t\n\r\f]</code>と同じ</td>
+<td><code>\z</code></td>
+<td>文字列の末尾</td>
+</tr>
+<tr>
+<td><code>\S</code></td>
+<td>非空白文字</td>
+<td><code>\b</code></td>
+<td>バックスペース（0x08）（<code>[]</code>内）</td>
+</tr>
+<tr>
+<td><code>\d</code></td>
+<td>数字。<code>[0-9]</code>と同じ</td>
+<td><code>\b</code></td>
+<td>語境界文字（<code>[]</code>外）</td>
+</tr>
+<tr>
+<td><code>\D</code></td>
+<td>非数字。<code>[^0-9]</code>と同じ</td>
+<td><code>\B</code></td>
+<td>非語境界文字</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>0回以上の繰り返し</td>
+<td><code>|</code></td>
+<td>選択</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>1回以上の繰り返し</td>
+<td><code>( )</code></td>
+<td>表現のグループ化（後方参照あり）</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>0または1回の繰り返し</td>
+<td><code>\1,\2</code></td>
+<td>後方参照（<span class="f">n</span>番目のかっこに対応する）</td>
+</tr>
+<tr>
+<td><code>m,n</code></td>
+<td><code>m</code>回から<code>n</code>回の繰り返し</td>
+<td><code>(?: )</code></td>
+<td>表現のグループ化（後方参照なし）</td>
+</tr>
+<tr>
+<td><code>*?</code></td>
+<td>0回以上の繰り返し（非よくばり型）</td>
+<td><code>(?= )</code></td>
+<td>パターンによる位置指定（幅を持たない）</td>
+</tr>
+<tr>
+<td><code>+?</code></td>
+<td>1回以上の繰り返し（非よくばり型）</td>
+<td><code>(?! )</code></td>
+<td>パターンの否定による位置指定（幅を持たない）</td>
+</tr>
+<tr>
+<td><code>??</code></td>
+<td>0または1回の繰り返し（非よくばり型）</td>
+<td><code>(?# )</code></td>
+<td>コメント</td>
+</tr>
+</table>
+</div>
+<p class="in">メタ文字以外の文字はその文字そのものと一致します。ですから、<code>/FOO/</code> は<code>FOO</code>という文字の並びと一致します。</p>
+<p class="in">前に出てきた例 <code>/P.*l/</code> は以下のように解釈します。</p>
+<ul>
+<li><p>「<code>P</code>」は通常文字なので文字「<code>P</code>」そのものとマッチ</p></li>
+<li><p>「<code>.</code>」は任意の1文字とマッチ</p></li>
+<li><p>「<code>*</code>」は直前のパターン（「<code>.</code>」）の任意回数の繰り返し</p></li>
+<li><p>「<code>l</code>」は文字「<code>l</code>」そのものとマッチ</p></li>
+</ul>
+<p class="ni">ですから、これを人間の言葉に直すと「<code>P</code>で始まって<code>l</code>で終わる」パターンになり、「<code>Perl</code>」とか「<code>Pascal</code>」とマッチします。「<code>.*</code>」は0回を含みますから、上記のパターンは「<code>Pl</code>」にもマッチします。人間はよく0回のことを忘れてしまいますから注意が必要です。コンピュータは忘れないんですよねえ。</p>
+</section>
+<section id="chap1204" class="level2">
+<h3>通常文字</h3>
+<hr class="hr-gray" />
+<p class="in">では、正規表現の文法をちょっと詳しく見てみましょう。まずは、<a href="#table1202">表12.2</a>に示したメタ文字以外の「普通」の文字はその文字自身とマッチします。ですから、「<code>a</code>」は「<code>a</code>」自身とマッチします。ですから、メタ文字を含まない文字列のパターンは、その文字列自身です。たとえば、「<code>Ruby</code>」にマッチするパターンは「<code>Ruby</code>」です。これだけでは全然難しくないですね。</p>
+</section>
+<section id="chap1205" class="level2">
+<h3>文字クラス</h3>
+<hr class="hr-gray" />
+<p class="ih">「<code>[</code>」と「<code>]</code>」で囲まれたものは「文字クラス指定」で、<code>[]</code> の間に含まれる文字のいずれかにマッチします。たとえば「<code>[abcdef]</code>」はアルファベット小文字の<code>abcdef</code>のいずれかにマッチします。文字クラス指定の中では <code>-</code>（ハイフン）でつなぐことによって範囲を指定できます。ですから、「<code>[abcdef]</code>」の代わりに「<code>[a-f]</code>」と書くことができます。このほうがわかりやすいですね。</p>
+<p class="in">文字クラス指定の最初の文字が「<code>^</code>」であった場合には、条件が反転して今度は<code>[]</code>に含まれない文字にマッチします。</p>
+<p class="in">では、文字クラスで「<code>^</code>」「<code>-</code>」「<code>]</code>」を指定したい場合にはどうしたらよいのでしょう?</p>
+<p class="in">正解は、「<code>^</code>」は先頭以外に、「<code>-</code>」「<code>]</code>」は先頭に置けばよい、でした。また、直前にバックスラッシュ（<code>\</code>または<code>Y</code>）を置く方法もあります。</p>
+</section>
+<section id="chap1206" class="level2">
+<a id="page_166"/>
+<h3>任意の1文字</h3>
+<hr class="hr-gray" />
+<p class="in">次は任意の1文字を表現するパターンです。これは「<code>.</code>」になります。ただし、「<code>.</code>」は改行とはマッチしません（特別に指定した場合を除く）。ということは、「<code>.</code>」は<code>a</code>や<code>b</code>や<code>C</code>などにマッチします。日本語の文字についてですが、Rubyの正規表現は日本語対応ですから、文字コードについての情報を与えてやれば、「<code>.</code>」が「あ」や「い」などに1文字としてマッチします。</p>
+<p class="in">たとえば、「<code>P</code>から始まって、任意の2文字の後、<code>l</code>」というパターンは「<code>P..l</code>」になります。「<code>.</code>」はたびたびこの後説明する「繰り返し」とともに使われます。</p>
+</section>
+<section id="chap1207" class="level2">
+<h3>繰り返し</h3>
+<hr class="hr-gray" />
+<p class="in">さて、パターンの文法には制御構造も必要です。正規表現の制御構造は「繰り返し」です。正規表現には上限と下限によって複数の繰り返し記法があります（<a href="#table1202">表12.2</a>）。いずれも直前のパターンに対して繰り返しを行います。</p>
+<div class="table" id="table1202">
+<p class="tbl-caption">表12.2●繰り返し記法</p>
+<table class="tbl06">
+<tr>
+<th><span class="k">表記</span></th>
+<th><span class="k">下限</span></th>
+<th><span class="k">上限</span></th>
+</tr>
+<tr>
+<td><code>a*</code></td>
+<td><code>0</code></td>
+<td>なし</td>
+</tr>
+<tr>
+<td><code>a+</code></td>
+<td><code>1</code></td>
+<td>なし</td>
+</tr>
+<tr>
+<td><code>a?</code></td>
+<td><code>0</code></td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><code>an,m</code></td>
+<td><code>n</code></td>
+<td><code>m</code></td>
+</tr>
+<tr>
+<td><code>an</code></td>
+<td><code>n</code></td>
+<td><code>n</code></td>
+</tr>
+<tr>
+<td><code>an,</code></td>
+<td><code>n</code></td>
+<td>なし</td>
+</tr>
+</table>
+<p class="ni"><span class="fontsmall">ただし、<code>n</code>, <code>m</code>は整数</span></p>
+</div>
+<p class="in">ですから、「<code>a*</code>」は「<code>a</code>の0回以上の繰り返し」「<code>a+</code>」は「<code>a</code>の1回以上の繰り返し」「<code>a?</code>」は「<code>a</code>の0回または1回の繰り返し」言い換えれば「<code>a</code>」または無にマッチします。</p>
+<p class="in">ここで注意すべき点が2つあります。</p>
+<p class="in">1つは、マッチは「最左最長一致」であり、パターンは一番左側で一番長い部分にマッチすることです。たとえば「<code>a*</code>」というパターンを <code>"aabbabaaa"</code> という文字列にマッチさせると先頭の <code>"aa"</code> にマッチします。<code>a</code>の1個の並びでなく2個の並びにマッチすることと、文字列中で最も長い<code>a</code>の並びである末尾の <code>"aaa"</code> にマッチするわけでないことに注目してください。</p>
+<p class="in">もう1つは、0回の繰り返しは間違いやすいことです。「<code>a*bb</code>」というパターンを <code>"bbaabb"</code> という文字列にマッチさせると、マッチするのは先頭の <code>"bb"</code> の部分です。つまり、「<code>a*</code>」は0回マッチし、その後の「<code>bb</code>」が先頭でマッチするのです。混乱しそうなときには「<code>*</code>」でなく1回以上の繰り返しである「<code>+</code>」を使うべきでしょう。</p>
+</section>
+<section id="chap1208" class="level2">
+<h3>「よくばり」と「なまけもの」</h3>
+<hr class="hr-gray" />
+<p class="in">さて、最左最長一致では困る場合がときどきあります。たとえば、</p>
+<ul class="none">
+<li><p><code>http://www.ruby-lang.org:80/ja/</code></p></li>
+</ul>
+<p class="ni">という文字列の先頭の「<code>http:</code>」までの部分を取り出すために「<code>.*:</code>」というパターンとマッチさせると、最長一致により実際には「<code>http://www.ruby-lang.org:</code>」までマッチしてしまいます。これは正規表現の繰り返しが「よくばり」で、パターンに合致する一番長い文字列を探すからです。</p>
+<p class="in">繰り返し系メタ文字のすぐ後ろに「<code>?</code>」を付けると「よくばり」の代わりに「なまけもの」のマッチを行います。「なまけもの」マッチは最初にパターンをマッチした時点で繰り返しを止めてしまいます。ですから、上記の文字列と「<code>.*?</code>」というパターンをマッチさせると、めでたく「<code>http:</code>」を取り出すことができます。</p>
+<a id="page_167"/>
+<p class="in">しかし、「よくばり」か、そうでなければ「なまけもの」とは、人間だったらいずれにしても嫌われちゃいますね（笑）。</p>
+</section>
+<section id="chap1209" class="level2">
+<h3>グルーピング</h3>
+<hr class="hr-gray" />
+<p class="in">繰り返しは直前の正規表現を対象にしますから、「<code>ma+</code>」は「<code>m</code>とそれに続く<code>a</code>の1回以上の繰り返し」という意味になります。「<code>ma</code>の1回以上の繰り返し」のためにはかっこでくくって「<code>(ma)+</code>」とします。このパターンをまとめる機能「グルーピング」と呼びます。</p>
+<p class="in">正規表現中のかっこにマッチした文字列は <code>\1</code>などで表現できます。つまり「<code>(.)\1</code>」というパターンは同じ文字が2つ続いたパターンを表現します。これを後方参照と呼びます。</p>
+<p class="in">かっこは後方参照のためにデータを内部的にセーブするので、少々効率が落ちます。ただ単にグルーピングだけのためにはパターンを「<code>(?:</code>」と「<code>)</code>」でくくります。</p>
+</section>
+<section id="chap1210" class="level2">
+<h3>選択</h3>
+<hr class="hr-gray" />
+<p class="in">複数のパターンのいずれかを選択するのがメタ文字「<code>|</code>」です。たとえば「<code>yes|no</code>」のような感じです。</p>
+<p class="in">選択の「<code>|</code>」は他の正規表現の構成要素に比べて優先順位が低いため、「<code>yes|no</code>」は「<code>"yes"</code> または <code>"no"</code>」と解釈され、「<code>"ye"</code> に続く <code>"s"</code> または <code>"n"</code>、さらに <code>"o"</code> が続いたもの」とは解釈されません。そういうパターンはグルーピングを使って「<code>ye(s|n)o</code>」と表現されます。</p>
+</section>
+<section id="chap1211" class="level2">
+<h3>アンカー</h3>
+<hr class="hr-gray" />
+<p class="in">今まで紹介したパターンは文字（の並び）とマッチするものでしたが、正規表現にはその他にも位置を特定するだけで文字とはマッチしないパターンがあります。それらをアンカーと呼びます。正規表現のアンカーを<a href="#table1203">表12.3</a>に示します。</p>
+<div class="table" id="table1203">
+<p class="tbl-caption">表12.3●繰り返し記法</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">表記</span></th>
+<th><span class="k">マッチ位置</span></th>
+</tr>
+<tr>
+<td><code>^</code></td>
+<td>行の先頭</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>行の末尾（改行があればその前）</td>
+</tr>
+<tr>
+<td><code>\A</code></td>
+<td>文字列の先頭</td>
+</tr>
+<tr>
+<td><code>\Z</code></td>
+<td>文字列の末尾（改行があればその前）</td>
+</tr>
+<tr>
+<td><code>\z</code></td>
+<td>文字列の末尾</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>語境界文字（<code>[]</code>外）</td>
+</tr>
+<tr>
+<td><code>(?= )</code></td>
+<td>パターンによる位置指定</td>
+</tr>
+<tr>
+<td><code>(?! )</code></td>
+<td>パターンの否定による位置指定</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap1212" class="level2">
+<a id="page_168"/>
+<h3>オプション</h3>
+<hr class="hr-gray" />
+<p class="in">正規表現の末尾の<code>/</code>の後ろにはその正規表現のためのオプションを指定できます。</p>
+<div class="plist">
+<pre><span class="mcm">/ruby/</span>i     <span class="cmt"># 大文字小文字無視</span>
+<span class="mcm">/a=#{a}/</span>o   <span class="cmt"># 一度だけ展開</span>
+<span class="mcm">/あい/</span>e     <span class="cmt"># 文字コードはEUC</span>
+<span class="mcm">/iあい/</span>ei   <span class="cmt"># 複数指定できる</span></pre>
+</div>
+<p class="in">指定できるオプションを<a href="#table1204">表12.4</a>に示します。</p>
+<div class="table" id="table1204">
+<p class="tbl-caption">表12.4●正規表現オプション一覧</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">オプション</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>i</code></td>
+<td>大文字小文字を区別しない</td>
+</tr>
+<tr>
+<td><code>m</code></td>
+<td>複数行マッチ、改行も通常文字とみなす</td>
+</tr>
+<tr>
+<td><code>o</code></td>
+<td>式展開を最初の一度だけ行う</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>正規表現中の空白を無視。コメントを有効に</td>
+</tr>
+<tr>
+<td><code>e</code></td>
+<td>EUC文字列だと仮定してマッチを行う</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td>SJIS文字列だと仮定してマッチを行う</td>
+</tr>
+<tr>
+<td><code>u</code></td>
+<td>UTF-8文字列だと仮定してマッチを行う</td>
+</tr>
+<tr>
+<td><code>n</code></td>
+<td>バイト列だとみなしてマッチを行う</td>
+</tr>
+</table>
+</div>
+<p class="in"><code>i</code>オプションを使うと正規表現マッチの際にアルファベットの大文字と小文字を区別しなくなります。<code>i</code>はignore caseのiです。</p>
+<p class="in"><code>o</code>オプションは式展開を一度しか行いません。正規表現でも文字列同様に式展開を行うことができるのですが、<code>o</code>オプションを付けるとこの展開を最初の一度だけに限定させることができます。<code>o</code>はonceのoです。</p>
+<p class="in"><code>m</code>オプションは複数行マッチモードです。通常、「<code>.</code>」は改行にマッチしませんし、「<code>^</code>」や「<code>$</code>」は文字列途中の改行にもマッチしますが、<code>m</code>オプションを使うと文字列全体が1つの行であると見なして、改行を特別扱いしなくなります。ですから、「<code>.</code>」は改行にマッチし、「<code>^</code>」は文字列先頭と、「<code>$</code>」は文字列末尾とだけマッチします。<code>m</code>はmulti-lineのmです。</p>
+<p class="in"><code>x</code>オプションは、正規表現に意味上の区切りに空白を入れたり、コメントを付けたりすることを許します。この拡張正規表現で、読みにくい正規表現を比較的わかりやすく記述することができます。</p>
+<div class="plist">
+<pre><span class="mcm">/\d{4}-?</span>    <span class="cmt"># 年</span>
+<span class="mcm">\d{1,2}-?</span>   <span class="cmt"># 月</span>
+<span class="mcm">\d{1,2}</span>     <span class="cmt"># 日</span>
+<span class="mcm">/x</span></pre>
+</div>
+<p class="ni"><code>x</code>オプションを付けた正規表現中に空白を入れたいときには「<code>\s</code>」を使います。<code>x</code>はextendedのxです。</p>
+<p class="in">残りの<code>e</code>, <code>s</code>, <code>u</code>, <code>n</code>は正規表現の文字コードを表します。それぞれEUC, SJIS, UTF-8, NONEを意味します。</p>
+</section>
+<section id="chap1213" class="level2">
+<a id="page_169"/>
+<h3>読解・正規表現</h3>
+<hr class="hr-gray" />
+<p class="in">では練習としていくつかの正規表現の意味を読解してみましょう。</p>
+<div class="description">
+<p class="ditem"><code>/FOO/</code></p>
+<p class="dni">「<code>FOO</code>」つまり「<code>F</code>」「<code>O</code>」「<code>O</code>」という文字の並び。</p>
+<p class="ditem"><code>/[A-Z][a-zA-Z1-9]*/</code></p>
+<p class="dni">アルファベット大文字で始まり、英数字が続く、Rubyの定数の識別子のパターン。</p>
+<p class="ditem"><code>/(Ruby)+/</code></p>
+<p class="dni">「<code>Ruby</code>」の1回以上の繰り返し、つまり、「<code>Ruby</code>」や「<code>RubyRuby</code>」や「<code>RubyRubyRuby</code>」……。</p>
+<p class="ditem"><code>/Dec,?/</code></p>
+<p class="dni">「<code>Dec</code>」の後「<code>,</code>」の0または1回の繰り返し。つまり、「<code>Dec</code>」または「<code>Dec,</code>」。</p>
+<p class="ditem"><code>/Sun|Mon|Tue|Wed|Thu|Fri|Sat/</code></p>
+<p class="dni">（英語の）曜日にマッチ。選択（<code>|</code>）は結合強度が弱いので、直前の文字でなく文字列が対象。</p>
+</div>
+</section>
+<section id="chap1214" class="level2">
+<h3>メソッド一覧</h3>
+<hr class="hr-gray" />
+<p class="in">さて、毎回恒例ですから、正規表現オブジェクトの持つメソッドを<a href="#table1205">表12.5</a>に示します。今まで紹介してきた配列、ハッシュ、文字列に比べてはるかに少ないメソッドしかないのが目立ちますね。6つしかありません。おまけにそのうち3つは同じメソッドの別名ですし。結局、正規表現オブジェクトの本質はマッチすることだけにあるということでしょう。</p>
+<div class="table" id="table1205">
+<p class="tbl-caption">表12.5●正規表現オブジェクトのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>re === str</code></td>
+<td>match</td>
+</tr>
+<tr>
+<td><code>re =~str</code></td>
+<td>match</td>
+</tr>
+<tr>
+<td><code>casefold?</code></td>
+<td>大文字小文字を無視するか</td>
+</tr>
+<tr>
+<td><code>kcode</code></td>
+<td>対応する文字コード</td>
+</tr>
+<tr>
+<td><code>match(str)</code></td>
+<td>マッチ</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>正規表現の文字列表現</td>
+</tr>
+</table>
+</div>
+<p class="in">一方、正規表現のクラスメソッドは<a href="#table1206">表12.6</a>のとおりです。これも少ないですね。</p>
+<div class="table" id="table1206">
+<p class="tbl-caption">表12.6●正規表現クラスのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>compile(str)</code></td>
+<td>正規表現</td>
+</tr>
+<tr>
+<td><code>escape(str)</code></td>
+<td>メタ文字のエスケープ</td>
+</tr>
+<tr>
+<td><code>last_match</code></td>
+<td>最後のマッチ情報</td>
+</tr>
+<tr>
+<td><code>new(str)</code></td>
+<td>compile</td>
+</tr>
+<tr>
+<td><code>quote(str)</code></td>
+<td>escape</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap1215" class="level2">
+<a id="page_170"/>
+<h3>正規表現の生成</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyでは正規表現オブジェクトを得る方法は、正規表現リテラルを使う方法と、正規表現クラスのクラスメソッドを使う方法とがあります。</p>
+<div class="plist">
+<pre><span class="mcm">/P.*l/</span>                 <span class="cmt"># 正規表現リテラル</span>
+Regexp.compile(<span class="str">&quot;P.*&quot;</span>)  <span class="cmt"># クラスメソッド</span></pre>
+</div>
+<p class="ni">前者は正規表現オブジェクトの生成がプログラムの読み込み時に一度しか行われないので、毎回文字列から正規表現を作り出す後者に比べて少々効率がよいです。しかし、プログラムの中で組み立てた文字列から正規表現を作るには後者のほうが自然です。</p>
+<p class="in">正規表現の元になる文字列の中にメタ文字が含まれている可能性があり、メタ文字に特別な意味を与えたくない場合には、メタ文字をエスケープして特別な意味をなくす必要があります。</p>
+<div class="plist">
+<pre>Regexp.escape(<span class="str">&quot;P.*&quot;</span>) =&gt; <span class="str">&quot;P\\.\\*&quot;</span></pre>
+</div>
+<p class="ni">この文字列から正規表現を作れば、文字列「<code>P.*l</code>」そのものとマッチする正規表現が得られます。</p>
+</section>
+<section id="chap1216" class="level2">
+<h3>正規表現マッチ</h3>
+<hr class="hr-gray" />
+<p class="in">正規表現マッチは <code>=~</code> メソッドか<code>match</code>メソッドを使います。<code>=~</code> メソッドはマッチが成功したとき、マッチした位置を示す整数を返します（文字列先頭がゼロ）。一方、<code>match</code>メソッドは成功したとき、マッチ情報を示す<code>MatchData</code>オブジェクトを返します。マッチしなかった場合にはいずれのメソッドも<code>nil</code>を返します。</p>
+<div class="plist">
+<pre><span class="mcm">/P.*l/</span> =~ <span class="str">&quot;Perl&quot;</span>      <span class="cmt"># =&gt; 0</span>
+<span class="mcm">/P.*l/</span>.match(<span class="str">&quot;Perl&quot;</span>)  <span class="cmt"># =&gt; #&lt;MatchData:0x401b8488&gt;</span></pre>
+</div>
+<p class="in">マッチに使われる <code>=~</code> メソッドは文字列クラスにも定義されているので、右辺と左辺を取り換えても同じ意味を持ちます。</p>
+<div class="plist">
+<pre><span class="str">&quot;Perl&quot;</span> =~ <span class="mcm">/P.*l/</span>      <span class="cmt"># =&gt; 0</span></pre>
+</div>
+<p class="in">ここで、注意すべき点は <code>=~</code> の両辺が文字列だった場合には、右側がパターンとして解釈される点です。</p>
+<div class="plist">
+<pre><span class="str">&quot;Perl&quot;</span> =~ <span class="str">&quot;P.*l&quot;</span>      <span class="cmt"># =&gt; 0=</span></pre>
+</div>
+</section>
+<section id="chap1217" class="level2">
+<h3>MatchData</h3>
+<hr class="hr-gray" />
+<p class="in"><code>match</code>メソッドの戻りである<code>MatchData</code>からは、マッチの位置、部分マッチ（かっこでくくられた部分）、そのオフセット、マッチした部分の前後の文字列などを取り出すことができます。</p>
+<p class="in"><code>MatchData</code>クラスのメソッドを<a href="#table1207">表12.7</a>に示します。</p>
+<div class="table" id="table1207">
+<a id="page_171"/>
+<p class="tbl-caption">表12.7●MatchDataクラスのメソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>m[n]</code></td>
+<td><code>n</code>番目の部分マッチ文字列</td>
+</tr>
+<tr>
+<td><code>begin(n)</code></td>
+<td><code>n</code>番目の部分マッチの先頭</td>
+</tr>
+<tr>
+<td><code>end(n)</code></td>
+<td><code>n</code>番目の部分マッチの末尾</td>
+</tr>
+<tr>
+<td><code>length</code></td>
+<td><code>size</code></td>
+</tr>
+<tr>
+<td><code>offset(n)</code></td>
+<td><code>n</code>番目の部分マッチの位置（先頭と末尾）</td>
+</tr>
+<tr>
+<td><code>post_match</code></td>
+<td>マッチした部分より後ろの文字列</td>
+</tr>
+<tr>
+<td><code>pre_match</code></td>
+<td>マッチした部分より前の文字列</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>部分マッチの数</td>
+</tr>
+<tr>
+<td><code>string</code></td>
+<td>マッチ対象の文字列</td>
+</tr>
+</table>
+</div>
+<p class="in">実際の使い方の例は以下のようになります。</p>
+<div class="plist">
+<pre>m = <span class="mcm">/a(.)(.)/</span>.match(<span class="str">&quot;abc&quot;</span>)
+m[0]         <span class="cmt"># =&gt; &quot;abc&quot; (マッチ全体)</span>
+m[1]         <span class="cmt"># =&gt; &quot;b&quot;   (最初のかっこ)</span>
+m.<span class="kwd">begin</span>(0)   <span class="cmt"># =&gt; 0     (マッチ全体)</span>
+m.<span class="kwd">begin</span>(1)   <span class="cmt"># =&gt; 1     (最初のかっこ)</span>
+m.offset(2)  <span class="cmt"># =&gt; [2,2] (2番目のかっこ)</span></pre>
+</div>
+</section>
+<section id="chap1218" class="level2">
+<h3>特殊変数</h3>
+<hr class="hr-gray" />
+<p class="in">RubyはPerl由来の特殊変数を持っています。「<code>$</code>」で始まるこれらの変数はプログラムを醜くする傾向があるのでしばしば嫌われますが、一度使えば書き捨てるような短いプログラムでは、記述がコンパクトになるメリットもあります。正規表現関係の特殊変数を<a href="#table1208">表12.8</a>に示します。</p>
+<div class="table" id="table1208">
+<p class="tbl-caption">表12.8●正規表現関連特殊変数</p>
+<table class="tbl04">
+<tr>
+<th><span class="k">表記</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>$~</code></td>
+<td>最後の<code>MatchData</code>（<code>Regexp.last_match</code>と同じ）</td>
+</tr>
+<tr>
+<td><code>$&amp;</code></td>
+<td>最後のマッチ文字列</td>
+</tr>
+<tr>
+<td><code>$`</code></td>
+<td>マッチより前の文字列</td>
+</tr>
+<tr>
+<td><code>$'</code></td>
+<td>マッチより後ろの文字列</td>
+</tr>
+<tr>
+<td><code>$+</code></td>
+<td>最後のかっこにマッチした文字列</td>
+</tr>
+<tr>
+<td><code>$n</code></td>
+<td><code>n</code>番目のかっこに対応する文字列（<code>n</code>は1, 2, 3 ... ）</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap1219" class="level2">
+<a id="page_172"/>
+<h3>文字列と正規表現</h3>
+<hr class="hr-gray" />
+<p class="in">正規表現は文字列とマッチするものですから、文字列との関わりがすべてです。前回解説した文字列オブジェクトにも正規表現を使うメソッドがたくさんあります。前回はあまり説明できなかった文字列オブジェクトで正規表現を使うものをここで解説しましょう。</p>
+<p class="in">文字列オブジェクトの正規表現関連メソッドは<a href="#table1209">表12.9</a>のとおりです。</p>
+<div class="table" id="table1209">
+<p class="tbl-caption">表12.9●文字列オブジェクトの正規表現関連メソッド</p>
+<table class="tbl01">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">説明</span></th>
+</tr>
+<tr>
+<td><code>s=~re</code></td>
+<td>マッチ</td>
+<td><code>rindex(re)</code></td>
+<td>後ろからの<code>index</code></td>
+</tr>
+<tr>
+<td><code>s[re]</code></td>
+<td>文字列一部の取得</td>
+<td><code>scan(re)</code></td>
+<td>繰り返しマッチ</td>
+</tr>
+<tr>
+<td><code>s[re]=v</code></td>
+<td>文字列一部の更新</td>
+<td><code>split(re)</code></td>
+<td>文字列分割</td>
+</tr>
+<tr>
+<td><code>index(re)</code></td>
+<td>部分文字列検索</td>
+<td><code>sub(re,str)</code></td>
+<td>文字列置換</td>
+</tr>
+<tr>
+<td><code>gsub(re,str)</code></td>
+<td>文字列置換</td>
+<td><code>sub!(re,str)</code></td>
+<td>文字列置換</td>
+</tr>
+<tr>
+<td><code>gsub!(re,str)</code></td>
+<td>文字列置換</td>
+<td></td>
+<td></td>
+</tr>
+</table>
+</div>
+<p class="in"><code>index</code>, <code>rindex</code>は部分文字列を探すメソッドですが、部分文字列の代わりに正規表現を指定することもできます。<code>[]</code>と<code>[]=</code>は文字列の一部を取り出すメソッドですが、位置の指定に正規表現を使うことができます。</p>
+</section>
+<section id="chap1220" class="level2">
+<h3>splitの神髄</h3>
+<hr class="hr-gray" />
+<p class="in">文字列の分割メソッドとして先月も紹介した<code>split</code>メソッドですが、実は正規表現と組み合わせることによってよりいろいろなことができるパワーを秘めているのです。</p>
+<p class="in">先月紹介したのは固定文字列（1文字）で分割する機能でした。</p>
+<div class="plist">
+<pre><span class="str">&quot;a,b,c&quot;</span>.split(<span class="str">&quot;,&quot;</span>)   <span class="cmt"># =&gt; [&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]</span></pre>
+</div>
+<p class="ni">しかし、正規表現でも分割できます。</p>
+<div class="plist">
+<pre><span class="str">&quot;a,b:c&quot;</span>.split(<span class="mcm">/[,:]/</span>) <span class="cmt"># =&gt; [&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]</span></pre>
+</div>
+<p class="ni">これは、「<code>,</code>」または「<code>:</code>」のいずれかで分割するという意味になります。もちろんもっと複雑なパターンもOKです。</p>
+<div class="plist">
+<pre>str.split(<span class="mcm">/&lt;.*?&gt;/</span>)</pre>
+</div>
+<p class="ni">これはHTML（またはXML）のタグの部分で分割し、地の文を配列として得ることができます。タグの部分を除いてしまうのではなく、そのまま残したければパターンをかっこでくくります。<code>split</code>はかっこでくくった部分を配列に含めるからです。</p>
+<div class="plist">
+<pre>str = <span class="str">&quot;&lt;ul&gt;&lt;li&gt;a&lt;li&gt;b&lt;/ul&gt;&quot;</span>
+str.split(<span class="mcm">/&lt;.*?&gt;/</span>) <span class="cmt"># 以下のように分割される</span>
+<span class="cmt"># [&quot;&quot;,&quot;&lt;ul&gt;&quot;,&quot;&quot;,&quot;&lt;li&gt;&quot;,&quot;a&quot;,&quot;&lt;li&gt;&quot;,&quot;b&quot;,&quot;&lt;/ul&gt;&quot;]</span></pre>
+</div>
+</section>
+<section id="chap1221" class="level2">
+<a id="page_173"/>
+<h3>文字列のscan</h3>
+<hr class="hr-gray" />
+<p class="in"><code>split</code>は分割する区切りに正規表現を使いましたが、<code>scan</code>のほうはマッチした部分を取り出すメソッドです。</p>
+<div class="plist">
+<pre><span class="str">&quot;foo&quot;</span>.scan(<span class="mcm">/./</span>)   <span class="cmt"># =&gt; [&quot;f&quot;, &quot;o&quot;, &quot;o&quot;]</span></pre>
+</div>
+<p class="in">正規表現がかっこを含む場合は、マッチごとにそれぞれのかっこにマッチした文字列の配列を追加するので、配列の配列を返します。</p>
+<div class="plist">
+<pre><span class="str">&quot;foo&quot;</span>.scan(/(.)(.)/)  <span class="cmt"># =&gt; [[&quot;f&quot;,&quot;o&quot;]]</span></pre>
+</div>
+<p class="in">ブロックを指定した場合には、マッチごとにその要素に対してブロックを実行します。</p>
+<div class="plist">
+<pre><span class="str">&quot;foobarbazfoobarbaz&quot;</span>.scan(<span class="mcm">/ba./</span>) {|s| p s}
+<span class="cmt"># 以下の行を出力:</span>
+<span class="cmt"># &quot;bar&quot;</span>
+<span class="cmt"># &quot;baz&quot;</span>
+<span class="cmt"># &quot;bar&quot;</span>
+<span class="cmt"># &quot;baz&quot;</span></pre>
+</div>
+<p class="in">これは</p>
+<div class="plist">
+<pre><span class="str">&quot;foobarbazfoobarbaz&quot;</span>.scan(<span class="mcm">/ba./</span>).each {|s| p s}</pre>
+</div>
+<p class="ni">と同じ動作ですが、無駄な配列を生成しないぶん少々効率がよくなっています。</p>
+</section>
+<section id="chap1222" class="level2">
+<h3>置換</h3>
+<hr class="hr-gray" />
+<p class="in">文字列のパターンに合致する部分を置き換えるためには置換のためのメソッドを使います。置換のためのメソッドは4つあって用途に応じて使い分けます（<a href="#table1210">表12.10</a>）。</p>
+<div class="table" id="table1210">
+<p class="tbl-caption">表12.10●置換メソッド</p>
+<table class="tbl07">
+<tr>
+<th><span class="k">メソッド</span></th>
+<th><span class="k">複数置換</span></th>
+<th><span class="k">文字列の書き換え</span></th>
+<th><span class="k">更新なしで<code>nil</code></span></th>
+</tr>
+<tr>
+<td><code>sub</code></td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+<tr>
+<td><code>sub!</code></td>
+<td>×</td>
+<td>○</td>
+<td>○</td>
+</tr>
+<tr>
+<td><code>gsub</code></td>
+<td>○</td>
+<td>×</td>
+<td>×</td>
+</tr>
+<tr>
+<td><code>gsub!</code></td>
+<td>○</td>
+<td>○</td>
+<td>○</td>
+</tr>
+</table>
+</div>
+<a id="page_174"/>
+<p class="in">つまり、<code>sub</code>メソッドはパターンに合致する最初の部分だけを置き換え、<code>gsub</code>（<code>g</code>はglobalのgです）メソッドは文字列のうちパターンに合致する部分すべてを置き換えます。また、メソッド名に「<code>!</code>」に付いたものは文字列そのものを置き換え、またパターンがマッチしなければ<code>nil</code>を返します。メソッド名に「<code>!</code>」が付かないものは、置換を行った文字列を返し、元の文字列は変更しません。</p>
+<div class="plist">
+<pre>a = <span class="str">&quot;abcabc&quot;</span>
+a.sub(<span class="mcm">/b/</span>, <span class="str">&#39;B&#39;</span>)   <span class="cmt"># =&gt; &quot;aBcabc&quot;(aは変化なし)</span>
+a.sub!(<span class="mcm">/b/</span>, <span class="str">&#39;B&#39;</span>)  <span class="cmt"># =&gt; &quot;aBcabc&quot;(aも更新)</span>
+a.sub!(<span class="mcm">/d/</span>, <span class="str">&#39;D&#39;</span>)  <span class="cmt"># =&gt; nil(マッチしないから)</span>
+
+a = <span class="str">&quot;abcabc&quot;</span>
+a.gsub(<span class="cmt">/b/</span>, <span class="str">&#39;B&#39;</span>)  <span class="cmt"># =&gt; &quot;aBcaBc&quot;</span></pre>
+</div>
+<p class="in">さて、パターンはたいていの場合固定的な文字列ではなく、いろいろな文字列にマッチします。そのような場合、マッチの結果に応じて置換する文字列を決めたいと考えるのは自然なことです。置換メソッドはそういうニーズに対して2つの方法で対応します。</p>
+<p class="in">1つは置換文字列の中でマッチ結果を表す一種のメタ文字を使う方法です。置換文字列リプレース中の <code>\&amp;</code>と <code>\0</code>はマッチした部分文字列に、<code>\1</code> … <code>\9</code>は<span class="f">n</span>番目のかっこの内容に置き換えられます。これらはそれぞれ「<code>$</code>」（マッチより前の文字列）、「<code>$'</code>」（マッチより後ろの文字列）、「<code>$+</code>」（最後のかっこに対するマッチ）に対応します。</p>
+<div class="plist">
+<pre>x = <span class="str">&quot;abcabc&quot;</span>
+x.sub(<span class="mcm">/[bc]/</span>, <span class="str">&#39;(\&amp;)&#39;</span>)   <span class="cmt"># =&gt; &quot;a(b)(c)abc&quot;</span></pre>
+</div>
+<p class="in">もう1つはブロックを使う方法です。置換メソッドの第2引数（置換文字列）を省略して、代わりにブロックを指定すると、正規表現にマッチした部分がそのブロックを実行した結果で置き換えられます。</p>
+<div class="plist">
+<pre><span class="str">&quot;foobarbazfoobarbaz&quot;</span>.gsub(<span class="mcm">/ba./</span>){|s|s.upcase}
+<span class="cmt"># =&gt; &quot;fooBARBAZfooBARBAZ&quot;</span></pre>
+</div>
+<p class="in">置換文字列については <code>$1</code>などの特殊変数を使えません。この文字列を評価する時点ではまだマッチが行われていないからです。また、「<code>"</code>」でくくった文字列の中では「<code>\</code>」はエスケープしなければならないので、置換文字列は「<code>'</code>」でくくることをお勧めします。</p>
+<div class="plist">
+<pre><span class="cmt"># 第二引数の指定でよくある間違い</span>
+<span class="str">&#39;abbbcd&#39;</span>.gsub(<span class="mcm">/a(b+)/</span>, <span class="str">&quot;#{$1}&quot;</span>)       <span class="cmt"># これは間違い</span>
+<span class="str">&#39;abbbcd&#39;</span>.gsub(<span class="mcm">/a(b+)/</span>, <span class="str">&quot;\1&quot;</span>)          <span class="cmt"># これも間違い</span>
+<span class="str">&#39;abbbcd&#39;</span>.gsub(<span class="mcm">/a(b+)/</span>, <span class="str">&quot;\\1&quot;</span>)         <span class="cmt"># これは正解</span>
+<span class="str">&#39;abbbcd&#39;</span>.gsub(<span class="mcm">/a(b+)/</span>, <span class="str">&#39;\1&#39;</span>)          <span class="cmt"># これも正解</span>
+<span class="str">&#39;abbbcd&#39;</span>.gsub(<span class="mcm">/a(b+)/</span>, <span class="str">&#39;\\1&#39;</span>)         <span class="cmt"># これも正解</span>
+<span class="str">&#39;abbbcd&#39;</span>.gsub(<span class="mcm">/a(b+)/</span>) { $1 }         <span class="cmt"># これも正解</span></pre>
+</div>
+<p class="ni">最初のものは、式展開は<code>gsub</code>の呼び出し前に行われることが間違いです。展開されるのはマッチ前の <code>$1</code>の値です。2番目のものは置換文字列を「<code>"</code>」でくくったため、「<code>\1</code>」が解釈されて「<code>\001</code>」、つまりバイト値の1に解釈されてしまいます。</p>
+</section>
+<section id="chap1223" class="level2">
+<a id="page_175"/>
+<h3>日付を取り出す</h3>
+<hr class="hr-gray" />
+<p class="in">ひとくちに「日付」といってもいろいろなフォーマットがあります。欧米でよく用いられる形式については、正規表現を使うよりも<code>parsedate</code>ライブラリを使うほうがよいでしょう。</p>
+<div class="plist">
+<pre>require <span class="str">&quot;parsedate&quot;</span>
+
+puts ParseDate.parsedate(str)
+<span class="cmt"># [年,月,日,時,分,秒,タイムゾーン,曜日]の配列を返す</span></pre>
+</div>
+<p class="in">しかし、<code>parsedate</code>は日本でよく用いられる「年月日」形式には対応していませんから、それに対応したものを書いてみましょう。</p>
+<div class="plist">
+<pre>num = <span class="str">&quot;(?:[0-9]|[０-９])+&quot;</span>
+re = Regexp.new(<span class="str">&quot;#{num}年 ?#{num}月 ?#{num}日&quot;</span>, 0, <span class="str">&quot;euc&quot;</span>)
+p re
+ARGF.each <span class="kwd">do</span> |line|
+  p line
+  m = re.match(line)
+  puts m[0] if m
+<span class="kwd">end</span></pre>
+</div>
+<p class="in">注意すべき点は、日本語文字列の数字には全角と半角の両方があることと、文字コードが違えばマッチしないことです。ここでは全角半角両方の数字にマッチするパターン<code>num</code>を埋め込むことで、両方に対応し、<code>Regexp.compile</code>の引数として文字コード名 <code>"euc"</code> を指定しています。</p>
+<p class="in">これで、</p>
+<div class="plist">
+<pre>2002年4月8日
+２００２年４月８日
+2002年４月８日</pre>
+</div>
+<p class="ni">などを日付として認識できます。</p>
+</section>
+<section id="chap1224" class="level2">
+<h3>HTMLファイルから「URLのようなもの」を取り出す</h3>
+<hr class="hr-gray" />
+<p class="in">HTMLファイルからURLのように見える部分を切り出すと、簡単なリンク集が作れます。以下のスクリプトは引数で指定したファイルからURLのように見える部分を切り出します。</p>
+<div class="plist">
+<pre>ARGF.read.scan(<span class="mcm">/(?:http|ftp):[^ &quot;)]+/</span>) <span class="kwd">do</span> |match|
+  puts match
+<span class="kwd">end</span></pre>
+</div>
+</section>
+<section id="chap1225" class="level2">
+<a id="page_176"/>
+<h3>典型的なスペルミスを探す</h3>
+<hr class="hr-gray" />
+<p class="in">文章を編集しているうちに助詞（「てにをは」のこと）が並んでしまうことがよくあります。たとえば、</p>
+<div class="plist">
+<pre>シンプルな文法</pre>
+</div>
+<p class="ni">という文章の「シンプル」を「簡潔」に変更するときに、まず「シンプル」を削除した後、思わず「簡潔な」と「な」まで含めて入力してしまうと、</p>
+<div class="plist">
+<pre>簡潔なな文法</pre>
+</div>
+<p class="ni">という文章が残ります。こういうミスをチェックするのが以下のスクリプトです。</p>
+<div class="plist">
+<pre>ARGF.each <span class="kwd">do</span> |line|
+  print ARGF.file.path, <span class="str">&quot; &quot;</span>, 
+        ARGF.file.lineno, <span class="str">&quot;:&quot;</span>, 
+        line <span class="kwd">if</span> line.gsub!(<span class="mcm">/([あ-ん])\1/</span>e, <span class="str">&#39;[[\&amp;]]&#39;</span>)
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">このスクリプトは引数に与えたファイルをチェックして、助詞の重なりのように見える部分を<code>[[ ]]</code>でくくって教えてくれます。行の長さの関係で折り返していますが、特に折り返す必要はありません。これを今月の原稿に適用するとこうなります（<a href="#fig1201">図12.1</a>）。</p>
+<div class="figconsole" id="fig1201">
+<div class="borderconsole">
+<pre>200205.rd 32:後者は少々難しいルール[[をを]]表現していますね。この細部の
+200205.rd 59:     日本語では「私[[はは]]」のような助詞の連結のミスが
+200205.rd 177:後説明する「繰り返し」[[とと]]もに使われます。
+200205.rd 202:[[ここ]]で注意すべき点が2つあります。
+200205.rd 208:なく2個の並びにマッチするこ[[とと]]、文字列中でもっとも
+200205.rd 248:で[[くく]]って「(ma)+」とします。
+200205.rd 413:置、部分マッチ（かっこで[[くく]]られた部分）、そのオフセッ
+200205.rd 461:ものを[[ここ]]で解説しましょう。
+200205.rd 510:  簡潔[[なな]]文法
+200205.rd 686:のうち99%くらいはその[[まま]]動作するよう
+200205.rd 728:とはいうも[[のの]]、長い間「いつかやろう」
+200205.rd 729:と思い[[つつ]]、取り掛からなかったことには</pre>
+</div>
+<p class="fig-caption">図12.1●実行結果</p>
+</div>
+<p class="in">32行目に間違いがありますね。直しとかなきゃ。「ここ」とか「そのまま」など間違いでないものも多数引っかかっていますが、原稿を目で見てチェックするのに比べれば、ずいぶん効率的です。</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-024.xhtml">&lt;&lt; 前ページ</a>　<a href="p-026.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

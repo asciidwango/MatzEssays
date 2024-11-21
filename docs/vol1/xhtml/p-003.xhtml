@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第2章 オブジェクト指向スクリプト言語Ruby</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第2章</p>
+<!-- Body -->
+<section id="chap02" class="level1">
+<a id="page_023"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">2</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">Free Language Report</span><br />
+オブジェクト指向スクリプト言語<br />Ruby
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">C Magazine</span>, 1999年8月号]</p>
+<div class="newlead">
+<p class="in"><a href="p-002.xhtml#chap01">第1章</a>とほぼ同じ時期の記事です。こちらは内部実装ではなく、言語そのものを紹介する記事ですね。実際にRubyを使っている人のインタビューがあるのもいいですね。</p>
+<p class="in">興味深いのは「楽しいプログラミング」というスローガンがすでに登場しているところです。1998年に開催されたPerl Conference Japanでゲストスピーカーとして講演したときにはまだこのスローガンは登場していませんから、Rubyの代名詞と言えるこのスローガンが固まったのは1999年頃であると考えてよいでしょう。ちょうどこの頃は、同じ年の秋に出版されたRubyを取り扱った最初の書籍になる『オブジェクト指向スクリプト言語Ruby』（アスキー）の原稿を執筆中だったはずですから、その中で思いついたスローガンだったのではないかと思います。もう20年以上前のことなのですっかり忘れてしまっていますが。</p>
+</div>
+<div class="lead">
+<p class="ni">読者の方はどんな開発環境を使っているのでしょうか?　もしかしたら今使っている開発環境よりもすばらしい環境がネットワーク上で配布されているかもしれません。本連載では、そのときの旬ともいうべきフリーソフトウェア/シェアウェアの開発環境を1つ取り上げ、その特徴と実際にどのようなプログラムを作ることができるかを深く解説していきます。今回はスクリプト言語にオブジェクト指向を取り入れたRubyについて解説します。</p>
+</div>
+<section id="chap0201" class="level2">
+<h3>Rubyとは?</h3>
+<hr class="hr-gray" />
+<p class="ih">「Ruby」とは筆者によって開発された比較的新しいオブジェクト指向スクリプト言語です。Rubyは ’93年に開発が始まりました。いわば ’80年代生まれのPerlやPythonよりも若い言語です。実際、Perl（真珠は6月の誕生石）を意識して、Ruby（ルビーは7月の誕生石）と名付けられています。</p>
+<a id="page_024"/>
+<p class="in">Rubyはプログラミング言語とオブジェクト指向の大好きな人間（筆者のこと）が、多数の言語の特徴を踏まえつつ、自分好みの理想の言語の追求の結果、生まれた言語です。そのため、スクリプト言語を作ろうとしてできた言語ではなく、理想の言語を追求したら結果としてスクリプト言語になったのいうのが実情です。</p>
+<div class="table" id="table0201">
+<p class="tbl-caption">表2.1●Rubyの概要</p>
+<table class="tbl01">
+<tr>
+<td><span class="k">名称</span></td>
+<td>Ruby</td>
+</tr>
+<tr>
+<td><span class="k">バージョン</span></td>
+<td>1.3.4（開発版）/ 1.2.6（安定版）</td>
+</tr>
+<tr>
+<td><span class="k">形態</span></td>
+<td>オブジェクト指向スクリプト言語</td>
+</tr>
+<tr>
+<td><span class="k">作者</span></td>
+<td>まつもとゆきひろ</td>
+</tr>
+<tr>
+<td><span class="k">主な配布先</span></td>
+<td><span class="link">http://www.netlab.co.jp/ruby/jp/</span></td>
+</tr>
+<tr>
+<td><span class="k">対応プラットホーム</span></td>
+<td>Linux, FreeBSD, BSD/OS, Solaris, AIX, HP/UX, その他多くのUNIX系OS, BOW, Windows 95/98/NT, MS-DOS, Mac, BeOS, OS/2, NEXTSTEP, その他</td>
+</tr>
+</table>
+</div>
+<section id="chap020101" class="level3">
+<h4>Rubyの特徴</h4>
+<p class="in">主要な特徴としては、</p>
+<ul>
+<li><p>フリーソフトウェア</p></li>
+<li><p>インタプリタによる手軽さ</p></li>
+<li><p>強力な組み込み機能</p></li>
+<li><p>オブジェクト指向による統一感</p></li>
+<li><p>どこでも動くポータビリティ</p></li>
+<li><p>小さなプログラムから大きなプログラムまでカバーするスケーラビリティ</p></li>
+</ul>
+<p class="ni">があります。もう少し細かくRubyの特徴をあげると、</p>
+<ul>
+<li><p>型宣言が不要</p></li>
+<li><p>書きやすく読みやすい文法</p></li>
+<li><p>イテレータ</p></li>
+<li><p>例外処理機能</p></li>
+<li><p>システムプログラミング</p></li>
+<li><p>ネットワークプログラミング</p></li>
+<li><p>メモリ管理が不要</p></li>
+<li><p>Cによる拡張が容易</p></li>
+<li><p>ダイナミックローディング</p></li>
+<li><p>スレッド機能</p></li>
+</ul>
+<p class="ni">などがあります。</p>
+<p class="in">RubyはもともとUNIX生まれで、開発は主にLinux上で行われています。しかし、現在では多くのプラットフォームに移植されています。現在動作が確認されているプラットフォームは<a href="#table0201">表2.1</a>のとおりです。</p>
+</section>
+<section id="chap020102" class="level3">
+<a id="page_025"/>
+<h4>Rubyのインストール</h4>
+<p class="in">UNIX系のOSの場合、ソースコードを展開したあと、</p>
+<div class="borderconsole">
+<pre>configure
+make
+make install</pre>
+</div>
+<p class="ni">の手順でインストールできます。他の環境では、それぞれのドキュメントを見てインストールしてください。なお、原稿執筆時点での最新バージョンは1.3.4です（付録CD-ROMに収録）。また、安定版の最新バージョンは1.2.6です（付録CD-ROMに収録）。</p>
+</section>
+</section>
+<section id="chap0202" class="level2">
+<h3>Rubyの役割</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyはオブジェクト指向スクリプト言語としての前述した特徴により、「お手軽プログラミング」を応援します。具体的なRubyの適用分野としては次のようなものが考えられます。もっともこれらはほんの一例にすぎません。</p>
+<section id="chap020201" class="level3">
+<h4>テキスト処理</h4>
+<p class="in">テキスト処理はスクリプト言語の本来の目的と言っても過言ではありません。Rubyは強力なファイルクラス、文字列クラスと組み込みの正規表現機能によってテキストを自由自在に操作できます。それにRubyは国産ですから、日本語（EUC, SJIS, UTF-8）の操作も自然にできます。</p>
+</section>
+<section id="chap020202" class="level3">
+<h4>CGI</h4>
+<p class="in">インタラクティブなWebページを提供するCGI（Common Gateway Interface）プログラムは現在Perlの独擅場と言っても過言ではないでしょう。しかし、CGIプログラムの本質はテキスト処理であり、もともとRubyに向いた分野であるといえます。現在では普及の度合いでPerlに負けているとはいえ、スクリプト言語としての性質と、書きやすさ、読みやすさからCGIにおけるRubyの将来は明るいと信じています。</p>
+</section>
+<section id="chap020203" class="level3">
+<h4>ネットワークプログラミング</h4>
+<p class="in">Rubyの持つソケットクラスライブラリは非常に簡単にネットワークプログラミングを実現できます。従来ならばCなどによる複雑な手続きによって実現されていたものを簡単なスクリプトで書けるのです。あとで紹介しますが、特別なライブラリを使わずにそこそこちゃんとしたHTTPクライアントをわずか20行程度で記述できるのはなかなか感動モノです。最新のRubyでは、まだ実験段階ですがIPv6ソケット機能も提供されています。</p>
+</section>
+<section id="chap020204" class="level3">
+<a id="page_026"/>
+<h4>GUI</h4>
+<p class="in">Tcl/Tkの成功により、GUI（Graphical User Interface）がスクリプト言語に向いていることはすでに証明されたと思います。GUIはせいぜい人間の反応速度に追いつけば十分なので、それほど実行速度を要求しないからです。</p>
+<p class="in">Rubyは<code>Tk</code>インターフェイス、<code>Gtk</code>インターフェイスを始めとするGUIライブラリを持っていて、お手軽GUIプログラミングを支援しています。このGUIライブラリを利用してIMAP4メールリーダーSGmail（後述）のようなかなり規模の大きなものも開発されています。</p>
+</section>
+<section id="chap020205" class="level3">
+<h4>XMLプログラミング</h4>
+<p class="in">XML（eXtensible Markup Language）はスタイルではなく、データ構造を表現するためのマークアップ言語です。XMLの処理は基本的にテキスト処理なのでスクリプト言語に向いた領域です。XMLはUnicodeを扱うことができなければならないと決められていますが、Rubyは日本語の標準的なエンコーディングであるEUCとSJISに加えてUTF-8を標準でサポートしていますから、そういう観点からもXML向きといえます。</p>
+<p class="in">RubyのXML対応としては、吉田正人氏によってXMLパーサーの「expat」に対するインターフェイスライブラリが開発されています。なお、RubyのUTF-8対応も吉田氏によるものです。</p>
+<p class="in">RubyによるXMLプログラミングや<code>expat</code>インターフェイスについては、吉田さんのページ（<span class="link">http://www.yohidam.net/</span>）を参照してください。</p>
+</section>
+<section id="chap020206" class="level3">
+<h4>プロトタイピング</h4>
+<p class="in">スクリプト言語は小さめのプログラムを対象にすることが多いですが、決して小さいプログラム専用というわけではありません。特にRubyはオブジェクト指向機能によるモジュール化機能などのおかげで、他のスクリプト言語では無理がある大きいプログラムでも自然にプログラムできます。これによりどのようなプログラムでもインタプリタ言語の生産性をそのまま生かして開発することができます。</p>
+<p class="in">この生産性により本格的なプログラムのプロトタイプの開発に用いられることもありますし、実行速度などの事情が許せば、そのまま本番のアプリケーションとして採用できることも多いと思います。速度的に問題のある部分だけをC言語などで記述するというのもよく取られるアプローチです。</p>
+</section>
+<section id="chap020207" class="level3">
+<h4>プログラミング教育</h4>
+<p class="in">Rubyはとっつきやすく、またプログラムをすぐに実行できますから、プログラミング教育用の言語としても適しています。ただし、「『教育用にも使える』とあれば教育用にしか使えない」というマーフィーの法則はRubyには当てはまりません:-)。</p>
+<p class="in">教育用プログラミング言語としてRubyを見る場合、オブジェクト指向やスレッドプログラミングなどのやや目新しい機能まで手軽に使える点が重要です。改めて考えてみると、オブジェクト指向機能やスレッド機能が自由に使えるお手軽な言語というのはなかなかないようです。オブジェクト指向機能を持つスクリプト言語はあっても、多くはその機能は後付けで統一感に欠ける場合が多いようです。Rubyはそのようなところもカバーします。</p>
+</section>
+</section>
+<section id="chap0203" class="level2">
+<a id="page_027"/>
+<h3>Rubyの設計思想「楽しいプログラミング」</h3>
+<hr class="hr-gray" />
+<p class="in">ここで機能や役割ではなく、Rubyを真に特徴付けている「設計思想」について語りましょう。それは「楽しいプログラミング」です。</p>
+<p class="in">本来、プログラミングは楽しいものです。無から有を創り出す創造的な活動であるというだけでなく、問題を解決するパズル的な楽しみをも提供してくれます。しかし、コンピュータが融通の効かない堅物であることを反映して、プログラミングには面倒な約束事がつきものです。決まりきった設定や、事細かな宣言などは「気軽なプログラミング」には不要です。Rubyはこのようなプログラミングの面倒な側面をできるだけ取り除くことで、楽しい側面に集中できることを目指しています。</p>
+<p class="in">たとえば、</p>
+<ul>
+<li><p>思ったことがすぐに実行に移せる</p></li>
+<li><p>重要でないことはしなくてよい</p></li>
+<li><p>気を付けることが少なくてよい</p></li>
+<li><p>よくやることは簡単に</p></li>
+<li><p>やろうと思えば何でもできる</p></li>
+</ul>
+<p class="ni">などは、Rubyが持つ性質の一部です。Rubyがインタプリタ型の言語なのも、変数に宣言が不要なのもみなこの目的のためです。</p>
+<p class="in">このような「使いやすさ」というのは人間の心理的性質を反映しています。人間の心というのは難しいもので、単純でも複雑でも使いにくいと感じるようです。結局は重要なのはバランスであり、Rubyは「設計者が使いやすいと感じるバランス」に基づいて設計されています。そのバランスに共感できる方は、Rubyを使っていて楽しいと感じられることでしょう。</p>
+</section>
+<section id="chap0204" class="level2">
+<h3>Rubyプログラミング入門</h3>
+<hr class="hr-gray" />
+<p class="in">さて、一般的な紹介はこのくらいにして実際のRubyのプログラムを見てみましょう。まずは定番の<code>hello world</code>です（<a href="#list0201">リスト2.1</a>）。</p>
+<div class="plistc" id="list0201">
+<p class="lst-caption">リスト2.1●“hello world”を表示するスクリプト</p>
+<pre><span class="cmt"># ハローワールド</span>
+print <span class="str">&quot;hello world\n&quot;</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">このままでは、あまり面白くありませんね。言語の特徴もそれほど出ていません。実際このプログラムをPerlに読ませるとそのまま実行してしまいます。</p>
+<p class="in">もう少しだけ複雑な例を見てみましょう。以下はUNIXの標準的なコマンドであるgrepのサブセットです（<a href="#list0202">リスト2.2</a>）。grepは第1引数で指定した正規表現のパターンにマッチする行を出力します。</p>
+<a id="page_028"/>
+<div class="plistc" id="list0202">
+<p class="lst-caption">リスト2.2●“grep”と同じ処理をするスクリプト</p>
+<pre><span class="cmt"># 4行で書くgrep</span>
+pat = Regexp.compile(ARGV.shift)
+<span class="kwd">for</span> line <span class="kwd">in</span> ARGF
+  print line <span class="kwd">if</span> pat.match(line)
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+<p class="in"><a href="#list0202">リスト2.2</a>は小さなプログラムですが、これくらいでもRubyの特徴を知ることができます。たとえば、制御構造が<code>end</code>で終わることがわかります。これはややPascalを思い出させる文法ですね。他にも以下のような文法の特徴がわかると思います。</p>
+<ul>
+<li><p>変数に宣言がいらない</p></li>
+<li><p>Perl譲りの後置<code>if</code>がある</p></li>
+<li><p>スクリプト引数は<code>ARGV</code>に入っている</p></li>
+<li><p>引数を連結した内容は<code>ARGF</code>で読み込める</p></li>
+<li><p><code>pat.match(line)</code>でメソッド呼び出し</p></li>
+</ul>
+<p class="in">Rubyは組み込みクラスである文字列（<code>String</code>）、正規表現（<code>Regexp</code>）、配列（<code>Array</code>）、ハッシュ（<code>Hash</code>）、数値（<code>Numeric</code>）、入出力（<code>IO</code>）の各クラスが非常に強力で、これらだけでかなりの仕事ができます。</p>
+<p class="in">スクリプト言語の得意分野であるこのような小さなプログラムをいくつか紹介しましょう（<a href="#list0203">リスト2.3</a>）。</p>
+<div class="plistc" id="list0203">
+<p class="lst-caption">リスト2.3●ファイルに行番号を付けるスクリプト</p>
+<pre><span class="cmt"># ファイルに行番号をつける</span>
+<span class="kwd">while</span> gets()
+  print $., <span class="str">&quot;&quot;</span>, $_
+<span class="kwd">end</span>
+
+<span class="cmt"># πの計算</span>
+print Math.atan2(1,1)*4, <span class="str">&quot;&quot;</span>
+
+<span class="cmt"># 入力ファイルの&quot;From &quot;を含む行を印刷する</span>
+ARGF.each{|line| print line if <span class="mcm">/^From /</span> =~ line}
+
+<span class="cmt"># 引数で指定したファイル名を小文字にそろえる</span>
+ARGV.each{|path| File.rename(path, path.downcase)}
+
+<span class="cmt"># 文字コードを自動判別してJISに変換するフィルタ</span>
+require <span class="str">&quot;kconv&quot;</span>
+ARGF.each{|line| print Kconv.tojis(line)}</pre>
+<hr class="hr-gray" />
+</div>
+<a id="page_029"/>
+<p class="in"><a href="#list0203">リスト2.3</a>では、</p>
+<pre><code>ARGF.each{...}</code></pre>
+<p class="ni">という表現が出てきました。これは<code>ARGF</code>の各要素（各行）に対して繰り返しを行うという意味です。このようなメソッドは「イテレータ」と呼ばれ、繰り返す処理を抽象化しています。つまり、<code>{...}</code> という形で与えられた処理（ブロックと呼ぶ）を各要素に対して評価することで、要素の取り出しや終了チェックなど処理をメソッドにすべて任せてしまうことができるわけです。Rubyはこのようなイテレータを自由に定義できることが特徴の1つとしています。</p>
+<section id="chap020401" class="level3">
+<h4>Rubyを使ったソケット操作</h4>
+<p class="in">さて、次にはもう少しだけ大きめのスクリプトを見てみましょう。<a href="#list0204">リスト2.4</a>に示すのは、URLの存在チェックを行うHTTPクライアントです。</p>
+<div class="plistc" id="list0204">
+<p class="lst-caption">リスト2.4●HTTPページチェッカー</p>
+<pre><span class="cmt"># 最小のHTTPページチェッカー</span>
+require <span class="str">&#39;socket&#39;</span>
+
+url = <span class="str">&quot;http://localhost/&quot;</span>
+host, port, path = <span class="str">&quot;localhost&quot;</span>, 80, <span class="str">&quot;/&quot;</span>
+<span class="kwd">if</span> <span class="mcm">%r#http://(.*?)(?::(\d+))?(/.*)#</span> =~ ARGV[0]
+  url = ARGV[0]
+  host = $1
+  port = Integer($2) if $2
+  path = $3
+<span class="kwd">end</span>
+
+<span class="kwd">begin</span>
+  s = TCPsocket::open(host, port)
+  s.print <span class="str">&quot;HEAD #{path} HTTP 1.0\r\n\r\n&quot;</span>
+  <span class="kwd">if</span> <span class="mcm">/^HTTP.*? 200 OK/i</span> =~ s.read
+    printf <span class="str">&quot;URL&lt;%s&gt; exists\n&quot;</span>, url
+    exit
+  <span class="kwd">end</span>
+<span class="kwd">rescue</span>
+<span class="kwd">end</span>
+printf <span class="str">&quot;URL&lt;%s&gt; does not exist\n&quot;</span>, url</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">このスクリプトをURLを引数に実行するとHTTPサーバーにアクセスして、そのページが存在するかどうかを判定してくれます。ただし、現状ではHTTP以外のプロトコルには対応していないので、任意のURLというわけにはいきませんが、これでも結構役に立つと思います。</p>
+<a id="page_030"/>
+<p class="in">このスクリプトは正規表現を使ってURLの解析を行い、ソケットクラスを使ってHTTPサーバーに接続しています。あとはHTTPサーバーの反応を正規表現でチェックして、ページが存在するかどうかを表示することになります。</p>
+<p class="in">Rubyではプログラムの実行中に発生したエラーは例外という形で報告されます。例外が発生するとプログラムの実行は中断されます。また<code>rescue</code>節があると、そこで捕捉することができます。HTTPページチェッカーでは、<code>begin</code>から<code>rescue</code>までの範囲内で発生するすべての例外をまとめて捕捉しています。これにより、たとえば、</p>
+<ul>
+<li><p>実行したマシンがネットワークにつながってない</p></li>
+<li><p>指定したホストが存在しない</p></li>
+<li><p>ホストでHTTPサーバーが動作していない</p></li>
+</ul>
+<p class="ni">などの問題が発生すると直ちに<code>rescue</code>節にジャンプします。<a href="#list0204">リスト2.4</a>のその部分には何もないので、そのまま処理の続きを実行することになります。このような問題が発生する場合には、「指定されたページは存在しない」とみなすことができるので、そのまま「存在しない」と表示すればOKです。</p>
+<p class="in">このようにエラーに対して例外が発生することによって個別の問題に対してユーザーがいちいちチェックする必要がなくなっています。</p>
+</section>
+<section id="chap020402" class="level3">
+<h4>RubyのGUI操作</h4>
+<p class="in">次にRubyではGUIも手軽であるところを見てみましょう。<a href="#list0205">リスト2.5</a>はボタンを1つだけ持つGUIプログラムです。</p>
+<div class="plistc" id="list0205">
+<p class="lst-caption">リスト2.5●GUI操作サンプルスクリプト</p>
+<pre><span class="cmt"># Ruby/Tk</span>
+require <span class="str">&#39;tk&#39;</span>
+TkButton.new(<span class="kwd">nil</span>, <span class="str">&#39;text&#39;</span>=<span class="str">&gt;&#39;hello&#39;</span>, <span class="str">&#39;command&#39;</span>=&gt;<span class="str">&#39;exit&#39;</span>).pack
+Tk.mainloop</pre>
+<hr class="hr-gray" />
+</div>
+<p class="in">これまでに説明してきたソケットや<code>Tk</code>インターフェイスは、Rubyインタプリタに組み込みの機能ではなく、拡張ライブラリと呼ばれる追加機能です。Rubyではこのような拡張ライブラリを用いてインタプリタに機能を追加することができます。ソケットや<code>Tk</code>インターフェイス以外にも次のような拡張ライブラリがあります（ほんの一部です）。</p>
+<ul>
+<li><p><code>Socket</code>インターフェイス</p></li>
+<li><p><code>DBM</code>インターフェイス</p></li>
+<li><p><code>MD5</code>インターフェイス</p></li>
+<li><p><code>Gtk</code>インターフェイス</p></li>
+<li><p><code>GD</code>ライブラリインターフェイス</p></li>
+<li><p><code>curses</code>インターフェイス</p></li>
+<li><a id="page_031"/><p><code>PostgreSQL</code>インターフェイス</p></li>
+<li><p><code>MySQL</code>インターフェイス</p></li>
+<li><p><code>Oracle</code>インターフェイス</p></li>
+</ul>
+</section>
+</section>
+<section id="chap0205" class="level2">
+<h3>Rubyにおけるオブジェクト指向とは?</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyはオブジェクト指向スクリプト言語だといいながら、ここまでの説明ではオブジェクト指向プログラミングにつきものの「クラス定義」だとか「継承」がまったく登場しなかったのにお気付きでしょうか。</p>
+<p class="in">もちろん、Rubyにもクラス定義や継承の機能はありますし、それらを活用したオブジェクト指向プログラミングはRubyの得意分野でもあります。しかし、Rubyのオブジェクト指向プログラミングの本質は「扱うデータがすべてオブジェクトである」ことにあります。あらゆるデータを統一的にオブジェクトとして扱うことができることが重要なのです。Rubyのプログラムは、一見通常の非オブジェクト指向言語のプログラムと同様に見える場合が多いのですが、その実態は「データはすべてオブジェクト」「手続きはすべてメソッド」とかなり徹底してオブジェクト指向しています。このような「すでに定義されているクラスを活用するオブジェクト指向プログラミング」はRubyの支援するプログラミングスタイルです。Rubyに組み込みの主要なクラスライブラリを<a href="#fig0201">図2.1</a>に示します。</p>
+<div class="fig" id="fig0201">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch02/2-1.jpg" alt="fig0201" />
+  </div>
+  <p class="fig-caption">図2.1●Rubyの主要クラスライブラリ</p>
+</div>
+<p class="in">強力なクラスライブラリを利用した手軽なオブジェクト指向プログラミングの例として、時間の計算をあげてみましょう。2000年問題を意識して「2000年1月1日は何曜日か」という問題を考えてみましょう。多くの言語では何十行ものプログラミング必要になりそうですが、Rubyなら、</p>
+<div class="plist">
+<pre>p Time.mktime(2000,1,1)</pre>
+</div>
+<p class="ni">の1行だけです。実行すると、“Sat Jan 01 00:00:00 JST 2000”と表示され、土曜日であることがわかります。ここでは時刻表現のための<code>Time</code>クラスが面倒な計算を引き受けてくれています。</p>
+<p class="in">既存のクラスを利用するオブジェクト指向プログラミングの次の段階として、クラスやモジュールを定義するより高度なオブジェクト指向プログラミングが待っているわけです。</p>
+<a id="page_032"/>
+<p class="in">ここではより高度なオブジェクト指向プログラミングについてはこれ以上は説明しませんが、クラス定義の実例は紹介しておきます（<a href="#list0206">リスト2.6</a>）。あまり実用的な例ではありませんが、基本的な仕組みはわかるはずです。</p>
+<div class="plistc" id="list0206">
+<p class="lst-caption">リスト2.6●Rubyによるクラス定義</p>
+<pre><span class="kwd">class</span> Person
+  <span class="kwd">def</span> initialize(name)
+    @name = name
+  <span class="kwd">end</span>
+  <span class="kwd">def</span> say
+    print <span class="str">&quot;I&#39;m #{@name}.\n&quot;</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span>
+
+<span class="cmt"># Personを継承したStudentの定義</span>
+<span class="kwd">class</span> Student&lt;Person
+  <span class="kwd">def</span> study
+    print <span class="str">&quot;studying...\n&quot;</span>
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+<hr class="hr-gray" />
+</div>
+</section>
+<section id="chap0206" class="level2">
+<h3>Rubyの「気持ち良さ」の秘密</h3>
+<hr class="hr-gray" />
+<p class="in">ここまでで、ある程度Rubyのプログラムの雰囲気をつかめていただけましたでしょうか?</p>
+<p class="in">限られた誌面でまったく新しいプログラミング言語を紹介することは難しいことです。Ruby言語の詳しい説明はRubyホームページにあるリファレンスマニュアル（<span class="link">http://www.netlab.co.jp/ruby/jp/man-1.3</span>）を参照していただくとして、ここからは再びRubyの設計思想に注目して、その「使いやすさ」「楽しさ」「気持ち良さ」の理由を追求してみたいと思います。</p>
+<p class="in">もともとプログラミング言語のできることは機能という観点から考えると、特定の目的に限定されたものを除けば、実行効率などといった以外の点ではどれも大差はありません。ですから、言語の違いはその「できること」ではなく、むしろその「使い勝手」によって発生します。そして、多くの場合にはほんのわずかの言語仕様の違いが大きな使い勝手の違いを生みます。ここでは、その「違い」について説明しましょう。</p>
+<section id="chap020403" class="level3">
+<h4>インタプリタ型言語</h4>
+<p class="in">Rubyはインタプリタ型の言語ですから、コンパイルやリンクなどの手順なしにプログラムをいきなり実行できます。バグを修正したらすぐに再実行できます。プログラミング、実行、修正、再実行のサイクルを非常に素早く回せるのは、古き良きBASICの時代のような快適さです。</p>
+<a id="page_033"/>
+<p class="in">インタプリタ型言語の欠点はコンパイル型の言語に比べて実行速度が遅いことですが、幸いなことにコンピュータの実行速度はどんどん向上しています。今や一昔前のスーパーコンピュータなみのCPUパワーが手元にある時代です。もはやほとんどの分野で実行速度の遅さは問題にならなくなっています。</p>
+</section>
+<section id="chap020404" class="level3">
+<h4>高機能言語</h4>
+<p class="in">ほとんどの場合、プログラマーは事細かなデータ構造や<ruby>些細<rt>ささい</rt></ruby>なアルゴリズムを考えるよりももっと仕事の本質に集中できれば、と考えていると思います。</p>
+<p class="in">Rubyは日常生活のプログラミングで最もよく使うと思われる機能が、クラスライブラリという形で組み込まれています。多彩な文字列処理機能や正規表現を含めて、数値、配列、ハッシュなどのRubyの組み込み機能は非常に強力で、やりたい仕事を簡単に片付けることができます。</p>
+<p class="in">また、もともとRubyには組み込まれていない機能でも、拡張ライブラリを使ってどんどん取り込んでいくことができます。拡張ライブラリによってRubyはますます強力に、ますます使いやすくなります。</p>
+</section>
+<section id="chap020405" class="level3">
+<h4>簡潔な表現</h4>
+<p class="in">Rubyはプログラミングが簡潔になる言語です。変数の宣言は必要ありませんし、組み込みのクラスライブラリが高機能であることも手伝って、多くの場合「やりたいこと」だけに集中できます。たとえば、引数で指定されたファイル群の各行を逆順でソートして出力したければ、</p>
+<div class="plist">
+<pre>print ARGF.readlines.sort.reverse</pre>
+</div>
+<p class="ni">だけで済みます。これは「<code>ARF</code>の内容を読み込んで（<code>readline</code>）、ソートして（<code>sort</code>）、反転（<code>reverse</code>）する」と読みます。日本語の語順で連ねて記述できるのが気持ち良いですね。</p>
+<p class="in">プログラミングの「約束事」に縛られず、プログラミングの本質に集中できるのは気持ちの良いことです。よくアルゴリズムの説明にいわゆる約束事を省略した疑似コードを使うことがありますが、Rubyはその疑似コードと同じような高いレベルの記述をそのまま実行することができます。また、コンパクトなプログラムが書けるので、手軽に問題を片付けるのにぴったりです。</p>
+<p class="in">しかし、簡潔な表現は度が過ぎるとプログラムが暗号になってしまうという問題もはらんでいます。簡潔な表現によってプログラムを圧縮しすぎると読めないプログラムを大量生産してしまうことになります。このことはPerlユーザーがよく経験していることではないでしょうか。</p>
+<p class="in">Rubyは次に述べるバランスのとれた文法によってこの問題に対応しています。</p>
+</section>
+<section id="chap020406" class="level3">
+<h4>シンプルでバランスのとれた文法</h4>
+<p class="in">プログラミング言語の文法は言語設計者の最大の関心事です。文法は言語の性質や使い勝手を決める重要な要素です。</p>
+<p class="in">プログラミング言語はいろいろな局面で使われますから、あらゆる状況に対応するために文法が肥大する傾向があります。言語設計者としてはよさそうな機能をどんどん取り込みたいという気持ちは理解できます。しかし、文法が大きすぎると今度は破綻します。古くはPL/IやAda、最近ではC++のような言語がこの症状に陥っています。大きすぎる文法によって全容を把握できないような言語は結果として使いにくくなってしまいます。</p>
+<a id="page_034"/>
+<p class="in">覚えることは少ないほうがよいですから、小さめの文法のほうが望ましいのですが、小さければよいというわけではありません。たとえばアセンブラは非常に小さな文法を持つ言語ですが、これが使いやすいという人はそんなにいないと思います。また、LispやSmalltalkは文法の小さい言語として知られていますが、単純すぎるせいで、かえって特異な文法となり、人間にとって自然な表記でなくなって、なじみにくかったり、熱狂的なファン以外には広く受け入れられなかったりしています。</p>
+<p class="in">スクリプト言語は歴史的には用途限定の簡易言語であったので、文法にあまり気を使わなかったり、あるいは特定の目的に特化した文法を持つことが多かったようです。目的に特化した文法は確かにその目的には便利ですが、逆にその言語の適用範囲を狭めることになりがちです。</p>
+<p class="in">そこで、結論としては、文法もバランスが大切だということです。大きく複雑すぎる文法も、小さく単純すぎる文法も結局は使いにくい言語となってしまいます。適度に高機能で、適度に単純な言語こそが本当に使いやすい言語になり得るのだと思います。もっとも使いやすさには多分に主観が入るので難しいのですが。</p>
+<p class="in">Rubyでは、</p>
+<ul>
+<li><p>覚えることが少なくて済む単純な（ように見える）文法</p></li>
+<li><p>やりたいことがすっきり書ける程度の高機能な文法（演算子とか正規表現など）</p></li>
+<li><p>将来の拡張に備えた汎用的な文法</p></li>
+</ul>
+<p class="ni">などに気を使っています。</p>
+</section>
+<section id="chap020407" class="level3">
+<h4>メモリ管理からの解放</h4>
+<p class="in">オブジェクト指向言語は実行に伴い、大量のオブジェクトを割り当てます。これらのオブジェクトを管理して、いつ不要になるかを検出するのは苦痛が伴います。はっきりいうとそんなことを気にするよりもプログラマーにはもっと他にやりたいことがたくさんあります。</p>
+<p class="in">Rubyはガベージコレクトと呼ばれるメモリ管理機能を持っています。この機能により、もうどこからも参照されなくなったオブジェクトはインタプリタが自動的に検出して、解放してくれます。これで機械的で非人間的なメモリ管理から解放されます。</p>
+</section>
+<section id="chap020408" class="level3">
+<h4>エラーチェックからの解放</h4>
+<p class="in">Rubyの「面倒からの解放」はメモリ管理にとどまりません。Rubyは例外機能によって、エラーチェックからもプログラマーを解放してくれます。</p>
+<p class="in">例外についてはすでに説明しましたが、この機能により、個別のエラーチェックを省略することができて楽ちんなだけでなく、エラーを検出しないまま異常な処理を行ってしまう事態を自動的に避けられます。それでいてエラーに対処したいときにはきちんと対処できる柔軟性も持ちあわせています。</p>
+</section>
+<section id="chap020409" class="level3">
+<a id="page_035"/>
+<h4>オブジェクト指向による統一感</h4>
+<p class="in">Rubyではあらゆるデータがオブジェクトです。文字列や数値あるいは配列のような基本的なデータ構造を特別扱いする言語が多い中で、Rubyでは言語全体がオブジェクトというモデルで統一されています。</p>
+<p class="in">人間の意識は例外を嫌います。たとえば文字列の扱いが特殊であれば一瞬「えーと、どうだったっけな」と悩むことになります。この微細な「悩み」がプログラマーへのストレスとなり、「気持ち良さ」を阻害します。Rubyが純オブジェクト指向言語であるということはそういう観点からも「使いやすさ」を支援しています。</p>
+</section>
+<section id="chap020410" class="level3">
+<h4>抽象化</h4>
+<p class="ih">「抽象化」とは「詳細を<ruby>隠蔽<rt>いんぺい</rt></ruby>して、より高いレベルで処理する」ことで、プログラミング上の重要な概念の1つです。たとえば一連の手続きを関数としてまとめることは「手続きの抽象化」と呼ぶことができます。「手続きの抽象化」の具体的な例として、階乗を求める手続きは、</p>
+<div class="plist">
+<pre><span class="kwd">def</span> fact(n)
+  <span class="kwd">if</span> n == 1
+    1
+  <span class="kwd">else</span>
+    n*fact(n-1)
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">のように定義できます。このようにしておけば、あとは階乗をどのように計算するのかその方法を忘れてしまっても、</p>
+<div class="plist">
+<pre>fact(10)</pre>
+</div>
+<p class="ni">とすることで計算できます。</p>
+<p class="in">Rubyは抽象化を支援することに力を注いでいます。たとえば、</p>
+<ul>
+<li><p>メソッド（関数）による手続きの抽象化</p></li>
+<li><p>オブジェクトによるデータ構造の抽象化</p></li>
+<li><p>例外によるエラー処理の抽象化</p></li>
+<li><p>ブロックによるループの抽象化（イテレータ）</p></li>
+</ul>
+<p class="ni">などがそうです。</p>
+<p class="in">抽象化において重要なのは「詳細を上手に隠すこと」です。つまり、抽象化機能で詳細を隠蔽されたものは、あたかもその機能が最初から存在していたかのように自然に内部を隠すことが望ましいということです。</p>
+<p class="in">具体的にはユーザー定義のクラスやオブジェクトに対して不自然な区別や制限を与えないことです。いくつかの言語、特にスクリプト言語ではこの部分が不十分で、ユーザー定義の手続きの呼び出し方が組み込みの手続きと違っていたり、ユーザー定義オブジェクトの機能が組み込みオブジェクトに対して劣っていたりします。Rubyの設計は、組み込みの機能とユーザー定義の機能とのアクセス手段の違いができるだけ起きないようにして、このような制限がないように気を使っています。</p>
+</section>
+<section id="chap020411" class="level3">
+<a id="page_036"/>
+<h4>拡張ライブラリが簡単</h4>
+<p class="in">Rubyはインタプリタにもともと組み込まれている機能だけでなく、拡張ライブラリを取り込んで機能を強化することができます。しかも、多くのOSでは、この機能を実行時に取り込むことができます。もっとも、この機能はRubyの専売特許ではなく、最近のスクリプト言語であるPerlやPythonなどでも同様の機能があります。</p>
+<p class="in">これら他言語と比べてRubyの拡張ライブラリ機能の優れた点は、大きくいうと2つあります。</p>
+<p class="in">まず第一の点は拡張ライブラリの中でのメモリ管理が自動化されていることです。Rubyは今使われているオブジェクトを自動的に検出するガベージコレクタを採用していますから、拡張ライブラリの中で明示的にメモリ管理を行う必要がありません。他言語ではオブジェクトの参照数の管理などが発生しますし、それを忘れると面倒なエラーの原因になりますから、これは非常にうれしい点です。</p>
+<p class="in">もう1つの点は、Cで記述された拡張ライブラリ内で（言語による記法の違いはともかく）ほぼ同等以上のことができることです。拡張ライブラリでできることに制約のある言語が多い中、この点は当り前のようで当り前でない利点です。</p>
+<p class="in">このような利点により「楽に」拡張ライブラリを開発できることで、Rubyの「楽さ」と「気軽さ」はますます強められます。</p>
+<div class="column">
+<p class="column-title">コラム1: Ruby利用者インタビュー／<br />
+鴫原厚博<span class="fonttiny">（しぎはらあつひろ）</span>さん<br />
+<span class="fonttiny">聞き手: まつもとゆきひろ</span></p>
+<p class="in">実際にRubyを使ってプログラムを開発している人の生の声を聞いてみましょう。最初はIMAP4 MUA（Mail User Agent）である鴫原さんです。</p>
+<p><br /></p>
+<p class="ni"><span class="k">— まずは自己紹介をお願いします。</span></p>
+<p class="in">鴫原厚博といいます。アサカネットというプロバイダのネットワーク管理を<ruby>生業<rt>なりわい</rt></ruby>にしています。</p>
+<p class="ni"><span class="k">— SGmailとはどのようなものですか?</span></p>
+<p class="in">SGmailは、Ruby/Tkで書いたIMAPをサポートしたXのGUIで動くMUAです（<a href="#fig0202">図2.2</a>, <a href="#fig0203">図2.3</a>、付録CD-ROMに収録）。基本的には、WindowsやMacのMUAと同じような機能を持っていますが、</p>
+<ul>
+<li><p>常時接続、オンデマンド接続モードがある</p></li>
+<li><p>MIMEメールの受信に対応している</p></li>
+<li><p>URLクリックでNetscapeが立ち上がる</p></li>
+<li><p>マルチサーバー／マルチユーザーサポート</p></li>
+<li><p>アドレス帳などをメールボックスに置ける</p></li>
+<li><p>自動振り分け機能がある</p></li>
+<li><p>アドレスメニューから宛先が選択できる</p></li>
+<li><a id="page_037"/><p>宛先と連動したシグネチャ選択機能</p></li>
+<li><p>SSHを使った暗号化トンネリング機能</p></li>
+<li><p>Windowsでも動く（一部制限あり）</p></li>
+</ul>
+<p class="ni">などを特徴としています。IMAPの良さを生かした作りにしようと思っています。また、SSHでトンネリングする機能は他のMUAにはない機能だと思っています。</p>
+<div class="fig" id="fig0202">
+  <!-- <div class="image40"> -->
+  <div class="image300">
+      <img src="../image/ch02/2-2.jpg" alt="fig0202" />
+  </div>
+  <p class="fig-caption">図2.2●SGmailの起動画面</p>
+</div>
+<div class="fig" id="fig0203">
+  <!-- <div class="image80"> -->
+  <div class="image600">
+      <img src="../image/ch02/2-3.jpg" alt="fig0203" />
+  </div>
+  <p class="fig-caption">図2.3●SGmailの実行画面</p>
+</div>
+<p class="in">SGmailはGPLライセンスのもとで配布を行っています。ソースコードなどは、</p>
+<ul class="none">
+<li><p><span class="link">http://www.sgmail.org/</span></p></li>
+</ul>
+<p class="ni">のホームページから入手できます。メーリングリストもあり、</p>
+<ul class="none">
+<li><p>sgmail-list@sgmail.org</p></li>
+</ul>
+<p class="ni">で最新の情報を流しています。興味のある方はぜひ参加してください。</p>
+<p class="ni"><span class="k">— なぜRubyを選んだのですか?</span></p>
+<p class="in">Tcl/Tk, Perl/Tk, Ruby/Tkを比較検討した結果、</p>
+<ul>
+<li><p>Perlに言語のコンセプト（お手軽というところ^^;）が似ている</p></li>
+<li><p>Perl, Tclより大規模なプログラミングに向いている（ように思った）</p></li>
+<li><p>日本語環境が比較的良好</p></li>
+</ul>
+<p class="ni">ということで、Ruby/Tkで作成することにしました。また、初めての言語でチャレンジしてみよう、という気持もありました。</p>
+<p class="ni"><span class="k">— Rubyプログラミングで気付いたことはありますか?</span></p>
+<p class="in">Rubyを使ってみて「オブジェクト指向もこういう言語なら使いやすいものになるんだな」と再認識しました。</p>
+<p class="in">また、手軽にRubyで書いたアプリケーションを動かすという意味で、Ruby/Gtkコンパイラがあるとよいですね。</p>
+<p class="ni"><span class="k">— Rubyの良い点、困った点はありますか?</span></p>
+<p class="in">やはり、「柔軟で手軽な、しかし本格的なオブジェクト指向」「プロトタイピングに優れている」点が良いです。</p>
+<p class="in">困った点としては、やはりTk関係のドキュメントが少ないことがありますね。</p>
+<a id="page_038"/>
+<p class="ni"><span class="k">— 今後の構想などはありますか?</span></p>
+<p class="in">現在、実験版の開発を行っていて、</p>
+<ul>
+<li><p>POP3モード</p></li>
+<li><p>MIME送信</p></li>
+<li><p>PGP/MIME</p></li>
+<li><p>Plug-in</p></li>
+</ul>
+<p class="ni">などを実装する予定です。</p>
+<p class="in">Tkを使うと一部Tclを使う部分がありますので、できればGtkで動くようにしたいと思っています。</p>
+<p class="in">また、SGmailだけではなく、SGftpとか、SGircとか、GUIを使ったアプリケーションファミリーを構成していきたいと思っています。UNIX以外のOSでの計画として、</p>
+<ul>
+<li><p>Windows版のフル機能化</p></li>
+<li><p>MacOS版</p></li>
+<li><p>BeOS版</p></li>
+</ul>
+<p class="ni">なども考えています。</p>
+<p class="in">MacOS版に関しては、SGmail仲間に協力してもらっていますが、MacRuby、Mac版Tcl/Tkなどとの絡みもあり、思うようにいっていません。Mac版の開発に協力していただける方を探しています。</p>
+<p class="in">Rubyとともにより多くのOSで動作するようにしたいと思っていますので「私の環境でも動かしたい」という方がいらっしゃいましたら、ぜひSGmailの開発に参加していただきたいです。</p>
+<p class="ni"><span class="k">— これからRubyを始めようとする人に先輩として一言お願いします。</span></p>
+<p class="in">Rubyを通して、プログラミングの楽しさや、面白さを発見してもらいたいです。そしてRubyの良さをじっくりと「味わって」みてください。</p>
+</div>
+<div class="column">
+<p class="column-title">コラム2: Ruby利用者インタビュー／<br />
+松尾尚典<span class="fonttiny">（まつおひさのり）</span>さん<br />
+<span class="fonttiny">聞き手: まつもとゆきひろ</span></p>
+<p class="in">次のインタビューは、Webを使った会合調整サーバーであるMeeting2000の作者の松尾さんのお話をうかがいました。</p>
+<p><br /></p>
+<p class="ni"><span class="k">— まずは自己紹介をお願いします。</span></p>
+<p class="in">松尾尚典といいます。世間的には男、32歳、独身、メーカー勤務、趣味ゴルフ、宴会好きなどという属性を持ちます。インターネット業界的には、ForUs（<span class="link">http://www.forus.or.jp/</span>）の会長をやっています。またそのメンバーとして、いくつかのフリーウェアを出してきました。</p>
+<p class="in">ご連絡などのメールは、</p>
+<a id="page_039"/>
+<ul class="none">
+<li><p>matsuo@present.forus.or.jp</p></li>
+</ul>
+<p class="ni">へお願いします。</p>
+<p class="ni"><span class="k">— Meeting2000とはどのようなものですか?</span></p>
+<p class="in">会合調整サーバー「Meeting2000」は、会合の幹事にとって最も難しい作業の1つである、参加者の確定および日程や場所の決定作業を支援するWeb上のアプリケーションシステム（付録CD-ROMに収録）です。そのためにシステムは、</p>
+<ul>
+<li><p>幹事として、参加予定者の都合を収集したい会合を登録する機能</p></li>
+<li><p>参加予定者が、自分の都合を入力する機能</p></li>
+<li><p>これらの情報を一覧表示する機能</p></li>
+<li><p>幹事が、参加予定者の都合に合わせて会合の設定を変更する機能</p></li>
+</ul>
+<p class="ni">を備えています。このシステムを利用すれば、会合をより容易に開催することができるようになります。特に会合を開くことの多いコミュニティの方は、ぜひお試しください。作った僕がいうのもなんですが、正直、恐ろしく便利です^^。</p>
+<p class="ni"><span class="k">— なぜRubyを選んだのですか?</span></p>
+<p class="in">生産性が（僕にとっては）最も高いというのが大きな理由です。</p>
+<p class="in">Ruby以前にはPerl 4を使っていました。Perl 4も生産性がかなり高い言語だと思います。僕もフリー物ではMeeting2000の前身のadj<code>_</code>meeting他、Nifty4UというのもPerl 4で書きました。実際Perl 4を気に入っていたのですが、Perl 5が出てからはあえて4を使うのもなんだし、かといって5は何だかなぁという感じで、使いたいと思う言語がありませんでした。Javaもそこそこいいんですけどね、まぁそこそこ。</p>
+<p class="in">そんなときにRubyと出合い、その書きやすさ、気持ち良さに惚れてしまったわけです。特に僕がアプリケーションを作る道具としての必要十分さ加減が、ちょうどいい感じなのです。書きたいところだけ書けて、あまり手をかけたくないなぁと思うところは書かなくて済む。それが僕にとって書きやすく、気持ちよいと感じるところだと思います。</p>
+<p class="in">Web上でドキュメントを眺めたときに、ビビビッ（すでに死語）ときましたね。</p>
+<p class="in">実のところ、私はコードを書くのがそんなに好きなわけではありません。ニーズを見つけ、要求を定義し、分析するまでが好きなのです。実装は誰か他の人がやってくれる、というのが一番^^;　そんな私が選ぶぐらいのRubyの生産性の高さがすばらしいと思います。</p>
+<p class="ni"><span class="k">— Rubyの良い点、困った点はありますか?</span></p>
+<p class="in">まつもとさんが一人で開発されている、というのがRubyの良い方、悪い方の両方に出ていると思います。</p>
+<p class="in">良い点は、まつもとさんが一人で開発されているので言語として一貫している、というところです。コードを書いていても言語のせいで迷うことがないし、まつもとさんの言語設計、実装基準を信頼しているという意味で、まつもとさんが開発している限り将来も付き合っていける安心感があります。</p>
+<a id="page_040"/>
+<p class="in">悪い点は、まつもとさんが一人で開発されているので、まつもとさんに何かあったらどうなるんだ、っていう心配です。この前のRuby Conference（’99年3月に行われた宴会）でお聞きしたのですが、そのときはどなたかがあとを継ぐ、ということになってはいるそうです。でもねぇ……。</p>
+<p class="in">他には現時点では本がないとか、メーリングリストの流量が大きすぎるとか、が困ったところです^^;</p>
+<p class="ni"><span class="k">— 今後の展開などをお聞かせください。</span></p>
+<p class="in">Meeting2000は僕にとっては便利なアプリケーションで、今の自分が必要とする機能はあらかた盛り込んであります。それゆえにMeeting2000としての大幅な機能強化は実はあまり考えていません。「英語化」リクエストがいくつか、まつもとさんからもあがっているので、それだけはいつか何とかするつもりです。</p>
+<p class="in">これだけではなんですので、もうちょっと述べますと、Meeting2000も含めた将来構想として「グループウェアサーバー」を作るかもしれません。これは、Meeting2000などのWeb上で動作するグループウェアのプラットホームとなるものです。これがあるとグループウェアを作るのが楽だよ、みたいな感じです。</p>
+<p class="in">グループウェアを書きたい方はこの構想にご協力くださいませんか?　ruby-listメーリングリスト（本文参照）にて連絡をお待ちします。</p>
+</div>
+</section>
+</section>
+<section id="chap0208" class="level2">
+<h3>Rubyに関する情報/文献</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyに関する情報の入手法は以下のようなものがあります。</p>
+<section id="chap02080001" class="level4">
+<h5>Rubyホームページ</h5>
+<p class="ni"><span class="link">http://www.netlab.co.jp/ruby/</span>（英語）<br />
+<span class="link">http://www.netlab.co.jp/ruby/jp/</span>（日本語）</p>
+<p class="i2w">本家本元です。開発者（私）が直接メンテしています。Rubyに関するあらゆる情報がここから入手できます。</p>
+</section>
+<section id="chap02080002" class="level4">
+<h5>Ruby Application Archive</h5>
+<p class="ni"><span class="link">http://www.netlab.co.jp/ruby/jp/raa.html</span></p>
+<p class="i2w">Rubyで書かれたアプリケーションやライブラリなどの情報が集まっています。</p>
+</section>
+<section id="chap02080003" class="level4">
+<h5>Unofficial Ruby Home Page</h5>
+<p class="ni"><span class="link">http://ruby.freak.ne.jp/</span></p>
+<p class="i2w">「Unofficial」とはいいながら充実した情報がウリのページです。特に過去のメーリングリストのトピックが整理されているのが便利です。</p>
+</section>
+<section id="chap02080004" class="level4">
+<a id="page_041"/>
+<h5>FTPサイト（ソースコード入手先）</h5>
+<p class="in">最新のソースは<a href="#table0202">表2.2</a>から入手できます。回線が遅い場合にはミラーサイトをご利用ください。付録CD-ROMには、最新版が収録されています。</p>
+<div class="table" id="table0202">
+<p class="tbl-caption">表2.2●Rubyの配布先</p>
+<table class="tbl02">
+<tr>
+<td><span class="k">場所</span></td>
+<td><span class="k">URL</span></td>
+</tr>
+<tr>
+<td>一次配布場所</td>
+<td><span class="link">ftp://ftp.netlab.co.jp/pub/lang/ruby/</span></td>
+</tr>
+<tr>
+<td>東京インターネットの<br />ミラーサイト</td>
+<td><span class="link">ftp://ftp.tokyonet.ad.jp/pub/misc/ruby/</span></td>
+</tr>
+<tr>
+<td>IIJのミラーサイト</td>
+<td><span class="link">ftp://ftp.iij.ad.jp/pub/lang/ruby/</span></td>
+</tr>
+<tr>
+<td>長岡技科大のミラーサイト</td>
+<td><span class="link">ftp://blade.nagaokaut.ac.jp/pub/lang/ruby/</span></td>
+</tr>
+<tr>
+<td>熊本地域ネットワーク<br />（IIJ下流）のミラーサイト</td>
+<td><span class="link">ftp://ftp.krnet.ne.jp/pub/ruby/</span></td>
+</tr>
+<tr>
+<td>名古屋商科大学の<br />ミラーサイト</td>
+<td><span class="link">ftp://mirror.nucba.ac.jp/mirror/ruby</span><br /><span class="link">http://mirror.nucba.ac.jp/mirror/ruby</span></td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap02080005" class="level4">
+<h5>CVSリポジトリ</h5>
+<p class="ni"><span class="link">:psrever:anonymous@cvs.netlab.co.jp</span>（パスワードはguest）</p>
+<p class="i2w">CVSを使って最新のソースコードを入手できます。場合によってはまだリリースされていない「本当の最新」が入手できることもあります。開発中のソースコードはバグを含んでいる場合もありますから、やや上級者向けです。</p>
+</section>
+<section id="chap02080006" class="level4">
+<h5>CVSWEB</h5>
+<p class="ni"><span class="link">http://cvs.netlab.co.jp/cgi-bin/cvsweb/ruby/</span></p>
+<p class="i2w">CVSリポジトリの内容をWebから参照できます。</p>
+</section>
+<section id="chap02080007" class="level4">
+<h5>メーリングリスト</h5>
+<p class="in">メーリングリストはRubyに関するあらゆる情報の宝庫です。<a href="#table0203">表2.3</a>のようにジャンルによって分かれています。非常に活発に質問や議論が行われています。参加するためには、</p>
+<ul class="none">
+<li><p>ruby-xxx-ctl@netlab.co.jp</p></li>
+<li><p>（xxxにはそれぞれlist, dev, ext, talkが入る）</p></li>
+</ul>
+<p class="ni">に本文に、subscribeと書いたメールを出します。</p>
+<div class="table" id="table0203">
+<p class="tbl-caption">表2.3●Rubyに関するメーリングリストの種類</p>
+<table class="tbl02">
+<tr>
+<td><span class="k">メールアドレス</span></td>
+<td><span class="k">内容</span></td>
+</tr>
+<tr>
+<td>ruby-list@netlab.co.jp</td>
+<td>一般向け</td>
+</tr>
+<tr>
+<td>ruby-dev@netlab.co.jp</td>
+<td>開発者向け</td>
+</tr>
+<tr>
+<td>ruby-ext@netlab.co.jp</td>
+<td>拡張ライブラリ開発者向け</td>
+</tr>
+<tr>
+<td>ruby-talk@netlab.co.jp</td>
+<td>英語</td>
+</tr>
+</table>
+</div>
+</section>
+<section id="chap02080008" class="level4">
+<a id="page_042"/>
+<h5>ネットニュース</h5>
+<p class="ni"><span class="link">fj.comp.lang.ruby</span></p>
+<p class="i2w">Rubyのことを話し合うためのニュースグループも存在します。もっともメーリングリストに流量がとられてしまって、それほど記事は流れていません。もっと活用されてもよいのにな、と思います。</p>
+</section>
+<section id="chap02080009" class="level4">
+<h5>書籍</h5>
+<p class="in">現在執筆中です。年内に数冊出版される予定です。</p>
+</section>
+</section>
+<section id="chap0209" class="level2">
+<h3>まとめ</h3>
+<hr class="hr-gray" />
+<p class="in">今回はオブジェクト指向スクリプト言語Rubyを簡単に紹介し、さらにその根底にある思想について語りました。しかし、Rubyの「楽しさ」や「使いやすさ」は単なる説明ではとても伝わりません。実際に使ってみることで実感できると思います。どうぞRubyを使ってみて自分の経験でRubyの良さを理解してください。そして、「楽しいプログラミング」を。Happy Hacking.</p>
+</section>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-002.xhtml">&lt;&lt; 前ページ</a>　<a href="p-004.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第7章 条件判断とループ</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　第7章</p>
+<!-- Body -->
+<section id="chap07" class="level1">
+<a id="page_079"/>
+<span class="chap-title">Matz Essay</span><span class="chap-num">7</span>
+<hr class="chap-hr" />
+<h2>
+<span class="fontsmall">初等Ruby講座</span><br />
+条件判断とループ
+</h2>
+<hr class="chap-hr" />
+<p class="right">[<span class="it">Linux magazine</span>, 2001年12月号]</p>
+<div class="newlead">
+<p class="in">Rubyはブロックの終わりを<code>end</code>で表現するという現代では珍しくなってしまった文法を採用しているのですが、「知られざるRuby」のコーナーでは、その背景を説明しています。言語をデザインするときに、どんなことを考えながらデザインしているかうかがえる記事になっているのではないでしょうか。</p>
+<p class="ih">「開発日記」では「Linux Conference 2001」のことを紹介しています。ここでは実験的なVMと世代別GCについて発表されました。この実装が現在のRubyに直接取り込まれたわけではありませんが、このような研究があったからこそ、その後のRuby実装の改善が実現したと言えるでしょう。この頃から考えると、20年の間に信じられないほどの投資と技術的改善が行われました。</p>
+</div>
+<div class="lead">
+<p class="ni">プログラムはコンピュータに対する手順書だと考えることができます。今回はその手順書の「読み進め方」に当たる手順の制御方法について学びます。かなり基本的な部分ですので、プログラムの知識・経験のある方は雑学の部分だけを楽しんでください。</p>
+</div>
+<section id="chap0701" class="level2">
+<h3>おことわり</h3>
+<hr class="hr-gray" />
+<p class="in">最初に白状しておきますが、私は数学がダメです。昔から全然ダメなんです。よくコンピュータは理系的といわれますが、私は学校は理系にいましたが（コンピュータがどうしてもやりたかったので）、頭の中身は文系でした。大学時代は周りのみんなについていけずに悩んだものでした。</p>
+<p class="in">なぜわざわざこんなことをいうかというと、今回の記事中に何度か「証明」という単語が（数学的な意味で）出てくるからです。もちろん私に何かを証明することができるはずもなく、これは誰かが証明したと言っているのをそのまま真に受けているという意味です。まあ、間違ってはいないと思いますが……。</p>
+</section>
+<section id="chap0702" class="level2">
+<a id="page_080"/>
+<h3>プログラミング基礎の基礎</h3>
+<hr class="hr-gray" />
+<p class="in">昔々、アラン・チューリングという名前の天才がいました。この人はイギリスで第二次世界大戦中の暗号解読に大きな成果をあげた人ですが、コンピュータ関係の基礎を打ち立てた人でもあります。彼の考え出したことが今のコンピュータの理論的背景になっているのです。</p>
+<p class="in">たとえば、彼の考え出したことの1つに「チューリングテスト」というものがあります。これは「機械が知性を持つかどうか判定する」というテストです。これは自分の相手が完全に見えない状態、たとえばスクリーンを経由して、対話を行うというものです。相手が人間であるかコンピュータであるか教えられずに、ある程度の時間対話したうえで区別することができるかどうかをテストします。もし、対話を通して人間とコンピュータを区別することができなければ、それはコンピュータが十分に知性を持つことを意味しているとしてもよいというのが彼の結論です。なんだかカンプフ・フォークトテスト<a href="#fn1" class="footnote-ref" id="fnref1" epub:type="noteref" role="doc-noteref">1</a> みたいですね。</p>
+<p class="in">彼は「チューリングマシン」という概念も考え出しました。チューリングマシンは、左右に無限の長さを持つテープと1つの読み書きヘッドによって構成される機械で、ヘッドがテープからデータを読み取り、それに従って記号操作を行い、その結果をテープに書き込むことを繰り返すことによって一種の計算を行います（<a href="#fig0701">図7.1</a>）。</p>
+<div class="fig" id="fig0701">
+  <!-- <div class="image50"> -->
+  <div class="image400">
+      <img src="../image/ch07/07-1.jpg" alt="fig0701" />
+  </div>
+  <p class="fig-caption">図7.1●チューリングマシン</p>
+</div>
+<p class="in">これは（まだ当時はコンピュータは存在していませんでしたが）、一種の仮想的なコンピュータで、彼はこの単純な機械によってあらゆるアルゴリズムが表現可能であることを証明したのです。いや、その証明は私には理解できませんが（笑）。</p>
+<p class="in">チューリングマシンは非常に原始的な「コンピュータ」なので、あらゆるアルゴリズムが表現可能であっても、実際にこれでプログラムを行うのは現実的ではありません。しかし、あらゆる「アルゴリズムが表現可能である」ためにはそれほどたいした機能が必要ではないということがわかります。</p>
+<p class="in">チューリングマシンの単純さは、プログラミング言語がその本来の目的を果たすために必要な最低限の機能がとても小さいことを示しています。たとえばRubyの場合、そのリファレンスであるヤギ本（『Rubyデスクトップリファレンス』オライリー、ISBN4–87311–023–8）で、言語そのものを解説した部分が全138ページ中、たったの24ページしかないことからもうかがえます。</p>
+<p class="in">チューリングマシンについてもっと知りたい人は、</p>
+<ul class="none">
+<li><p><span class="link">http://www.jaist.ac.jp/~u-ryo/notes/class/ida/CognitiveScience/turing.html</span></p></li>
+</ul>
+<p class="ni">などからリンクをたどってみてください。</p>
+</section>
+<section id="chap0703" class="level2">
+<a id="page_081"/>
+<h3>プログラミングの基礎</h3>
+<hr class="hr-gray" />
+<p class="in">さて、役に立つのか立たないのかよくわからない基礎はまだ続きます。かなり時代が下がるとエドガー・ダイクストラが登場します。</p>
+<p class="in">彼は“GO TO Statement Considered Harmful”という論文でプログラミング言語には以下の制御の流れがあれば、あらゆるアルゴリズムが表現できると証明しました。</p>
+<ul>
+<li><p>逐次実行</p></li>
+<li><p>条件判断</p></li>
+<li><p>ループ</p></li>
+</ul>
+<p class="in">かつてはプログラミング言語の制御構造には任意の場所にジャンプする<code>GOTO</code>文が必須であると考えられていました。ダイクストラの論文はそんなものは不要で、この3つのわかりやすい制御構造だけですべてが記述できると断言したことで当時としては画期的でした。</p>
+<p class="in">もちろん、私にはその証明は理解できません。が、結論は信じることにします。</p>
+<p class="in">逐次実行とは、命令を順番に実行していくことです。プログラミング言語は普通、並んでいる行を順番に実行します。これが逐次実行です。これを制御と呼ぶのは変な気もしますが、中には各命令の直後に次はどの命令を実行するか指定する変な言語もありますし、さらにひどいことに逐次実行が進む方向（上下左右）を変えることができる2次元プログラミング言語というものもあります。どちらも異様に使いにくいですけどね。後者はジョークとして設計されたものですが、前者は本気だというのが恐いものがあります。</p>
+<p class="in">条件判断とは、ある条件が成立しているときだけ一連の命令を実行するものです。<code>if</code>文のことですね。</p>
+<p class="in">ループは、ある条件が成立するまで実行を繰り返すものです。<code>while</code>文のことですね。</p>
+</section>
+<section id="chap0704" class="level2">
+<h3>if文</h3>
+<hr class="hr-gray" />
+<p class="in">Rubyで条件分岐といえば<code>if</code>です。いや、Rubyでなくても普通のプログラミング言語ではどれも<code>if</code>ですね。</p>
+<p class="in"><code>if</code>の最も単純な形式は以下のようなものです。</p>
+<div class="plist">
+<pre><span class="kwd">if</span> 式
+  文
+<span class="kwd">end</span></pre>
+</div>
+<p class="in"><code>if</code>は式の結果が「真」であれば文を（複数の文があればそれを順番に）実行し、「偽」であれば何も実行しません。</p>
+<p class="in"><code>if</code>を1行に書こうと思えば、式と文の間を明示するために、<code>then</code>かセミコロン（<code>;</code>）を入れる必要があります。</p>
+<div class="plist">
+<pre><span class="kwd">if</span> 式 <span class="kwd">then</span> 文 <span class="kwd">end</span>
+<span class="kwd">if</span> 式 ; 文 <span class="kwd">end</span></pre>
+</div>
+<a id="page_082"/>
+<p class="in">ですから、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> <span class="kwd">true</span>
+  puts <span class="str">&quot;hello&quot;</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">は式（<code>true</code>）の値が真ですから、文である、</p>
+<div class="plist">
+<pre>puts <span class="str">&quot;hello&quot;</span></pre>
+</div>
+<p class="ni">が実行されます。必ず実行されるんじゃ、条件分岐の意味ないですが。</p>
+<p class="in">では、Rubyでは、どのような値が「真」で、どのような値が「偽」なのでしょうか。定義からいえば、</p>
+<ul>
+<li><p><code>false</code>と<code>nil</code>が「偽」</p></li>
+<li><p>「偽」でない値はすべて「真」</p></li>
+</ul>
+<p class="ni">です。ですから、数字の0も文字列の<code>""</code>も含めて、<code>false</code>と<code>nil</code>以外のすべての値は「真」になります。</p>
+<p class="ih">「<code>false</code>」が英語で「偽」ですから、偽なのは当然だと思われます。では<code>nil</code>とはなんでしょう?　英和辞典によれば<code>nil</code>とは、</p>
+<blockquote>
+<p class="in">無、零、ない、存在しない</p>
+</blockquote>
+<p class="ni">という意味なのだそうです。ですから、Rubyにおいても<code>nil</code>は「存在しないことを示す値」です。たとえば、代入されていない変数の中身は<code>nil</code>ですし、配列の範囲を超えて要素を取り出そうとしたときに得られる値も<code>nil</code>です。</p>
+<p class="in">また、Rubyでは一般的に</p>
+<ul>
+<li><p>真として<code>true</code>を返す手続きは偽として<code>false</code>を返す</p></li>
+<li><p>真として<code>true</code>以外を返す手続きは偽として<code>nil</code>を返す</p></li>
+</ul>
+<p class="ni">という慣習があります。たとえば、「<code>defined?()</code>」はある式が定義されていれば、その種別を示す文字列を返しますが、定義されていなければ<code>nil</code>を返します。ですから、</p>
+<div class="plist">
+<pre>defined?(FOOBAR)</pre>
+</div>
+<p class="ni">は（<code>FOOBAR</code>が定義されていなければ）<code>nil</code>を返しますが、</p>
+<div class="plist">
+<pre>defined?(ARGV)</pre>
+</div>
+<p class="ni">は文字列<code>"constant"</code>を返します。やや、余談になりますが、Rubyでは「<code>defined?</code>」のような真偽値を返すもの（述語と呼びます）は名前の末尾に「<code>?</code>」を付ける習慣があります。</p>
+<p class="ih">「偽」として<code>false</code>と<code>nil</code>の両方があることは、ときどき、</p>
+<div class="blockquote">
+<p class="ni">真 – 偽 – 未定義</p>
+</div>
+<p class="ni">という3つの状態を表現するのに使われることがあります。<code>nil</code>は偽というよりも「そもそも条件が成立しない」ということを表現していると考えることができます。</p>
+<a id="page_083"/>
+<p class="in">さて、真偽値についてはここまでにして、また<code>if</code>文に戻りましょう。先ほどは「条件が成立するときにこれを実行する」という<code>if</code>文の一番簡単な形式について説明しましたが、<code>if</code>文にはまだいくつかの形式があります。</p>
+<p class="ih">「条件が成立するときにはこれを、成立しないときにはこっちを」というタイプの条件判断がほしい場合があります。その場合には<code>else</code>の付いた<code>if</code>文を使います。</p>
+<div class="plist">
+<pre><span class="kwd">if</span> 式
+  文1
+<span class="kwd">else</span>
+  文2
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">これは式の値が真であれば文1を、偽であれば文2を実行します。まあ、Rubyに限らず他の言語でも似たような形式ですよね。</p>
+<p class="in">次に「この条件が成立するときにはこれを、別の条件が成立するときにはこっちを、すべての条件が成立しない場合にはこれを」というタイプの条件判断には<code>elsif</code>の付いた<code>if</code>文を使います。</p>
+<div class="plist">
+<pre><span class="kwd">if</span> 式1
+  文1
+<span class="kwd">elsif</span> 式2
+  文2
+<span class="kwd">else</span>
+  文3
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">これは式1の値が真であれば文1を、式2の値が真であれば文2を、すべての式が偽であれば文3を実行します。<code>elsif</code>の部分は実際には好きなだけ繰り返すことができますし、<code>else</code>の部分は省略できます。</p>
+<p class="in">ここで、他の言語の経験がある人は<code>elsif</code>がCのような<code>else if</code>でも、Pythonのような<code>elif</code>でもないことに気を付けてください。PerlやAdaが得意な人は間違えないと思います。もしわからなくなったら、「えるすいふ」と素早く発音すると「えるしふ」になると思い出してください。私が<code>elsif</code>を選んだのはまさにそういう理由からですから。</p>
+<p class="in">RubyにはPerlから引き継いだ<code>if</code>文のもう1つの形式があります。それが「<code>if</code>修飾子」です。<code>if</code>修飾子は「後置<code>if</code>」とも呼ばれていて、文の後ろに<code>if</code>を付けるものです。形式は、</p>
+<div class="plist">
+<pre>文 <span class="kwd">if</span> 式</pre>
+</div>
+<p class="ni">のようなものです。たとえば、</p>
+<div class="plist">
+<pre>puts <span class="str">&quot;hello&quot;</span> <span class="kwd">if</span> a == b</pre>
+</div>
+<p class="ni">は<code>a</code>と<code>b</code>の値が等しければ<code>"hello"</code>を出力します。<code>if</code>は文の後ろに付いていますが、条件チェックは先に行われます。考えてみれば当然のことですが。</p>
+<div class="plist">
+<pre><span class="kwd">if</span> 式 <span class="kwd">then</span> 文 <span class="kwd">end</span></pre>
+</div>
+<a id="page_084"/>
+<p class="ni">と、</p>
+<div class="plist">
+<pre>文 <span class="kwd">if</span> 式</pre>
+</div>
+<p class="ni">はまったく同じ意味です。好きなように使えばよいのですが、お勧めの使い分けとしては、条件を強調するときには普通の<code>if</code>を、文を強調するときには<code>if</code>修飾子を使うというものがあります。</p>
+<p class="in">たとえば、変数<code>$DEBUG</code>がセットされているときにはデバッグ用のメッセージを出力したい場合には、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> $DEBUG
+  puts <span class="str">&quot;this is debug message&quot;</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">とするよりも、</p>
+<div class="plist">
+<pre>puts <span class="str">&quot;this is debug message&quot;</span> <span class="kwd">if</span> $DEBUG</pre>
+</div>
+<p class="ni">としたほうが簡潔な印象があります。</p>
+</section>
+<section id="chap0705" class="level2">
+<h3>unless文</h3>
+<hr class="hr-gray" />
+<p class="in">条件分岐にはもう1つ<code>unless</code>文もあります。<code>unless</code>文は<code>if</code>文のちょうど反対で、条件が成立していないときに文を実行するものです。</p>
+<div class="plist">
+<pre><span class="kwd">unless</span> 式
+  文
+<span class="kwd">end</span></pre>
+</div>
+<a id="page_085"/>
+<p class="in"><code>unless</code>は<code>if not</code>と同じ意味ですから、主に意図を明確にするために用いられます。</p>
+<p class="in"><code>unless</code>文にも<code>if</code>文同様に<code>else</code>を付けることができます。</p>
+<div class="plist">
+<pre><span class="kwd">unless</span> 式
+  文1
+<span class="kwd">else</span>
+  文2
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">これは式の値が偽であれば文1を、真であれば文2を実行します。でもこれは、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> 式
+  文2
+<span class="kwd">else</span>
+  文1
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">と同じですからあんまり意味がないですよね。<code>if</code>には<code>elsif</code>がありますが、<code>unless</code>には<code>unlesif</code>のようなものはありません。<code>if</code>を使ってください。</p>
+<p class="in"><code>unless</code>も<code>if</code>の反対ですから、当然<code>if</code>と同様に修飾子形式が使えます。</p>
+<div class="plist">
+<pre>文 <span class="kwd">unless</span> 式</pre>
+</div>
+<p class="ni">これは式の結果が偽のときだけ文を実行します。</p>
+</section>
+<section id="chap0706" class="level2">
+<h3>while文</h3>
+<hr class="hr-gray" />
+<p class="in">条件分岐の次はループです。ループの最も基本的なものは<code>while</code>です。<code>while</code>の形式は以下のとおりです。</p>
+<div class="plist">
+<pre><span class="kwd">while</span> 式
+  文
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni"><code>while</code>は式の結果が「真」である間、文を（複数の文があればそれを順番に）繰り返し実行し、「偽」になれば繰り返しを終了します。最初に式を評価した結果が「偽」であれば、文はまったく実行しません。</p>
+<p class="in"><code>while</code>を1行に書こうと思えば、式と文の間を明示するために、<code>do</code>かセミコロン（<code>;</code>）を入れる必要があります。</p>
+<div class="plist">
+<pre><span class="kwd">while</span> 式 <span class="kwd">do</span> 文 <span class="kwd">end</span>
+<span class="kwd">while</span> 式 ; 文 <span class="kwd">end</span></pre>
+</div>
+<p class="in"><code>while</code>にも修飾子形式があります。形式は、</p>
+<div class="plist">
+<pre>文 <span class="kwd">while</span> 式</pre>
+</div>
+<p class="ni">になり、これは、</p>
+<div class="plist">
+<pre><span class="kwd">while</span> 式
+  文
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">とまったく同じ意味です。まったく同じ意味ということは、修飾子形式では、後ろのほうに登場していても、式のほうが先に評価されるということです。</p>
+<p class="in">ただ、ループの場合本体を毎回実行して、繰り返しの終了条件のチェックはループの最後に行いたい場合があります。そのためにPascalでは<code>repeat .. until</code>という文がありますし、Cにも<code>do .. while</code>があります。</p>
+<p class="in">Rubyでは、そういう場合には後述の<code>break</code>を使う方法もありますが、<code>begin</code>と<code>while</code>修飾子というものもあります。</p>
+<div class="plist">
+<pre><span class="kwd">begin</span>
+  文
+<span class="kwd">end</span> <span class="kwd">while</span> 式</pre>
+</div>
+<a id="page_086"/>
+<p class="ni">という形式の場合、まず文を実行し、次に式を評価します。<code>begin</code>には<code>rescue</code>や<code>ensure</code>を付けてはいけません<a href="#fn2" class="footnote-ref" id="fnref2" epub:type="noteref" role="doc-noteref">2</a>。</p>
+</section>
+<section id="chap0707" class="level2">
+<h3>until文</h3>
+<hr class="hr-gray" />
+<p class="in"><code>if</code>に対して<code>unless</code>があるように、<code>while</code>に対しては<code>until</code>があります。</p>
+<div class="plist">
+<pre><code><span class="kwd">until</span> 式
+  文
+<span class="kwd">end</span></code></pre>
+</div>
+<p class="in"><code>until</code>は式が偽である間、文を繰り返します。また、<code>while</code>同様に<code>until</code>にも修飾子形式があり、<code>begin</code>文に付加されると式の評価の前に文を実行する点も同じです。</p>
+</section>
+<section id="chap0708" class="level2">
+<h3>ループの中断</h3>
+<hr class="hr-gray" />
+<p class="in">先ほど説明したとおり、逐次実行、条件分岐、ループの3つがあれば任意のアルゴリズムが記述できるのですが、とはいえ途中でジャンプできると便利なこともあります。</p>
+<p class="in">ジャンプといえば<code>goto</code>ですが、残念なことに（または幸いなことに）Rubyには<code>goto</code>はありません。その代わりもうちょっと「高級な」ジャンプがいくつかあります。今回はそのうちループに関するものを紹介しましょう。</p>
+<p class="in">ループに関するジャンプは以下の3つです。</p>
+<div class="description">
+<p class="ditem"><code>break</code></p>
+<p class="dni">現在実行中のループを中断します。これを使えば最後に条件チェックするループも簡単に記述できます。</p>
+<div class="plistd">
+<pre><span class="kwd">while</span> <span class="kwd">true</span>
+  文
+  <span class="kwd">break</span> <span class="kwd">if</span> 式
+<span class="kwd">end</span></pre>
+</div>
+<p class="dni">ここでは<code>while true</code>で無限ループを表現しています。で、文を実行したあとで条件をチェックして、それが成立していれば<code>break</code>で繰り返しを中断するわけです。あるいは、<code>begin</code>と<code>while</code>修飾子の組み合わせよりもこっちのほうがわかりやすいかもしれませんね。</p>
+<a id="page_087"/>
+<p class="ditem"><code>next</code></p>
+<p class="dni">ループ本体の実行を中断して末尾までジャンプします。主に以下のような使い方をします。</p>
+<div class="plistd">
+<pre><span class="kwd">while</span> line = gets()   <span class="cmt"># 1行ずつ読み込み</span>
+  <span class="kwd">next</span> <span class="kwd">if</span> line == <span class="str">&quot;&quot;</span>  <span class="cmt"># 空行なら処理しない</span>
+  文                  <span class="cmt"># lineに対する処理</span>
+<span class="str">end</span></pre>
+</div>
+<p class="dni">C言語の<code>continue</code>に相当します。<code>continue</code>という名前でないのは<code>next</code>のほうが短いからです。Perlでも<code>next</code>ですね。</p>
+<p class="ditem"><code>redo</code></p>
+<p class="dni">ループ本体の実行を最初からやり直します。つまり条件チェックの直前にジャンプします。C言語にも相当するジャンプがないことからもわかるようにあまり使われません。</p>
+</div>
+<p class="in">これらのジャンプをまとめると、<a href="#fig0702">図7.2</a>のようになります。</p>
+<div class="fig" id="fig0702">
+  <!-- <div class="image60"> -->
+  <div class="image500">
+      <img src="../image/ch07/07-2.jpg" alt="fig0702" />
+  </div>
+  <p class="fig-caption">図7.2●ループを中断するジャンプ</p>
+</div>
+</section>
+<section id="chap0709" class="level2">
+<h3>for文</h3>
+<hr class="hr-gray" />
+<p class="in">配列などの要素それぞれに対して繰り返すためには、<code>while</code>のような単純なループよりも<code>for</code>のほうが便利です。たとえば、配列要素を出力するのであれば、<code>while</code>文を使うなら、</p>
+<div class="plist">
+<pre>i=0
+<span class="kwd">while</span> i&lt;ary.size
+  puts ary[i]
+  i+=1
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">のように、やや面倒になりますが、<code>for</code>を使えば、</p>
+<div class="plist">
+<pre><span class="kwd">for</span> i <span class="kwd">in</span> ary
+  puts i
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">と単純になります。<code>for</code>は実際にはこのあと説明するイテレータを使って実現されています。</p>
+</section>
+<section id="chap0710" class="level2">
+<h3>イテレータ</h3>
+<hr class="hr-gray" />
+<p class="in">イテレータは奥が深いので、この先連載1回分まるまる使って説明しようと思いますが、簡単にいうとメソッドの一種で「ユーザーが定義できる制御構造」です。</p>
+<p class="in">先ほどの<code>for</code>も内部的にイテレータを使って実現されています。ここでは仕組みは説明せず、いくつか便利なイテレータを紹介するだけにとどめます。</p>
+<div class="plist">
+<pre>loop <span class="str">do</span>        <span class="cmt"># loopは無限ループするイテレータです</span>
+  文
+<span class="kwd">end</span>
+
+3.times <span class="kwd">do</span>     <span class="cmt"># 文を3回繰り返します</span>
+  文
+<span class="kwd">end</span>
+
+ary.each <span class="kwd">do</span>|i| <span class="cmt"># forは内部的にこれと同じことをしています</span>
+  文
+<span class="kwd">end</span></pre>
+</div>
+</section>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" epub:type="footnotes">
+<hr />
+<ol>
+<li epub:type="footnote" id="fn1">
+<p>映画「ブレードランナー」でレプリカントを区別するためのテスト。
+<a href="#fnref1" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+<li epub:type="footnote" id="fn2">
+<p>でもねえ、あるので紹介しますけど、あんまりわかりやすい文法じゃなかったですよねえ。失敗か（苦笑）。
+<a href="#fnref2" class="footnote-back" role="doc-backlink">↑</a></p>
+</li>
+</ol>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-009.xhtml">&lt;&lt; 前ページ</a>　<a href="p-011.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>

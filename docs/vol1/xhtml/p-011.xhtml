@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+ xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:epub="http://www.idpf.org/2007/ops"
+ xml:lang="ja"
+ class="hltr"
+>
+<head>
+<meta charset="UTF-8"/>
+<title>第7章 条件判断とループ</title>
+<link rel="stylesheet" type="text/css" href="../../style/book-style.css"/>
+</head>
+<body epub:type="bodymatter">
+<!-- Navigation -->
+<h1>Matz Essays Volume 1</h1>
+<p class="navigation-top"><a href="../../index.xhtml">HOME</a>　&gt;　<a href="../index.xhtml">Volume 1</a>　&gt;　<a href="p-010.xhtml">第7章</a>　&gt;　知られざるRuby</p>
+<!-- Body -->
+<a id="page_088"/>
+<section id="chap0711" class="level2">
+<h3>◆ 知られざるRuby ◆ end</h3>
+<hr class="hr-blue" />
+<p class="in">前回はファイルをオープンするメソッド<code>open</code>について探求しましたが、今回は制御構造ということで、Rubyの制御構造を構成する重要なキーワード<code>end</code>について考えてみます。</p>
+<p class="in">文のまとまりを表現する方法はプログラミング言語ごとにそれぞれあります。たとえば、Cであれば、</p>
+<div class="plist">
+<pre>{ 文; }</pre>
+</div>
+<p class="ni">でしょうし、Pascalであれば、</p>
+<div class="plist">
+<pre><span class="kwd">begin</span> 文 <span class="kwd">end</span></pre>
+</div>
+<p class="ni">でしょう。また、Pythonのように「インデントの深さで決める」という変わり種もあります。Pythonでは、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> a == b:
+  foo
+  bar
+baz</pre>
+</div>
+<p class="ni">というふうにして文のまとまりの範囲を決めます。上の例をRuby的に書けば、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> a == b
+  foo
+  bar
+<span class="kwd">end</span>
+baz</pre>
+</div>
+<p class="ni">という感じでしょうか。簡潔ですし（Rubyより1行少ないですね）、この形式を好む人もいます。</p>
+<a id="page_089"/>
+<p class="in">文のまとめ方はそれぞれですが、実は大きく分けると、</p>
+<ul>
+<li><p>複文派</p></li>
+<li><p>ブロック派</p></li>
+</ul>
+<p class="ni">に分かれるのだということをご存じでしたでしょうか。複文派とは「複数の文を文かっこでくくったものは1つの文である」とする言語です。たとえば <code>{}</code> を文かっことするCや、<code>begin</code>, <code>end</code>を文かっこにするPascalは複文派です。この派の言語では、単文が置けるところにはどこにでも複文が置けるというルールがあります。ですから、たとえばCの条件式で、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> (a == b)
+  foo;</pre>
+</div>
+<p class="ni">と書いたものは、<code>foo</code>の部分を複数の文に置き換えたければ、<code>{}</code> でくくった複数の文を置けばよいわけです。</p>
+<div class="plist">
+<pre><span class="kwd">if</span> (a == b) {
+  foo;
+  bar;
+}</pre>
+</div>
+<p class="in">このやり方には2つほど問題があります。1つは単文から複文への書き換えが面倒なことです。たとえば上記の変更では、ただ<code>bar</code>という文が追加したいだけなのに、<code>foo</code>の前に <code>{</code> を、<code>bar</code>の後ろに <code>}</code> を追加する必要があります。</p>
+<p class="in">もう1つの問題は「ぶらさがり<code>else</code>」という問題です。またまたCの例になりますが、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> (a == b)
+  <span class="kwd">if</span> (c == 5)
+    foo;
+<span class="kwd">else</span>
+  bar</pre>
+</div>
+<p class="ni">と書いてあった場合、これをどう解釈しますか?</p>
+<div class="plist">
+<pre><span class="kwd">if</span> (a == b) {
+  <span class="kwd">if</span> (c == 5) {
+    foo;
+  }
+}
+<span class="kwd">else</span> {
+  bar;
+}</pre>
+</div>
+<p class="ni">と解釈したくなるでしょうが、実際にはインデントに関係なく、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> (a == b) {
+  <span class="kwd">if</span> (c == 5) {
+    foo;
+  }
+  <span class="kwd">else</span> {
+    bar;
+  }
+}</pre>
+</div>
+<a id="page_090"/>
+<p class="ni">と解釈されます。</p>
+<p class="in">もう一方のブロック派は複文を取る文はいつもブロック（文のまとまり）を取ることが決まっている言語です。ブロック派言語には上記の2つの問題は存在しません。たとえばRubyであれば、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> a == b
+  foo
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">に<code>bar</code>を追加したければ、ただ<code>foo</code>の後ろの行に追加するだけです。他の部分を変更する必要はありません。「ぶらさがり<code>else</code>問題」についても</p>
+<div class="plist">
+<pre><span class="kwd">if</span> a == b
+  <span class="kwd">if</span> c == 5
+    foo
+  <span class="kwd">end</span>
+<span class="kwd">else</span>
+  bar
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">と、</p>
+<div class="plist">
+<pre><span class="kwd">if</span> a == b
+  <span class="kwd">if</span> c == 5
+    foo
+  <span class="kwd">else</span>
+    bar
+  <span class="kwd">end</span>
+<span class="kwd">end</span></pre>
+</div>
+<p class="ni">は明らかに異なりますから、混乱を招く可能性はありません。このようにユーザーにとっての使いやすさの観点からみれば、ブロック派言語の圧勝といえるでしょう。最近開発された言語ではブロック派が主流になっているように感じられます。たとえば、Rubyと同じスクリプト言語に分類されるものに限っても、</p>
+<ul>
+<li><p>まとまりはいつも <code>{}</code> でくくる必要があるPerl</p></li>
+<li><p>まとまりはインデントで表すPython</p></li>
+<li><p>まとまりの終わりを<code>end</code>で表すRuby</p></li>
+</ul>
+<a id="page_091"/>
+<p class="ni">はいずれもブロック派言語です。上記の3つの言語では同じブロック派でも記法がそれぞれまったく異なるのが面白いですね。</p>
+<p class="in">Rubyを初めて見た人は<code>end</code>による文区切りが結構異様に感じられるようです。<code>end</code>を使う言語の中で最も有名なPascalの人気が下降する一方ですから無理もないのかもしれません。</p>
+<p class="in">では、Rubyはなぜ<code>end</code>を文の区切りに選んだのでしょうか。</p>
+<p class="in">それにはいくつかの理由があります。</p>
+<div class="description">
+<p class="ditem"><code>end</code>はAlgolから続く伝統的な文区切り</p>
+<p class="dni">Rubyは比較的「保守的」な部分があります。最近優勢なC, C++, Javaとは違いますが、<code>end</code>にはここ数十年文区切りとして使われてきた伝統があります。</p>
+<p class="ditem"><code>begin</code>や<code>case</code>がきれい</p>
+<p class="dni">たとえば現在のRubyでは<code>begin</code>文は以下のような構文になります。</p>
+<div class="plistd">
+<pre><span class="kwd">begin</span>
+  文
+<span class="kwd">rescue</span> 例外クラス
+  文
+<span class="kwd">ensure</span>
+  文
+<span class="kwd">end</span></pre>
+</div>
+<p class="dni">仮にこの構文を <code>{}</code> で表現しようと思うと以下のようになるでしょう。</p>
+<div class="plistd">
+<pre><span class="kwd">begin</span> {
+  文
+}
+<span class="kwd">rescue</span>(例外クラス) {
+  文
+}
+<span class="kwd">ensure</span> {
+  文
+}</pre>
+</div>
+<p class="dni">なんだか間が抜けているようですし、あまりきれいではありません。<code>case</code>文でも同じような状況があります。ま、主観や趣味の問題かもしれませんが。</p>
+<p class="ditem">オートインデントが可能</p>
+<p class="dni">Emacsであればruby-modeを使ってオートインデントができます。予約語を使った言語のオートインデントは記号を使ったものよりも難しいのですが、ruby-modeによってオートインデントが可能になる見通しがついたことで<code>end</code>を採用する決心がついたというのは正直な話です。</p>
+</div>
+<p class="in">とはいえ<code>end</code>に欠点がないわけでもないです。</p>
+<div class="description">
+<p class="ditem">文区切りに別の行が必要となるので行数が増える</p>
+<p class="dni">しかし、逆に文の並びの終わりがはっきりわかってよいという側面もありますから、行が増えることがただちに問題であるということにはなりません。</p>
+<p class="ditem">文区切りが識別子と区別がつきにくく埋没しがち</p>
+<p class="dni">最近のエディタは予約語に色が付けられますから、この点はさして問題にならないかもしれません。</p>
+</div>
+</section>
+<!-- Navigation -->
+<br /><br />
+<hr />
+<p class="navigation-right"><a href="p-010.xhtml">&lt;&lt; 前ページ</a>　<a href="p-012.xhtml">次ページ &gt;&gt;</a></p>
+</body>
+</html>
